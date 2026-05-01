@@ -40,6 +40,17 @@ const getLocalDateToken = (): string => {
 const CAMPAIGN_TOKEN =
   process.env.SCHEDULE_RESCHEDULE_TOKEN || `campaign_${getLocalDateToken()}`;
 
+const GLOBAL_BLOCKED_COMMENTER_ACCOUNT_IDS = new Set([
+  "b6x2k9w3",
+  "pixelninja3",
+  "ahffkekd12",
+  "dhtksk1p",
+]);
+
+const BLOCKED_COMMENTER_ACCOUNT_IDS_BY_CAFE_ID: Record<string, Set<string>> = {
+  "25729954": new Set(),
+};
+
 interface ScheduleItem {
   cafe: string;
   cafeId: string;
@@ -150,6 +161,35 @@ const OVERRIDE_SCHEDULE: ScheduleItem[] = [
   { cafe: "쇼핑지름신", cafeId: "25729954", keyword: "다이소 리빙박스 퇴근길 품절 확인", category: "일상톡톡", type: "daily", accountId: "nes1p2kx", time: "23:35" },
 ];
 
+const getEligibleCommenterIds = (
+  commenterIds: string[],
+  cafeId: string,
+): string[] => {
+  const cafeBlockedIds = BLOCKED_COMMENTER_ACCOUNT_IDS_BY_CAFE_ID[cafeId];
+
+  return commenterIds.filter(
+    (accountId) =>
+      !GLOBAL_BLOCKED_COMMENTER_ACCOUNT_IDS.has(accountId) &&
+      !cafeBlockedIds?.has(accountId),
+  );
+};
+
+const createWriterResolver = (writerAccountIds: string[]) => {
+  const cursorByCafeId = new Map<string, number>();
+  const writerAccountIdSet = new Set(writerAccountIds);
+
+  return ({ accountId, cafeId }: ScheduleItem): string => {
+    if (writerAccountIdSet.has(accountId)) {
+      return accountId;
+    }
+
+    const cursor = cursorByCafeId.get(cafeId) ?? 0;
+    const writerAccountId = writerAccountIds[cursor % writerAccountIds.length];
+    cursorByCafeId.set(cafeId, cursor + 1);
+    return writerAccountId;
+  };
+};
+
 const parseTitle = (text: string): string => {
   const match = text.match(/\[제목\]\s*\n?([\s\S]*?)(?=\n\[본문\]|\[본문\])/);
   return match ? match[1].trim() : "";
@@ -188,9 +228,14 @@ const main = async (): Promise<void> => {
     isActive: true,
   }).lean();
   const accountMap = new Map(accounts.map((a) => [a.accountId, a]));
+  const writerAccountIds = accounts
+    .filter((a) => a.role === "writer")
+    .map((a) => a.accountId);
   const commenterIds = accounts
     .filter((a) => a.role === "commenter")
     .map((a) => a.accountId);
+
+  if (writerAccountIds.length === 0) throw new Error("writer 계정 없음");
 
   const activeSchedule = OVERRIDE_SCHEDULE.length > 0 ? OVERRIDE_SCHEDULE : SCHEDULE;
   const filteredSchedule = activeSchedule.filter((item) => {
@@ -201,7 +246,11 @@ const main = async (): Promise<void> => {
 
   console.log(`=== 스케줄 큐 추가 ===`);
   console.log(
-    `user: ${LOGIN_ID} / writers: ${filteredSchedule.length}건 / commenters: ${commenterIds.length}명 / startFilter: ${SCHEDULE_START_TIME || "-"} / endFilter: ${SCHEDULE_END_TIME || "-"}\n`,
+    `user: ${LOGIN_ID} / jobs: ${filteredSchedule.length}건 / writers: ${writerAccountIds.length}명 / commenters: ${commenterIds.length}명 / startFilter: ${SCHEDULE_START_TIME || "-"} / endFilter: ${SCHEDULE_END_TIME || "-"}`,
+  );
+  console.log(`writer accounts: ${writerAccountIds.join(", ")}`);
+  console.log(
+    `commenter blocked: global=${Array.from(GLOBAL_BLOCKED_COMMENTER_ACCOUNT_IDS).join(", ")} / shopping=${Array.from(BLOCKED_COMMENTER_ACCOUNT_IDS_BY_CAFE_ID["25729954"]).join(", ")}\n`,
   );
 
   let totalPosts = 0;
@@ -212,8 +261,20 @@ const main = async (): Promise<void> => {
   const sortedSchedule = [...filteredSchedule].sort((a, b) =>
     a.time.localeCompare(b.time),
   );
+  const resolveWriterAccountId = createWriterResolver(writerAccountIds);
+  const scheduledRows = sortedSchedule.map((item) => {
+    const writerAccountId = resolveWriterAccountId(item);
+    const eligibleCommenterIds = getEligibleCommenterIds(commenterIds, item.cafeId);
 
-  for (const item of sortedSchedule) {
+    return { item, writerAccountId, eligibleCommenterIds };
+  });
+  const remappedWriterCount = scheduledRows.filter(
+    ({ item, writerAccountId }) => item.accountId !== writerAccountId,
+  ).length;
+
+  console.log(`writer remap: ${remappedWriterCount}건`);
+
+  for (const { item, writerAccountId, eligibleCommenterIds } of scheduledRows) {
     const delayMs = getDelayMs(item.time);
     const cafe = cafeMap.get(item.cafeId);
     if (!cafe) {
@@ -222,17 +283,18 @@ const main = async (): Promise<void> => {
       continue;
     }
 
-    const account = accountMap.get(item.accountId);
+    const account = accountMap.get(writerAccountId);
     if (!account) {
-      console.log(`❌ 계정 없음: ${item.accountId}`);
+      console.log(`❌ 계정 없음: ${writerAccountId}`);
       failCount++;
       continue;
     }
 
     const typeLabels: Record<string, string> = { ad: "광고", daily: "일상", "daily-ad": "일상광고" };
     const typeLabel = typeLabels[item.type] || item.type;
+    const remapLabel = writerAccountId === item.accountId ? "" : ` (from ${item.accountId})`;
     process.stdout.write(
-      `[${item.time}] ${item.cafe} ${item.accountId} ${typeLabel} "${item.keyword}" ... `,
+      `[${item.time}] ${item.cafe} ${writerAccountId}${remapLabel} ${typeLabel} "${item.keyword}" ... `,
     );
 
     try {
@@ -269,7 +331,7 @@ const main = async (): Promise<void> => {
 
       const jobData: PostJobData = {
         type: "post",
-        accountId: item.accountId,
+        accountId: writerAccountId,
         userId: user.userId,
         cafeId: item.cafeId,
         menuId: cafe.menuId,
@@ -279,7 +341,7 @@ const main = async (): Promise<void> => {
         keyword: item.keyword,
         category: item.category,
         postType: item.type,
-        commenterAccountIds: commenterIds,
+        commenterAccountIds: eligibleCommenterIds,
         rescheduleToken: CAMPAIGN_TOKEN,
         ...(isDailyAd && {
           skipComments: true,
@@ -296,7 +358,7 @@ const main = async (): Promise<void> => {
         ...(!isDailyAd && { viralComments }),
       };
 
-      await addTaskJob(item.accountId, jobData, delayMs);
+      await addTaskJob(writerAccountId, jobData, delayMs);
       totalPosts++;
       console.log(
         `✅ [${title.slice(0, 25)}...] (${Math.round(delayMs / 60000)}분 후)`,
