@@ -41,7 +41,6 @@ const CAMPAIGN_TOKEN =
   process.env.SCHEDULE_RESCHEDULE_TOKEN || `campaign_${getLocalDateToken()}`;
 
 const GLOBAL_BLOCKED_COMMENTER_ACCOUNT_IDS = new Set([
-  "b6x2k9w3",
   "pixelninja3",
   "ahffkekd12",
   "dhtksk1p",
@@ -130,7 +129,7 @@ const OVERRIDE_SCHEDULE: ScheduleItem[] = [
   { cafe: "건강한노후준비", cafeId: "25636798", keyword: "와이프 출산선물", category: "자유게시판", type: "ad", keywordType: "own", accountId: "compare14310", time: "20:30" },
   { cafe: "건강관리소", cafeId: "25227349", keyword: "45세 임신 확률", category: "오늘의 운동", type: "ad", keywordType: "own", accountId: "ghostrush7", time: "20:35" },
   { cafe: "쇼핑지름신", cafeId: "25729954", keyword: "자연드림 흑염소", category: "일반 쇼핑후기", type: "ad", keywordType: "competitor-advocacy", accountId: "nes1p2kx", time: "20:40" },
-  { cafe: "건강한노후준비", cafeId: "25636798", keyword: "흑염소 한마리", category: "흑염소진액정보", type: "ad", keywordType: "own", accountId: "b6x2k9w3", time: "20:45" },
+  { cafe: "건강한노후준비", cafeId: "25636798", keyword: "흑염소 한마리", category: "흑염소진액정보", type: "ad", keywordType: "own", accountId: "regular14631", time: "20:45" },
   { cafe: "샤넬오픈런", cafeId: "25460974", keyword: "셀린느 트리오페 틴 탠 컬러 수요일에도 고민", category: "_ 일상샤반사 📆", type: "daily-ad", accountId: "mh8j62wm", time: "20:50" },
   { cafe: "건강관리소", cafeId: "25227349", keyword: "나팔관조영술 실비", category: "건강 관리 후기", type: "ad", keywordType: "own", accountId: "q9v3m7a2", time: "20:55" },
   { cafe: "쇼핑지름신", cafeId: "25729954", keyword: "흑염소중탕", category: "일반 쇼핑후기", type: "ad", keywordType: "competitor-advocacy", accountId: "angrykoala270", time: "21:00" },
@@ -153,7 +152,7 @@ const OVERRIDE_SCHEDULE: ScheduleItem[] = [
   { cafe: "건강한노후준비", cafeId: "25636798", keyword: "산후 호박즙", category: "한약재정보", type: "ad", keywordType: "own", accountId: "fail5644", time: "22:35" },
   { cafe: "건강관리소", cafeId: "25227349", keyword: "산후도우미 지원기간", category: "건강 챌린지", type: "ad", keywordType: "own", accountId: "compare14310", time: "22:45" },
   { cafe: "건강한노후준비", cafeId: "25636798", keyword: "붕어탕 몸보신", category: "한약재정보", type: "ad", keywordType: "own", accountId: "ghostrush7", time: "22:55" },
-  { cafe: "건강관리소", cafeId: "25227349", keyword: "제왕절개 회복기간", category: "오늘의 운동", type: "ad", keywordType: "own", accountId: "b6x2k9w3", time: "23:10" },
+  { cafe: "건강관리소", cafeId: "25227349", keyword: "제왕절개 회복기간", category: "오늘의 운동", type: "ad", keywordType: "own", accountId: "regular14631", time: "23:10" },
   { cafe: "샤넬오픈런", cafeId: "25460974", keyword: "모두가 자신의 무가치함과 싸우고 있다 보고 가든파티 검색", category: "_ 일상샤반사 📆", type: "daily", accountId: "mh8j62wm", time: "23:00" },
   { cafe: "쇼핑지름신", cafeId: "25729954", keyword: "스타벅스 라이트 핑크 자몽 피지오 쿠폰 고민", category: "일상톡톡", type: "daily", accountId: "angrykoala270", time: "23:05" },
   { cafe: "샤넬오픈런", cafeId: "25460974", keyword: "오늘도 매진했습니다 보면서 샤넬 코코핸들 검색", category: "_ 일상샤반사 📆", type: "daily", accountId: "tinyfish183", time: "23:20" },

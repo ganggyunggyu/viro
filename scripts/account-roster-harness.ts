@@ -46,7 +46,6 @@ export const ACCOUNT_ROSTER: AccountRosterItem[] = [
   { accountId: 'fail5644', nickname: '고구마스틱2', password: 'akfalwk12!', role: 'commenter', isActive: true },
   { accountId: 'compare14310', nickname: '룰루랄라 2', password: 'akfalwk12!', role: 'commenter', isActive: true },
   { accountId: 'ghostrush7', nickname: '실눈캐', password: 'dashrun1!', role: 'commenter', isActive: true },
-  { accountId: 'b6x2k9w3', nickname: '웅이', password: 'y5t1p8?m3q', role: 'commenter', isActive: true },
   { accountId: 'q9v3m7a2', nickname: '포비', password: 'n4x8k2!r6p', role: 'commenter', isActive: true },
   { accountId: 'laghunter8', nickname: '도도', password: 'fastplay7?', role: 'commenter', isActive: true },
   { accountId: 'eghfsa5478', nickname: '오세아니야', password: 'akfakfalalwkwk12', role: 'commenter', isActive: true },

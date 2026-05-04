@@ -4,7 +4,6 @@ const SPECIAL_WRITER_ACCOUNT_IDS = new Set([
   '4giccokx',
   'uqgidh2690',
   'eytkgy5500',
-  'yenalk',
   'olgdmp9921',
   'regular14631',
   'nes1p2kx',
