@@ -103,40 +103,68 @@ const deleteOnMobilePage = async (
   });
   await page.waitForTimeout(3500);
 
-  const clickedOption = await page.evaluate(function (oldContent) {
-    const targetText = oldContent.replace(/\s+/g, '').replace(/[.,…~ㅋㅎㅠㅜ]/g, '').trim().slice(0, 35);
-    const elements = Array.from(document.querySelectorAll('body *')) as HTMLElement[];
-    const candidates = elements
-      .filter((element) => (element.textContent || '').replace(/\s+/g, '').replace(/[.,…~ㅋㅎㅠㅜ]/g, '').trim().includes(targetText))
-      .sort((left, right) => (left.textContent || '').length - (right.textContent || '').length);
+  const textProbes = [
+    target.oldContent,
+    target.oldContent.slice(0, 24),
+    target.oldContent.split(/\s+/).slice(0, 5).join(' '),
+  ].filter((probe, index, array) => probe.trim() && array.indexOf(probe) === index);
 
-    for (const candidate of candidates) {
-      let current: HTMLElement | null = candidate;
-      for (let depth = 0; depth < 8 && current; depth += 1) {
-        const optionButton = current.querySelector('button.btn_more, button[aria-label*="옵션"]') as HTMLButtonElement | null;
-        if (optionButton) {
-          optionButton.click();
-          return true;
+  let clickedOption = false;
+  for (const probe of textProbes) {
+    try {
+      const targetText = page.getByText(probe, { exact: false }).first();
+      await targetText.waitFor({ timeout: 2500 });
+      const optionButton = targetText
+        .locator('xpath=ancestor-or-self::*[.//button[contains(@class,"btn_more")] and string-length(normalize-space(.)) < 1500][1]//button[contains(@class,"btn_more")]')
+        .first();
+      await optionButton.click({ timeout: 2500 });
+      clickedOption = true;
+      break;
+    } catch {}
+  }
+
+  if (!clickedOption) {
+    clickedOption = await page.evaluate(function (oldContent) {
+      const normalizeText = (value: string): string => {
+        return value.replace(/\s+/g, '').replace(/[.,…~ㅋㅎㅠㅜ]/g, '').trim();
+      };
+      const targetText = normalizeText(oldContent).slice(0, 35);
+      const buttons = Array.from(document.querySelectorAll('button.btn_more')) as HTMLButtonElement[];
+
+      for (const button of buttons) {
+        let current: HTMLElement | null = button.parentElement;
+        for (let depth = 0; depth < 10 && current; depth += 1) {
+          const currentText = normalizeText(current.textContent || '');
+          if (currentText.includes(targetText) && currentText.length < 1500) {
+            button.click();
+            return true;
+          }
+          current = current.parentElement;
         }
-        current = current.parentElement;
       }
-    }
 
-    return false;
-  }, target.oldContent);
+      return false;
+    }, target.oldContent);
+  }
 
   if (!clickedOption) return false;
   await page.waitForTimeout(1000);
 
   const clickedDelete = await page.evaluate(function () {
     const buttons = Array.from(document.querySelectorAll('button, a')) as HTMLElement[];
-    const deleteButton = buttons.find((button) => (button.textContent || '').trim() === '삭제');
+    const deleteButton = buttons.find((button) => {
+      const label = (button.textContent || '').trim();
+      return label === '삭제' || label === '삭제하기';
+    });
     if (!deleteButton) return false;
     deleteButton.click();
     return true;
   });
 
-  if (!clickedDelete) return false;
+  if (!clickedDelete) {
+    console.log(`[REWRITE] 모바일 삭제 버튼 못 찾음: ${target.articleId} ${target.accountId}`);
+    return false;
+  }
   await page.waitForTimeout(1000);
 
   await page.evaluate(function () {
