@@ -7,7 +7,7 @@ import { formatComments } from "./format-comments-claude-tab";
 
 const SHEET_ID = "1gyipTIEogC9Qopj8w3ggBmD0k5KvAw6yNdIMXQDnwms";
 const OUT_TAB = "카페원고_0518_v2";
-const MANIFEST = "/tmp/v3-prompts/manifest.json";
+const MANIFEST = "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/manifest.json";
 
 interface ManifestItem {
   idx: number;

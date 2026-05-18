@@ -1,0 +1,162 @@
+[
+  {
+    "idx": 1,
+    "keyword": "자궁경부확대경검사 결과",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/01-자궁경부확대경검사_결과.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/01-자궁경부확대경검사_결과.output.txt",
+    "refCount": 10,
+    "promptLen": 4124
+  },
+  {
+    "idx": 2,
+    "keyword": "노산임신 준비",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/02-노산임신_준비.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/02-노산임신_준비.output.txt",
+    "refCount": 10,
+    "promptLen": 4040
+  },
+  {
+    "idx": 3,
+    "keyword": "임신검사 종류",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/03-임신검사_종류.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/03-임신검사_종류.output.txt",
+    "refCount": 10,
+    "promptLen": 4022
+  },
+  {
+    "idx": 4,
+    "keyword": "임신15주차 태동",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/04-임신15주차_태동.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/04-임신15주차_태동.output.txt",
+    "refCount": 10,
+    "promptLen": 4007
+  },
+  {
+    "idx": 5,
+    "keyword": "계류유산 회복",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/05-계류유산_회복.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/05-계류유산_회복.output.txt",
+    "refCount": 10,
+    "promptLen": 4032
+  },
+  {
+    "idx": 6,
+    "keyword": "임신확인시기 테스트기",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/06-임신확인시기_테스트기.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/06-임신확인시기_테스트기.output.txt",
+    "refCount": 10,
+    "promptLen": 4079
+  },
+  {
+    "idx": 7,
+    "keyword": "임신초기 갈색냉 양",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/07-임신초기_갈색냉_양.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/07-임신초기_갈색냉_양.output.txt",
+    "refCount": 10,
+    "promptLen": 4058
+  },
+  {
+    "idx": 8,
+    "keyword": "임신9주차 입덧",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/08-임신9주차_입덧.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/08-임신9주차_입덧.output.txt",
+    "refCount": 10,
+    "promptLen": 4057
+  },
+  {
+    "idx": 9,
+    "keyword": "임신12주차 안정기",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/09-임신12주차_안정기.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/09-임신12주차_안정기.output.txt",
+    "refCount": 10,
+    "promptLen": 4028
+  },
+  {
+    "idx": 10,
+    "keyword": "임신전검사 항목",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/10-임신전검사_항목.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/10-임신전검사_항목.output.txt",
+    "refCount": 10,
+    "promptLen": 4088
+  },
+  {
+    "idx": 11,
+    "keyword": "신혼부부 산전검사 무료",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/11-신혼부부_산전검사_무료.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/11-신혼부부_산전검사_무료.output.txt",
+    "refCount": 10,
+    "promptLen": 4116
+  },
+  {
+    "idx": 12,
+    "keyword": "임신9주차 초음파",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/12-임신9주차_초음파.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/12-임신9주차_초음파.output.txt",
+    "refCount": 10,
+    "promptLen": 4072
+  },
+  {
+    "idx": 13,
+    "keyword": "임신초기 어지러움 빈혈",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/13-임신초기_어지러움_빈혈.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/13-임신초기_어지러움_빈혈.output.txt",
+    "refCount": 10,
+    "promptLen": 4087
+  },
+  {
+    "idx": 14,
+    "keyword": "임신10주차 피로",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/14-임신10주차_피로.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/14-임신10주차_피로.output.txt",
+    "refCount": 10,
+    "promptLen": 4127
+  },
+  {
+    "idx": 15,
+    "keyword": "임신초기 입덧 음식",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/15-임신초기_입덧_음식.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/15-임신초기_입덧_음식.output.txt",
+    "refCount": 10,
+    "promptLen": 4065
+  },
+  {
+    "idx": 16,
+    "keyword": "임신 산전검사 시기",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/16-임신_산전검사_시기.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/16-임신_산전검사_시기.output.txt",
+    "refCount": 10,
+    "promptLen": 4042
+  },
+  {
+    "idx": 17,
+    "keyword": "임신8주차 출혈",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/17-임신8주차_출혈.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/17-임신8주차_출혈.output.txt",
+    "refCount": 10,
+    "promptLen": 4090
+  },
+  {
+    "idx": 18,
+    "keyword": "임신초기 변비 음식",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/18-임신초기_변비_음식.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/18-임신초기_변비_음식.output.txt",
+    "refCount": 10,
+    "promptLen": 4111
+  },
+  {
+    "idx": 19,
+    "keyword": "산전검사 보건소",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/19-산전검사_보건소.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/19-산전검사_보건소.output.txt",
+    "refCount": 10,
+    "promptLen": 4083
+  },
+  {
+    "idx": 20,
+    "keyword": "자연분만 회음부 회복",
+    "promptFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/20-자연분만_회음부_회복.prompt.md",
+    "outFile": "/Users/ganggyunggyu/Programing/cafe-bot/tmp/v3-prompts/20-자연분만_회음부_회복.output.txt",
+    "refCount": 10,
+    "promptLen": 4119
+  }
+]
