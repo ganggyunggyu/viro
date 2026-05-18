@@ -3,6 +3,7 @@ dotenv.config({ path: ".env" });
 import { google } from "googleapis";
 import { buildLongInfoPrompt } from "../src/features/viral/prompts/build-long-info-prompt";
 import { parseViralResponse } from "../src/features/viral/viral-parser";
+import { formatComments } from "./format-comments-claude-tab";
 
 const SHEET_ID = "1gyipTIEogC9Qopj8w3ggBmD0k5KvAw6yNdIMXQDnwms";
 const KW_TAB = "카페키워드_클로드";
@@ -101,7 +102,7 @@ const processOne = async (kw: string, idx: number, total: number) => {
     kw,
     parsed.title,
     parsed.body,
-    JSON.stringify(parsed.comments),
+    formatComments(JSON.stringify(parsed.comments)),
     parsed.comments.length,
     today,
   ]);

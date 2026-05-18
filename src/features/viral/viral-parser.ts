@@ -68,7 +68,7 @@ export const parseViralResponse = (
     const body = stripMarkdown(bodyMatch[1].trim());
     const commentsRaw = commentsMatch[1];
 
-    const comments = parseComments(commentsRaw);
+    const comments = parseCommentsAuto(commentsRaw);
 
     return { title, body, comments };
   } catch (error) {
@@ -76,6 +76,114 @@ export const parseViralResponse = (
     return null;
   }
 }
+
+const parseCommentsAuto = (raw: string): ParsedComment[] => {
+  const jsonCandidate = extractJsonArray(raw);
+  if (jsonCandidate) {
+    const jsonParsed = parseCommentsJson(jsonCandidate);
+    if (jsonParsed && jsonParsed.length > 0) {
+      return jsonParsed;
+    }
+    console.warn('[PARSER] JSON 후보 파싱 실패 → 텍스트 파서로 폴백');
+  }
+  return parseComments(raw);
+};
+
+const extractJsonArray = (raw: string): string | null => {
+  const trimmed = raw.trim();
+  if (/^\[\s*\{/.test(trimmed)) {
+    return trimmed;
+  }
+  const fenceMatch = trimmed.match(/```(?:json)?\s*(\[\s*\{[\s\S]+?\}\s*\])\s*```/);
+  if (fenceMatch) return fenceMatch[1];
+  const inlineMatch = trimmed.match(/(\[\s*\{[\s\S]+\}\s*\])/);
+  if (inlineMatch) return inlineMatch[1];
+  return null;
+};
+
+interface RawJsonComment {
+  index?: number;
+  type?: string;
+  parentIndex?: number;
+  content?: string;
+}
+
+const ALLOWED_TYPES = new Set<CommentType>([
+  'comment',
+  'author_reply',
+  'commenter_reply',
+  'other_reply',
+]);
+
+export const parseCommentsJson = (json: string): ParsedComment[] | null => {
+  let arr: unknown;
+  try {
+    arr = JSON.parse(json);
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(arr)) return null;
+
+  const parentCandidates = new Map<number, number>();
+  let mainCounter = 0;
+  let replyCounter = 100000;
+
+  const normalized: ParsedComment[] = [];
+
+  for (const itemRaw of arr) {
+    if (!itemRaw || typeof itemRaw !== 'object') continue;
+    const item = itemRaw as RawJsonComment;
+
+    const content =
+      typeof item.content === 'string' ? stripMarkdown(item.content.trim()) : '';
+    if (!content) continue;
+
+    const typeRaw = (item.type || '').toString().trim();
+    const type = (ALLOWED_TYPES.has(typeRaw as CommentType)
+      ? typeRaw
+      : 'comment') as CommentType;
+
+    if (type === 'comment') {
+      mainCounter += 1;
+      const rawIdx = Number.isFinite(item.index) ? Number(item.index) : NaN;
+      const isFreshIndex =
+        Number.isFinite(rawIdx) && !parentCandidates.has(rawIdx);
+      const assignedIndex = isFreshIndex ? rawIdx : mainCounter;
+      parentCandidates.set(assignedIndex, assignedIndex);
+      normalized.push({
+        index: assignedIndex,
+        type: 'comment',
+        content,
+      });
+      continue;
+    }
+
+    const parentRaw = Number.isFinite(item.parentIndex)
+      ? Number(item.parentIndex)
+      : NaN;
+    const parentIndex = parentCandidates.has(parentRaw)
+      ? parentRaw
+      : findNearestParent(normalized);
+    if (parentIndex === null) continue;
+
+    replyCounter += 1;
+    normalized.push({
+      index: replyCounter,
+      type,
+      parentIndex,
+      content,
+    });
+  }
+
+  return normalized;
+};
+
+const findNearestParent = (normalized: ParsedComment[]): number | null => {
+  for (let i = normalized.length - 1; i >= 0; i -= 1) {
+    if (normalized[i].type === 'comment') return normalized[i].index;
+  }
+  return null;
+};
 
 // 태그만 있는 줄 (내용이 다음 줄에 있는 경우)
 // 설명이 붙은 경우도 처리: [댓글1] 일반, [작성자-1] 글쓴이 답댓 등
