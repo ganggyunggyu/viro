@@ -1,0 +1,32 @@
+{
+  "rangeKst": {
+    "start": "2026-05-21 00:00:00",
+    "endExclusive": "2026-05-23 00:00:00"
+  },
+  "totalArticles": 63,
+  "totalMatches": 1,
+  "matches": [
+    {
+      "severity": "review",
+      "articleId": 1650,
+      "cafeId": "25227349",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/25227349/articles/1650",
+      "keyword": "노산 나이",
+      "title": "부모님 노산 나이 선물 후기요",
+      "publishedAtKst": "2026-05-21 18:18:59",
+      "writerAccountId": "regular14631",
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력",
+      "type": "comment",
+      "commentId": "81699212",
+      "commentIndex": "0",
+      "parentIndex": "",
+      "createdAtKst": "2026-05-21 18:24:41",
+      "content": "저희 엄마도 비타민은 항상 사놓으면 안 드시더라고요, 노산 나이 되시면 뭘 드려도 \"괜찮아\" 하시는데 막상 잘 안 챙기시는 것 같아서 저도 고민이에요.",
+      "suggestedContent": "저희 엄마도 비타민은 항상 사놓으면 안 드시더라고요, 노산 나이 되시면 뭘 드려도 \"괜찮아\" 하시는데 막상 잘 안 챙기시는 것 같아서 저도 고민이에요.",
+      "reasons": [
+        "문장 중 반말 표현"
+      ]
+    }
+  ]
+}
