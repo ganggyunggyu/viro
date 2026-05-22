@@ -28,6 +28,10 @@ type Target = {
 const MIN_DELAY_MS = Number(process.env.FIX_COMMENT_MIN_DELAY_MS || 45_000);
 const MAX_DELAY_MS = Number(process.env.FIX_COMMENT_MAX_DELAY_MS || 90_000);
 const START_INDEX = Number(process.env.FIX_COMMENT_START_INDEX || 0);
+const TARGET_INDEXES = (process.env.FIX_COMMENT_TARGET_INDEXES || '')
+  .split(',')
+  .map((value) => Number(value.trim()))
+  .filter((value) => Number.isInteger(value) && value >= 0);
 
 const TARGETS: Target[] = [
   {
@@ -87,6 +91,66 @@ const TARGETS: Target[] = [
     reason: '문법 수정',
     originalContent: '근데 밥이랑 같이 먹으니까 그냥 넘어가지더라고요, 따로 먹으니까 달다는 느낌이 더 세게 오는 인 듯',
     newContent: '근데 밥이랑 같이 먹으니까 그냥 넘어가지더라고요. 따로 먹으니까 단맛이 더 세게 오는 것 같아요.',
+  },
+  {
+    cafeId: '25460974',
+    articleId: 302815,
+    accountId: 'bigfish773',
+    commentId: '153537636',
+    reason: '효능 암시 완화',
+    originalContent: '저도 건강 챙기면서 여러가지 조합해보고 있는데 각자 다른 영역을 커버해주는 느낌이라 괜찮은 거 같아요',
+    newContent: '저도 건강 챙기면서 여러 가지 조합을 알아보고 있는데, 각자 챙기는 방식이 달라서 후기만 참고하고 있어요.',
+  },
+  {
+    cafeId: '25460974',
+    articleId: 302815,
+    accountId: 'dq1h3bjy',
+    commentId: '153537682',
+    reason: '효과 단정 표현 완화',
+    originalContent: '저는 다른 거랑 먹다가 효과를 잘 못 느꼈는데 흑염소랑 조합해보니까 달라요 확실히 조합이 중요한 거 같아요',
+    newContent: '저는 다른 거랑 같이 챙겨본 적은 있는데, 아직 뭐가 맞는지는 잘 모르겠더라고요. 조합은 사람마다 다르게 봐야 할 것 같아요.',
+  },
+  {
+    cafeId: '25460974',
+    articleId: 302819,
+    accountId: 'orangeswan630',
+    commentId: '153537276',
+    reason: '효과 단정 표현 완화',
+    originalContent: '저도 비슷하게 챙겨먹고 있는데 확실히 조합이 중요하더라고요 ㅋㅋ 한달정도 되니 몸이 좀 가벼워진 느낌이 들어요',
+    newContent: '저도 비슷하게 챙겨먹고 있는데 조합은 사람마다 다르게 봐야겠더라고요. 한 달 정도 지나니 루틴으로는 좀 익숙해졌어요.',
+  },
+  {
+    cafeId: '25460974',
+    articleId: 302819,
+    accountId: 'angrykoala270',
+    reason: '효과 단정 표현 완화',
+    originalContent: '아 그러세요? 저도 처음엔 효과가 있을까 싶었는데 시간 지나니 체감이 되네요',
+    newContent: '아 그러세요? 저도 처음엔 맞을까 싶었는데 시간 지나니까 루틴으로 챙기는 건 좀 익숙해지네요.',
+  },
+  {
+    cafeId: '25460974',
+    articleId: 302819,
+    accountId: 'dq1h3bjy',
+    commentId: '153537417',
+    reason: '효과 단정 질문 완화',
+    originalContent: '저는 이제 막 알아보는 중인데 꾸준히 먹으면 확실히 도움되나요?',
+    newContent: '저는 이제 막 알아보는 중인데 꾸준히 챙기기엔 어떤가요? 먹기 편한지가 제일 궁금해요.',
+  },
+  {
+    cafeId: '25460974',
+    articleId: 302902,
+    accountId: 'tinyfish183',
+    reason: '효능 암시 완화',
+    originalContent: '전혀 과하지 않아요 오히려 서로 다른 영역을 커버해주는 느낌이라 더 좋은거 같아요',
+    newContent: '저는 크게 과하다고 느끼진 않았어요. 다만 사람마다 챙기는 방식이 달라서 천천히 보는 게 낫겠더라고요.',
+  },
+  {
+    cafeId: '25460974',
+    articleId: 302902,
+    accountId: 'ahfflwl123',
+    reason: '피로 개선 표현 완화',
+    originalContent: '저도 비타민디 챙겨먹는데 개구리즙이랑 같이 먹으니 계절성 피로가 좀 덜한거 같아요',
+    newContent: '저도 비타민D 챙겨먹고 있는데, 개구리즙이랑 같이 챙기는 분들도 있더라고요. 저는 아직 더 지켜보는 중이에요.',
   },
 ];
 
@@ -180,75 +244,80 @@ const findTargetElement = async (
 };
 
 const editCommentViaDom = async (page: Page, target: Target): Promise<boolean> => {
-  const root = await getCommentRoot(page);
-  await loadMoreComments(root);
+  try {
+    const root = await getCommentRoot(page);
+    await loadMoreComments(root);
 
-  const element = await findTargetElement(root, target);
-  if (!element) {
+    const element = await findTargetElement(root, target);
+    if (!element) {
+      return false;
+    }
+
+    await element.scrollIntoViewIfNeeded().catch(() => undefined);
+
+    const moreButton =
+      (await element.$('.comment_tool_button')) ||
+      (await element.$('button[aria-label*="더보기"]')) ||
+      (await element.$('button[aria-label*="옵션"]')) ||
+      (await element.$('button[class*="more"]')) ||
+      (await element.$('button:has-text("...")'));
+
+    if (!moreButton) return false;
+
+    await moreButton.evaluate((node) => (node as HTMLElement).click());
+    await root.waitForTimeout(900);
+
+    const editButton = await root.$('button:has-text("수정"), a:has-text("수정")');
+    if (!editButton) {
+      await page.keyboard.press('Escape').catch(() => undefined);
+      return false;
+    }
+
+    await editButton.evaluate((node) => (node as HTMLElement).click());
+    await root.waitForTimeout(1500);
+
+    const editable =
+      (await page.$('textarea')) ||
+      (await page.$('input[type="text"]')) ||
+      (await page.$('[contenteditable="true"]'));
+
+    if (!editable) return false;
+
+    const tagName = await editable.evaluate((node) => node.tagName);
+
+    if (tagName === 'TEXTAREA' || tagName === 'INPUT') {
+      await editable.evaluate((node: HTMLInputElement | HTMLTextAreaElement, content) => {
+        node.value = content;
+        node.dispatchEvent(new Event('input', { bubbles: true }));
+        node.dispatchEvent(new Event('change', { bubbles: true }));
+      }, target.newContent);
+    } else {
+      await editable.evaluate((node: HTMLElement, content) => {
+        node.innerText = content;
+        node.textContent = content;
+        node.dispatchEvent(new Event('input', { bubbles: true }));
+        node.dispatchEvent(new Event('change', { bubbles: true }));
+      }, target.newContent);
+    }
+
+    await root.waitForTimeout(900);
+
+    const saveButton =
+      (await page.$('button:has-text("등록")')) ||
+      (await page.$('button:has-text("저장")')) ||
+      (await page.$('button:has-text("완료")')) ||
+      (await page.$('button:has-text("수정")')) ||
+      (await page.$('a:has-text("등록")'));
+
+    if (!saveButton) return false;
+
+    await saveButton.evaluate((node) => (node as HTMLElement).click());
+    await root.waitForTimeout(3000);
+
+    return true;
+  } catch {
     return false;
   }
-
-  await element.scrollIntoViewIfNeeded().catch(() => undefined);
-
-  const moreButton =
-    (await element.$('.comment_tool_button')) ||
-    (await element.$('button[aria-label*="더보기"]')) ||
-    (await element.$('button[aria-label*="옵션"]')) ||
-    (await element.$('button[class*="more"]')) ||
-    (await element.$('button:has-text("...")'));
-
-  if (!moreButton) return false;
-
-  await moreButton.click({ force: true, timeout: 5000 });
-  await root.waitForTimeout(900);
-
-  const editButton = await root.$('button:has-text("수정"), a:has-text("수정")');
-  if (!editButton) {
-    await page.keyboard.press('Escape').catch(() => undefined);
-    return false;
-  }
-
-  await editButton.click({ force: true, timeout: 5000 });
-  await root.waitForTimeout(1500);
-
-  const editable =
-    (await page.$('textarea')) ||
-    (await page.$('input[type="text"]')) ||
-    (await page.$('[contenteditable="true"]'));
-
-  if (!editable) return false;
-
-  const tagName = await editable.evaluate((node) => node.tagName);
-  await editable.click();
-
-  if (tagName === 'TEXTAREA' || tagName === 'INPUT') {
-    await editable.evaluate((node: HTMLInputElement | HTMLTextAreaElement) => {
-      node.value = '';
-      node.dispatchEvent(new Event('input', { bubbles: true }));
-    });
-  } else {
-    await editable.evaluate((node: HTMLElement) => {
-      node.innerText = '';
-      node.dispatchEvent(new Event('input', { bubbles: true }));
-    });
-  }
-
-  await editable.type(target.newContent, { delay: 20 });
-  await root.waitForTimeout(900);
-
-  const saveButton =
-    (await page.$('button:has-text("등록")')) ||
-    (await page.$('button:has-text("저장")')) ||
-    (await page.$('button:has-text("완료")')) ||
-    (await page.$('button:has-text("수정")')) ||
-    (await page.$('a:has-text("등록")'));
-
-  if (!saveButton) return false;
-
-  await saveButton.click({ force: true, timeout: 5000 });
-  await root.waitForTimeout(3000);
-
-  return true;
 };
 
 const updateDb = async (target: Target): Promise<void> => {
@@ -347,7 +416,12 @@ const main = async (): Promise<void> => {
   console.log(`대기 범위: ${Math.round(MIN_DELAY_MS / 1000)}~${Math.round(MAX_DELAY_MS / 1000)}초`);
 
   let successCount = 0;
-  for (let index = START_INDEX; index < TARGETS.length; index += 1) {
+  const indexes = TARGET_INDEXES.length
+    ? TARGET_INDEXES
+    : TARGETS.map((_, index) => index).filter((index) => index >= START_INDEX);
+
+  for (let cursor = 0; cursor < indexes.length; cursor += 1) {
+    const index = indexes[cursor];
     const target = TARGETS[index];
     console.log(`\n[${index + 1}/${TARGETS.length}] #${target.articleId} ${target.accountId} - ${target.reason}`);
     console.log(`  before: ${target.originalContent}`);
@@ -366,7 +440,7 @@ const main = async (): Promise<void> => {
       console.log('  수정 실패');
     }
 
-    if (index < TARGETS.length - 1) {
+    if (cursor < indexes.length - 1) {
       const delay = getDelay();
       console.log(`  다음 작업 전 ${Math.round(delay / 1000)}초 대기`);
       await wait(delay);
