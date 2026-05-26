@@ -109,3 +109,52 @@ export const getCommenterAccounts = async (userId?: string): Promise<NaverAccoun
   const accounts = await getAllAccounts(userId);
   return accounts.filter((a) => a.role === 'commenter');
 };
+
+export const addAccount = async (
+  account: NaverAccount,
+  userId?: string,
+): Promise<NaverAccount[]> => {
+  await connectDB();
+  const targetUserId = userId || (await getCurrentUserId());
+
+  await Account.findOneAndUpdate(
+    { userId: targetUserId, accountId: account.id },
+    {
+      userId: targetUserId,
+      accountId: account.id,
+      password: account.password,
+      nickname: account.nickname,
+      isMain: account.isMain ?? false,
+      activityHours: account.activityHours,
+      restDays: account.restDays,
+      dailyPostLimit: account.dailyPostLimit,
+      personaId: account.personaId,
+      role: account.role,
+      isActive: true,
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true },
+  );
+
+  return getAllAccounts(targetUserId);
+};
+
+export const removeAccount = async (
+  accountId: string,
+  userId?: string,
+): Promise<NaverAccount[]> => {
+  await connectDB();
+  const targetUserId = userId || (await getCurrentUserId());
+  await Account.deleteOne({ userId: targetUserId, accountId });
+  return getAllAccounts(targetUserId);
+};
+
+export const setMainAccount = async (
+  accountId: string,
+  userId?: string,
+): Promise<NaverAccount[]> => {
+  await connectDB();
+  const targetUserId = userId || (await getCurrentUserId());
+  await Account.updateMany({ userId: targetUserId }, { isMain: false });
+  await Account.updateOne({ userId: targetUserId, accountId }, { isMain: true });
+  return getAllAccounts(targetUserId);
+};
