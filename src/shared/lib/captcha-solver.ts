@@ -1,7 +1,7 @@
 import { Page } from 'playwright';
 import { GoogleGenAI } from '@google/genai';
 
-const CAPTCHA_MODEL = 'gemini-3.1-flash-lite-preview';
+const CAPTCHA_MODEL = 'gemini-2.5-flash';
 const MAX_CAPTCHA_ATTEMPTS = 3;
 const CAPTCHA_INPUT_DELAY_MS = 200;
 const PW_INPUT_DELAY_MS = 150;
