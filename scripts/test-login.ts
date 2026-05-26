@@ -1,31 +1,34 @@
-import { loginAccount, isAccountLoggedIn, invalidateLoginCache } from '@/shared/lib/multi-session';
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import { loginAccount, invalidateLoginCache } from '@/shared/lib/multi-session';
+import { Account } from '@/shared/models/account';
 
-const accounts = [
-  { id: 'compare14310', password: '' },
-  { id: 'fail5644',     password: '' },
-  { id: 'loand3324',    password: '' },
-  { id: 'dyulp',        password: '' },
-  { id: 'gmezz',        password: '' },
-];
-
-// accounts.json 에서 비번 로드
-import accountsJson from '@/shared/config/accounts.json';
+const TARGET = process.argv[2] || 'olgdmp9921';
 
 const main = async () => {
-  for (const acc of accountsJson) {
-    if (!['compare14310','fail5644','loand3324','dyulp','gmezz'].includes(acc.accountId)) continue;
-
-    invalidateLoginCache(acc.accountId);
-    console.log(`[TEST] ${acc.accountId} 로그인 시도...`);
-    const result = await loginAccount(acc.accountId, acc.password);
-    if (result.success) {
-      console.log(`  ✅ 성공`);
-    } else {
-      console.log(`  ❌ 실패: ${result.error}`);
-    }
+  await mongoose.connect(process.env.MONGODB_URI!, { serverSelectionTimeoutMS: 10000 });
+  const acc = await Account.findOne({ accountId: TARGET }).lean();
+  if (!acc) {
+    console.log(`[TEST] 계정 없음: ${TARGET}`);
+    await mongoose.disconnect();
+    process.exit(1);
   }
 
+  invalidateLoginCache(TARGET);
+  console.log(`[TEST] ${TARGET} 로그인 시도 (캡차 솔버: gemini-2.5-flash)`);
+  const result = await loginAccount(TARGET, (acc as any).password);
+  if (result.success) {
+    console.log('[TEST] ✅ 로그인 성공');
+  } else {
+    console.log(`[TEST] ❌ 로그인 실패: ${result.error}`);
+  }
+
+  await mongoose.disconnect();
   process.exit(0);
 };
 
-main().catch(console.error);
+main().catch(async (e) => {
+  console.error(e);
+  await mongoose.disconnect();
+  process.exit(1);
+});
