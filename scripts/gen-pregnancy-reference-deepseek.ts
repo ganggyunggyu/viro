@@ -14,6 +14,8 @@ const MODEL = process.env.GEN_MODEL || "deepseek-v4-flash";
 const PROMPT_VERSION = "pregnancy-reference-v1";
 const SLEEP_MS = Number.parseInt(process.env.SLEEP_MS || "1200", 10);
 const LIMIT = Number.parseInt(process.env.LIMIT || "0", 10);
+const START_INDEX = Number.parseInt(process.env.START_INDEX || "0", 10);
+const SKIP_RESET = process.env.SKIP_RESET === "1";
 
 interface KeywordCase {
   type: string;
@@ -440,15 +442,13 @@ const resetSheet = async () => {
   });
 };
 
-const appendRows = async (rows: (string | number)[][]) => {
-  if (rows.length === 0) return;
+const writeRow = async (row: (string | number)[], rowNumber: number) => {
   const sheets = google.sheets({ version: "v4", auth: getAuth() });
-  await sheets.spreadsheets.values.append({
+  await sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID,
-    range: `'${OUT_TAB}'!A:K`,
+    range: `'${OUT_TAB}'!A${rowNumber}:K${rowNumber}`,
     valueInputOption: "RAW",
-    insertDataOption: "INSERT_ROWS",
-    requestBody: { values: rows },
+    requestBody: { values: [row] },
   });
 };
 
@@ -563,18 +563,22 @@ const processOne = async (item: KeywordCase, index: number, total: number) => {
 };
 
 const main = async () => {
-  const targets = LIMIT > 0 ? KEYWORD_CASES.slice(0, LIMIT) : KEYWORD_CASES;
+  const endIndex = LIMIT > 0 ? START_INDEX + LIMIT : KEYWORD_CASES.length;
+  const targets = KEYWORD_CASES.slice(START_INDEX, endIndex);
   console.log(`대상 탭: ${OUT_TAB}`);
   console.log(`모델: ${MODEL}`);
-  console.log(`처리 대상: ${targets.length}개`);
+  console.log(`처리 대상: ${targets.length}개 (${START_INDEX + 1}번째부터)`);
 
-  await resetSheet();
+  if (!SKIP_RESET) {
+    await resetSheet();
+  }
 
   const rows: (string | number)[][] = [];
   for (let i = 0; i < targets.length; i++) {
-    const row = await processOne(targets[i], i, targets.length);
+    const sourceIndex = START_INDEX + i;
+    const row = await processOne(targets[i], sourceIndex, KEYWORD_CASES.length);
     rows.push(row);
-    await appendRows([row]);
+    await writeRow(row, sourceIndex + 2);
     if (i < targets.length - 1) {
       await sleep(SLEEP_MS);
     }
