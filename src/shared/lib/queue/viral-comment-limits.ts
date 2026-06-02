@@ -1,32 +1,22 @@
 import type { ViralCommentItem } from './types';
 
-export const MAX_VIRAL_MAIN_COMMENTS = 10;
-export const MAX_VIRAL_COMMENT_JOBS = 18;
+export const MAX_VIRAL_MAIN_COMMENTS = 8;
+export const MAX_VIRAL_COMMENT_JOBS = 20;
 
 export const limitViralCommentItems = (
   comments: ViralCommentItem[],
   maxMainComments: number = MAX_VIRAL_MAIN_COMMENTS,
   maxTotalJobs: number = MAX_VIRAL_COMMENT_JOBS,
 ): ViralCommentItem[] => {
-  const allowedParents = new Set<number>();
-  const limited: ViralCommentItem[] = [];
-  let mainCount = 0;
+  const mainComments = comments
+    .filter((comment) => comment.type === 'comment')
+    .slice(0, maxMainComments);
+  const allowedParents = new Set(mainComments.map((comment) => comment.index));
+  const replies = comments.filter(
+    (comment) => comment.type !== 'comment' && comment.parentIndex !== undefined && allowedParents.has(comment.parentIndex),
+  );
 
-  for (const comment of comments) {
-    if (limited.length >= maxTotalJobs) break;
-
-    if (comment.type === 'comment') {
-      if (mainCount >= maxMainComments) continue;
-      allowedParents.add(comment.index);
-      limited.push(comment);
-      mainCount++;
-      continue;
-    }
-
-    if (comment.parentIndex !== undefined && allowedParents.has(comment.parentIndex)) {
-      limited.push(comment);
-    }
-  }
+  const limited = [...mainComments, ...replies].slice(0, maxTotalJobs);
 
   return limited;
 };
