@@ -1,0 +1,32 @@
+[
+  {
+    "cafe": "건강관리소",
+    "cafeId": "25227349",
+    "keyword": "자궁 따뜻하게 하는 음식",
+    "category": "건강이야기",
+    "type": "ad",
+    "keywordType": "own",
+    "accountId": "tinyfish183",
+    "time": "15:30"
+  },
+  {
+    "cafe": "건강한노후준비",
+    "cafeId": "25636798",
+    "keyword": "시험관 준비기간",
+    "category": "질문게시판",
+    "type": "ad",
+    "keywordType": "own",
+    "accountId": "tinyfish183",
+    "time": "19:35"
+  },
+  {
+    "cafe": "건강한노후준비",
+    "cafeId": "25636798",
+    "keyword": "자궁선근증 임신",
+    "category": "건강정보",
+    "type": "ad",
+    "keywordType": "own",
+    "accountId": "tinyfish183",
+    "time": "21:13"
+  }
+]
