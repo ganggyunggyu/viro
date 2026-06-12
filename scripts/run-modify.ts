@@ -6,7 +6,7 @@
  * 2. DB에서 writer 계정 조회
  * 3. 새 광고 원고 생성
  * 4. 글 수정 + 댓글 허용
- * 5. 바이럴 댓글 큐 추가
+ * 5. 옵션에 따라 바이럴 댓글 큐 추가
  *
  * Usage:
  *   npx tsx --env-file=.env.local scripts/run-modify.ts
@@ -21,14 +21,16 @@ import { User } from "../src/shared/models/user";
 import { Account } from "../src/shared/models/account";
 import { PublishedArticle } from "../src/shared/models";
 import { modifyArticleWithAccount } from "../src/features/auto-comment/batch/article-modifier";
-import { generateViralContent } from "../src/shared/api/content-api";
+import { generateContentWithPrompt } from "../src/shared/api/content-api";
 import { buildHanryeoCafePrompt } from "../src/features/viral/prompts/build-hanryeo-cafe-prompt";
 import { parseViralResponse } from "../src/features/viral/viral-parser";
 import { addTaskJob } from "../src/shared/lib/queue";
 import {
   acquireAccountLock,
   closeContextForAccount,
+  getPageForAccount,
   invalidateLoginCache,
+  isAccountLoggedIn,
   loginAccount,
   releaseAccountLock,
 } from "../src/shared/lib/multi-session";
@@ -61,6 +63,14 @@ const MODIFY_PRIMARY_MODEL = process.env.MODIFY_PRIMARY_MODEL || "";
 const MODIFY_OVERLOAD_FALLBACK_MODEL =
   process.env.MODIFY_OVERLOAD_FALLBACK_MODEL || "gemini-3.1-pro-preview";
 const MODIFY_FORCE_RELOGIN = process.env.MODIFY_FORCE_RELOGIN === "true";
+const MODIFY_LOGIN_WAIT_MS = 3 * 60 * 1000;
+const MODIFY_SKIP_COMMENTS =
+  process.env.MODIFY_SKIP_COMMENTS === "true" ||
+  process.env.MODIFY_ARTICLE_ONLY === "true";
+
+if (!process.env.PLAYWRIGHT_HEADLESS) {
+  process.env.PLAYWRIGHT_HEADLESS = "true";
+}
 
 const MODIFY_SCHEDULE: ModifyItem[] = [
   { link: "https://cafe.naver.com/ca-fe/cafes/25460974/articles/293152", keyword: "제주산 당찬여주 발효효소", keywordType: "competitor", category: CHANEL_MODIFY_CATEGORY },
@@ -197,6 +207,93 @@ const forceReloginBeforeModify = async (
   throw new Error(lastError);
 };
 
+const checkArticleAccessible = async (
+  accountId: string,
+  password: string,
+  cafeId: string,
+  articleId: number,
+): Promise<{ accessible: true; subject?: string } | { accessible: false; reason: string }> => {
+  await acquireAccountLock(accountId);
+
+  try {
+    const loggedIn = await isAccountLoggedIn(accountId);
+    if (!loggedIn) {
+      const loginResult = await loginAccount(accountId, password, {
+        waitForLoginMs: MODIFY_LOGIN_WAIT_MS,
+        reason: `modify_precheck_${articleId}`,
+      });
+
+      if (!loginResult.success) {
+        return {
+          accessible: false,
+          reason: loginResult.error || "수정 전 로그인 실패",
+        };
+      }
+    }
+
+    const page = await getPageForAccount(accountId);
+    await page.goto(`https://cafe.naver.com/ca-fe/cafes/${cafeId}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+    await page.waitForTimeout(500);
+
+    const apiResult = await page.evaluate(
+      async ({ targetCafeId, targetArticleId }) => {
+        const response = await fetch(
+          `https://apis.naver.com/cafe-web/cafe-articleapi/v2.1/cafes/${targetCafeId}/articles/${targetArticleId}?useCafeId=true`,
+          {
+            credentials: "include",
+            headers: { Accept: "application/json" },
+          },
+        );
+        const text = await response.text();
+        let json: unknown = null;
+        try {
+          json = JSON.parse(text);
+        } catch {}
+
+        return {
+          ok: response.ok,
+          status: response.status,
+          json,
+          text: text.slice(0, 200),
+        };
+      },
+      { targetCafeId: cafeId, targetArticleId: articleId },
+    );
+
+    if (!apiResult.ok) {
+      return {
+        accessible: false,
+        reason: `article API ${apiResult.status}`,
+      };
+    }
+
+    const article = (
+      apiResult.json as {
+        result?: { article?: { subject?: string } };
+      } | null
+    )?.result?.article;
+
+    if (!article) {
+      return {
+        accessible: false,
+        reason: "article API 응답에 article 없음",
+      };
+    }
+
+    return { accessible: true, subject: article.subject };
+  } catch (error) {
+    return {
+      accessible: false,
+      reason: error instanceof Error ? error.message : String(error),
+    };
+  } finally {
+    releaseAccountLock(accountId);
+  }
+};
+
 const isOverloadedError = (error: unknown): boolean => {
   const errorMessage = error instanceof Error ? error.message : String(error);
   return /529|overloaded|overloaded_error/i.test(errorMessage);
@@ -205,13 +302,22 @@ const isOverloadedError = (error: unknown): boolean => {
 const generateViralContentWithRetry = async (
   prompt: string,
   maxAttempts: number = 3,
-): Promise<Awaited<ReturnType<typeof generateViralContent>>> => {
+): Promise<Awaited<ReturnType<typeof generateContentWithPrompt>>> => {
   let lastError: unknown;
   let retryModel: string | undefined = MODIFY_PRIMARY_MODEL || undefined;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      return await generateViralContent({ prompt, model: retryModel });
+      const generated = await generateContentWithPrompt({
+        prompt,
+        model: retryModel,
+      });
+
+      if (!generated.content) {
+        throw new Error("원고 생성 결과 없음");
+      }
+
+      return generated;
     } catch (error) {
       lastError = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -428,6 +534,19 @@ const main = async (): Promise<void> => {
 
     console.log(`  작성자: ${writerAccountId}`);
 
+    const precheck = await checkArticleAccessible(
+      writerAccountId,
+      account.password,
+      cafeId,
+      articleId,
+    );
+
+    if (!precheck.accessible) {
+      console.log(`  접근 불가 스킵: ${precheck.reason}`);
+      failCount++;
+      continue;
+    }
+
     // 광고 원고 생성
     try {
       const prompt = buildHanryeoCafePrompt({ keyword: item.keyword, category: item.category });
@@ -493,7 +612,9 @@ const main = async (): Promise<void> => {
         ? { comments: parsedContent.comments }
         : undefined;
 
-      if (viralComments) {
+      if (MODIFY_SKIP_COMMENTS) {
+        console.log("  댓글 큐 추가 스킵 (MODIFY_SKIP_COMMENTS=true)");
+      } else if (viralComments) {
         const allNaverAccounts: NaverAccount[] = accounts.map((a) => ({
           id: a.accountId,
           password: a.password,

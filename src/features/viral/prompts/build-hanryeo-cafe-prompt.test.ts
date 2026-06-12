@@ -19,6 +19,9 @@ test('buildHanryeoCafePrompt keeps the cafe parser output contract', () => {
   assert.match(prompt, /카테고리\/게시판 힌트: 건강정보/);
   assert.match(prompt, /본문 전체에서 "한려담원"은 1회만 쓴다/);
   assert.match(prompt, /댓글 전체에서 "한려담원"은 1~2회만/);
+  assert.match(prompt, /text-gen-hub 한려담원 원고 기준을 따른다/);
+  assert.match(prompt, /정보 설명은 합니다체 중심으로 쓴다/);
+  assert.match(prompt, /핵심 나열은 숫자 대신 ✔ 기호만 사용한다/);
   assert.match(prompt, /바로 \[제목\]부터 출력한다/);
 });
 

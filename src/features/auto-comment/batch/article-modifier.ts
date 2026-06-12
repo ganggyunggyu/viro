@@ -14,6 +14,12 @@ import { uploadImages, uploadSingleImage } from './image-uploader';
 // 부제 패턴 (숫자. 형식)
 const SUBTITLE_PATTERN = /^\d+\.\s*/;
 const MODIFY_LOGIN_WAIT_MS = 3 * 60 * 1000;
+const EDITOR_READY_SELECTOR =
+  'p.se-text-paragraph, .FlexableTextArea textarea.textarea_input, .se-component-content';
+const TITLE_INPUT_SELECTOR =
+  '.FlexableTextArea textarea.textarea_input, textarea.textarea_input, textarea[placeholder*="제목"], input[placeholder*="제목"]';
+const MODIFY_TYPE_DELAY_MS =
+  parseInt(process.env.MODIFY_TYPE_DELAY_MS || '', 10) || 120;
 
 export interface ModifyArticleInput {
   cafeId: string;
@@ -71,10 +77,11 @@ export const modifyArticleWithAccount = async (
 
     // 글 수정 페이지로 이동
     const modifyUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}/modify`;
+    const legacyModifyUrl = `https://cafe.naver.com/ArticleWrite.nhn?m=modify&clubid=${cafeId}&articleid=${articleId}`;
     console.log('[DEBUG] 수정 페이지 이동:', modifyUrl);
 
-    const navigateToModifyPage = async (): Promise<void> => {
-      await page.goto(modifyUrl, {
+    const navigateToModifyPage = async (url: string = modifyUrl): Promise<void> => {
+      await page.goto(url, {
         waitUntil: 'domcontentloaded',
         timeout: 60000,
       });
@@ -118,7 +125,7 @@ export const modifyArticleWithAccount = async (
 
     // 에디터 로딩 대기
     try {
-      await page.waitForSelector('p.se-text-paragraph, .FlexableTextArea textarea.textarea_input, .se-component-content', { timeout: 15000 });
+      await page.waitForSelector(EDITOR_READY_SELECTOR, { timeout: 15000 });
     } catch {
       console.log('[DEBUG] 에디터 셀렉터 대기 실패, 스크린샷 촬영');
       await page.screenshot({ path: '/tmp/modify-debug.png', fullPage: true });
@@ -132,7 +139,7 @@ export const modifyArticleWithAccount = async (
         );
         if (recoverResult) return recoverResult;
         await page.waitForSelector(
-          'p.se-text-paragraph, .FlexableTextArea textarea.textarea_input, .se-component-content',
+          EDITOR_READY_SELECTOR,
           { timeout: 15000 },
         );
       }
@@ -172,14 +179,21 @@ export const modifyArticleWithAccount = async (
     }
 
     // 제목 입력창 찾기 및 수정
-    const titleInput = await page.$('.FlexableTextArea textarea.textarea_input, textarea.textarea_input');
+    let titleInput = await page.$(TITLE_INPUT_SELECTOR);
+
+    if (!titleInput) {
+      console.log(`[MODIFY] 제목 입력창 없음 - 구형 수정 URL 재시도 (현재 URL: ${page.url()})`);
+      await navigateToModifyPage(legacyModifyUrl);
+      await page.waitForTimeout(3000);
+      titleInput = await page.$(TITLE_INPUT_SELECTOR);
+    }
 
     if (!titleInput) {
       return {
         success: false,
         articleId,
         modifierAccountId: id,
-        error: '제목 입력창을 찾을 수 없습니다. 수정 권한이 없을 수 있습니다.',
+        error: `제목 입력창을 찾을 수 없습니다. 수정 권한이 없을 수 있습니다. 현재 URL: ${page.url()}`,
       };
     }
 
@@ -234,7 +248,7 @@ export const modifyArticleWithAccount = async (
 
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].trim()) {
-        await page.keyboard.type(lines[i], { delay: 120 });
+        await page.keyboard.type(lines[i], { delay: MODIFY_TYPE_DELAY_MS });
       }
       if (i < lines.length - 1) {
         await page.keyboard.press('Enter');

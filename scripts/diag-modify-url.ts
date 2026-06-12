@@ -11,9 +11,9 @@ import {
 } from '../src/shared/lib/multi-session';
 import { Account } from '../src/shared/models/account';
 
-const CAFE_ID = '25636798';
-const ARTICLE_ID = 31318;
-const ACCOUNT_ID = '8i2vlbym';
+const CAFE_ID = process.env.CAFE_ID || '25636798';
+const ARTICLE_ID = parseInt(process.env.ARTICLE_ID || '31318', 10);
+const ACCOUNT_ID = process.env.ACCOUNT_ID || '8i2vlbym';
 
 const main = async () => {
   await mongoose.connect(process.env.MONGODB_URI!);
