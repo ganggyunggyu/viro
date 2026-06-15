@@ -21,6 +21,7 @@ import { buildShortDailyPrompt } from "../src/features/viral/prompts/build-short
 import { getViralContentStyleForLoginId } from "../src/shared/config/user-profile";
 import { getCafeWriterAccounts } from "../src/shared/config/cafe-account-policy";
 import { parseViralResponse } from "../src/features/viral/viral-parser";
+import { assertScheduleKeywordDiversity } from "./cafe-unexposed-keyword-selector";
 import type {
   PostJobData,
   ViralCommentsData,
@@ -34,6 +35,10 @@ const SCHEDULE_END_TIME = process.env.SCHEDULE_END_TIME || "";
 const SCHEDULE_MODEL = process.env.SCHEDULE_MODEL || "deepseek-v4-flash";
 const SCHEDULE_FILE = process.env.SCHEDULE_FILE || "";
 const SCHEDULE_AD_PROMPT_PROFILE = process.env.SCHEDULE_AD_PROMPT_PROFILE || "";
+const SCHEDULE_DIVERSITY_CHECK =
+  process.env.SCHEDULE_DIVERSITY_CHECK || (SCHEDULE_FILE ? "true" : "false");
+const SCHEDULE_MAX_THEME_PER_DAY = Number(process.env.SCHEDULE_MAX_THEME_PER_DAY || 2);
+const SCHEDULE_MAX_THEME_PER_CAFE = Number(process.env.SCHEDULE_MAX_THEME_PER_CAFE || 1);
 
 const getLocalDateToken = (): string => {
   const now = new Date();
@@ -247,10 +252,20 @@ const main = async (): Promise<void> => {
     const isBeforeEnd = !SCHEDULE_END_TIME || item.time <= SCHEDULE_END_TIME;
     return isAfterStart && isBeforeEnd;
   });
+  const adSchedule = filteredSchedule.filter((item) => item.type === "ad");
+  if (SCHEDULE_DIVERSITY_CHECK === "true") {
+    assertScheduleKeywordDiversity(
+      adSchedule.map((item) => ({ cafe: item.cafe, keyword: item.keyword })),
+      {
+        maxPerThemePerDay: SCHEDULE_MAX_THEME_PER_DAY,
+        maxPerThemePerCafe: SCHEDULE_MAX_THEME_PER_CAFE,
+      },
+    );
+  }
 
   console.log(`=== 스케줄 큐 추가 ===`);
   console.log(
-    `user: ${LOGIN_ID} / jobs: ${filteredSchedule.length}건 / writers: ${writerAccountIds.length}명 / commenters: ${commenterIds.length}명 / startFilter: ${SCHEDULE_START_TIME || "-"} / endFilter: ${SCHEDULE_END_TIME || "-"}`,
+    `user: ${LOGIN_ID} / jobs: ${filteredSchedule.length}건 / ads: ${adSchedule.length}건 / writers: ${writerAccountIds.length}명 / commenters: ${commenterIds.length}명 / startFilter: ${SCHEDULE_START_TIME || "-"} / endFilter: ${SCHEDULE_END_TIME || "-"} / diversityCheck: ${SCHEDULE_DIVERSITY_CHECK}`,
   );
   console.log(`writer accounts: ${writerAccountIds.join(", ")}`);
   console.log(

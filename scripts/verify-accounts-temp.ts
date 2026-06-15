@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { User } from "../src/shared/models/user";
 import { Account } from "../src/shared/models/account";
+import { LUXURY_CAFE_WRITER_ACCOUNT_IDS } from "../src/shared/config/cafe-account-policy";
 
 const main = async () => {
   await mongoose.connect(process.env.MONGODB_URI!, { serverSelectionTimeoutMS: 10000 });
@@ -24,11 +25,9 @@ const main = async () => {
     console.log(`${a.nickname}\t${a.accountId}\t${a.role}`);
   }
   
-  // 유저가 보낸 계정 목록과 대조
-  const expectedWriters = ["olgdmp9921", "yenalk", "eytkgy5500", "uqgidh2690", "4giccokx"];
+  // 샤넬/쇼핑 writer 정책 목록과 대조
+  const expectedWriters = [...LUXURY_CAFE_WRITER_ACCOUNT_IDS];
   const expectedCommenters = ["8i2vlbym", "heavyzebra240", "njmzdksm", "e6yb5u4k", "suc4dce7", "xzjmfn3f", "8ua1womn", "0ehz3cb2", "umhu0m83", "br5rbg", "beautifulelephant274", "angrykoala270", "tinyfish183", "orangeswan630"];
-  
-  const dbIds = new Set(accounts.map(a => a.accountId));
   
   console.log("\n=== 검증 ===");
   for (const id of [...expectedWriters, ...expectedCommenters]) {

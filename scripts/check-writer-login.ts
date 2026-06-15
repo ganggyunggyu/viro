@@ -1,12 +1,22 @@
 /**
- * Writer 5명 계정 정지 여부 확인 (headless 병렬)
+ * 샤넬/쇼핑 writer 계정 로그인 상태 확인
  */
 import { chromium, Browser } from 'playwright';
 import mongoose from 'mongoose';
 import { User } from '../src/shared/models/user';
 import { Account } from '../src/shared/models/account';
+import { LUXURY_CAFE_WRITER_ACCOUNT_IDS } from '../src/shared/config/cafe-account-policy';
 
-const WRITER_IDS = ['olgdmp9921'];
+const WRITER_IDS = [...LUXURY_CAFE_WRITER_ACCOUNT_IDS];
+
+interface UserRow {
+  userId: string;
+}
+
+interface AccountRow {
+  accountId: string;
+  password: string;
+}
 
 const checkOne = async (browser: Browser, accountId: string, password: string) => {
   const ctx = await browser.newContext({
@@ -52,19 +62,22 @@ const checkOne = async (browser: Browser, accountId: string, password: string) =
 
 const main = async () => {
   await mongoose.connect(process.env.MONGODB_URI!, { serverSelectionTimeoutMS: 10000 });
-  const user = await User.findOne({ loginId: '21lab', isActive: true }).lean();
+  const user = await User.findOne({ loginId: '21lab', isActive: true })
+    .select('userId')
+    .lean<UserRow | null>();
   if (!user) throw new Error('user not found');
   const accounts = await Account.find({
-    userId: (user as any).userId,
+    userId: user.userId,
     accountId: { $in: WRITER_IDS },
-    isActive: true,
-  }).lean();
+  })
+    .select('accountId password')
+    .lean<AccountRow[]>();
 
   console.log(`Writer 계정 ${accounts.length}개 순차 로그인 테스트 시작\n`);
   const browser = await chromium.launch({ headless: true });
 
   const results = [];
-  for (const a of accounts as any[]) {
+  for (const a of accounts) {
     const r = await checkOne(browser, a.accountId, a.password);
     results.push(r);
     await new Promise((res) => setTimeout(res, 10000));

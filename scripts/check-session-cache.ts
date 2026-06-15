@@ -1,9 +1,11 @@
 /**
- * Writer 5명의 Redis 세션 쿠키 캐시 상태 확인
+ * 샤넬/쇼핑 writer Redis 세션 쿠키 캐시 상태 확인
  */
 import Redis from 'ioredis';
 
-const WRITER_IDS = ['olgdmp9921', 'yenalk', 'eytkgy5500', 'uqgidh2690', '4giccokx'];
+import { LUXURY_CAFE_WRITER_ACCOUNT_IDS } from '../src/shared/config/cafe-account-policy';
+
+const WRITER_IDS = [...LUXURY_CAFE_WRITER_ACCOUNT_IDS];
 
 const main = async () => {
   const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');

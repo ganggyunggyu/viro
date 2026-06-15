@@ -35,6 +35,11 @@ export interface SelectDiverseKeywordResult {
   cafeThemeCounts: Record<string, Record<string, number>>;
 }
 
+export interface ScheduleKeywordDiversityItem {
+  keyword: string;
+  cafe: string;
+}
+
 const EXPOSED_STATUS_VALUES = new Set([
   'o',
   'ok',
@@ -248,4 +253,25 @@ export const assertDiverseSelection = (
       }
     }
   }
+};
+
+export const assertScheduleKeywordDiversity = (
+  items: ScheduleKeywordDiversityItem[],
+  options: Required<Pick<SelectDiverseKeywordOptions, 'maxPerThemePerDay' | 'maxPerThemePerCafe'>>,
+): void => {
+  const selected = items.map((item, index) => ({
+    rowNumber: index + 1,
+    keyword: item.keyword,
+    exposureStatus: '',
+    rank: '',
+    cafeName: item.cafe,
+    views: '',
+    writtenAt: '',
+    link: '',
+    theme: inferKeywordTheme(item.keyword),
+    assignedCafe: item.cafe,
+    slotIndex: index,
+  }));
+
+  assertDiverseSelection(selected, options);
 };

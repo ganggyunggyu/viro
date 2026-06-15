@@ -1,121 +1,94 @@
 import mongoose from 'mongoose';
+
+import { getCafeWriterAccounts } from '../src/shared/config/cafe-account-policy';
+import type { NaverAccount } from '../src/shared/lib/account-manager';
 import { Account } from '../src/shared/models/account';
+import { Cafe } from '../src/shared/models/cafe';
 import { User } from '../src/shared/models/user';
-
-export type AccountRosterRole = 'writer' | 'commenter';
-
-export interface AccountRosterItem {
-  accountId: string;
-  nickname: string;
-  password: string;
-  role: AccountRosterRole;
-  isActive: boolean;
-}
 
 export interface DbAccountSnapshot {
   accountId: string;
   nickname?: string;
-  password?: string;
   role?: string;
   isActive?: boolean;
+}
+
+export interface DbCafeSnapshot {
+  cafeId: string;
+  name: string;
+  isActive?: boolean;
+}
+
+export interface CafeWriterPolicyRow {
+  cafeId: string;
+  cafeName: string;
+  writerAccountIds: string[];
 }
 
 export interface AccountRosterAudit {
   activeWriterIds: string[];
   activeCommenterIds: string[];
-  inactiveRosterIds: string[];
-  missingIds: string[];
-  extraActiveIds: string[];
-  mismatches: string[];
+  inactiveIds: string[];
+  unknownRoleIds: string[];
+  cafeWriterPolicies: CafeWriterPolicyRow[];
+  emptyWriterCafeNames: string[];
   ok: boolean;
 }
 
 export const LOGIN_ID = '21lab';
-
-export const ACCOUNT_ROSTER: AccountRosterItem[] = [
-  { accountId: 'regular14631', nickname: '소원', password: 'r46f9sqy1', role: 'writer', isActive: true },
-  { accountId: 'nes1p2kx', nickname: '에스앤비안과 1', password: 'ua(9rr5g', role: 'writer', isActive: true },
-  { accountId: 'mh8j62wm', nickname: '에스앤비안과 2', password: 'bn5vkh6a1', role: 'writer', isActive: true },
-  { accountId: 'angrykoala270', nickname: '앵그리맨', password: '*&#o$xg81', role: 'writer', isActive: true },
-  { accountId: 'tinyfish183', nickname: '티니피쉬', password: 's55n9jne1', role: 'writer', isActive: true },
-  { accountId: 'dhtksk1p', nickname: '빨간모자앤 - 준3', password: 'dhtksk1pp', role: 'commenter', isActive: true },
-  { accountId: 'orangeswan630', nickname: '똑똑한건희씨', password: 'l@psz9d%1', role: 'commenter', isActive: true },
-  { accountId: 'bigfish773', nickname: '고래낚시', password: '%3p#lape1', role: 'commenter', isActive: true },
-  { accountId: 'k7d9x2m4', nickname: '강아지강하지', password: 'p3v8n2@k5q', role: 'commenter', isActive: true },
-  { accountId: 'loand3324', nickname: '라우드 2', password: 'akfalwk11!', role: 'commenter', isActive: false },
-  { accountId: 'fail5644', nickname: '고구마스틱2', password: 'akfalwk12!', role: 'commenter', isActive: true },
-  { accountId: 'compare14310', nickname: '룰루랄라 2', password: 'akfalwk12!', role: 'commenter', isActive: true },
-  { accountId: 'ghostrush7', nickname: '실눈캐', password: 'dashrun1!', role: 'commenter', isActive: true },
-  { accountId: 'q9v3m7a2', nickname: '포비', password: 'n4x8k2!r6p', role: 'commenter', isActive: true },
-  { accountId: 'laghunter8', nickname: '도도', password: 'fastplay7?', role: 'commenter', isActive: true },
-  { accountId: 'eghfsa5478', nickname: '오세아니야', password: 'akfakfalalwkwk12', role: 'commenter', isActive: true },
-  { accountId: 'pixelninja3', nickname: '건강박사석사', password: 'stealth9@', role: 'commenter', isActive: true },
-  { accountId: 'n7c3w8z2', nickname: '고양이밥', password: 'q5x9@t2m6p', role: 'commenter', isActive: true },
-  { accountId: 'respawnking9', nickname: '리스팩식스팩', password: 'comeback3@', role: 'commenter', isActive: true },
-];
+export const REQUIRED_WRITER_CAFE_NAMES = ['샤넬오픈런', '쇼핑지름신'];
 
 const sortIds = (ids: string[]): string[] => [...ids].sort((a, b) => a.localeCompare(b));
 
+const toPolicyAccount = (account: DbAccountSnapshot): NaverAccount => ({
+  id: account.accountId,
+  password: '',
+  nickname: account.nickname,
+  role: account.role === 'writer' || account.role === 'commenter' ? account.role : undefined,
+});
+
 export const createAccountRosterAudit = (
-  roster: AccountRosterItem[],
   dbAccounts: DbAccountSnapshot[],
+  dbCafes: DbCafeSnapshot[] = [],
 ): AccountRosterAudit => {
-  const dbById = new Map(dbAccounts.map((account) => [account.accountId, account]));
-  const activeRosterIds = new Set(
-    roster.filter(({ isActive }) => isActive).map(({ accountId }) => accountId),
-  );
-  const missingIds: string[] = [];
-  const mismatches: string[] = [];
-
-  roster.forEach((expected) => {
-    const actual = dbById.get(expected.accountId);
-
-    if (!actual) {
-      missingIds.push(expected.accountId);
-      return;
-    }
-
-    if (actual.nickname !== expected.nickname) {
-      mismatches.push(`${expected.accountId}:nickname`);
-    }
-
-    if (actual.password !== expected.password) {
-      mismatches.push(`${expected.accountId}:password`);
-    }
-
-    if (actual.role !== expected.role) {
-      mismatches.push(`${expected.accountId}:role`);
-    }
-
-    if (actual.isActive !== expected.isActive) {
-      mismatches.push(`${expected.accountId}:isActive`);
-    }
-  });
-
-  const extraActiveIds = dbAccounts
-    .filter(({ accountId, isActive }) => isActive && !activeRosterIds.has(accountId))
+  const activeAccounts = dbAccounts.filter(({ isActive }) => isActive);
+  const activePolicyAccounts = activeAccounts.map(toPolicyAccount);
+  const cafeWriterPolicies = dbCafes
+    .filter(({ isActive }) => isActive !== false)
+    .map((cafe) => ({
+      cafeId: cafe.cafeId,
+      cafeName: cafe.name,
+      writerAccountIds: getCafeWriterAccounts(activePolicyAccounts, cafe.cafeId).map(({ id }) => id),
+    }));
+  const requiredWriterCafeNames = new Set(REQUIRED_WRITER_CAFE_NAMES);
+  const emptyWriterCafeNames = cafeWriterPolicies
+    .filter(({ cafeName }) => requiredWriterCafeNames.has(cafeName))
+    .filter(({ writerAccountIds }) => writerAccountIds.length === 0)
+    .map(({ cafeName }) => cafeName);
+  const unknownRoleIds = activeAccounts
+    .filter(({ role }) => role !== 'writer' && role !== 'commenter')
     .map(({ accountId }) => accountId);
 
   return {
     activeWriterIds: sortIds(
-      roster
-        .filter(({ role, isActive }) => role === 'writer' && isActive)
+      activeAccounts
+        .filter(({ role }) => role === 'writer')
         .map(({ accountId }) => accountId),
     ),
     activeCommenterIds: sortIds(
-      roster
-        .filter(({ role, isActive }) => role === 'commenter' && isActive)
+      activeAccounts
+        .filter(({ role }) => role === 'commenter')
         .map(({ accountId }) => accountId),
     ),
-    inactiveRosterIds: sortIds(
-      roster
+    inactiveIds: sortIds(
+      dbAccounts
         .filter(({ isActive }) => !isActive)
         .map(({ accountId }) => accountId),
     ),
-    missingIds: sortIds(missingIds),
-    extraActiveIds: sortIds(extraActiveIds),
-    mismatches: sortIds(mismatches),
-    ok: missingIds.length === 0 && extraActiveIds.length === 0 && mismatches.length === 0,
+    unknownRoleIds: sortIds(unknownRoleIds),
+    cafeWriterPolicies,
+    emptyWriterCafeNames: sortIds(emptyWriterCafeNames),
+    ok: unknownRoleIds.length === 0 && emptyWriterCafeNames.length === 0,
   };
 };
 
@@ -126,10 +99,10 @@ const printAudit = (audit: AccountRosterAudit): void => {
         ok: audit.ok,
         activeWriters: audit.activeWriterIds.length,
         activeCommenters: audit.activeCommenterIds.length,
-        inactiveRosterIds: audit.inactiveRosterIds,
-        missingIds: audit.missingIds,
-        extraActiveIds: audit.extraActiveIds,
-        mismatches: audit.mismatches,
+        inactiveIds: audit.inactiveIds,
+        unknownRoleIds: audit.unknownRoleIds,
+        emptyWriterCafeNames: audit.emptyWriterCafeNames,
+        cafeWriterPolicies: audit.cafeWriterPolicies,
       },
       null,
       2,
@@ -137,50 +110,36 @@ const printAudit = (audit: AccountRosterAudit): void => {
   );
 };
 
+const getUserId = async (): Promise<string> => {
+  const user = await User.findOne({ loginId: LOGIN_ID, isActive: true })
+    .select('userId')
+    .lean<{ userId: string } | null>();
+
+  if (!user) {
+    throw new Error(`user not found: ${LOGIN_ID}`);
+  }
+
+  return user.userId;
+};
+
 const getDbAccountsForUser = async (userId: string): Promise<DbAccountSnapshot[]> => {
   return Account.find({ userId })
-    .select('accountId nickname password role isActive')
+    .select('accountId nickname role isActive')
     .lean<DbAccountSnapshot[]>();
 };
 
-const syncAccountRoster = async (userId: string): Promise<void> => {
-  for (const account of ACCOUNT_ROSTER) {
-    await Account.updateOne(
-      { userId, accountId: account.accountId },
-      {
-        $set: {
-          userId,
-          accountId: account.accountId,
-          password: account.password,
-          nickname: account.nickname,
-          role: account.role,
-          isActive: account.isActive,
-        },
-        $setOnInsert: {
-          isMain: false,
-        },
-      },
-      { upsert: true },
-    );
-  }
-
-  const activeRosterIds = ACCOUNT_ROSTER
-    .filter(({ isActive }) => isActive)
-    .map(({ accountId }) => accountId);
-
-  await Account.updateMany(
-    {
-      userId,
-      accountId: { $nin: activeRosterIds },
-      isActive: true,
-    },
-    { $set: { isActive: false } },
-  );
+const getDbCafesForUser = async (userId: string): Promise<DbCafeSnapshot[]> => {
+  return Cafe.find({ userId })
+    .select('cafeId name isActive')
+    .lean<DbCafeSnapshot[]>();
 };
 
 const main = async (): Promise<void> => {
   const shouldApply = process.argv.includes('--apply');
-  const shouldCheck = process.argv.includes('--check') || !shouldApply;
+
+  if (shouldApply) {
+    throw new Error('accounts:sync is disabled. Use import-accounts-and-join-cafes.ts with an explicit payload.');
+  }
 
   if (!process.env.MONGODB_URI) {
     throw new Error('MONGODB_URI 환경변수가 필요함');
@@ -190,26 +149,16 @@ const main = async (): Promise<void> => {
     serverSelectionTimeoutMS: 10000,
   });
 
-  const user = await User.findOne({ loginId: LOGIN_ID, isActive: true })
-    .select('userId')
-    .lean<{ userId: string } | null>();
+  const userId = await getUserId();
+  const [dbAccounts, dbCafes] = await Promise.all([
+    getDbAccountsForUser(userId),
+    getDbCafesForUser(userId),
+  ]);
+  const audit = createAccountRosterAudit(dbAccounts, dbCafes);
+  printAudit(audit);
 
-  if (!user) {
-    throw new Error(`user not found: ${LOGIN_ID}`);
-  }
-
-  if (shouldApply) {
-    await syncAccountRoster(user.userId);
-  }
-
-  if (shouldCheck) {
-    const dbAccounts = await getDbAccountsForUser(user.userId);
-    const audit = createAccountRosterAudit(ACCOUNT_ROSTER, dbAccounts);
-    printAudit(audit);
-
-    if (!audit.ok) {
-      throw new Error('계정 roster와 DB가 불일치함');
-    }
+  if (!audit.ok) {
+    throw new Error('계정 DB/카페 writer 정책 점검 실패');
   }
 
   await mongoose.disconnect();

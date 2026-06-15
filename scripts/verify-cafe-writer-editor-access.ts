@@ -56,6 +56,7 @@ const TARGET_CAFE_NAMES = (process.env.TARGET_CAFE_NAMES || DEFAULT_TARGET_CAFE_
   .filter(Boolean);
 const LOGIN_WAIT_MS = Number(process.env.LOGIN_WAIT_MS || 60_000);
 const FORCE_FRESH_LOGIN = process.env.FORCE_FRESH_LOGIN === 'true';
+const INCLUDE_ALL_ACTIVE_WRITERS = process.env.INCLUDE_ALL_ACTIVE_WRITERS === 'true';
 
 const compact = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
@@ -304,10 +305,19 @@ const main = async (): Promise<void> => {
       }
     }
 
+    if (INCLUDE_ALL_ACTIVE_WRITERS) {
+      for (const account of activePolicyAccounts) {
+        if (account.role === 'writer') {
+          requiredIds.add(account.id);
+        }
+      }
+    }
+
     writerIdsByCafeName.set(cafe.name, [...requiredIds]);
   }
 
   const rows: CheckRow[] = [];
+  const loginResultByAccountId = new Map<string, { ok: boolean; detail: string }>();
 
   for (const cafe of cafes) {
     const writerIds = writerIdsByCafeName.get(cafe.name) ?? [];
@@ -320,11 +330,27 @@ const main = async (): Promise<void> => {
         isActive: false,
       };
       const dbStatus = dbAccount?.isActive ? 'ACTIVE' : dbAccount ? 'INACTIVE' : 'MISSING';
+      const cachedLogin = loginResultByAccountId.get(accountId);
+
+      if (cachedLogin && !cachedLogin.ok) {
+        rows.push({
+          accountId,
+          nickname: account.nickname || accountId,
+          cafeName: cafe.name,
+          cafeId: cafe.cafeId,
+          dbStatus,
+          loginStatus: 'FAIL',
+          editorStatus: 'SKIPPED',
+          detail: cachedLogin.detail,
+        });
+        continue;
+      }
 
       await acquireAccountLock(accountId);
 
       try {
-        const login = await ensureLoggedIn(account);
+        const login = cachedLogin ?? await ensureLoggedIn(account);
+        loginResultByAccountId.set(accountId, login);
 
         if (!login.ok) {
           rows.push({
@@ -361,6 +387,7 @@ const main = async (): Promise<void> => {
     `[CAFE_WRITER_EDITOR_RESULT]${JSON.stringify(
       {
         targetCafes: cafes.map(({ name, cafeId }) => ({ name, cafeId })),
+        includeAllActiveWriters: INCLUDE_ALL_ACTIVE_WRITERS,
         policyWriterIdsByCafe: Object.fromEntries(
           cafes.map((cafe) => [
             cafe.name,

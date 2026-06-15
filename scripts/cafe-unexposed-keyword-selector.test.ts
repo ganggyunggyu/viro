@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   assertDiverseSelection,
+  assertScheduleKeywordDiversity,
   inferKeywordTheme,
   isExposedStatus,
   parseCafeKeywordRows,
@@ -71,4 +72,18 @@ test('selectDiverseUnexposedKeywords skips exposed rows and caps themes per day 
     maxPerThemePerDay: 2,
     maxPerThemePerCafe: 1,
   });
+});
+
+test('assertScheduleKeywordDiversity rejects repeated ad themes in finished schedules', () => {
+  assert.throws(
+    () => assertScheduleKeywordDiversity(
+      [
+        { cafe: '건강한노후준비', keyword: '계류유산 진단서' },
+        { cafe: '건강관리소', keyword: '계류유산 후 재임신' },
+        { cafe: '건강한노후준비', keyword: '계류유산 후 몸조리' },
+      ],
+      { maxPerThemePerDay: 2, maxPerThemePerCafe: 1 },
+    ),
+    /주제군 일일 한도 초과: 계류유산 3\/2/,
+  );
 });
