@@ -19,11 +19,13 @@ import { buildCompetitorAdvocacyPrompt } from "../src/features/viral/prompts/bui
 import { buildHanryeoCafePrompt } from "../src/features/viral/prompts/build-hanryeo-cafe-prompt";
 import { buildShortDailyPrompt } from "../src/features/viral/prompts/build-short-daily-prompt";
 import { getViralContentStyleForLoginId } from "../src/shared/config/user-profile";
+import { getCafeWriterAccounts } from "../src/shared/config/cafe-account-policy";
 import { parseViralResponse } from "../src/features/viral/viral-parser";
 import type {
   PostJobData,
   ViralCommentsData,
 } from "../src/shared/lib/queue/types";
+import type { NaverAccount } from "../src/shared/lib/account-manager";
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 const LOGIN_ID = process.env.LOGIN_ID || "21lab";
@@ -146,11 +148,20 @@ const getEligibleCommenterIds = (
   );
 };
 
-const createWriterResolver = (writerAccountIds: string[]) => {
+const createWriterResolver = (
+  writerAccountIdsByCafeId: Map<string, string[]>,
+  fallbackWriterAccountIds: string[],
+) => {
   const cursorByCafeId = new Map<string, number>();
-  const writerAccountIdSet = new Set(writerAccountIds);
 
   return ({ accountId, cafeId }: ScheduleItem): string => {
+    const writerAccountIds = writerAccountIdsByCafeId.get(cafeId) ?? fallbackWriterAccountIds;
+    const writerAccountIdSet = new Set(writerAccountIds);
+
+    if (writerAccountIds.length === 0) {
+      throw new Error(`writer 계정 없음: ${cafeId}`);
+    }
+
     if (writerAccountIdSet.has(accountId)) {
       return accountId;
     }
@@ -207,6 +218,23 @@ const main = async (): Promise<void> => {
   const writerAccountIds = accounts
     .filter((a) => a.role === "writer")
     .map((a) => a.accountId);
+  const policyAccounts: NaverAccount[] = accounts.map((a) => ({
+    id: a.accountId,
+    password: a.password,
+    nickname: a.nickname,
+    isMain: a.isMain,
+    activityHours: a.activityHours,
+    restDays: a.restDays,
+    dailyPostLimit: a.dailyPostLimit,
+    personaId: a.personaId,
+    role: a.role,
+  }));
+  const writerAccountIdsByCafeId = new Map(
+    cafes.map((cafe) => [
+      cafe.cafeId,
+      getCafeWriterAccounts(policyAccounts, cafe.cafeId).map(({ id }) => id),
+    ]),
+  );
   const commenterIds = accounts
     .filter((a) => a.role === "commenter")
     .map((a) => a.accountId);
@@ -228,6 +256,12 @@ const main = async (): Promise<void> => {
   console.log(
     `commenter blocked: global=${Array.from(GLOBAL_BLOCKED_COMMENTER_ACCOUNT_IDS).join(", ")} / shopping=${Array.from(BLOCKED_COMMENTER_ACCOUNT_IDS_BY_CAFE_ID["25729954"]).join(", ")}\n`,
   );
+  for (const cafe of cafes) {
+    const cafeWriterAccountIds = writerAccountIdsByCafeId.get(cafe.cafeId) ?? [];
+    if (cafeWriterAccountIds.length > 0) {
+      console.log(`writer policy: ${cafe.name}(${cafe.cafeId}) -> ${cafeWriterAccountIds.join(", ")}`);
+    }
+  }
 
   let totalPosts = 0;
   let failCount = 0;
@@ -237,7 +271,7 @@ const main = async (): Promise<void> => {
   const sortedSchedule = [...filteredSchedule].sort((a, b) =>
     a.time.localeCompare(b.time),
   );
-  const resolveWriterAccountId = createWriterResolver(writerAccountIds);
+  const resolveWriterAccountId = createWriterResolver(writerAccountIdsByCafeId, writerAccountIds);
   const scheduledRows = sortedSchedule.map((item) => {
     const writerAccountId = resolveWriterAccountId(item);
     const eligibleCommenterIds = getEligibleCommenterIds(commenterIds, item.cafeId);

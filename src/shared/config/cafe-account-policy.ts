@@ -1,15 +1,15 @@
 import type { NaverAccount } from '@/shared/lib/account-manager';
 
-const SPECIAL_WRITER_ACCOUNT_IDS = new Set([
+export const LUXURY_CAFE_WRITER_ACCOUNT_IDS = [
   '4giccokx',
   'uqgidh2690',
   'eytkgy5500',
   'olgdmp9921',
-  'regular14631',
-  'nes1p2kx',
-  'mh8j62wm',
-  'angrykoala270',
-  'tinyfish183',
+  'yenalk',
+] as const;
+
+const LUXURY_CAFE_WRITER_ACCOUNT_ID_SET = new Set<string>([
+  ...LUXURY_CAFE_WRITER_ACCOUNT_IDS,
 ]);
 
 const LUXURY_CAFE_IDS = new Set([
@@ -52,35 +52,42 @@ const filterAccountsByIds = (
   return accounts.filter(({ id }) => allowedIds.has(id));
 };
 
+const isWriterAccount = ({ role }: NaverAccount): boolean => role === 'writer';
+
 export const getCafeAccountPolicy = (
   accounts: NaverAccount[],
   cafeId?: string
 ): CafeAccountPolicy => {
   const uniqueAccounts = uniqueAccountsById(accounts);
+  const writerRoleAccounts = uniqueAccounts.filter(isWriterAccount);
 
   if (!cafeId) {
     return {
-      writerAccounts: uniqueAccounts,
+      writerAccounts: writerRoleAccounts,
       commenterAccounts: uniqueAccounts,
     };
   }
 
   if (LUXURY_CAFE_IDS.has(cafeId)) {
     return {
-      writerAccounts: uniqueAccounts.filter(({ id }) => SPECIAL_WRITER_ACCOUNT_IDS.has(id)),
+      writerAccounts: writerRoleAccounts.filter(({ id }) =>
+        LUXURY_CAFE_WRITER_ACCOUNT_ID_SET.has(id)
+      ),
       commenterAccounts: uniqueAccounts,
     };
   }
 
   if (HEALTH_CAFE_IDS.has(cafeId)) {
     return {
-      writerAccounts: uniqueAccounts.filter(({ id }) => !SPECIAL_WRITER_ACCOUNT_IDS.has(id)),
+      writerAccounts: writerRoleAccounts.filter(({ id }) =>
+        !LUXURY_CAFE_WRITER_ACCOUNT_ID_SET.has(id)
+      ),
       commenterAccounts: uniqueAccounts,
     };
   }
 
   return {
-    writerAccounts: uniqueAccounts,
+    writerAccounts: writerRoleAccounts,
     commenterAccounts: uniqueAccounts,
   };
 };
