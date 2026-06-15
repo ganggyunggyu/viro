@@ -194,8 +194,8 @@ interface GeneratedModifyContent {
   model?: string;
 }
 
-const FIRST_COMMENT_DELAY = 30 * 1000;
-const BETWEEN_COMMENTS_DELAY = { min: 30 * 1000, max: 90 * 1000 };
+const FIRST_COMMENT_DELAY = { min: 4 * 60 * 1000, max: 7 * 60 * 1000 };
+const BETWEEN_COMMENTS_DELAY = { min: 4 * 60 * 1000, max: 9 * 60 * 1000 };
 
 const getRandomDelay = (range: { min: number; max: number }): number =>
   range.min + Math.floor(Math.random() * (range.max - range.min));
@@ -695,7 +695,7 @@ const addViralCommentJobs = async (
   let orderIndex = 0;
   let commentCount = 0;
   let replyCount = 0;
-  let cumulativeDelay = FIRST_COMMENT_DELAY;
+  let cumulativeDelay = getRandomDelay(FIRST_COMMENT_DELAY);
   const lastReplyerByParent = new Map<number, string>();
 
   for (const item of comments) {

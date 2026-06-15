@@ -133,8 +133,8 @@ const saveArticleOnly = async (
 
 };
 
-const FIRST_COMMENT_DELAY = 30 * 1000; // 글 저장 후 첫 댓글까지 30초
-const BETWEEN_COMMENTS_DELAY = { min: 30 * 1000, max: 90 * 1000 }; // 댓글 간 30초~1분30초
+const FIRST_COMMENT_DELAY = { min: 4 * 60 * 1000, max: 7 * 60 * 1000 }; // 글 저장 후 첫 댓글까지 4~7분
+const BETWEEN_COMMENTS_DELAY = { min: 4 * 60 * 1000, max: 9 * 60 * 1000 }; // 댓글/대댓글 간 4~9분
 
 const addViralCommentJobs = async (
   postData: PostJobData,
@@ -176,7 +176,7 @@ const addViralCommentJobs = async (
   let orderIndex = 0;
   let commentCount = 0;
   let replyCount = 0;
-  let cumulativeDelay = FIRST_COMMENT_DELAY;
+  let cumulativeDelay = getRandomDelay(FIRST_COMMENT_DELAY);
   const lastReplyerByParent: Map<number, string> = new Map();
 
   console.log(`[WORKER] viral 댓글/대댓글 ${comments.length}/${viralComments.comments.length}개 Job 추가 시작`);
