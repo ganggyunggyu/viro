@@ -1,0 +1,102 @@
+{
+  "generatedAt": "2026-06-16T01:36:28.849Z",
+  "source": {
+    "spreadsheetId": "1dMilxTgiwt-XjZux5pSk9EpUnLngYj1XqSukO1088mU",
+    "sheetName": "21lab 블로그 계정LIST",
+    "range": "B34:H78",
+    "inputRows": 1,
+    "uniqueAccounts": 1,
+    "duplicateAccountIds": []
+  },
+  "targetCafes": [
+    {
+      "name": "샤넬오픈런",
+      "cafeId": "25460974",
+      "cafeUrl": "shoppingtpw",
+      "menuId": "1",
+      "menuCandidates": [
+        "60",
+        "42",
+        "95",
+        "112",
+        "72",
+        "99",
+        "136",
+        "84",
+        "34",
+        "70",
+        "148",
+        "85",
+        "86",
+        "125",
+        "87",
+        "52",
+        "1"
+      ]
+    },
+    {
+      "name": "쇼핑지름신",
+      "cafeId": "25729954",
+      "cafeUrl": "shopjirmsin",
+      "menuId": "1",
+      "menuCandidates": [
+        "847",
+        "919",
+        "153",
+        "948",
+        "278",
+        "949",
+        "337",
+        "165",
+        "715",
+        "63",
+        "251",
+        "186",
+        "751",
+        "588",
+        "1"
+      ]
+    }
+  ],
+  "summary": {
+    "totalChecks": 2,
+    "editorOk": 0,
+    "loginFail": 0,
+    "writeBlocked": 2,
+    "unknown": 0
+  },
+  "rows": [
+    {
+      "rowNumber": 50,
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "blogUrl": "https://m.blog.naver.com/nes1p2kx?tab=1",
+      "category": "안과",
+      "mvpn": "gkgb4040",
+      "owner": "규홍",
+      "cafeName": "샤넬오픈런",
+      "cafeId": "25460974",
+      "loginStatus": "OK",
+      "editorStatus": "WRITE_BLOCKED",
+      "method": "cafe_home_write_button",
+      "detail": "모바일/데스크톱 카페 홈에서 글쓰기 버튼 없음",
+      "currentUrl": "https://cafe.naver.com/ca-fe/cafes/25460974"
+    },
+    {
+      "rowNumber": 50,
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "blogUrl": "https://m.blog.naver.com/nes1p2kx?tab=1",
+      "category": "안과",
+      "mvpn": "gkgb4040",
+      "owner": "규홍",
+      "cafeName": "쇼핑지름신",
+      "cafeId": "25729954",
+      "loginStatus": "OK",
+      "editorStatus": "WRITE_BLOCKED",
+      "method": "cafe_home_write_button",
+      "detail": "모바일/데스크톱 카페 홈에서 글쓰기 버튼 없음",
+      "currentUrl": "https://cafe.naver.com/ca-fe/cafes/25729954"
+    }
+  ]
+}

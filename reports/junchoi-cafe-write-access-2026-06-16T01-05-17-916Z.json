@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-06-16T01:05:17.916Z",
+  "source": {
+    "spreadsheetId": "1dMilxTgiwt-XjZux5pSk9EpUnLngYj1XqSukO1088mU",
+    "sheetName": "21lab 블로그 계정LIST",
+    "range": "B34:H78",
+    "inputRows": 0,
+    "uniqueAccounts": 0,
+    "duplicateAccountIds": []
+  },
+  "targetCafes": [
+    {
+      "name": "샤넬오픈런",
+      "cafeId": "25460974",
+      "cafeUrl": "shoppingtpw",
+      "menuId": "1"
+    },
+    {
+      "name": "쇼핑지름신",
+      "cafeId": "25729954",
+      "cafeUrl": "shopjirmsin",
+      "menuId": "1"
+    }
+  ],
+  "summary": {
+    "totalChecks": 0,
+    "editorOk": 0,
+    "loginFail": 0,
+    "writeBlocked": 0,
+    "unknown": 0
+  },
+  "rows": []
+}
