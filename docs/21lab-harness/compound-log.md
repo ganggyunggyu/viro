@@ -13,3 +13,8 @@
 - 조치: `scripts/sync-cafe-accounts-from-sheet.ts`를 추가해 `21lab 블로그 계정LIST` master 탭에서 계정/PW를 찾고, `카페 계정`/`카페 글쓰기 계정` 탭으로 role을 확정하게 했다.
 - 재발 방지: `accounts:sync`는 이제 시트 기반 동기화 명령으로 연결했다. writer는 `카페 글쓰기 계정` 탭에도 있어야 `writer`로 반영된다.
 - 남은 조건: Google service account를 해당 Sheet에 공유해야 `npm run accounts:sheet:check`가 통과한다. 현재는 권한 없음 상태다.
+
+## 2026-06-16 Junchoi Cafe Write Access
+- 조치: `21lab 블로그 계정LIST!B34:H78` 준최 블로그 리스트 39개 계정을 stdin 기반 스크립트로 점검했다.
+- 결과: 샤넬오픈런/쇼핑지름신에서 에디터 진입 확인 계정은 0개였다. 28개 계정은 로그인은 됐지만 두 카페 모두 글쓰기 버튼이 없었고, 11개 계정은 캡차 실패 또는 추가 인증 대기로 로그인 확인이 안 됐다.
+- 재발 방지: 글쓰기 가능 계정 후보는 시트 메모만 보지 말고, 카페별 글쓰기 버튼/에디터 진입 검증을 통과한 뒤 `카페 글쓰기 계정` 탭과 DB writer 정책에 반영한다.

@@ -15,11 +15,13 @@
 ## Plan
 - [x] Confirm spreadsheet tab and target range.
 - [x] Review existing cafe login/editor verification scripts.
-- [ ] Add stdin-based verification harness.
-- [ ] Run sequential login and write-editor checks for both cafes.
-- [ ] Review the sanitized report for secret leakage.
-- [ ] Report accounts with editor access.
+- [x] Add stdin-based verification harness.
+- [x] Run sequential login and write-editor checks for both cafes.
+- [x] Review the sanitized report for secret leakage.
+- [x] Report accounts with editor access.
 
 ## Verification
 - Run the script with `.env.local` loaded and account rows passed through stdin.
 - Expected result: every valid account row receives one status per target cafe, with no password in stdout or report.
+- Final report: `reports/junchoi-cafe-write-access-2026-06-16T01-55-33-855Z.json`.
+- Result: 39 unique accounts checked, 0 editor-ok checks, 11 accounts failed login verification, 28 accounts logged in but had no write button for both target cafes.
