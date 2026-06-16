@@ -485,16 +485,14 @@ const verifyEditorAccess = async (
     }
   }
 
-  if (!mobileClicked && !clicked) {
-    return {
-      editorStatus: 'WRITE_BLOCKED',
-      detail: '모바일/데스크톱 카페 홈에서 글쓰기 버튼 없음',
-      method: 'cafe_home_write_button',
-      currentUrl: page.url(),
-    };
-  }
-
-  let lastUnknown: Pick<CheckRow, 'editorStatus' | 'detail' | 'currentUrl'> | undefined;
+  let lastUnknown: Pick<CheckRow, 'editorStatus' | 'detail' | 'currentUrl'> | undefined =
+    !mobileClicked && !clicked
+      ? {
+          editorStatus: 'UNKNOWN',
+          detail: '모바일/데스크톱 카페 홈에서 글쓰기 버튼 없음',
+          currentUrl: page.url(),
+        }
+      : undefined;
 
   for (const menuId of menuCandidates) {
     const writeUrl = `https://cafe.naver.com/ca-fe/cafes/${cafe.cafeId}/articles/write?boardType=L&menuId=${menuId}`;
