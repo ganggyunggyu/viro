@@ -79,6 +79,8 @@ const MODIFY_CONTENT_SOURCE =
 const MODIFY_SKIP_COMMENTS =
   process.env.MODIFY_SKIP_COMMENTS === "true" ||
   process.env.MODIFY_ARTICLE_ONLY === "true";
+const MODIFY_INCLUDE_MODIFIED = process.env.MODIFY_INCLUDE_MODIFIED === "true";
+const MODIFY_SKIP_ACCESS_CHECK = process.env.MODIFY_SKIP_ACCESS_CHECK === "true";
 const DIRECT_MODIFY_READY_SELECTOR =
   'p.se-text-paragraph, .FlexableTextArea textarea.textarea_input, .se-component-content, textarea.textarea_input, textarea[placeholder*="제목"], input[placeholder*="제목"]';
 const DIRECT_INACCESSIBLE_TEXT =
@@ -843,7 +845,7 @@ const main = async (): Promise<void> => {
     const publishedArticle = await PublishedArticle.findOne({
       cafeId,
       articleId,
-      status: { $ne: "modified" },
+      ...(MODIFY_INCLUDE_MODIFIED ? {} : { status: { $ne: "modified" } }),
     }).lean();
     if (!publishedArticle) {
       console.log(`  이미 수정됐거나 DB에 글 정보 없음 (articleId: ${articleId})`);
@@ -861,17 +863,21 @@ const main = async (): Promise<void> => {
 
     console.log(`  작성자: ${writerAccountId}`);
 
-    const precheck = await checkModifyTargetAccessible(
-      writerAccountId,
-      account.password,
-      cafeId,
-      articleId,
-    );
+    if (MODIFY_SKIP_ACCESS_CHECK) {
+      console.log("  접근 확인 스킵 (MODIFY_SKIP_ACCESS_CHECK=true)");
+    } else {
+      const precheck = await checkModifyTargetAccessible(
+        writerAccountId,
+        account.password,
+        cafeId,
+        articleId,
+      );
 
-    if (!precheck.accessible) {
-      console.log(`  접근 불가 스킵: ${precheck.reason}`);
-      failCount++;
-      continue;
+      if (!precheck.accessible) {
+        console.log(`  접근 불가 스킵: ${precheck.reason}`);
+        failCount++;
+        continue;
+      }
     }
 
     // 광고 원고 생성
