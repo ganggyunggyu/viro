@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-07-01T15:06:24.587Z",
+  "results": [
+    {
+      "order": 1,
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "맛집 밥상노트",
+      "cafeAddress": "babsangnote702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/01-dhtksk1p-ready.png"
+    },
+    {
+      "order": 2,
+      "accountId": "regular14631",
+      "nickname": "소원 1",
+      "cafeName": "맛집 동네밥상",
+      "cafeAddress": "localtable702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/02-regular14631-ready.png"
+    },
+    {
+      "order": 3,
+      "accountId": "orangeswan630",
+      "nickname": "똑똑한건희씨",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeAddress": "menunote702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/03-orangeswan630-ready.png"
+    },
+    {
+      "order": 4,
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "맛집 식탁모임",
+      "cafeAddress": "tableclub702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/04-bigfish773-ready.png"
+    },
+    {
+      "order": 5,
+      "accountId": "tinyfish183",
+      "nickname": "티니피쉬 1",
+      "cafeName": "애견 반려수첩",
+      "cafeAddress": "petnote702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/05-tinyfish183-ready.png"
+    },
+    {
+      "order": 6,
+      "accountId": "k7d9x2m4",
+      "nickname": "강아지강하지 1",
+      "cafeName": "애견 산책노트",
+      "cafeAddress": "walknote702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/06-k7d9x2m4-ready.png"
+    },
+    {
+      "order": 7,
+      "accountId": "fail5644",
+      "nickname": "고구마스틱2 (10개) 1",
+      "cafeName": "건강 생활수첩",
+      "cafeAddress": "carelog702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/07-fail5644-ready.png"
+    },
+    {
+      "order": 8,
+      "accountId": "compare14310",
+      "nickname": "룰루랄라 2 (12개) 1",
+      "cafeName": "건강 습관노트",
+      "cafeAddress": "habitnote702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/08-compare14310-ready.png"
+    },
+    {
+      "order": 9,
+      "accountId": "ghostrush7",
+      "nickname": "실눈캐",
+      "cafeName": "생활 정보마당",
+      "cafeAddress": "infomadang702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/09-ghostrush7-ready.png"
+    },
+    {
+      "order": 10,
+      "accountId": "ahfflwl123",
+      "nickname": "햄부기",
+      "cafeName": "일상 소통마당",
+      "cafeAddress": "talkmadang702",
+      "status": "ready",
+      "url": "https://section.cafe.naver.com/ca-fe/home/create",
+      "screenshot": "outputs/naver-cafe-create-chrome-windows/10-ahfflwl123-ready.png"
+    }
+  ]
+}
