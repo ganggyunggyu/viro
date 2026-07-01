@@ -1,0 +1,441 @@
+{
+  "summary": {
+    "generatedAt": "2026-07-01T13:24:12.578Z",
+    "requestedCount": 19,
+    "matchedCount": 19,
+    "unmatchedCount": 0,
+    "multipleMatchCount": 0,
+    "writerCount": 4,
+    "commenterCount": 12,
+    "missingRoleCount": 3
+  },
+  "results": [
+    {
+      "requested": "빨간모자앤  1",
+      "normalizedKey": "빨간모자앤",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "dhtksk1p",
+          "nickname": "빨간모자앤  1",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-06-04T05:32:26.422Z"
+        }
+      ]
+    },
+    {
+      "requested": "소원 1",
+      "normalizedKey": "소원",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "regular14631",
+          "nickname": "소원 1",
+          "role": "writer",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": [],
+          "createdAt": "2026-05-26T05:09:35.901Z",
+          "updatedAt": "2026-06-04T05:32:26.422Z"
+        }
+      ]
+    },
+    {
+      "requested": "똑똑한건희씨",
+      "normalizedKey": "똑똑한건희씨",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "orangeswan630",
+          "nickname": "똑똑한건희씨",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": 5,
+          "personaId": null,
+          "activityHours": {
+            "start": 0,
+            "end": 24
+          },
+          "restDays": [],
+          "createdAt": "2026-05-26T05:35:00.543Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "고래낚시 1",
+      "normalizedKey": "고래낚시",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "bigfish773",
+          "nickname": "고래낚시 1",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "티니피쉬 1",
+      "normalizedKey": "티니피쉬",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "tinyfish183",
+          "nickname": "티니피쉬 1",
+          "role": "writer",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": 5,
+          "personaId": null,
+          "activityHours": {
+            "start": 0,
+            "end": 24
+          },
+          "restDays": [],
+          "createdAt": "2026-05-26T05:35:00.569Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "강아지강하지 1",
+      "normalizedKey": "강아지강하지",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "k7d9x2m4",
+          "nickname": "강아지강하지 1",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "고구마스틱2 (10개) 1",
+      "normalizedKey": "고구마스틱2",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "fail5644",
+          "nickname": "고구마스틱2 (10개) 1",
+          "role": "writer",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": 5,
+          "personaId": null,
+          "activityHours": {
+            "start": 0,
+            "end": 24
+          },
+          "restDays": [],
+          "createdAt": "2026-05-26T05:35:00.495Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "룰루랄라 2 (12개) 1",
+      "normalizedKey": "룰루랄라2",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "compare14310",
+          "nickname": "룰루랄라 2 (12개) 1",
+          "role": "writer",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": [],
+          "createdAt": "2026-05-26T05:09:35.701Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "실눈캐",
+      "normalizedKey": "실눈캐",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "ghostrush7",
+          "nickname": "실눈캐",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "햄부기",
+      "normalizedKey": "햄부기",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "ahfflwl123",
+          "nickname": "햄부기",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "바삭바삭해 1",
+      "normalizedKey": "바삭바삭해",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "ahffkdlek12",
+          "nickname": "바삭바삭해 1",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "쉽고간단하게",
+      "normalizedKey": "쉽고간단하게",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "ahsxkfldk12",
+          "nickname": "쉽고간단하게",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-05-26T08:00:46.277Z"
+        }
+      ]
+    },
+    {
+      "requested": "긍정이백퍼  1",
+      "normalizedKey": "긍정이백퍼",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "ahffkekd12",
+          "nickname": "긍정이백퍼  1",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-06-04T05:32:26.422Z"
+        }
+      ]
+    },
+    {
+      "requested": "포비 1",
+      "normalizedKey": "포비",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "q9v3m7a2",
+          "nickname": "포비 1",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-06-04T05:32:26.422Z"
+        }
+      ]
+    },
+    {
+      "requested": "도도 1",
+      "normalizedKey": "도도",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "laghunter8",
+          "nickname": "도도 1",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-06-04T05:32:26.422Z"
+        }
+      ]
+    },
+    {
+      "requested": "오세아니야 1",
+      "normalizedKey": "오세아니야",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": "21lab",
+          "ownerUserActive": true,
+          "accountId": "eghfsa5478",
+          "nickname": "오세아니야 1",
+          "role": "commenter",
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-26T07:41:52.785Z",
+          "updatedAt": "2026-06-04T05:32:26.422Z"
+        }
+      ]
+    },
+    {
+      "requested": "건강박사석사 1",
+      "normalizedKey": "건강박사석사",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": null,
+          "ownerUserActive": null,
+          "accountId": "pixelninja3",
+          "nickname": "건강박사석사 1",
+          "role": null,
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-06-04T05:32:26.422Z",
+          "updatedAt": "2026-06-04T05:32:26.422Z"
+        }
+      ]
+    },
+    {
+      "requested": "고양이밥 1",
+      "normalizedKey": "고양이밥",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": null,
+          "ownerUserActive": null,
+          "accountId": "n7c3w8z2",
+          "nickname": "고양이밥 1",
+          "role": null,
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-07-01T05:36:15.553Z",
+          "updatedAt": "2026-07-01T05:36:15.553Z"
+        }
+      ]
+    },
+    {
+      "requested": "리스팩식스팩 1",
+      "normalizedKey": "리스팩식스팩",
+      "matchCount": 1,
+      "matches": [
+        {
+          "ownerLoginId": null,
+          "ownerUserActive": null,
+          "accountId": "respawnking9",
+          "nickname": "리스팩식스팩",
+          "role": null,
+          "isActive": true,
+          "isMain": false,
+          "dailyPostLimit": null,
+          "personaId": null,
+          "activityHours": null,
+          "restDays": null,
+          "createdAt": "2026-05-28T00:45:41.897Z",
+          "updatedAt": "2026-05-28T00:45:41.897Z"
+        }
+      ]
+    }
+  ]
+}
