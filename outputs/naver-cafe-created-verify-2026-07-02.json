@@ -1,0 +1,298 @@
+{
+  "generatedAt": "2026-07-01T15:15:48.433Z",
+  "total": 10,
+  "directOk": 10,
+  "searchExposed": 0,
+  "results": [
+    {
+      "order": 1,
+      "theme": "맛집",
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "맛집 밥상노트",
+      "cafeAddress": "babsangnote702",
+      "url": "https://cafe.naver.com/babsangnote702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%B0%A5%EC%83%81%EB%85%B8%ED%8A%B8",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/babsangnote702",
+        "finalUrl": "https://cafe.naver.com/babsangnote702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/01-babsangnote702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%B0%A5%EC%83%81%EB%85%B8%ED%8A%B8",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%B0%A5%EC%83%81%EB%85%B8%ED%8A%B8",
+        "resultText": "검색결과 없음",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/01-babsangnote702-search.png"
+      }
+    },
+    {
+      "order": 2,
+      "theme": "맛집",
+      "accountId": "regular14631",
+      "nickname": "소원 1",
+      "cafeName": "맛집 동네밥상",
+      "cafeAddress": "localtable702",
+      "url": "https://cafe.naver.com/localtable702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%8F%99%EB%84%A4%EB%B0%A5%EC%83%81",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/localtable702",
+        "finalUrl": "https://cafe.naver.com/localtable702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/02-localtable702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%8F%99%EB%84%A4%EB%B0%A5%EC%83%81",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%8F%99%EB%84%A4%EB%B0%A5%EC%83%81",
+        "resultText": "메인 메뉴로 바로가기\n본문 바로가기\n웹 접근성이 좋은 모바일 웹에서 사용하겠습니까?\nNAVER\n카페\n플리마켓\n사용자 링크\n로그인\n서비스 더보기\n믿고 쓰는 중고거래, 지금 시작하세요\n플리마켓\n카페홈\n이웃\n(새 창에서 열림)\n구독\n인기글\n내소식\n채팅\n(새 창에서 열림)\n주제별 카페\n지역별 카페\n인기 팬카페\n대표 카페\n카페 랭킹\n‘맛집 동네밥상’\n 검색결과\n전체글\n카페명\n이웃글\n중고거래\n카페\n1\n정확도순\n랭킹순\n멤버순\n새글 수\n전체글 수\nTV맛집지도 – 한국인의밥상·동네한바퀴·생생정보\n\n한국인의밥상·동네한바퀴·2TV생생정보·생활의달인 등 TV 방송에 소개된 전국 맛집과 촬영지 정보를 정리\n\n주제생활 > 맛집\n멤버수26\n랭킹새싹2단계\n새글/전체글0 / 105\n\n카페 서비스에 궁금한 점이 있을 때\n\n카페 스마트봇\n(새 창에서 열림)\n신고센터\n(새 창에서 열림)\n카페 이용약관\n(새 창에서 열림)\n 카페 운영원칙\n(새 창에서 열림)\n개인정보처리방침\n(새 창에서 열림)\n책임의 한계와 법적고지\n(새",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/02-localtable702-search.png"
+      }
+    },
+    {
+      "order": 3,
+      "theme": "맛집",
+      "accountId": "orangeswan630",
+      "nickname": "똑똑한건희씨",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeAddress": "menunote702",
+      "url": "https://cafe.naver.com/menunote702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%A9%94%EB%89%B4%EC%88%98%EC%B2%A9",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/menunote702",
+        "finalUrl": "https://cafe.naver.com/menunote702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/03-menunote702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%A9%94%EB%89%B4%EC%88%98%EC%B2%A9",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EB%A9%94%EB%89%B4%EC%88%98%EC%B2%A9",
+        "resultText": "메인 메뉴로 바로가기\n본문 바로가기\n웹 접근성이 좋은 모바일 웹에서 사용하겠습니까?\nNAVER\n카페\n플리마켓\n사용자 링크\n로그인\n서비스 더보기\n믿고 쓰는 중고거래, 지금 시작하세요\n플리마켓\n카페홈\n이웃\n(새 창에서 열림)\n구독\n인기글\n내소식\n채팅\n(새 창에서 열림)\n주제별 카페\n지역별 카페\n인기 팬카페\n대표 카페\n카페 랭킹\n‘맛집 메뉴수첩’\n 검색결과\n전체글\n카페명\n이웃글\n중고거래\n카페\n1\n정확도순\n랭킹순\n멤버순\n새글 수\n전체글 수\n진주 맛집탐방수첩\n\n진주 맛집 지역 곳곳의 숨은 맛집과 인기 메뉴, 솔직 리뷰를 함께 나누는 진주 맛집 정보 커뮤니티\n\n주제생활 > 맛집\n멤버수22\n랭킹씨앗1단계\n새글/전체글6 / 22\n\n카페 서비스에 궁금한 점이 있을 때\n\n카페 스마트봇\n(새 창에서 열림)\n신고센터\n(새 창에서 열림)\n카페 이용약관\n(새 창에서 열림)\n 카페 운영원칙\n(새 창에서 열림)\n개인정보처리방침\n(새 창에서 열림)\n책임의 한계와 법적고지\n(새 창에서 열림)\n 권리보호센터\n(새 창",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/03-menunote702-search.png"
+      }
+    },
+    {
+      "order": 4,
+      "theme": "맛집",
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "맛집 식탁모임",
+      "cafeAddress": "tableclub702",
+      "url": "https://cafe.naver.com/tableclub702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EC%8B%9D%ED%83%81%EB%AA%A8%EC%9E%84",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/tableclub702",
+        "finalUrl": "https://cafe.naver.com/tableclub702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/04-tableclub702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EC%8B%9D%ED%83%81%EB%AA%A8%EC%9E%84",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EB%A7%9B%EC%A7%91%20%EC%8B%9D%ED%83%81%EB%AA%A8%EC%9E%84",
+        "resultText": "검색결과 없음",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/04-tableclub702-search.png"
+      }
+    },
+    {
+      "order": 5,
+      "theme": "애견",
+      "accountId": "tinyfish183",
+      "nickname": "티니피쉬 1",
+      "cafeName": "애견 반려수첩",
+      "cafeAddress": "petnote702",
+      "url": "https://cafe.naver.com/petnote702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%95%A0%EA%B2%AC%20%EB%B0%98%EB%A0%A4%EC%88%98%EC%B2%A9",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/petnote702",
+        "finalUrl": "https://cafe.naver.com/petnote702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/05-petnote702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%95%A0%EA%B2%AC%20%EB%B0%98%EB%A0%A4%EC%88%98%EC%B2%A9",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%95%A0%EA%B2%AC%20%EB%B0%98%EB%A0%A4%EC%88%98%EC%B2%A9",
+        "resultText": "검색결과 없음",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/05-petnote702-search.png"
+      }
+    },
+    {
+      "order": 6,
+      "theme": "애견",
+      "accountId": "k7d9x2m4",
+      "nickname": "강아지강하지 1",
+      "cafeName": "애견 산책노트",
+      "cafeAddress": "walknote702",
+      "url": "https://cafe.naver.com/walknote702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%95%A0%EA%B2%AC%20%EC%82%B0%EC%B1%85%EB%85%B8%ED%8A%B8",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/walknote702",
+        "finalUrl": "https://cafe.naver.com/walknote702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/06-walknote702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%95%A0%EA%B2%AC%20%EC%82%B0%EC%B1%85%EB%85%B8%ED%8A%B8",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%95%A0%EA%B2%AC%20%EC%82%B0%EC%B1%85%EB%85%B8%ED%8A%B8",
+        "resultText": "검색결과 없음",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/06-walknote702-search.png"
+      }
+    },
+    {
+      "order": 7,
+      "theme": "건강",
+      "accountId": "fail5644",
+      "nickname": "고구마스틱2 (10개) 1",
+      "cafeName": "건강 생활수첩",
+      "cafeAddress": "carelog702",
+      "url": "https://cafe.naver.com/carelog702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EA%B1%B4%EA%B0%95%20%EC%83%9D%ED%99%9C%EC%88%98%EC%B2%A9",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/carelog702",
+        "finalUrl": "https://cafe.naver.com/carelog702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/07-carelog702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EA%B1%B4%EA%B0%95%20%EC%83%9D%ED%99%9C%EC%88%98%EC%B2%A9",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EA%B1%B4%EA%B0%95%20%EC%83%9D%ED%99%9C%EC%88%98%EC%B2%A9",
+        "resultText": "메인 메뉴로 바로가기\n본문 바로가기\n웹 접근성이 좋은 모바일 웹에서 사용하겠습니까?\nNAVER\n카페\n플리마켓\n사용자 링크\n로그인\n서비스 더보기\n믿고 쓰는 중고거래, 지금 시작하세요\n플리마켓\n카페홈\n이웃\n(새 창에서 열림)\n구독\n인기글\n내소식\n채팅\n(새 창에서 열림)\n주제별 카페\n지역별 카페\n인기 팬카페\n대표 카페\n카페 랭킹\n‘건강 생활수첩’\n 검색결과\n전체글\n카페명\n이웃글\n중고거래\n카페\n2\n정확도순\n랭킹순\n멤버순\n새글 수\n전체글 수\n슬기로운 암예방 생활수첩\n\n인천지역암센터에서 시행하는 슬기로운 암예방 생활수첩 관리 카페입니다.\n\n주제건강/다이어트 > 건강관리/건강식품\n멤버수3\n랭킹씨앗1단계\n새글/전체글0 / 5\n전국민 건강수첩\n\n건강 정보와 생활 습관을 함께 나누며 서로 도움을 주는 커뮤니티입니다.\n\n주제건강/다이어트 > 건강관리/건강식품\n멤버수1\n랭킹씨앗1단계\n새글/전체글0 / 5\n\n카페 서비스에 궁금한 점이 있을 때\n\n카페 스마트봇\n(새 창에서 열림)\n신고센터\n(새 창에서 열림)",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/07-carelog702-search.png"
+      }
+    },
+    {
+      "order": 8,
+      "theme": "건강",
+      "accountId": "compare14310",
+      "nickname": "룰루랄라 2 (12개) 1",
+      "cafeName": "건강 습관노트",
+      "cafeAddress": "habitnote702",
+      "url": "https://cafe.naver.com/habitnote702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EA%B1%B4%EA%B0%95%20%EC%8A%B5%EA%B4%80%EB%85%B8%ED%8A%B8",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/habitnote702",
+        "finalUrl": "https://cafe.naver.com/habitnote702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/08-habitnote702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EA%B1%B4%EA%B0%95%20%EC%8A%B5%EA%B4%80%EB%85%B8%ED%8A%B8",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EA%B1%B4%EA%B0%95%20%EC%8A%B5%EA%B4%80%EB%85%B8%ED%8A%B8",
+        "resultText": "메인 메뉴로 바로가기\n본문 바로가기\n웹 접근성이 좋은 모바일 웹에서 사용하겠습니까?\nNAVER\n카페\n플리마켓\n사용자 링크\n로그인\n서비스 더보기\n믿고 쓰는 중고거래, 지금 시작하세요\n플리마켓\n카페홈\n이웃\n(새 창에서 열림)\n구독\n인기글\n내소식\n채팅\n(새 창에서 열림)\n주제별 카페\n지역별 카페\n인기 팬카페\n대표 카페\n카페 랭킹\n‘건강 습관노트’\n 검색결과\n전체글\n카페명\n이웃글\n중고거래\n카페\n4\n정확도순\n랭킹순\n멤버순\n새글 수\n전체글 수\n하루건강노트\n\n건강습관, 영양정보, 중년 건강관리, 건강기능식품 정보 등을 함께 나누는 건강정보 카페입니다\n\n주제건강/다이어트 > 건강관리/건강식품\n멤버수1\n랭킹씨앗5단계\n새글/전체글0 / 235\n건강비밀노트\n\n건강은 아플 때 찾는 것이 아니라, 매일의 작은 습관에서 만들어집니다. 건강비밀노트는 의학 논문과 최신\n\n주제건강/다이어트 > 건강/다이어트일반\n멤버수1\n랭킹씨앗1단계\n새글/전체글2 / 15\n[슬로우 에이징 노트] 매일의 건강 기록\n\n나에게 맞는 ",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/08-habitnote702-search.png"
+      }
+    },
+    {
+      "order": 9,
+      "theme": "일반",
+      "accountId": "ghostrush7",
+      "nickname": "실눈캐",
+      "cafeName": "생활 정보마당",
+      "cafeAddress": "infomadang702",
+      "url": "https://cafe.naver.com/infomadang702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%83%9D%ED%99%9C%20%EC%A0%95%EB%B3%B4%EB%A7%88%EB%8B%B9",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/infomadang702",
+        "finalUrl": "https://cafe.naver.com/infomadang702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/09-infomadang702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%83%9D%ED%99%9C%20%EC%A0%95%EB%B3%B4%EB%A7%88%EB%8B%B9",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%83%9D%ED%99%9C%20%EC%A0%95%EB%B3%B4%EB%A7%88%EB%8B%B9",
+        "resultText": "메인 메뉴로 바로가기\n본문 바로가기\n웹 접근성이 좋은 모바일 웹에서 사용하겠습니까?\nNAVER\n카페\n플리마켓\n사용자 링크\n로그인\n서비스 더보기\n믿고 쓰는 중고거래, 지금 시작하세요\n플리마켓\n카페홈\n이웃\n(새 창에서 열림)\n구독\n인기글\n내소식\n채팅\n(새 창에서 열림)\n주제별 카페\n지역별 카페\n인기 팬카페\n대표 카페\n카페 랭킹\n‘생활 정보마당’\n 검색결과\n전체글\n카페명\n이웃글\n중고거래\n카페\n182\n정확도순\n랭킹순\n멤버순\n새글 수\n전체글 수\n생활 정보 마당\n\n생활 정보 마당\n\n주제생활 > 생활정보\n멤버수205\n랭킹새싹4단계\n새글/전체글0 / 1,593\n전기차 충전 정보마당\n\n전기차 충전 정보마당\n\n주제생활 > 생활정보\n멤버수967\n랭킹잎새2단계\n새글/전체글4 / 2,351\n생활 정보 나눔 마당\n\n생활 정보 나눔 마당\n\n주제생활 > 생활일반\n멤버수24\n랭킹씨앗1단계\n새글/전체글0 / 2,328\n도봉구 알림마당 문화센터강좌부터 실생활정보까지\n\n도봉구노원구소식지를읽어보신적이?지역내각종문화시설과",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/09-infomadang702-search.png"
+      }
+    },
+    {
+      "order": 10,
+      "theme": "일반",
+      "accountId": "ahfflwl123",
+      "nickname": "햄부기",
+      "cafeName": "일상 소통마당",
+      "cafeAddress": "talkmadang702",
+      "url": "https://cafe.naver.com/talkmadang702",
+      "searchUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%9D%BC%EC%83%81%20%EC%86%8C%ED%86%B5%EB%A7%88%EB%8B%B9",
+      "direct": {
+        "ok": true,
+        "url": "https://cafe.naver.com/talkmadang702",
+        "finalUrl": "https://cafe.naver.com/talkmadang702",
+        "hasCafeName": true,
+        "hasOpenedDate": true,
+        "hasManager": true,
+        "memberCount": "1비공개",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/10-talkmadang702-direct.png"
+      },
+      "search": {
+        "exposed": false,
+        "url": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%9D%BC%EC%83%81%20%EC%86%8C%ED%86%B5%EB%A7%88%EB%8B%B9",
+        "finalUrl": "https://section.cafe.naver.com/ca-fe/home/search/cafes?q=%EC%9D%BC%EC%83%81%20%EC%86%8C%ED%86%B5%EB%A7%88%EB%8B%B9",
+        "resultText": "메인 메뉴로 바로가기\n본문 바로가기\n웹 접근성이 좋은 모바일 웹에서 사용하겠습니까?\nNAVER\n카페\n플리마켓\n사용자 링크\n로그인\n서비스 더보기\n믿고 쓰는 중고거래, 지금 시작하세요\n플리마켓\n카페홈\n이웃\n(새 창에서 열림)\n구독\n인기글\n내소식\n채팅\n(새 창에서 열림)\n주제별 카페\n지역별 카페\n인기 팬카페\n대표 카페\n카페 랭킹\n‘일상 소통마당’\n 검색결과\n전체글\n카페명\n이웃글\n중고거래\n카페\n2\n정확도순\n랭킹순\n멤버순\n새글 수\n전체글 수\n전북코마당뉴스\n\n일상생활에 필요한 전북의 뉴스를 서로 소통하고 공유하는 코리아마당 전북코마당뉴스를 사랑하는 카페\n\n주제생활 > 생활일반\n멤버수1\n랭킹씨앗1단계\n새글/전체글0 / 40\n안전이기자\n\n안전관련에 소속된 사람들과의 정보공유 및 소통과 사람내음의 일상과 신소식 알림의 마당\n\n주제친목/모임 > 친목/모임일반\n멤버수1\n랭킹씨앗1단계\n새글/전체글0 / 23\n\n카페 서비스에 궁금한 점이 있을 때\n\n카페 스마트봇\n(새 창에서 열림)\n신고센터\n(새 창에서 열",
+        "error": "",
+        "screenshot": "outputs/naver-cafe-created-verify-screens/10-talkmadang702-search.png"
+      }
+    }
+  ]
+}
