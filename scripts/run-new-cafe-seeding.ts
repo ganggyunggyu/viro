@@ -43,6 +43,12 @@ interface GeneratedManuscript {
   comments?: ViralCommentsData;
 }
 
+interface CommentGenerationOptions {
+  min: number;
+  max: number;
+  includeReplies: boolean;
+}
+
 const DEFAULT_PLAN = "outputs/new-cafe-seeding-plan-2026-07-02.json";
 const LOGIN_ID = process.env.LOGIN_ID || "21lab";
 const TEXT_GEN_HUB_URL =
@@ -164,12 +170,17 @@ const generateManuscript = async (item: SeedPlanItem): Promise<GeneratedManuscri
 const generateCommentItems = async (
   manuscript: GeneratedManuscript,
   keyword: string,
-  count: number,
+  options: CommentGenerationOptions,
 ): Promise<ViralCommentsData> => {
   const comments: ViralCommentItem[] = [];
   const postContext = `${manuscript.title}\n\n${manuscript.body}`;
+  const totalCount = getRandomInt(options.min, options.max);
+  const mainCommentCount = options.includeReplies
+    ? Math.max(4, Math.ceil(totalCount * 0.65))
+    : totalCount;
+  const replyCount = Math.max(0, totalCount - mainCommentCount);
 
-  for (let index = 1; index <= count; index += 1) {
+  for (let index = 1; index <= mainCommentCount; index += 1) {
     const result = await postJson<{ success: boolean; comment: string }>(
       `${COMMENT_GEN_URL}/generate/comment`,
       { content: postContext, keyword },
@@ -183,7 +194,54 @@ const generateCommentItems = async (
     }
   }
 
+  if (options.includeReplies && comments.length > 0) {
+    const replyTypes: Array<ViralCommentItem["type"]> = [
+      "author_reply",
+      "commenter_reply",
+      "other_reply",
+    ];
+
+    for (let offset = 0; offset < replyCount; offset += 1) {
+      const parentComment = comments[offset % comments.length];
+      const result = await postJson<{ success: boolean; comment: string }>(
+        `${COMMENT_GEN_URL}/generate/recomment`,
+        {
+          parent_comment: parentComment.content,
+          content: postContext,
+        },
+      );
+
+      if (result.success && result.comment.trim()) {
+        comments.push({
+          type: replyTypes[offset % replyTypes.length],
+          index: mainCommentCount + offset + 1,
+          parentIndex: parentComment.index,
+          content: result.comment.replace(/\s+/g, " ").trim(),
+        });
+      }
+    }
+  }
+
   return { comments };
+};
+
+const getRandomInt = (min: number, max: number): number => {
+  const normalizedMin = Math.ceil(Math.min(min, max));
+  const normalizedMax = Math.floor(Math.max(min, max));
+  return Math.floor(Math.random() * (normalizedMax - normalizedMin + 1)) + normalizedMin;
+};
+
+const resolveCommenterAccountIds = (
+  item: SeedPlanItem,
+  commenterIdsFromArg: string[],
+): string[] | undefined => {
+  if (item.commenterAccountIds && item.commenterAccountIds.length > 0) {
+    return item.commenterAccountIds;
+  }
+  if (commenterIdsFromArg.length > 0) {
+    return commenterIdsFromArg;
+  }
+  return undefined;
 };
 
 const getDelayMs = (timeStr?: string): number => {
@@ -242,6 +300,9 @@ const main = async (): Promise<void> => {
   const skipComments = hasFlag("--skip-comments");
   const pregenerateComments = hasFlag("--pregenerate-comments");
   const commentCount = Number(getArgValue("--comment-count", "3"));
+  const commentMin = Number(getArgValue("--comment-min", String(commentCount)));
+  const commentMax = Number(getArgValue("--comment-max", String(commentCount)));
+  const includeReplies = hasFlag("--include-replies");
   const commenterIdsFromArg = splitCsv(
     getArgValue("--commenter-ids", process.env.COMMENTER_ACCOUNT_IDS || ""),
   );
@@ -286,7 +347,11 @@ const main = async (): Promise<void> => {
         const generatedComments = await generateCommentItems(
           manuscript,
           item.keyword,
-          commentCount,
+          {
+            min: commentMin,
+            max: commentMax,
+            includeReplies,
+          },
         );
         if (generatedComments.comments.length > 0) {
           manuscript.comments = generatedComments;
@@ -298,7 +363,7 @@ const main = async (): Promise<void> => {
       if (!manuscript) throw new Error(`manuscript missing: ${item.cafeName}`);
       const commenterAccountIds = skipComments
         ? []
-        : item.commenterAccountIds || commenterIdsFromArg;
+        : resolveCommenterAccountIds(item, commenterIdsFromArg);
       const jobData: PostJobData = {
         type: "post",
         accountId: item.ownerAccountId,
@@ -312,7 +377,6 @@ const main = async (): Promise<void> => {
         category: item.category,
         service: item.contentSource,
         postType: "daily",
-        commenterAccountIds,
         rescheduleToken: RESCHEDULE_TOKEN,
         postOptions: {
           allowComment: true,
@@ -324,6 +388,7 @@ const main = async (): Promise<void> => {
           cclModify: "disallow",
         },
         ...(skipComments && { skipComments: true }),
+        ...(commenterAccountIds !== undefined && { commenterAccountIds }),
         ...(!skipComments && manuscript.comments && { viralComments: manuscript.comments }),
       };
 
@@ -344,14 +409,23 @@ const main = async (): Promise<void> => {
       generated: Boolean(manuscript),
       enqueued: enqueue,
       title: manuscript?.title,
+      body: manuscript?.body,
       bodyLength: manuscript?.body.length,
       commentMode: skipComments
         ? "skip"
         : pregenerateComments
           ? "pregenerated"
           : "handler",
-      commenterAccountIds:
-        skipComments ? [] : item.commenterAccountIds || commenterIdsFromArg,
+      commenterAccountIds: skipComments
+        ? []
+        : resolveCommenterAccountIds(item, commenterIdsFromArg) || "handler-default",
+      generatedCommentCount: manuscript?.comments?.comments.length || 0,
+      generatedComments: manuscript?.comments?.comments.map((comment) => ({
+        type: comment.type,
+        index: comment.index,
+        parentIndex: comment.parentIndex,
+        content: comment.content,
+      })) || [],
     });
   }
 
