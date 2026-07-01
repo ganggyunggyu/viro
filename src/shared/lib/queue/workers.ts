@@ -10,9 +10,11 @@ import {
   CommentJobData,
   ReplyJobData,
   LikeJobData,
+  DisableCommentJobData,
+  TASK_QUEUE_NAME,
 } from './types';
-import { addTaskJob, createRescheduleToken, getTaskQueue } from './index';
-import { getAllAccounts } from '@/shared/config/accounts';
+import { addTaskJob, createRescheduleToken } from './index';
+import { getAccountById, getAllAccounts } from '@/shared/config/accounts';
 import { isAccountActive, getNextActiveTime } from '@/shared/lib/account-manager';
 import {
   isAccountLoggedIn,
@@ -25,21 +27,15 @@ import { handlePostJob } from './handlers/post-handler';
 import { handleCommentJob } from './handlers/comment-handler';
 import { handleReplyJob } from './handlers/reply-handler';
 import { handleLikeJob } from './handlers/like-handler';
+import { handleDisableCommentJob } from './handlers/disable-comment-handler';
 
 declare global {
-  var __taskWorkers: Map<string, Worker<TaskJobData, JobResult>> | undefined;
+  var __taskWorker: Worker<TaskJobData, JobResult> | null | undefined;
   var __generateWorker: Worker<GenerateJobData, JobResult> | null | undefined;
-  var __globalJobLock: Promise<void> | null;
-  var __globalJobResolver: (() => void) | null;
 }
 
-const taskWorkers: Map<string, Worker<TaskJobData, JobResult>> =
-  globalThis.__taskWorkers ?? new Map();
-
-if (!globalThis.__taskWorkers) {
-  globalThis.__taskWorkers = taskWorkers;
-}
-
+let taskWorker: Worker<TaskJobData, JobResult> | null =
+  globalThis.__taskWorker ?? null;
 let generateWorker: Worker<GenerateJobData, JobResult> | null =
   globalThis.__generateWorker ?? null;
 
@@ -48,38 +44,14 @@ const WORKER_LOCK_RENEW_TIME = 30 * 1000;
 const WORKER_STALLED_INTERVAL = 2 * 60 * 1000;
 const WORKER_MAX_STALLED_COUNT = 3;
 
-if (!globalThis.__globalJobLock) globalThis.__globalJobLock = null;
-if (!globalThis.__globalJobResolver) globalThis.__globalJobResolver = null;
-
-const acquireGlobalJobLock = async (): Promise<void> => {
-  while (globalThis.__globalJobLock) {
-    await globalThis.__globalJobLock;
-  }
-  let resolver: () => void;
-  globalThis.__globalJobLock = new Promise<void>((resolve) => {
-    resolver = resolve;
-  });
-  globalThis.__globalJobResolver = resolver!;
-};
-
-const releaseGlobalJobLock = (): void => {
-  const resolver = globalThis.__globalJobResolver;
-  globalThis.__globalJobLock = null;
-  globalThis.__globalJobResolver = null;
-  if (resolver) resolver();
-};
-
 const syncAccountSessionReservation = async (accountId: string): Promise<void> => {
-  const queue = getTaskQueue(accountId);
-  const [waitingCount, delayedCount, activeCount] = await Promise.all([
-    queue.getWaitingCount(),
-    queue.getDelayedCount(),
-    queue.getActiveCount(),
-  ]);
+  const { waiting, delayed = 0, active } = await import('./index').then(({ getQueueStatus }) =>
+    getQueueStatus(accountId)
+  );
 
-  if (waitingCount + delayedCount + activeCount > 0) {
+  if (waiting + delayed + active > 0) {
     console.log(
-      `[SESSION] ${accountId} 예약 세션 유지 (waiting=${waitingCount}, delayed=${delayedCount}, active=${activeCount})`
+      `[SESSION] ${accountId} 예약 세션 유지 (waiting=${waiting}, delayed=${delayed}, active=${active})`
     );
     return;
   }
@@ -88,21 +60,29 @@ const syncAccountSessionReservation = async (accountId: string): Promise<void> =
   releaseAccountSession(accountId);
 };
 
-const processTaskJob = async (
+export const processTaskJob = async (
   job: Job<TaskJobData, JobResult>
 ): Promise<JobResult> => {
   const { data } = job;
 
-  await acquireGlobalJobLock();
-  console.log(`[WORKER] 글로벌 락 획득: ${data.type} (${data.accountId})`);
-
-  try {
   const settings = await getQueueSettings();
 
   console.log(`[WORKER] 처리 시작: ${data.type} (${data.accountId})`);
 
-  const accounts = await getAllAccounts();
-  const account = accounts.find((a) => a.id === data.accountId);
+  let accounts: Awaited<ReturnType<typeof getAllAccounts>> = [];
+  let account: Awaited<ReturnType<typeof getAccountById>> | undefined;
+
+  if (data.userId) {
+    accounts = await getAllAccounts(data.userId);
+    account = accounts.find((a) => a.id === data.accountId);
+  }
+
+  if (!account) {
+    account = (await getAccountById(data.accountId)) ?? undefined;
+    if (account) {
+      accounts = [account, ...accounts.filter((a) => a.id !== account?.id)];
+    }
+  }
 
   if (!account) {
     return { success: false, error: `계정 없음: ${data.accountId}` };
@@ -150,22 +130,19 @@ const processTaskJob = async (
     case 'like':
       return handleLikeJob(data as LikeJobData, { account, settings });
 
+    case 'disable-comment':
+      return handleDisableCommentJob(data as DisableCommentJobData, { account });
+
     default:
       throw new Error('알 수 없는 작업 타입');
   }
-  } finally {
-    releaseGlobalJobLock();
-    console.log(`[WORKER] 글로벌 락 해제: ${data.type} (${data.accountId})`);
-  }
 };
 
-export const createTaskWorker = (
-  accountId: string
-): Worker<TaskJobData, JobResult> => {
-  const queueName = getTaskQueueName(accountId);
+export const createTaskWorker = (): Worker<TaskJobData, JobResult> => {
+  const queueName = getTaskQueueName();
 
-  if (taskWorkers.has(accountId)) {
-    return taskWorkers.get(accountId)!;
+  if (taskWorker) {
+    return taskWorker;
   }
 
   const worker = new Worker<TaskJobData, JobResult>(queueName, processTaskJob, {
@@ -179,23 +156,25 @@ export const createTaskWorker = (
 
   worker.on('completed', (job, result) => {
     console.log(
-      `[WORKER] 완료: ${job.name} (${accountId})`,
+      `[WORKER] 완료: ${job.name} (${job.data.accountId})`,
       result.success ? '성공' : '실패'
     );
-    syncAccountSessionReservation(accountId).catch(e =>
-      console.error(`[WORKER] 세션 동기화 에러 (완료): ${accountId}`, e)
+    syncAccountSessionReservation(job.data.accountId).catch(e =>
+      console.error(`[WORKER] 세션 동기화 에러 (완료): ${job.data.accountId}`, e)
     );
   });
 
   worker.on('failed', (job, err) => {
+    const accountId = job?.data.accountId ?? 'unknown';
     console.error(`[WORKER] 실패: ${job?.name} (${accountId})`, err.message);
     syncAccountSessionReservation(accountId).catch(e =>
       console.error(`[WORKER] 세션 동기화 에러 (실패): ${accountId}`, e)
     );
   });
 
-  taskWorkers.set(accountId, worker);
-  console.log(`[WORKER] Task 워커 생성: ${accountId}`);
+  taskWorker = worker;
+  globalThis.__taskWorker = worker;
+  console.log(`[WORKER] 글로벌 Task 워커 생성: ${TASK_QUEUE_NAME}`);
 
   return worker;
 };
@@ -238,11 +217,12 @@ export const createGenerateWorker = (
 };
 
 export const closeAllWorkers = async (): Promise<void> => {
-  for (const [accountId, worker] of taskWorkers) {
-    await worker.close();
-    console.log(`[WORKER] Task 워커 종료: ${accountId}`);
+  if (taskWorker) {
+    await taskWorker.close();
+    taskWorker = null;
+    globalThis.__taskWorker = null;
+    console.log('[WORKER] 글로벌 Task 워커 종료');
   }
-  taskWorkers.clear();
 
   if (generateWorker) {
     await generateWorker.close();
@@ -255,9 +235,7 @@ export const closeAllWorkers = async (): Promise<void> => {
 export const startAllTaskWorkers = async (): Promise<void> => {
   const accounts = await getAllAccounts();
 
-  for (const account of accounts) {
-    createTaskWorker(account.id);
-  }
+  createTaskWorker();
 
-  console.log(`[WORKER] ${accounts.length}개 계정 워커 시작됨`);
+  console.log(`[WORKER] 글로벌 워커 시작됨 (${accounts.length}개 계정 대상)`);
 };

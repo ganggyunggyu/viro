@@ -8,7 +8,10 @@ import { buildCafePostContent } from '@/shared/lib/cafe-content';
 import { closeAllContexts } from '@/shared/lib/multi-session';
 import { getDefaultCafe } from '@/shared/config/cafes';
 import { getCommentDelayMs } from './comment-delay';
-import { writeCommentWithAccount, type WriteCommentResult } from './comment-writer';
+import {
+  writeCommentWithAccount,
+  type WriteCommentResult,
+} from '@/shared/lib/naver-cafe-writing';
 
 export interface AutoPostResult {
   success: boolean;

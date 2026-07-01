@@ -4,8 +4,11 @@ import { generateContent } from '@/shared/api/content-api';
 import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
 import { buildCafePostContent } from '@/shared/lib/cafe-content';
 import { PublishedArticle, type IPublishedArticle, incrementTodayPostCount } from '@/shared/models';
-import { writePostWithAccount } from './post-writer';
-import { writeCommentWithAccount, writeReplyWithAccount } from '../comment-writer';
+import {
+  writeCommentWithAccount,
+  writePostWithAccount,
+  writeReplyWithAccount,
+} from '@/shared/lib/naver-cafe-writing';
 import {
   type KeywordResult,
   type CommentResult,

@@ -10,8 +10,8 @@ import { getRemainingPostsToday, PublishedArticle, ModifiedArticle } from '@/sha
 import { buildCafePostContentFromManuscript } from '@/shared/lib/cafe-content';
 import { isAccountActive } from '@/shared/lib/account-manager';
 import { PostJobData } from '@/shared/lib/queue/types';
-import { modifyArticleWithAccount } from '../batch/article-modifier';
-import { buildBaseFilter, fetchArticlesToModify } from '../batch/modify-query-utils';
+import { modifyArticleWithAccount } from '@/shared/lib/naver-cafe-writing';
+import { buildBaseFilter, fetchArticlesToModify } from '@/shared/lib/naver-cafe-writing';
 import { initBatchContext, isBatchContextError } from '../batch/batch-helpers';
 import type {
   ManuscriptUploadInput,

@@ -1,5 +1,5 @@
 import { LikeJobData, JobResult } from '../types';
-import { likeArticleWithAccount } from '@/features/auto-comment/like-writer';
+import { likeArticleWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { NaverAccount } from '@/shared/lib/account-manager';
 
 export interface LikeHandlerContext {

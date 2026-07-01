@@ -29,13 +29,12 @@ test('createAccountRosterAudit passes when required cafe writer policies are pop
   assert.deepEqual(audit.emptyWriterCafeNames, []);
   assert.deepEqual(
     audit.cafeWriterPolicies.find(({ cafeName }) => cafeName === '샤넬오픈런')?.writerAccountIds,
-    ['4giccokx'],
+    ['4giccokx', 'compare14310'],
   );
 });
 
-test('createAccountRosterAudit fails when required luxury cafes have no writer account', () => {
+test('createAccountRosterAudit fails when required cafes have no writer account', () => {
   const accounts: DbAccountSnapshot[] = [
-    { accountId: 'compare14310', role: 'writer', isActive: true },
     { accountId: 'dhtksk1p', role: 'commenter', isActive: true },
   ];
   const audit = createAccountRosterAudit(accounts, cafes());

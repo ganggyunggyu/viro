@@ -1,5 +1,5 @@
 import type { ViralPromptInput } from './types';
-import { pickRandom, pickRandomN, randomInt } from '@/shared/lib/random';
+import { pickRandom, randomInt } from '@/shared/lib/random';
 
 // ===== "졸업 후기형" 프롬프트 =====
 // 레퍼런스: 난임 카페 졸업글, 다이어트 성공글, 수술 회복 완료글 등

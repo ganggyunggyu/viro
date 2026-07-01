@@ -60,6 +60,13 @@ scripts/test-viral-queue.ts
 # local runtime state
 .claude/scheduled_tasks.lock
 scripts/artifacts/
+/work/
+
+# local account seed/temp scripts
+scripts/*temp*.ts
+scripts/*-temp.ts
+scripts/insert-accounts.mjs
+scripts/update-accounts.ts
 
 # generated reports
 batch-test-results.md

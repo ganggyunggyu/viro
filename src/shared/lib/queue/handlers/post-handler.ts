@@ -1,6 +1,6 @@
 import { PostJobData, CommentJobData, ReplyJobData, JobResult } from '../types';
 import { addTaskJob } from '../index';
-import { writePostWithAccount } from '@/features/auto-comment/batch/post-writer';
+import { writePostWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
 import { getPersonaId, getNextActiveTime, NaverAccount } from '@/shared/lib/account-manager';
 import { getRandomDelay } from '@/shared/models/queue-settings';

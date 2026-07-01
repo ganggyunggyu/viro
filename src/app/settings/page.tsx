@@ -1,6 +1,6 @@
 import { cn } from '@/shared/lib/cn';
 import { DelaySettingsUI } from '@/features/settings/delay-ui';
-import { PageLayout } from '@/shared/ui';
+import { PageLayout } from '@/widgets/page-layout';
 
 export default function SettingsPage() {
   return (

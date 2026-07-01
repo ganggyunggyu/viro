@@ -144,6 +144,7 @@ export const AccountManagerUI = () => {
   const [accounts, setAccounts] = useState<AccountData[]>([]);
   const [loginStatus, setLoginStatus] = useState<Record<string, 'idle' | 'loading' | 'success' | 'error'>>({});
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<AccountFormData>(defaultFormData);
@@ -240,12 +241,17 @@ export const AccountManagerUI = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm(`${id} 계정을 삭제하시겠습니까?`)) return;
+    if (pendingDeleteId !== id) {
+      setPendingDeleteId(id);
+      setMessage({ type: 'error', text: `${id} 삭제를 다시 누르면 삭제됩니다` });
+      return;
+    }
 
     startTransition(async () => {
       const result = await deleteAccountAction(id);
       if (result.success) {
         setMessage({ type: 'success', text: `${id} 삭제 완료` });
+        setPendingDeleteId(null);
       } else {
         setMessage({ type: 'error', text: result.error || '삭제 실패' });
       }
@@ -546,7 +552,7 @@ export const AccountManagerUI = () => {
                     onClick={() => handleDelete(account.id)}
                     disabled={isPending}
                   >
-                    삭제
+                    {pendingDeleteId === account.id ? '확인' : '삭제'}
                   </Button>
                 </div>
               </div>

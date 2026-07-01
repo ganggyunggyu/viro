@@ -40,6 +40,7 @@ const g = globalThis as typeof globalThis & {
   __pwLockResolvers?: Map<string, () => void>;
   __pwLoginCache?: Map<string, number>;
   __pwLastUsed?: Map<string, number>;
+  __pwIdleExpiresAt?: Map<string, number>;
   __pwIdleTimer?: ReturnType<typeof setInterval> | null;
   __pwBrowserLaunching?: Promise<Browser> | null;
   __pwReservedSessions?: Map<string, Set<string>>;
@@ -50,6 +51,7 @@ if (!g.__pwAccountLocks) g.__pwAccountLocks = new Map();
 if (!g.__pwLockResolvers) g.__pwLockResolvers = new Map();
 if (!g.__pwLoginCache) g.__pwLoginCache = new Map();
 if (!g.__pwLastUsed) g.__pwLastUsed = new Map();
+if (!g.__pwIdleExpiresAt) g.__pwIdleExpiresAt = new Map();
 if (!g.__pwReservedSessions) g.__pwReservedSessions = new Map();
 
 const contexts = g.__pwContexts;
@@ -57,6 +59,7 @@ const accountLocks = g.__pwAccountLocks;
 const lockResolvers = g.__pwLockResolvers;
 const loginStatusCache = g.__pwLoginCache;
 const lastUsedAt = g.__pwLastUsed;
+const idleExpiresAt = g.__pwIdleExpiresAt;
 const reservedSessions = g.__pwReservedSessions;
 
 const LOGIN_CACHE_TTL = 30 * 60 * 1000;
@@ -65,18 +68,26 @@ const IDLE_TTL_MAX = 15 * 60 * 1000;
 const randomIdleTtl = () => IDLE_TTL_MIN + Math.floor(Math.random() * (IDLE_TTL_MAX - IDLE_TTL_MIN));
 const IDLE_CHECK_INTERVAL = 60 * 1000; // 1분마다 체크
 
+export const touchAccount = (accountId: string): void => {
+  const now = Date.now();
+  lastUsedAt.set(accountId, now);
+  idleExpiresAt.set(accountId, now + randomIdleTtl());
+};
+
 const startIdleCleanup = () => {
   if (g.__pwIdleTimer) return;
   g.__pwIdleTimer = setInterval(async () => {
     const now = Date.now();
     for (const [accountId, lastTime] of lastUsedAt) {
-      if (now - lastTime < randomIdleTtl()) continue;
+      const expiresAt = idleExpiresAt.get(accountId) ?? lastTime + IDLE_TTL_MAX;
+      if (now < expiresAt) continue;
       if (accountLocks.has(accountId)) continue; // 작업 중이면 스킵
       if (reservedSessions.get(accountId)?.size) continue; // 예약 세션은 유지
 
       const ctx = contexts.get(accountId);
       if (!ctx) {
         lastUsedAt.delete(accountId);
+        idleExpiresAt.delete(accountId);
         continue;
       }
 
@@ -90,6 +101,7 @@ const startIdleCleanup = () => {
       contexts.delete(accountId);
       loginStatusCache.delete(accountId);
       lastUsedAt.delete(accountId);
+      idleExpiresAt.delete(accountId);
     }
   }, IDLE_CHECK_INTERVAL);
 };
@@ -103,11 +115,7 @@ export const acquireAccountLock = async (accountId: string): Promise<void> => {
 
   while (accountLocks.has(accountId)) {
     if (Date.now() > deadline) {
-      console.warn(`[LOCK] ${accountId} 락 타임아웃 (${ACCOUNT_LOCK_TIMEOUT_MS / 1000}초) — 강제 해제`);
-      lockResolvers.get(accountId)?.();
-      accountLocks.delete(accountId);
-      lockResolvers.delete(accountId);
-      break;
+      throw new Error(`[LOCK] ${accountId} 락 대기 타임아웃 (${ACCOUNT_LOCK_TIMEOUT_MS / 1000}초)`);
     }
     console.log(`[LOCK] ${accountId} 락 대기 중...`);
     await Promise.race([
@@ -202,6 +210,7 @@ export const getBrowser = async (): Promise<Browser> => {
       contexts.clear();
       loginStatusCache.clear();
       lastUsedAt.clear();
+      idleExpiresAt.clear();
     }
     const isHeadless = process.env.PLAYWRIGHT_HEADLESS !== 'false';
     console.log(`[BROWSER] 브라우저 시작 (headless: ${isHeadless})`);
@@ -230,7 +239,7 @@ const isContextAlive = (ctx: BrowserContext): boolean => {
 };
 
 export const getContextForAccount = async (accountId: string): Promise<BrowserContext> => {
-  lastUsedAt.set(accountId, Date.now());
+  touchAccount(accountId);
 
   const existing = contexts.get(accountId);
   if (existing && isContextAlive(existing)) {
@@ -280,12 +289,8 @@ export const getContextForAccount = async (accountId: string): Promise<BrowserCo
   return context;
 }
 
-export const touchAccount = (accountId: string): void => {
-  lastUsedAt.set(accountId, Date.now());
-};
-
 export const getPageForAccount = async (accountId: string): Promise<Page> => {
-  lastUsedAt.set(accountId, Date.now());
+  touchAccount(accountId);
   const ctx = await getContextForAccount(accountId);
   const pages = ctx.pages();
   if (pages.length > 0) {
@@ -339,6 +344,8 @@ export const closeContextForAccount = async (accountId: string): Promise<void> =
     contexts.delete(accountId);
   }
   loginStatusCache.delete(accountId);
+  lastUsedAt.delete(accountId);
+  idleExpiresAt.delete(accountId);
 }
 
 export const closeAllContexts = async (): Promise<void> => {
@@ -348,6 +355,8 @@ export const closeAllContexts = async (): Promise<void> => {
   }
   contexts.clear();
   loginStatusCache.clear();
+  lastUsedAt.clear();
+  idleExpiresAt.clear();
   reservedSessions.clear();
 
   if (g.__pwBrowser) {

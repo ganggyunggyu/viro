@@ -1,4 +1,4 @@
-import type { PostOptions } from '@/features/auto-comment/batch/types';
+import type { PostOptions } from '@/shared/types';
 
 export interface ViralCommentItem {
   type: 'comment' | 'author_reply' | 'commenter_reply' | 'other_reply';
@@ -105,9 +105,8 @@ export interface JobResult {
   willRetry?: boolean;
 }
 
-export const getTaskQueueName = (accountId: string): string => {
-  const safeId = accountId.replace(/[^a-zA-Z0-9]/g, '_');
-  return `task_${safeId}`;
-};
+export const TASK_QUEUE_NAME = 'task_global';
+
+export const getTaskQueueName = (): string => TASK_QUEUE_NAME;
 
 export const GENERATE_QUEUE_NAME = 'generate';

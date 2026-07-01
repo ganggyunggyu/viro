@@ -1,4 +1,4 @@
-import type { PostOptions } from '@/features/auto-comment/batch/types';
+import type { PostOptions } from '@/shared/types';
 
 export interface ManuscriptFile {
   name: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useCallback, useState, useEffect, useTransition } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { Select, Button, ConfirmModal } from '@/shared/ui';
 import {
@@ -88,7 +88,7 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
   const [relatedJobs, setRelatedJobs] = useState<{ articleId: number; jobs: JobDetail[] } | null>(null);
   const [isLoadingRelated, setIsLoadingRelated] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     const [jobsResult, summaryResult, accountsData, cafesData] = await Promise.all([
       getDetailedJobs(filter, page, pageSize),
       getQueueSummary(),
@@ -99,7 +99,7 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
     setSummary(summaryResult);
     setAccounts(accountsData);
     setCafes(cafesData);
-  };
+  }, [filter, page, pageSize]);
 
   const handleDeleteJob = async () => {
     if (!showDeleteModal) return;
@@ -148,11 +148,6 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
     setFilter((prev) => ({ ...prev, [key]: value }));
     setPage(1);
   };
-
-  const selectClassName = cn(
-    'rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink',
-    'focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10'
-  );
 
   const totalPending = summary
     ? summary.total.delayed + summary.total.waiting + summary.total.active

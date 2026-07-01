@@ -4,8 +4,8 @@ import { useState, useTransition, useCallback, DragEvent, useEffect } from 'reac
 import { cn } from '@/shared/lib/cn';
 import { Select, Button, ConfirmModal, ExecuteConfirmModal } from '@/shared/ui';
 import { getCafesAction } from '@/features/accounts/actions';
-import { PostOptionsUI } from '../batch/post-options-ui';
-import { DEFAULT_POST_OPTIONS, type PostOptions } from '../batch/types';
+import { PostOptionsUI } from '@/entities/post-options';
+import { DEFAULT_POST_OPTIONS, type PostOptions } from '@/shared/types';
 import { runManuscriptUploadAction, runManuscriptModifyAction } from './manuscript-actions';
 import type {
   ManuscriptFolder,

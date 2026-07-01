@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { cn } from '@/shared/lib/cn';
 import { Select, Button } from '@/shared/ui';
 import { runBatchPostAction } from './batch-actions';
-import { PostOptionsUI } from './post-options-ui';
+import { PostOptionsUI } from '@/entities/post-options';
 import { postOptionsAtom } from '@/entities/store';
 import type { QueueBatchResult } from './batch-queue';
 import { getCafesAction } from '@/features/accounts/actions';

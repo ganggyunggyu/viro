@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
 
 interface PageTransitionProps {
   children: React.ReactNode;

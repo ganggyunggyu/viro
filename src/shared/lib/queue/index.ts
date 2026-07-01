@@ -15,15 +15,15 @@ import {
   resolveTaskJobDelay,
 } from './task-job-harness';
 
-const taskQueues: Map<string, Queue<TaskJobData, JobResult>> = new Map();
-
+let taskQueue: Queue<TaskJobData, JobResult> | null = null;
 let generateQueue: Queue<GenerateJobData, JobResult> | null = null;
 
 export const getTaskQueue = (accountId: string): Queue<TaskJobData, JobResult> => {
-  const queueName = getTaskQueueName(accountId);
+  void accountId;
+  const queueName = getTaskQueueName();
 
-  if (!taskQueues.has(accountId)) {
-    const queue = new Queue<TaskJobData, JobResult>(queueName, {
+  if (!taskQueue) {
+    taskQueue = new Queue<TaskJobData, JobResult>(queueName, {
       connection: getRedisConnection(),
       defaultJobOptions: {
         attempts: 5,
@@ -33,11 +33,10 @@ export const getTaskQueue = (accountId: string): Queue<TaskJobData, JobResult> =
       },
     });
 
-    taskQueues.set(accountId, queue);
-    console.log(`[QUEUE] Task 큐 생성: ${queueName}`);
+    console.log(`[QUEUE] 글로벌 Task 큐 생성: ${queueName}`);
   }
 
-  return taskQueues.get(accountId)!;
+  return taskQueue;
 };
 
 export const getGenerateQueue = (): Queue<GenerateJobData, JobResult> => {
@@ -79,11 +78,11 @@ export const addGenerateJob = async (
 };
 
 export const closeAllQueues = async (): Promise<void> => {
-  for (const [accountId, queue] of taskQueues) {
-    await queue.close();
-    console.log(`[QUEUE] Task 큐 종료: ${accountId}`);
+  if (taskQueue) {
+    await taskQueue.close();
+    taskQueue = null;
+    console.log(`[QUEUE] 글로벌 Task 큐 종료`);
   }
-  taskQueues.clear();
 
   if (generateQueue) {
     await generateQueue.close();
@@ -94,18 +93,28 @@ export const closeAllQueues = async (): Promise<void> => {
 
 export const getQueueStatus = async (accountId: string) => {
   const queue = getTaskQueue(accountId);
-  const [waiting, active, completed, failed] = await Promise.all([
-    queue.getWaitingCount(),
-    queue.getActiveCount(),
-    queue.getCompletedCount(),
-    queue.getFailedCount(),
+  const [waitingJobs, activeJobs, completedJobs, failedJobs, delayedJobs] = await Promise.all([
+    queue.getWaiting(0, 10000),
+    queue.getActive(0, 10000),
+    queue.getCompleted(0, 10000),
+    queue.getFailed(0, 10000),
+    queue.getDelayed(0, 10000),
   ]);
 
-  return { waiting, active, completed, failed };
+  const countByAccount = (jobs: Array<Job<TaskJobData, JobResult>>) =>
+    jobs.filter((job) => job.data.accountId === accountId).length;
+
+  return {
+    waiting: countByAccount(waitingJobs),
+    active: countByAccount(activeJobs),
+    completed: countByAccount(completedJobs),
+    failed: countByAccount(failedJobs),
+    delayed: countByAccount(delayedJobs),
+  };
 };
 
 export const getActiveQueueIds = (): string[] => {
-  return Array.from(taskQueues.keys());
+  return taskQueue ? [getTaskQueueName()] : [];
 };
 
 export { startAllTaskWorkers } from './workers';

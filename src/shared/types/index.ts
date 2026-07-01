@@ -5,6 +5,11 @@ export interface NaverTokenResponse {
   expires_in: number;
 }
 
+export type { PostOptions, PostResult } from './post-options';
+export { DEFAULT_POST_OPTIONS } from './post-options';
+export type { BatchProgress, ProgressCallback } from './batch-progress';
+export type { ManuscriptImage } from './manuscript';
+
 export interface CafeJoinResponse {
   message: {
     '@type': string;

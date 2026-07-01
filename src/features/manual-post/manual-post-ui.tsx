@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
 import { Select, Button, ConfirmModal, ExecuteConfirmModal } from '@/shared/ui';
 import { runManualPublishAction, runManualModifyAction } from './manual-actions';
-import { PostOptionsUI } from '@/features/auto-comment/batch/post-options-ui';
+import { PostOptionsUI } from '@/entities/post-options';
 import {
   postOptionsAtom,
   cafesAtom,
@@ -52,7 +52,7 @@ const parseManuscriptFolders = async (
   const manuscripts: ManuscriptFolder[] = [];
   const folderMap = new Map<string, { text?: string; images: string[] }>();
 
-  const processEntry = async (entry: FileSystemEntry, parentPath: string = '') => {
+  const processEntry = async (entry: FileSystemEntry) => {
     if (entry.isFile) {
       const fileEntry = entry as FileSystemFileEntry;
       const file = await new Promise<File>((resolve) => fileEntry.file(resolve));
@@ -84,7 +84,7 @@ const parseManuscriptFolders = async (
       });
 
       for (const childEntry of entries) {
-        await processEntry(childEntry, entry.fullPath);
+        await processEntry(childEntry);
       }
     }
   };

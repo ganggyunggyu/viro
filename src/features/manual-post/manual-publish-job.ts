@@ -8,7 +8,7 @@ import { getQueueSettings, getRandomDelay } from '@/shared/models/queue-settings
 import { isAccountActive, getNextActiveTime, type NaverAccount } from '@/shared/lib/account-manager';
 import { addTaskJob, startAllTaskWorkers } from '@/shared/lib/queue';
 import type { PostJobData } from '@/shared/lib/queue/types';
-import type { ProgressCallback } from '@/features/auto-comment/batch/types';
+import type { ProgressCallback } from '@/shared/types';
 import type {
   ManualPublishInput,
   ManualPublishResult,

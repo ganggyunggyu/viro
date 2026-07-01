@@ -81,13 +81,6 @@ const IMAGE_BUTTON_SELECTORS = [
   'button.se-text-icon-toolbar-image',
 ];
 
-// 파일 input 셀렉터
-const FILE_INPUT_SELECTORS = [
-  'input[type="file"][accept*="image"]',
-  'input[type="file"]',
-  '.se-image-uploader input[type="file"]',
-];
-
 // 이미지 컴포넌트 셀렉터 (업로드 확인용)
 const IMAGE_COMPONENT_SELECTORS = [
   '.se-image-resource',

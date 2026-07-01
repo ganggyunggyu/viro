@@ -45,7 +45,7 @@ async function main() {
 
   // task_ 큐에 대한 워커 시작
   const startWorkerForQueue = async (queueName: string) => {
-    if (!queueName.startsWith('task_') || activeWorkers.has(queueName)) return;
+    if (queueName !== 'task_global' || activeWorkers.has(queueName)) return;
 
     const { processTaskJob } = await import('../src/shared/lib/queue/workers-processor');
 

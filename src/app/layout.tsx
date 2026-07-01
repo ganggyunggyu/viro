@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { cn } from '@/shared/lib/cn';
-import { Providers } from '@/shared/providers';
+import { Providers } from './providers';
 import './globals.css';
 
 const jetBrainsMono = JetBrains_Mono({

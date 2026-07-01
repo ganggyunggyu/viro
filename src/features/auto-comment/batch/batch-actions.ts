@@ -77,7 +77,7 @@ export const runModifyBatchAction = async (
   try {
     const result = await runModifyBatchJob(input, options);
     return result;
-  } catch (error) {
+  } catch {
     return {
       success: false,
       totalArticles: 0,

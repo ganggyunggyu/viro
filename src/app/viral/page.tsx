@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
-import { AnimatedCard, AnimatedTabs, PageLayout, SlideUp } from '@/shared/ui';
+import { PageLayout } from '@/widgets/page-layout';
+import { AnimatedCard, AnimatedTabs, SlideUp } from '@/shared/ui';
 import { ManualPostUI } from '@/features/manual-post';
 import { ViralBatchUI } from '@/features/viral/viral-batch-ui';
 

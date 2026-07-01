@@ -4,7 +4,7 @@ import { buildCafePostContent } from '@/shared/lib/cafe-content';
 import { ModifiedArticle, PublishedArticle, type IPublishedArticle } from '@/shared/models';
 import { buildHanryeoCafePrompt } from '@/features/viral/prompts/build-hanryeo-cafe-prompt';
 import { parseViralResponse } from '@/features/viral/viral-parser';
-import { modifyArticleWithAccount } from './article-modifier';
+import { modifyArticleWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { parseKeywordWithCategory } from './keyword-utils';
 import type { ProgressCallback } from './types';
 

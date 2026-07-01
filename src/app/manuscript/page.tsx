@@ -1,5 +1,5 @@
 import { cn } from '@/shared/lib/cn';
-import { PageLayout } from '@/shared/ui';
+import { PageLayout } from '@/widgets/page-layout';
 import { ManuscriptUploadUI } from '@/features/auto-comment/publish';
 
 export default function ManuscriptPage() {

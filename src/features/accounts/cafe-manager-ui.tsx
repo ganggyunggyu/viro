@@ -100,6 +100,8 @@ export const CafeManagerUI = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [pendingDeleteCafeId, setPendingDeleteCafeId] = useState<string | null>(null);
 
   const inputClassName = cn(
     'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
@@ -147,7 +149,7 @@ export const CafeManagerUI = () => {
 
   const handleSubmit = () => {
     if (!form.cafeId || !form.cafeUrl || !form.name) {
-      alert('카페ID, 카페URL, 이름은 필수입니다');
+      setMessage({ type: 'error', text: '카페ID, 카페URL, 이름은 필수입니다' });
       return;
     }
 
@@ -168,19 +170,27 @@ export const CafeManagerUI = () => {
       } else {
         const result = await addCafeAction(input);
         if (!result.success) {
-          alert(result.error);
+          setMessage({ type: 'error', text: result.error || '카페 추가 실패' });
           return;
         }
       }
+      setMessage({ type: 'success', text: editingId ? '카페 수정 완료' : '카페 추가 완료' });
       resetForm();
       loadCafes();
     });
   };
 
   const handleDelete = (cafeId: string) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
+    if (pendingDeleteCafeId !== cafeId) {
+      setPendingDeleteCafeId(cafeId);
+      setMessage({ type: 'error', text: '삭제를 다시 누르면 삭제됩니다' });
+      return;
+    }
+
     startTransition(async () => {
       await deleteCafeAction(cafeId);
+      setPendingDeleteCafeId(null);
+      setMessage({ type: 'success', text: '카페 삭제 완료' });
       loadCafes();
     });
   };
@@ -203,6 +213,19 @@ export const CafeManagerUI = () => {
           </Button>
         )}
       </div>
+
+      {message && (
+        <div
+          className={cn(
+            'rounded-xl border p-4 text-sm',
+            message.type === 'success'
+              ? 'border-(--success)/20 bg-(--success-soft) text-(--success)'
+              : 'border-(--danger)/20 bg-(--danger-soft) text-(--danger)'
+          )}
+        >
+          {message.text}
+        </div>
+      )}
 
       {showForm && (
         <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-6 space-y-5')}>
@@ -399,7 +422,7 @@ export const CafeManagerUI = () => {
                     size="xs"
                     onClick={() => handleDelete(cafe.cafeId)}
                   >
-                    삭제
+                    {pendingDeleteCafeId === cafe.cafeId ? '확인' : '삭제'}
                   </Button>
                 </div>
               </div>

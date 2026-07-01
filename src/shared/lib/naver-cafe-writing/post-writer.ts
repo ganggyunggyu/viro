@@ -10,8 +10,8 @@ import {
 } from '@/shared/lib/multi-session';
 import type { NaverAccount } from '@/shared/lib/account-manager';
 import type { Page } from 'playwright';
-import type { PostResult, PostOptions } from './types';
-import { DEFAULT_POST_OPTIONS } from './types';
+import type { PostOptions, PostResult } from '@/shared/types';
+import { DEFAULT_POST_OPTIONS } from '@/shared/types';
 import { incrementActivity } from '@/shared/models/daily-activity';
 import { uploadSingleImage } from './image-uploader';
 import type { ElementHandle } from 'playwright';

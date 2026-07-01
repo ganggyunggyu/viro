@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { cn } from '@/shared/lib/cn';
 import { Select, Button } from '@/shared/ui';
 import { getCafesAction } from '@/features/accounts/actions';
-import { PostOptionsUI } from '../batch/post-options-ui';
+import { PostOptionsUI } from '@/entities/post-options';
 import {
   postOptionsAtom,
   cafesAtom,
@@ -61,7 +61,6 @@ export const PostOnlyUI = () => {
   );
 
   const labelClassName = cn('text-sm font-medium text-(--ink)');
-  const helperClassName = cn('text-xs text-(--ink-muted) mt-1');
 
   const handleSubmit = () => {
     const keywords = keywordsText

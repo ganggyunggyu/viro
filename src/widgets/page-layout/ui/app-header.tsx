@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
-import { ThemeToggle } from './theme-toggle';
+import { ThemeToggle } from '@/shared/ui/theme-toggle';
 import { logout } from '@/features/auth/actions';
 import { userAtom, userLoadingAtom, userInitializedAtom } from '@/shared/store';
 import { resetCafesAtom } from '@/entities/store';

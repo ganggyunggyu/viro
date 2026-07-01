@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { cn } from '@/shared/lib/cn';
 import { Button, Checkbox, ExecuteConfirmModal, Select, type SettingItem } from '@/shared/ui';
 import { toast } from '@/shared/lib/toast';
-import { PostOptionsUI } from '@/features/auto-comment/batch/post-options-ui';
+import { PostOptionsUI } from '@/entities/post-options';
 import { cafesAtom, cafesInitializedAtom, postOptionsAtom } from '@/entities/store';
 import { getAccountsAction, getCafesAction, type AccountData } from '@/features/accounts/actions';
 import { getDelaySettings } from '@/shared/hooks/use-delay-settings';

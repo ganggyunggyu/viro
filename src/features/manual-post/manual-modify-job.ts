@@ -6,14 +6,13 @@ import { getAllAccounts } from '@/shared/config/accounts';
 import { getDefaultCafe, getCafeById } from '@/shared/config/cafes';
 import { connectDB } from '@/shared/lib/mongodb';
 import { BatchJobLog, ModifiedArticle, PublishedArticle } from '@/shared/models';
-import { buildBaseFilter, fetchArticlesToModify } from '@/features/auto-comment/batch/modify-query-utils';
-import { modifyArticleWithAccount } from '@/features/auto-comment/batch/article-modifier';
-import type { ProgressCallback } from '@/features/auto-comment/batch/types';
+import { buildBaseFilter, fetchArticlesToModify } from '@/shared/lib/naver-cafe-writing';
+import { modifyArticleWithAccount } from '@/shared/lib/naver-cafe-writing';
+import type { ProgressCallback } from '@/shared/types';
 import type {
   ManualModifyInput,
   ManualModifyResult,
   ManuscriptModifyResult,
-  ManuscriptFolder,
 } from './types';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -313,7 +312,7 @@ export const runManualModify = async (
       results,
       jobLogId: jobLog._id.toString(),
     };
-  } catch (error) {
+  } catch {
     jobLog.status = 'failed';
     jobLog.finishedAt = new Date();
     await jobLog.save();

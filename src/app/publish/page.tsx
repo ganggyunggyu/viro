@@ -2,7 +2,8 @@
 
 import { cn } from '@/shared/lib/cn';
 import { PostOnlyUI, CommentOnlyUI } from '@/features/auto-comment/publish';
-import { PageLayout, AnimatedTabs, AnimatedCard, SlideUp } from '@/shared/ui';
+import { PageLayout } from '@/widgets/page-layout';
+import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared/ui';
 
 const TABS = [
   { id: 'post', label: '글만 발행' },

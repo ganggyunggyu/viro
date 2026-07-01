@@ -56,56 +56,87 @@ export interface QueueSummary {
   byAccount: { accountId: string; count: number }[];
 }
 
+const TASK_JOB_STATUSES = ['delayed', 'waiting', 'active', 'completed', 'failed'] as const;
+
+const createTaskQueue = () =>
+  new Queue<TaskJobData>(getTaskQueueName(), { connection: getRedisConnection() });
+
+const getJobsForStatuses = async (
+  queue: Queue<TaskJobData>,
+  statusFilter: JobsFilter['status'] = 'all'
+): Promise<Array<{ job: Job<TaskJobData>; status: JobDetail['status'] }>> => {
+  const requestedStatuses =
+    statusFilter === 'all' ? TASK_JOB_STATUSES : TASK_JOB_STATUSES.filter((status) => status === statusFilter);
+
+  const jobsByStatus = await Promise.all(
+    requestedStatuses.map(async (status) => {
+      const limit = status === 'active' ? 100 : 10000;
+      const jobs = await queue.getJobs([status], 0, limit);
+      return jobs.map((job) => ({ job, status }));
+    })
+  );
+
+  return jobsByStatus.flat();
+};
+
+const createEmptyTotals = (): QueueTotals => ({
+  waiting: 0,
+  active: 0,
+  delayed: 0,
+  completed: 0,
+  failed: 0,
+});
+
 export const getAllQueueStatus = async (): Promise<AllQueueStatus> => {
   const accounts = await getAllAccounts();
-  const queues: AccountQueueStatus[] = [];
-  const total: QueueTotals = { waiting: 0, active: 0, delayed: 0, completed: 0, failed: 0 };
+  const queueName = getTaskQueueName();
+  const queue = createTaskQueue();
+  const statusByAccount = new Map<string, QueueTotals>();
+  const total = createEmptyTotals();
 
-  for (const account of accounts) {
-    const queueName = getTaskQueueName(account.id);
-    const queue = new Queue(queueName, { connection: getRedisConnection() });
-
-    try {
-      const [waiting, active, delayed, completed, failed] = await Promise.all([
-        queue.getWaitingCount(),
-        queue.getActiveCount(),
-        queue.getDelayedCount(),
-        queue.getCompletedCount(),
-        queue.getFailedCount(),
-      ]);
-
-      queues.push({
-        accountId: account.id,
-        queueName,
-        waiting,
-        active,
-        delayed,
-        completed,
-        failed,
-      });
-
-      total.waiting += waiting;
-      total.active += active;
-      total.delayed += delayed;
-      total.completed += completed;
-      total.failed += failed;
-    } catch (error) {
-      console.error(`[QUEUE] ${account.id} 상태 조회 실패:`, error);
-    } finally {
-      await queue.close();
-    }
+  for (const { id } of accounts) {
+    statusByAccount.set(id, createEmptyTotals());
   }
+
+  try {
+    const entries = await getJobsForStatuses(queue);
+
+    for (const { job, status } of entries) {
+      const accountTotals = statusByAccount.get(job.data.accountId) ?? createEmptyTotals();
+      accountTotals[status]++;
+      total[status]++;
+      statusByAccount.set(job.data.accountId, accountTotals);
+    }
+  } catch (error) {
+    console.error('[QUEUE] 글로벌 큐 상태 조회 실패:', error);
+  } finally {
+    await queue.close();
+  }
+
+  const queues: AccountQueueStatus[] = accounts.map(({ id }) => ({
+    accountId: id,
+    queueName,
+    ...(statusByAccount.get(id) ?? createEmptyTotals()),
+  }));
 
   return { queues, total };
 };
 
 export const clearAccountQueue = async (accountId: string): Promise<{ success: boolean; message: string }> => {
-  const queueName = getTaskQueueName(accountId);
-  const queue = new Queue(queueName, { connection: getRedisConnection() });
+  const queue = createTaskQueue();
 
   try {
-    await queue.obliterate({ force: true });
-    return { success: true, message: `${accountId} 큐 클리어 완료` };
+    const jobs = await getJobsForStatuses(queue);
+    const targetJobs = jobs.filter(({ job, status }) => job.data.accountId === accountId && status !== 'active');
+
+    await Promise.all(targetJobs.map(({ job }) => job.remove()));
+
+    const activeCount = jobs.filter(
+      ({ job, status }) => job.data.accountId === accountId && status === 'active'
+    ).length;
+
+    const activeMessage = activeCount > 0 ? `, 진행 중 ${activeCount}개 제외` : '';
+    return { success: true, message: `${accountId} 큐 ${targetJobs.length}개 클리어 완료${activeMessage}` };
   } catch (error) {
     const msg = error instanceof Error ? error.message : '알 수 없는 오류';
     return { success: false, message: msg };
@@ -115,15 +146,17 @@ export const clearAccountQueue = async (accountId: string): Promise<{ success: b
 };
 
 export const clearAllQueues = async (): Promise<{ success: boolean; message: string }> => {
-  const accounts = await getAllAccounts();
-  let cleared = 0;
+  const queue = createTaskQueue();
 
-  for (const account of accounts) {
-    const result = await clearAccountQueue(account.id);
-    if (result.success) cleared++;
+  try {
+    await queue.obliterate({ force: true });
+    return { success: true, message: '글로벌 큐 클리어 완료' };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : '알 수 없는 오류';
+    return { success: false, message: msg };
+  } finally {
+    await queue.close();
   }
-
-  return { success: true, message: `${cleared}개 계정 큐 클리어 완료` };
 };
 
 const jobToDetail = (
@@ -180,56 +213,21 @@ export const getDetailedJobs = async (
   const targetAccounts = filter.accountId
     ? accounts.filter((a) => a.id === filter.accountId)
     : accounts;
+  const targetAccountIds = new Set(targetAccounts.map(({ id }) => id));
 
   const allJobs: JobDetail[] = [];
+  const queue = createTaskQueue();
 
-  for (const account of targetAccounts) {
-    const queueName = getTaskQueueName(account.id);
-    const queue = new Queue(queueName, { connection: getRedisConnection() });
-
-    try {
-      const statusFilter = filter.status || 'all';
-      const jobPromises: Promise<Job<TaskJobData>[]>[] = [];
-
-      if (statusFilter === 'all' || statusFilter === 'delayed') {
-        jobPromises.push(queue.getDelayed(0, 500) as Promise<Job<TaskJobData>[]>);
-      }
-      if (statusFilter === 'all' || statusFilter === 'waiting') {
-        jobPromises.push(queue.getWaiting(0, 500) as Promise<Job<TaskJobData>[]>);
-      }
-      if (statusFilter === 'all' || statusFilter === 'active') {
-        jobPromises.push(queue.getActive(0, 100) as Promise<Job<TaskJobData>[]>);
-      }
-      if (statusFilter === 'all' || statusFilter === 'completed') {
-        jobPromises.push(queue.getCompleted(0, 100) as Promise<Job<TaskJobData>[]>);
-      }
-      if (statusFilter === 'all' || statusFilter === 'failed') {
-        jobPromises.push(queue.getFailed(0, 100) as Promise<Job<TaskJobData>[]>);
-      }
-
-      const results = await Promise.all(jobPromises);
-
-      let idx = 0;
-      if (statusFilter === 'all' || statusFilter === 'delayed') {
-        results[idx++].forEach((j) => allJobs.push(jobToDetail(j, 'delayed', cafeMap)));
-      }
-      if (statusFilter === 'all' || statusFilter === 'waiting') {
-        results[idx++].forEach((j) => allJobs.push(jobToDetail(j, 'waiting', cafeMap)));
-      }
-      if (statusFilter === 'all' || statusFilter === 'active') {
-        results[idx++].forEach((j) => allJobs.push(jobToDetail(j, 'active', cafeMap)));
-      }
-      if (statusFilter === 'all' || statusFilter === 'completed') {
-        results[idx++].forEach((j) => allJobs.push(jobToDetail(j, 'completed', cafeMap)));
-      }
-      if (statusFilter === 'all' || statusFilter === 'failed') {
-        results[idx++].forEach((j) => allJobs.push(jobToDetail(j, 'failed', cafeMap)));
-      }
-    } catch (error) {
-      console.error(`[QUEUE] ${account.id} jobs 조회 실패:`, error);
-    } finally {
-      await queue.close();
+  try {
+    const entries = await getJobsForStatuses(queue, filter.status || 'all');
+    for (const { job, status } of entries) {
+      if (!targetAccountIds.has(job.data.accountId)) continue;
+      allJobs.push(jobToDetail(job, status, cafeMap));
     }
+  } catch (error) {
+    console.error('[QUEUE] 글로벌 큐 jobs 조회 실패:', error);
+  } finally {
+    await queue.close();
   }
 
   let filtered = allJobs;
@@ -308,13 +306,16 @@ export const removeJob = async (
   accountId: string,
   jobId: string
 ): Promise<{ success: boolean; message: string }> => {
-  const queueName = getTaskQueueName(accountId);
-  const queue = new Queue(queueName, { connection: getRedisConnection() });
+  const queue = createTaskQueue();
 
   try {
     const job = await queue.getJob(jobId);
     if (!job) {
       return { success: false, message: '작업을 찾을 수 없음' };
+    }
+
+    if (job.data.accountId !== accountId) {
+      return { success: false, message: '계정과 작업이 일치하지 않음' };
     }
 
     const state = await job.getState();
@@ -333,42 +334,22 @@ export const removeJob = async (
 };
 
 export const getRelatedJobs = async (articleId: number): Promise<JobDetail[]> => {
-  const accounts = await getAllAccounts();
   const cafes = await getAllCafes();
   const cafeMap = new Map(cafes.map((c) => [c.cafeId, c.name]));
   const relatedJobs: JobDetail[] = [];
+  const queue = createTaskQueue();
 
-  for (const account of accounts) {
-    const queueName = getTaskQueueName(account.id);
-    const queue = new Queue(queueName, { connection: getRedisConnection() });
-
-    try {
-      const [delayed, waiting, active, completed, failed] = await Promise.all([
-        queue.getDelayed(0, 1000) as Promise<Job<TaskJobData>[]>,
-        queue.getWaiting(0, 1000) as Promise<Job<TaskJobData>[]>,
-        queue.getActive(0, 100) as Promise<Job<TaskJobData>[]>,
-        queue.getCompleted(0, 100) as Promise<Job<TaskJobData>[]>,
-        queue.getFailed(0, 100) as Promise<Job<TaskJobData>[]>,
-      ]);
-
-      const processJobs = (jobs: Job<TaskJobData>[], status: JobDetail['status']) => {
-        for (const job of jobs) {
-          if (job.data.type !== 'post' && job.data.articleId === articleId) {
-            relatedJobs.push(jobToDetail(job, status, cafeMap));
-          }
-        }
-      };
-
-      processJobs(delayed, 'delayed');
-      processJobs(waiting, 'waiting');
-      processJobs(active, 'active');
-      processJobs(completed, 'completed');
-      processJobs(failed, 'failed');
-    } catch (error) {
-      console.error(`[QUEUE] ${account.id} 연관 작업 조회 실패:`, error);
-    } finally {
-      await queue.close();
+  try {
+    const entries = await getJobsForStatuses(queue);
+    for (const { job, status } of entries) {
+      if (job.data.type !== 'post' && job.data.articleId === articleId) {
+        relatedJobs.push(jobToDetail(job, status, cafeMap));
+      }
     }
+  } catch (error) {
+    console.error('[QUEUE] 글로벌 큐 연관 작업 조회 실패:', error);
+  } finally {
+    await queue.close();
   }
 
   const statusOrder = { active: 0, delayed: 1, waiting: 2, completed: 3, failed: 4 };

@@ -1,5 +1,6 @@
 import { PublishedArticle, type IPublishedArticle } from '@/shared/models';
-import type { SortOrder } from './modify-batch-job';
+
+export type ArticleModifySortOrder = 'oldest' | 'newest' | 'random';
 
 export interface QueryFilter {
   cafeId: string;
@@ -19,7 +20,7 @@ export const buildBaseFilter = (cafeId: string, daysLimit?: number): QueryFilter
 }
 
 export const fetchArticlesToModify = async (
-  sortOrder: SortOrder,
+  sortOrder: ArticleModifySortOrder,
   limit: number,
   baseFilter: QueryFilter
 ): Promise<IPublishedArticle[]> => {
@@ -32,4 +33,4 @@ export const fetchArticlesToModify = async (
 
   const sortDirection = sortOrder === 'oldest' ? 1 : -1;
   return PublishedArticle.find(baseFilter).sort({ publishedAt: sortDirection }).limit(limit);
-}
+};

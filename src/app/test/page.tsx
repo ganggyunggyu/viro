@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { ApiTestUI } from '@/features/auto-comment/batch/api-test-ui';
 import { KeywordGeneratorUI } from '@/features/auto-comment/batch/keyword-generator-ui';
-import { PageLayout, Button } from '@/shared/ui';
+import { PageLayout } from '@/widgets/page-layout';
+import { Button } from '@/shared/ui';
 
 type TabType = 'keyword' | 'api';
 

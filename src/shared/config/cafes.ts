@@ -1,4 +1,4 @@
-import type { CafeConfig } from '@/entities/cafe';
+import type { CafeConfig } from './cafe-types';
 import { connectDB } from '@/shared/lib/mongodb';
 import { Cafe } from '@/shared/models';
 import { getCurrentUserId } from './user';
@@ -50,4 +50,4 @@ export const getCafeById = async (cafeId: string, userId?: string): Promise<Cafe
 
 export const CAFE_LIST: CafeConfig[] = [];
 
-export type { CafeConfig } from '@/entities/cafe';
+export type { CafeConfig } from './cafe-types';

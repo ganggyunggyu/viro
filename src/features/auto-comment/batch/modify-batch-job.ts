@@ -6,7 +6,7 @@ import { connectDB } from '@/shared/lib/mongodb';
 import { BatchJobLog } from '@/shared/models';
 import { processArticleModification, type ModifyProcessResult } from './modify-article-processor';
 import { parseKeywordWithCategory } from './keyword-utils';
-import { buildBaseFilter, fetchArticlesToModify } from './modify-query-utils';
+import { buildBaseFilter, fetchArticlesToModify } from '@/shared/lib/naver-cafe-writing';
 import type { ProgressCallback } from './types';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -253,7 +253,7 @@ export const runModifyBatchJob = async (
       results,
       jobLogId: jobLog._id.toString(),
     };
-  } catch (error) {
+  } catch {
     jobLog.status = 'failed';
     jobLog.finishedAt = new Date();
     await jobLog.save();

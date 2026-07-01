@@ -2,7 +2,7 @@
 
 import { cn } from '@/shared/lib/cn';
 import { Select, Checkbox } from '@/shared/ui';
-import type { PostOptions } from './types';
+import type { PostOptions } from '@/shared/types';
 
 interface PostOptionsUIProps {
   options: PostOptions;

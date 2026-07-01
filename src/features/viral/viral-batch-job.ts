@@ -25,7 +25,7 @@ import { parseViralResponse, validateParsedContent } from './viral-parser';
 import { saveViralDebug } from './viral-debug';
 import { addTaskJob, startAllTaskWorkers } from '@/shared/lib/queue';
 import type { PostJobData, ViralCommentsData } from '@/shared/lib/queue/types';
-import type { PostOptions, ProgressCallback } from '@/features/auto-comment/batch/types';
+import type { PostOptions, ProgressCallback } from '@/shared/types';
 import { getRecentWriters, User } from '@/shared/models';
 
 export interface DelayConfig {

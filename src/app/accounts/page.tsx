@@ -2,7 +2,8 @@
 
 import { cn } from '@/shared/lib/cn';
 import { AccountManagerUI, CafeManagerUI } from '@/features/accounts';
-import { PageLayout, AnimatedTabs, AnimatedCard, SlideUp } from '@/shared/ui';
+import { PageLayout } from '@/widgets/page-layout';
+import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared/ui';
 
 const TABS = [
   { id: 'accounts', label: '계정 관리' },

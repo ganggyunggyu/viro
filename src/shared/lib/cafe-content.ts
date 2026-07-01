@@ -1,4 +1,4 @@
-import type { ManuscriptImage } from '@/features/auto-comment/publish/types';
+import type { ManuscriptImage } from '@/shared/types';
 
 export interface CafePostContent {
   title: string;

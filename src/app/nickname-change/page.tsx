@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
-import { PageLayout, AnimatedTabs, AnimatedCard, SlideUp } from '@/shared/ui';
+import { PageLayout } from '@/widgets/page-layout';
+import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared/ui';
 import { NicknameChangeUI } from './nickname-change-ui';
 
 const TABS = [

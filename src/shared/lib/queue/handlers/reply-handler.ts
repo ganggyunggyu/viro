@@ -1,7 +1,7 @@
 import { ReplyJobData, JobResult } from '../types';
 import { addTaskJob, createRescheduleToken } from '../index';
 import { waitForSequenceTurn, advanceSequence } from '../sequence';
-import { writeReplyWithAccount } from '@/features/auto-comment/comment-writer';
+import { writeReplyWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { NaverAccount } from '@/shared/lib/account-manager';
 import { addCommentToArticle, getArticleComments, getArticleIdByKeyword } from '@/shared/models';
 import { invalidateLoginCache } from '@/shared/lib/multi-session';
@@ -15,6 +15,7 @@ const SEQUENCE_WAIT_RETRY_MS = 10 * 1000;
 const ARTICLE_NOT_READY_RETRY_MS = 5 * 60 * 1000;
 const WRITE_FAIL_RETRY_MS = 60 * 1000;
 const MAX_ARTICLE_RETRY = 3;
+const MAX_WRITE_RETRY = 3;
 const CONTENT_PREVIEW_LENGTH = 30;
 const PARENT_MATCH_PREVIEW_LENGTH = 40;
 
@@ -33,13 +34,6 @@ const acquireWriteLock = async (
 
 const normalizeText = (value: string | null | undefined): string =>
   (value ?? '').replace(/\s+/g, ' ').trim();
-
-const removeSequenceFields = (data: ReplyJobData): Omit<ReplyJobData, 'sequenceId' | 'sequenceIndex'> => {
-  const nextData = { ...data };
-  delete nextData.sequenceId;
-  delete nextData.sequenceIndex;
-  return nextData;
-};
 
 const findParentCommentId = async (
   data: ReplyJobData,
@@ -109,6 +103,21 @@ export const handleReplyJob = async (
     if (hasSequence) await advanceSequence(data.sequenceId!);
   };
 
+  const rescheduleCurrentTurn = async (
+    delayMs: number,
+    retryCount: number = data._retryCount ?? 0
+  ): Promise<void> => {
+    await addTaskJob(
+      data.accountId,
+      {
+        ...data,
+        _retryCount: retryCount + 1,
+        rescheduleToken: createRescheduleToken(),
+      },
+      delayMs
+    );
+  };
+
   // articleId 해소
   let articleId = data.articleId;
 
@@ -129,16 +138,7 @@ export const handleReplyJob = async (
     const foundId = await getArticleIdByKeyword(data.cafeId, data.keyword);
     if (!foundId) {
       log.info('글 미발행 — 재시도 예약', { keyword: data.keyword, retry: (retryCount || 0) + 1 });
-      await advanceIfNeeded();
-      await addTaskJob(
-        data.accountId,
-        {
-          ...removeSequenceFields(data),
-          _retryCount: (retryCount || 0) + 1,
-          rescheduleToken: createRescheduleToken(),
-        } as ReplyJobData,
-        ARTICLE_NOT_READY_RETRY_MS
-      );
+      await rescheduleCurrentTurn(ARTICLE_NOT_READY_RETRY_MS, retryCount || 0);
       return { success: false, error: '글 미발행 - 재스케줄됨', willRetry: true };
     }
     articleId = foundId;
@@ -157,8 +157,14 @@ export const handleReplyJob = async (
   // 쓰기 락
   const lockAcquired = await acquireWriteLock(data.cafeId, articleId, account.id, data.content);
   if (!lockAcquired) {
+    const retryCount = data._retryCount ?? 0;
     log.info('대댓글 작성 락 중복', { accountId: account.id, articleId });
-    await advanceIfNeeded();
+    if (retryCount >= MAX_WRITE_RETRY) {
+      await advanceIfNeeded();
+      return { success: false, error: '대댓글 작성 락 중복 - 재시도 초과' };
+    }
+
+    await rescheduleCurrentTurn(WRITE_FAIL_RETRY_MS, retryCount);
     return { success: false, error: '대댓글 작성 락 중복 - BullMQ retry 대기' };
   }
 
@@ -180,17 +186,18 @@ export const handleReplyJob = async (
     const isArticleNotReady = result.error?.startsWith('ARTICLE_NOT_READY:');
     const retryDelay = isArticleNotReady ? ARTICLE_NOT_READY_RETRY_MS : WRITE_FAIL_RETRY_MS;
     const level = isArticleNotReady ? 'warn' : 'error';
+    const retryCount = data._retryCount ?? 0;
 
     log[level]('대댓글 작성 실패 — 재시도', { accountId: account.id, articleId, error: result.error, delayMs: retryDelay });
 
     if (!isArticleNotReady) invalidateLoginCache(account.id);
-    await advanceIfNeeded();
 
-    await addTaskJob(
-      data.accountId,
-      { ...removeSequenceFields(data), rescheduleToken: createRescheduleToken() },
-      retryDelay
-    );
+    if (retryCount >= MAX_WRITE_RETRY) {
+      await advanceIfNeeded();
+      return { success: false, error: result.error || '대댓글 작성 실패' };
+    }
+
+    await rescheduleCurrentTurn(retryDelay, retryCount);
     return { success: false, error: result.error || '대댓글 작성 실패', willRetry: true };
   }
 

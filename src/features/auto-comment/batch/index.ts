@@ -1,13 +1,12 @@
 export { AccountListUI } from './account-list-ui';
-export { PostOptionsUI } from './post-options-ui';
+export { PostOptionsUI } from '@/entities/post-options';
 export { KeywordGeneratorUI } from './keyword-generator-ui';
 export { ApiTestUI } from './api-test-ui';
 export { runBatchPostAction, testSingleKeywordAction, runModifyBatchAction } from './batch-actions';
 export { runBatchJob } from './batch-job';
 export { runModifyBatchJob } from './modify-batch-job';
 export { addBatchToQueue, getBatchQueueStatus, stopBatchQueue } from './batch-queue';
-export { writePostWithAccount } from './post-writer';
-export { modifyArticleWithAccount } from './article-modifier';
+export { modifyArticleWithAccount, writePostWithAccount } from '@/shared/lib/naver-cafe-writing';
 export { joinCafeWithAccount, joinCafeWithAccounts } from './cafe-join';
 export type {
   BatchJobInput,
@@ -25,4 +24,4 @@ export type {
 } from './types';
 export { DEFAULT_POST_OPTIONS } from './types';
 export type { ModifyBatchInput, ModifyBatchResult, ModifyBatchOptions } from './modify-batch-job';
-export type { ModifyArticleInput, ModifyResult } from './article-modifier';
+export type { ModifyArticleInput, ModifyResult } from '@/shared/lib/naver-cafe-writing';

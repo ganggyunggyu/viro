@@ -1,4 +1,8 @@
 import type { NaverAccount } from '@/shared/lib/account-manager';
+import type { PostOptions, PostResult } from '@/shared/types';
+export type { PostOptions, PostResult } from '@/shared/types';
+export type { BatchProgress, ProgressCallback } from '@/shared/types';
+export { DEFAULT_POST_OPTIONS } from '@/shared/types';
 
 export interface BatchJobInput {
   service: string;
@@ -11,14 +15,6 @@ export interface BatchJobInput {
   skipComments?: boolean;
   contentPrompt?: string;
   contentModel?: string;
-}
-
-export interface PostResult {
-  success: boolean;
-  articleId?: number;
-  articleUrl?: string;
-  writerAccountId: string;
-  error?: string;
 }
 
 export interface CommentResult {
@@ -52,26 +48,6 @@ export interface BatchJobResult {
   jobLogId?: string;
 }
 
-export interface PostOptions {
-  allowComment: boolean;
-  allowScrap: boolean;
-  allowCopy: boolean;
-  useAutoSource: boolean;
-  useCcl: boolean;
-  cclCommercial: 'allow' | 'disallow';
-  cclModify: 'allow' | 'same' | 'disallow';
-}
-
-export const DEFAULT_POST_OPTIONS: PostOptions = {
-  allowComment: true,
-  allowScrap: true,
-  allowCopy: false,
-  useAutoSource: false,
-  useCcl: false,
-  cclCommercial: 'disallow',
-  cclModify: 'disallow',
-};
-
 export interface DelayConfig {
   afterPost: number;
   betweenComments: number;
@@ -96,20 +72,6 @@ export interface BatchJobOptions {
   replyStrategy?: ReplyStrategy;
 }
 
-export interface BatchProgress {
-  currentKeyword: string;
-  keywordIndex: number;
-  totalKeywords: number;
-  phase: 'post' | 'comments' | 'replies' | 'waiting' | 'done';
-  message: string;
-  // 키워드 처리 완료 시 결과
-  success?: boolean;
-  error?: string;
-  title?: string;
-}
-
-export type ProgressCallback = (progress: BatchProgress) => void;
-
 const shuffleArray = <T>(array: T[]): T[] => {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -120,8 +82,7 @@ const shuffleArray = <T>(array: T[]): T[] => {
 };
 
 export const getWriterAccount = (
-  accounts: NaverAccount[],
-  _keywordIndex: number
+  accounts: NaverAccount[]
 ): NaverAccount => {
   const randomIndex = Math.floor(Math.random() * accounts.length);
   return accounts[randomIndex];

@@ -1,26 +1,8 @@
 import type { NaverAccount } from '@/shared/lib/account-manager';
 
-export const LUXURY_CAFE_WRITER_ACCOUNT_IDS = [
-  '4giccokx',
-  'uqgidh2690',
-  'eytkgy5500',
-  'olgdmp9921',
-  'yenalk',
-] as const;
-
-const LUXURY_CAFE_WRITER_ACCOUNT_ID_SET = new Set<string>([
-  ...LUXURY_CAFE_WRITER_ACCOUNT_IDS,
-]);
-
-const LUXURY_CAFE_IDS = new Set([
-  '25460974', // 샤넬오픈런
-  '25729954', // 쇼핑지름신
-]);
-
-const HEALTH_CAFE_IDS = new Set([
-  '25636798', // 건강한노후준비
-  '25227349', // 건강관리소
-]);
+// Deprecated compatibility export. Writer pool source of truth is DB role +
+// explicit allowedAccountIds from scheduling/check scripts.
+export const LUXURY_CAFE_WRITER_ACCOUNT_IDS: readonly string[] = [];
 
 export interface CafeAccountPolicy {
   writerAccounts: NaverAccount[];
@@ -55,36 +37,10 @@ const filterAccountsByIds = (
 const isWriterAccount = ({ role }: NaverAccount): boolean => role === 'writer';
 
 export const getCafeAccountPolicy = (
-  accounts: NaverAccount[],
-  cafeId?: string
+  accounts: NaverAccount[]
 ): CafeAccountPolicy => {
   const uniqueAccounts = uniqueAccountsById(accounts);
   const writerRoleAccounts = uniqueAccounts.filter(isWriterAccount);
-
-  if (!cafeId) {
-    return {
-      writerAccounts: writerRoleAccounts,
-      commenterAccounts: uniqueAccounts,
-    };
-  }
-
-  if (LUXURY_CAFE_IDS.has(cafeId)) {
-    return {
-      writerAccounts: writerRoleAccounts.filter(({ id }) =>
-        LUXURY_CAFE_WRITER_ACCOUNT_ID_SET.has(id)
-      ),
-      commenterAccounts: uniqueAccounts,
-    };
-  }
-
-  if (HEALTH_CAFE_IDS.has(cafeId)) {
-    return {
-      writerAccounts: writerRoleAccounts.filter(({ id }) =>
-        !LUXURY_CAFE_WRITER_ACCOUNT_ID_SET.has(id)
-      ),
-      commenterAccounts: uniqueAccounts,
-    };
-  }
 
   return {
     writerAccounts: writerRoleAccounts,
@@ -97,7 +53,8 @@ export const getCafeWriterAccounts = (
   cafeId?: string,
   allowedAccountIds?: string[]
 ): NaverAccount[] => {
-  const { writerAccounts } = getCafeAccountPolicy(accounts, cafeId);
+  void cafeId;
+  const { writerAccounts } = getCafeAccountPolicy(accounts);
   return filterAccountsByIds(writerAccounts, allowedAccountIds);
 };
 
@@ -107,7 +64,8 @@ export const getCafeCommenterAccounts = (
   excludedAccountId?: string,
   allowedAccountIds?: string[]
 ): NaverAccount[] => {
-  const { commenterAccounts } = getCafeAccountPolicy(accounts, cafeId);
+  void cafeId;
+  const { commenterAccounts } = getCafeAccountPolicy(accounts);
   const filteredCommenters = filterAccountsByIds(commenterAccounts, allowedAccountIds);
 
   if (!excludedAccountId) {

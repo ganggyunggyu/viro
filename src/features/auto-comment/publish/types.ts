@@ -1,8 +1,11 @@
+import type { ManuscriptImage } from '@/shared/types';
+export type { ManuscriptImage } from '@/shared/types';
+
 export interface PostOnlyInput {
   keywords: string[];
   ref?: string;
   cafeId?: string;
-  postOptions?: import('../batch/types').PostOptions;
+  postOptions?: import('@/shared/types').PostOptions;
 }
 
 export interface PostOnlyResult {
@@ -62,15 +65,10 @@ export interface ManuscriptFolder {
   images: ManuscriptImage[];
 }
 
-export interface ManuscriptImage {
-  name: string;
-  dataUrl: string;
-}
-
 export interface ManuscriptUploadInput {
   manuscripts: ManuscriptFolder[];
   cafeId?: string;
-  postOptions?: import('../batch/types').PostOptions;
+  postOptions?: import('@/shared/types').PostOptions;
 }
 
 export interface ManuscriptUploadResult {

@@ -7,7 +7,7 @@
     "dev:next": "node scripts/run-with-project-root.mjs next dev --port 3007",
     "build": "node scripts/run-with-project-root.mjs next build",
     "start": "node scripts/run-with-project-root.mjs next start --port 3007",
-    "lint": "node scripts/run-with-project-root.mjs eslint .",
+    "lint": "node scripts/run-with-project-root.mjs eslint src next.config.ts",
     "lint:strict": "node scripts/run-with-project-root.mjs node scripts/eslint-gate.mjs",
     "lint:strict:all": "npm run lint -- --max-warnings=0",
     "bull-board": "node scripts/run-with-project-root.mjs tsx scripts/bull-board.ts",

@@ -1,4 +1,4 @@
-import type { ViralPromptInput, ContentType } from './types';
+import type { ViralPromptInput } from './types';
 import { getAllPersonaDescriptions } from './personas';
 import {
   getRandomContentType,

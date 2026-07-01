@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, use } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { Select, Button, PageLayout } from '@/shared/ui';
+import { PageLayout } from '@/widgets/page-layout';
+import { Select, Button } from '@/shared/ui';
 import Link from 'next/link';
 import {
   getDetailedJobs,

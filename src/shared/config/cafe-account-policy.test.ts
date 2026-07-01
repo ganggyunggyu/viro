@@ -5,7 +5,6 @@ import type { NaverAccount } from '@/shared/lib/account-manager';
 import {
   getCafeCommenterAccounts,
   getCafeWriterAccounts,
-  LUXURY_CAFE_WRITER_ACCOUNT_IDS,
 } from './cafe-account-policy';
 
 const CHANEL_CAFE_ID = '25460974';
@@ -24,9 +23,8 @@ const createAccount = (
 const accountIds = (accounts: NaverAccount[]): string[] =>
   accounts.map(({ id }) => id);
 
-test('luxury cafes use only the fixed Chanel and shopping writer pool', () => {
+test('luxury cafes use DB writer role accounts without fixed writer IDs', () => {
   const accounts = [
-    ...LUXURY_CAFE_WRITER_ACCOUNT_IDS.map((id) => createAccount(id)),
     createAccount('regular14631'),
     createAccount('compare14310'),
     createAccount('dhtksk1p', 'commenter'),
@@ -34,15 +32,15 @@ test('luxury cafes use only the fixed Chanel and shopping writer pool', () => {
 
   assert.deepEqual(
     accountIds(getCafeWriterAccounts(accounts, CHANEL_CAFE_ID)),
-    [...LUXURY_CAFE_WRITER_ACCOUNT_IDS],
+    ['regular14631', 'compare14310'],
   );
   assert.deepEqual(
     accountIds(getCafeWriterAccounts(accounts, SHOPPING_CAFE_ID)),
-    [...LUXURY_CAFE_WRITER_ACCOUNT_IDS],
+    ['regular14631', 'compare14310'],
   );
 });
 
-test('health cafes exclude luxury writers and never promote commenters to writers', () => {
+test('health cafes use writer-role accounts and never promote commenters to writers', () => {
   const accounts = [
     createAccount('4giccokx'),
     createAccount('regular14631'),
@@ -52,7 +50,20 @@ test('health cafes exclude luxury writers and never promote commenters to writer
 
   assert.deepEqual(
     accountIds(getCafeWriterAccounts(accounts, HEALTH_CAFE_ID)),
-    ['regular14631', 'compare14310'],
+    ['4giccokx', 'regular14631', 'compare14310'],
+  );
+});
+
+test('writer policy applies explicit allowed account IDs after DB role filtering', () => {
+  const accounts = [
+    createAccount('regular14631'),
+    createAccount('compare14310'),
+    createAccount('dhtksk1p', 'commenter'),
+  ];
+
+  assert.deepEqual(
+    accountIds(getCafeWriterAccounts(accounts, CHANEL_CAFE_ID, ['compare14310', 'dhtksk1p'])),
+    ['compare14310'],
   );
 });
 
