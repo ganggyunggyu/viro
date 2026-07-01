@@ -1,6 +1,6 @@
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { CafeJoinUI } from './cafe-join-ui';
-import { PageLayout } from '@/widgets/page-layout';
+import { PageLayout } from '@/widgets';
 
 export default function CafeJoinPage() {
   return (

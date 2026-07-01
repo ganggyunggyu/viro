@@ -1,8 +1,8 @@
 'use client';
 
-import { cn } from '@/shared/lib/cn';
-import { PageLayout } from '@/widgets/page-layout';
-import { AnimatedCard, SlideUp } from '@/shared/ui';
+import { cn } from '@/shared';
+import { PageLayout } from '@/widgets';
+import { AnimatedCard, SlideUp } from '@/shared';
 import { ManualPostUI } from '@/features/manual-post';
 
 export default function ManualPostPage() {

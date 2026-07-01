@@ -6,6 +6,7 @@ export { AnimatedCard, AnimatedListItem } from './animated-card';
 export { AnimatedButton } from './animated-button';
 export { Button } from './button';
 export { LoadingDots } from './loading-dots';
+export { ThemeToggle } from './theme-toggle';
 export { PageTransition, FadeIn, SlideUp, StaggerContainer, StaggerItem } from './page-transition';
 export {
   ConfirmModal,

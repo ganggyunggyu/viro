@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { postArticle, type PostArticleResult } from './actions';
 
 export const PostForm = () => {

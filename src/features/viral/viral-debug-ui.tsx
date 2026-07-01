@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
-import { Button, ConfirmModal } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Button, ConfirmModal } from '@/shared';
 import {
   getViralDebugList,
   getViralDebugById,

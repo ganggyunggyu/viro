@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { ApiTestUI } from '@/features/auto-comment/batch/api-test-ui';
 import { KeywordGeneratorUI } from '@/features/auto-comment/batch/keyword-generator-ui';
-import { PageLayout } from '@/widgets/page-layout';
-import { Button } from '@/shared/ui';
+import { PageLayout } from '@/widgets';
+import { Button } from '@/shared';
 
 type TabType = 'keyword' | 'api';
 

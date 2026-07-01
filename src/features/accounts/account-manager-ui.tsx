@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button, Checkbox } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Button, Checkbox } from '@/shared';
 import {
   getAccountsAction,
   addAccountAction,

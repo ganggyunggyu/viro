@@ -2,8 +2,8 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Button } from '@/shared';
 import { getCafesAction } from '@/features/accounts/actions';
 import { PostOptionsUI } from '@/entities/post-options';
 import {
@@ -12,7 +12,7 @@ import {
   selectedCafeIdAtom,
   cafesInitializedAtom,
   selectedCafeAtom,
-} from '@/entities/store';
+} from '@/entities';
 import { runPostOnlyAction, getPostQueueStatusAction, type QueueBatchResult, type QueueStatusResult } from './queue-actions';
 
 export const PostOnlyUI = () => {

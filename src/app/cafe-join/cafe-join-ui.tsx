@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { cn } from '@/shared/lib/cn';
-import { Button } from '@/shared/ui/button';
+import { cn } from '@/shared';
+import { Button } from '@/shared';
 import { runCafeJoinBatchAction } from '@/features/auto-comment/batch/batch-actions';
 import { getAccountsAction, getCafesAction } from '@/features/accounts/actions';
 import type { BatchJoinResult } from '@/features/auto-comment/batch/cafe-join';

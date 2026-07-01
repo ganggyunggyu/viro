@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import type { ExecutionReadiness } from '@/features/viral/viral-batch-ui.helpers';
 
 interface ViralBatchControlDeckProps {

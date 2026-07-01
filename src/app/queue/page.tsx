@@ -1,6 +1,6 @@
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { QueueDashboardUI } from '@/features/auto-comment/batch/queue-dashboard-ui';
-import { PageLayout } from '@/widgets/page-layout';
+import { PageLayout } from '@/widgets';
 
 export default function QueuePage() {
   return (

@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { Provider as JotaiProvider } from 'jotai';
-import { AuthGuard } from '@/features/auth/auth-guard';
+import { AuthGuard } from '@/features';
 
 interface ProvidersProps {
   children: ReactNode;

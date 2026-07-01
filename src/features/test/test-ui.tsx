@@ -2,12 +2,12 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { useAtom } from 'jotai';
-import { cn } from '@/shared/lib/cn';
-import { Select, Checkbox, Button } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Checkbox, Button } from '@/shared';
 import { runTestAction, runTestBatchAction, type TestType, type ModelType, type TestResult, type TestBatchResult } from './actions';
 import { getCafesAction } from '@/features/accounts/actions';
 import { generateKeywords, type GeneratedKeyword } from '@/shared/api/keyword-gen-api';
-import { userAtom } from '@/shared/store';
+import { userAtom } from '@/shared';
 import { getKeywordPromptProfileForLoginId } from '@/shared/config/user-profile';
 
 type TestMode = 'single' | 'batch';

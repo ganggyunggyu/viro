@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import {
   getAccountList,
   addAccountAction,

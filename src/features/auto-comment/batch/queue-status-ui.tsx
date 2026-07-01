@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import type { QueueStatusResult } from './batch-actions';
 
 interface QueueStatusUIProps {

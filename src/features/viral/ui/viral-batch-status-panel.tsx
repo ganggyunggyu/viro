@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { getCompletionMetrics, type ViralPartialResult } from '@/features/viral/viral-batch-ui.helpers';
 import type { ViralBatchResult } from '@/features/viral/viral-batch-job';
 

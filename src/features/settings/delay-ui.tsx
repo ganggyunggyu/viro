@@ -1,8 +1,8 @@
 'use client';
 
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { useState } from 'react';
-import { Button, ConfirmModal } from '@/shared/ui';
+import { Button, ConfirmModal } from '@/shared';
 import { useDelaySettings, type DelaySettings } from '@/shared/hooks/use-delay-settings';
 
 const msToMinSec = (ms: number): string => {

@@ -1,7 +1,7 @@
 'use client';
 
-import { cn } from '@/shared/lib/cn';
-import { Select, Checkbox } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Checkbox } from '@/shared';
 import type { PostOptions } from '@/shared/types';
 
 interface PostOptionsUIProps {

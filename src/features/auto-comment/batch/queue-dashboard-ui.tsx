@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useState, useEffect, useTransition } from 'react';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button, ConfirmModal } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Button, ConfirmModal } from '@/shared';
 import {
   getDetailedJobs,
   getQueueSummary,

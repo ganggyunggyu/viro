@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, use } from 'react';
-import { cn } from '@/shared/lib/cn';
-import { PageLayout } from '@/widgets/page-layout';
-import { Select, Button } from '@/shared/ui';
+import { cn } from '@/shared';
+import { PageLayout } from '@/widgets';
+import { Select, Button } from '@/shared';
 import Link from 'next/link';
 import {
   getDetailedJobs,

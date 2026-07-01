@@ -43,22 +43,28 @@ export const ThemeToggle = () => {
 
   if (!mounted) {
     return (
-      <div className={cn('w-9 h-9 rounded-lg bg-(--surface-muted)')} />
+      <div className={cn('h-10 w-10 rounded-lg bg-(--surface-muted)')} />
     );
   }
 
+  const isDarkMode = theme === 'dark';
+
   return (
     <button
+      type="button"
       onClick={toggleTheme}
       className={cn(
-        'w-9 h-9 rounded-lg flex items-center justify-center',
+        'flex h-10 w-10 items-center justify-center rounded-lg',
         'text-(--ink-muted) transition-colors',
-        'hover:bg-(--surface-muted) hover:text-(--ink)'
+        'hover:bg-(--surface-muted) hover:text-(--ink)',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--info) focus-visible:ring-offset-2 focus-visible:ring-offset-(--background)'
       )}
-      aria-label="테마 변경"
+      aria-label={isDarkMode ? '밝은 테마로 변경' : '어두운 테마로 변경'}
+      aria-pressed={isDarkMode}
     >
-      {theme === 'dark' ? (
+      {isDarkMode ? (
         <svg
+          aria-hidden="true"
           className="w-5 h-5"
           fill="none"
           viewBox="0 0 24 24"
@@ -73,6 +79,7 @@ export const ThemeToggle = () => {
         </svg>
       ) : (
         <svg
+          aria-hidden="true"
           className="w-5 h-5"
           fill="none"
           viewBox="0 0 24 24"

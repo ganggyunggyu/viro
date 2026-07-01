@@ -1,5 +1,5 @@
-import { cn } from '@/shared/lib/cn';
-import { PageLayout } from '@/widgets/page-layout';
+import { cn } from '@/shared';
+import { PageLayout } from '@/widgets';
 import { ViralDebugUI } from '@/features/viral/viral-debug-ui';
 
 export default function ViralDebugPage() {

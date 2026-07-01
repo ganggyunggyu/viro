@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { getAccountsAction } from '@/features/accounts/actions';
 import { loginAccountAction } from '../actions';
 

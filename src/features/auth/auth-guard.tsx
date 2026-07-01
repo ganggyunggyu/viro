@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, ReactNode } from 'react';
+import React, { useEffect, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { userAtom, userLoadingAtom, userInitializedAtom } from '@/shared/store';
+import { userAtom, userLoadingAtom, userInitializedAtom } from '@/shared';
 import { getCurrentUser } from './actions';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 
 const PUBLIC_PATHS = ['/login'];
 
@@ -52,5 +52,5 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
     return null;
   }
 
-  return <>{children}</>;
+  return <React.Fragment>{children}</React.Fragment>;
 };

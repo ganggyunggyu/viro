@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/shared/lib/cn';
+import { useId } from 'react';
 import type { InputHTMLAttributes } from 'react';
 
 interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
@@ -15,10 +16,12 @@ const sizeStyles = {
 };
 
 export const Checkbox = ({ size = 'md', label, className, id, ...props }: CheckboxProps) => {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
   const checkbox = (
     <input
       type="checkbox"
-      id={id}
+      id={inputId}
       className={cn('checkbox', sizeStyles[size], className)}
       {...props}
     />
@@ -26,7 +29,13 @@ export const Checkbox = ({ size = 'md', label, className, id, ...props }: Checkb
 
   if (label) {
     return (
-      <label className={cn('flex items-center gap-2 cursor-pointer')} htmlFor={id}>
+      <label
+        className={cn(
+          'inline-flex min-h-8 cursor-pointer items-center gap-2',
+          props.disabled && 'cursor-not-allowed opacity-60'
+        )}
+        htmlFor={inputId}
+      >
         {checkbox}
         <span className={cn('text-sm text-ink')}>{label}</span>
       </label>

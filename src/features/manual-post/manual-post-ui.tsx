@@ -3,8 +3,8 @@
 import { useEffect, useState, useTransition, useCallback, type DragEvent } from 'react';
 import { useAtom } from 'jotai';
 import { motion } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button, ConfirmModal, ExecuteConfirmModal } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Button, ConfirmModal, ExecuteConfirmModal } from '@/shared';
 import { runManualPublishAction, runManualModifyAction } from './manual-actions';
 import { PostOptionsUI } from '@/entities/post-options';
 import {
@@ -12,7 +12,7 @@ import {
   cafesAtom,
   selectedCafeIdAtom,
   cafesInitializedAtom,
-} from '@/entities/store';
+} from '@/entities';
 import { getCafesAction } from '@/features/accounts/actions';
 import type {
   ManuscriptFolder,

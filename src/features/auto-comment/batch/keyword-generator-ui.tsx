@@ -2,11 +2,11 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button, Checkbox } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Button, Checkbox } from '@/shared';
 import { generateKeywords, type GeneratedKeyword } from '@/shared/api/keyword-gen-api';
 import { getCafesAction } from '@/features/accounts/actions';
-import { userAtom } from '@/shared/store';
+import { userAtom } from '@/shared';
 import { getKeywordPromptProfileForLoginId } from '@/shared/config/user-profile';
 
 interface CafeConfig {

@@ -1,5 +1,5 @@
-import { cn } from '@/shared/lib/cn';
-import { Button } from '@/shared/ui/button';
+import { cn } from '@/shared';
+import { Button } from '@/shared';
 import type { NaverAccount } from '@/shared/lib/account-manager';
 
 interface AccountManagerListProps {

@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
-import { PageLayout } from '@/widgets/page-layout';
-import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared/ui';
+import { cn } from '@/shared';
+import { PageLayout } from '@/widgets';
+import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared';
 import { NicknameChangeUI } from './nickname-change-ui';
 
 const TABS = [

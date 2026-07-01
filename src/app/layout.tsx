@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { Providers } from './providers';
 import './globals.css';
 

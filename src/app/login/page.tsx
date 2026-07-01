@@ -1,12 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSetAtom } from 'jotai';
-import { cn } from '@/shared/lib/cn';
-import { Button } from '@/shared/ui';
-import { login, register } from '@/features/auth/actions';
-import { userAtom } from '@/shared/store';
+import { login, register } from '@/features';
+import { Button, cn, userAtom } from '@/shared';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,8 +15,19 @@ export default function LoginPage() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const formId = useId();
+  const displayNameId = `${formId}-display-name`;
+  const loginIdId = `${formId}-login-id`;
+  const passwordId = `${formId}-password`;
+  const errorId = `${formId}-error`;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const inputClassName = cn(
+    'min-h-11 w-full rounded-xl border border-border-light bg-background px-4 py-3 text-sm',
+    'transition-colors placeholder:text-ink-tertiary',
+    'focus-visible:border-info focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/20'
+  );
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -61,42 +70,61 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegister && (
+              <div>
+                <label htmlFor={displayNameId} className={cn('sr-only')}>
+                  이름
+                </label>
+                <input
+                  id={displayNameId}
+                  type="text"
+                  autoComplete="name"
+                  placeholder="이름"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className={inputClassName}
+                  aria-describedby={error ? errorId : undefined}
+                  required
+                />
+              </div>
+            )}
+            <div>
+              <label htmlFor={loginIdId} className={cn('sr-only')}>
+                아이디
+              </label>
               <input
+                id={loginIdId}
                 type="text"
-                placeholder="이름"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className={cn(
-                  'w-full rounded-xl border border-border-light bg-background px-4 py-3 text-sm',
-                  'focus:outline-none focus:ring-2 focus:ring-accent'
-                )}
+                autoComplete="username"
+                placeholder="아이디"
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
+                className={inputClassName}
+                aria-describedby={error ? errorId : undefined}
                 required
               />
-            )}
-            <input
-              type="text"
-              placeholder="아이디"
-              value={loginId}
-              onChange={(e) => setLoginId(e.target.value)}
-              className={cn(
-                'w-full rounded-xl border border-border-light bg-background px-4 py-3 text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-accent'
-              )}
-              required
-            />
-            <input
-              type="password"
-              placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={cn(
-                'w-full rounded-xl border border-border-light bg-background px-4 py-3 text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-accent'
-              )}
-              required
-            />
+            </div>
+            <div>
+              <label htmlFor={passwordId} className={cn('sr-only')}>
+                비밀번호
+              </label>
+              <input
+                id={passwordId}
+                type="password"
+                autoComplete={isRegister ? 'new-password' : 'current-password'}
+                placeholder="비밀번호"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={inputClassName}
+                aria-describedby={error ? errorId : undefined}
+                required
+              />
+            </div>
 
-            {error && <p className={cn('text-sm text-red-500 text-center')}>{error}</p>}
+            {error && (
+              <p id={errorId} role="alert" className={cn('text-center text-sm text-red-500')}>
+                {error}
+              </p>
+            )}
 
             <Button
               type="submit"

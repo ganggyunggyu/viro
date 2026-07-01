@@ -1,9 +1,9 @@
 'use client';
 
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared';
 import { AccountManagerUI, CafeManagerUI } from '@/features/accounts';
-import { PageLayout } from '@/widgets/page-layout';
-import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared/ui';
+import { PageLayout } from '@/widgets';
+import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared';
 
 const TABS = [
   { id: 'accounts', label: '계정 관리' },

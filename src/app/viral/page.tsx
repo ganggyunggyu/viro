@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
-import { PageLayout } from '@/widgets/page-layout';
-import { AnimatedCard, AnimatedTabs, SlideUp } from '@/shared/ui';
+import { cn } from '@/shared';
+import { PageLayout } from '@/widgets';
+import { AnimatedCard, AnimatedTabs, SlideUp } from '@/shared';
 import { ManualPostUI } from '@/features/manual-post';
 import { ViralBatchUI } from '@/features/viral/viral-batch-ui';
 

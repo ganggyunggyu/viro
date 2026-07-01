@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button, ExecuteConfirmModal } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Button, ExecuteConfirmModal } from '@/shared';
 import {
   changeNicknameByCafeAction,
   changeNicknameByAccountAction,

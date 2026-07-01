@@ -1,8 +1,8 @@
 'use client';
 
 import { Fragment, useState, useTransition, useEffect } from 'react';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Button } from '@/shared';
 import { getCafesAction } from '@/features/accounts/actions';
 import { runAutoCommentAction } from './actions';
 import type { CommentOnlyResult } from './types';

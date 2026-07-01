@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { cn } from '@/shared/lib/cn';
-import { Checkbox, Button } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Checkbox, Button } from '@/shared';
 import {
   getCafesAction,
   addCafeAction,

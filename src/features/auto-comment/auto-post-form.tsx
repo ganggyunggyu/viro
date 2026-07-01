@@ -1,5 +1,5 @@
-import { cn } from '@/shared/lib/cn';
-import { Button } from '@/shared/ui/button';
+import { cn } from '@/shared';
+import { Button } from '@/shared';
 
 export type AutoPostMode = 'new' | 'existing';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useRef, useEffect, useId, type KeyboardEvent, type ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
 
 export interface SelectOption {
@@ -35,8 +35,17 @@ export const Select = ({
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const generatedId = useId();
+  const buttonId = `${generatedId}-button`;
+  const labelId = `${generatedId}-label`;
+  const valueId = `${generatedId}-value`;
+  const listboxId = `${generatedId}-listbox`;
+  const helperId = helperText && !error ? `${generatedId}-helper` : undefined;
+  const errorId = error ? `${generatedId}-error` : undefined;
+  const describedBy = [helperId, errorId].filter(Boolean).join(' ') || undefined;
 
   const selectedOption = options.find((opt) => opt.value === value);
+  const selectedIndex = options.findIndex((opt) => opt.value === value);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -59,44 +68,63 @@ export const Select = ({
     setIsOpen(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const selectByOffset = (offset: 1 | -1) => {
+    if (options.length === 0) return;
+
+    const currentIndex = selectedIndex >= 0 ? selectedIndex : 0;
+    const nextIndex = (currentIndex + offset + options.length) % options.length;
+    handleSelect(options[nextIndex].value);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (disabled) return;
 
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      setIsOpen(!isOpen);
+      setIsOpen((prev) => !prev);
     } else if (e.key === 'Escape') {
+      e.preventDefault();
       setIsOpen(false);
-    } else if (e.key === 'ArrowDown' && isOpen) {
+    } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      const currentIndex = options.findIndex((opt) => opt.value === value);
-      const nextIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0;
-      handleSelect(options[nextIndex].value);
-    } else if (e.key === 'ArrowUp' && isOpen) {
+      if (!isOpen) {
+        setIsOpen(true);
+        return;
+      }
+      selectByOffset(1);
+    } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      const currentIndex = options.findIndex((opt) => opt.value === value);
-      const prevIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1;
-      handleSelect(options[prevIndex].value);
+      if (!isOpen) {
+        setIsOpen(true);
+        return;
+      }
+      selectByOffset(-1);
     }
   };
 
   return (
     <div ref={containerRef} className={cn('relative', fullWidth && 'w-full')}>
       {label && (
-        <label className={cn('block text-sm font-medium text-(--ink) mb-1')}>
+        <span id={labelId} className={cn('mb-1 block text-sm font-medium text-(--ink)')}>
           {label}
-        </label>
+        </span>
       )}
 
       <button
+        id={buttonId}
         type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen((prev) => !prev)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? listboxId : undefined}
+        aria-labelledby={label ? `${labelId} ${valueId}` : valueId}
+        aria-describedby={describedBy}
         className={cn(
-          'flex items-center justify-between gap-2 rounded-xl border bg-(--surface) px-4 py-3 text-sm text-left transition-all',
+          'flex min-h-11 items-center justify-between gap-2 rounded-xl border bg-(--surface) px-4 py-2.5 text-left text-sm transition-all',
           'border-(--border) hover:border-(--border-hover)',
-          'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10',
+          'focus-visible:border-(--info) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--info)/20',
           'disabled:bg-(--surface-muted) disabled:cursor-not-allowed disabled:opacity-60',
           isOpen && 'border-(--accent) ring-2 ring-(--accent)/10',
           error && 'border-(--danger) focus:border-(--danger) focus:ring-(--danger)/10',
@@ -104,10 +132,11 @@ export const Select = ({
           className
         )}
       >
-        <span className={cn(!selectedOption && 'text-(--ink-muted)')}>
+        <span id={valueId} className={cn('min-w-0 truncate', !selectedOption && 'text-(--ink-muted)')}>
           {selectedOption?.label || placeholder}
         </span>
         <svg
+          aria-hidden="true"
           className={cn(
             'w-4 h-4 text-(--ink-muted) transition-transform shrink-0',
             isOpen && 'rotate-180'
@@ -122,6 +151,9 @@ export const Select = ({
 
       {isOpen && (
         <div
+          id={listboxId}
+          role="listbox"
+          aria-labelledby={label ? labelId : buttonId}
           className={cn(
             'absolute z-50 mt-1 w-full rounded-xl border border-(--border) bg-(--surface) py-1 shadow-lg',
             'max-h-60 overflow-y-auto'
@@ -131,10 +163,12 @@ export const Select = ({
             <button
               key={option.value}
               type="button"
+              role="option"
+              aria-selected={option.value === value}
               onClick={() => handleSelect(option.value)}
               className={cn(
-                'w-full px-4 py-2.5 text-sm text-left transition-colors',
-                'hover:bg-(--surface-muted)',
+                'w-full px-4 py-2.5 text-left text-sm transition-colors',
+                'hover:bg-(--surface-muted) focus-visible:bg-(--surface-muted)',
                 option.value === value
                   ? 'bg-(--accent-soft) text-(--accent) font-medium'
                   : 'text-(--ink)'
@@ -147,10 +181,10 @@ export const Select = ({
       )}
 
       {helperText && !error && (
-        <p className={cn('text-xs text-(--ink-muted) mt-1')}>{helperText}</p>
+        <p id={helperId} className={cn('mt-1 text-xs text-(--ink-muted)')}>{helperText}</p>
       )}
       {error && (
-        <p className={cn('text-xs text-(--danger) mt-1')}>{error}</p>
+        <p id={errorId} className={cn('mt-1 text-xs text-(--danger)')}>{error}</p>
       )}
     </div>
   );

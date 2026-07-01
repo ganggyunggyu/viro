@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { useAtom } from 'jotai';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Select, Button } from '@/shared';
 import { runBatchPostAction } from './batch-actions';
 import { PostOptionsUI } from '@/entities/post-options';
-import { postOptionsAtom } from '@/entities/store';
+import { postOptionsAtom } from '@/entities';
 import type { QueueBatchResult } from './batch-queue';
 import { getCafesAction } from '@/features/accounts/actions';
 import type { CafeConfig } from '@/entities/cafe';
@@ -364,7 +364,7 @@ export const ApiTestUI = () => {
               )}
             >
               {result.success ? (
-                <>
+                <React.Fragment>
                   <div className={cn('flex items-center gap-2 mb-2 flex-wrap')}>
                     <span className={cn('text-xs font-semibold text-green-800 bg-green-100 px-2 py-0.5 rounded')}>
                       {result.keyword}
@@ -379,7 +379,7 @@ export const ApiTestUI = () => {
                   <pre className={cn('text-sm text-green-800 whitespace-pre-wrap font-sans')}>
                     {result.content}
                   </pre>
-                </>
+                </React.Fragment>
               ) : (
                 <div>
                   <span className={cn('text-xs font-semibold text-red-800 bg-red-100 px-2 py-0.5 rounded')}>

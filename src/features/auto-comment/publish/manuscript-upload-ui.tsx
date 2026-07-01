@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useTransition, useCallback, DragEvent, useEffect } from 'react';
-import { cn } from '@/shared/lib/cn';
-import { Select, Button, ConfirmModal, ExecuteConfirmModal } from '@/shared/ui';
+import React, { useState, useTransition, useCallback, useEffect, type DragEvent } from 'react';
+import { cn } from '@/shared';
+import { Select, Button, ConfirmModal, ExecuteConfirmModal } from '@/shared';
 import { getCafesAction } from '@/features/accounts/actions';
 import { PostOptionsUI } from '@/entities/post-options';
 import { DEFAULT_POST_OPTIONS, type PostOptions } from '@/shared/types';
@@ -283,7 +283,7 @@ export const ManuscriptUploadUI = () => {
           )}
         >
           {manuscripts.length === 0 ? (
-            <>
+            <React.Fragment>
               <div className={cn('text-4xl mb-3')}>📁</div>
               <p className={cn('font-medium text-(--ink)')}>
                 원고 폴더를 여기에 드래그
@@ -294,9 +294,9 @@ export const ManuscriptUploadUI = () => {
               <p className={cn('text-xs text-(--ink-muted)')}>
                 각 폴더에 원고.txt + 이미지 파일
               </p>
-            </>
+            </React.Fragment>
           ) : (
-            <>
+            <React.Fragment>
               <p className={cn('font-medium text-(--ink) mb-2')}>
                 {manuscripts.length}개 원고 준비됨
               </p>
@@ -307,7 +307,7 @@ export const ManuscriptUploadUI = () => {
               >
                 초기화
               </Button>
-            </>
+            </React.Fragment>
           )}
         </div>
 

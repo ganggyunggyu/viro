@@ -2,15 +2,15 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { useAtom } from 'jotai';
-import { cn } from '@/shared/lib/cn';
-import { Button, Checkbox, ExecuteConfirmModal, Select, type SettingItem } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Button, Checkbox, ExecuteConfirmModal, Select, type SettingItem } from '@/shared';
 import { toast } from '@/shared/lib/toast';
 import { PostOptionsUI } from '@/entities/post-options';
-import { cafesAtom, cafesInitializedAtom, postOptionsAtom } from '@/entities/store';
+import { cafesAtom, cafesInitializedAtom, postOptionsAtom } from '@/entities';
 import { getAccountsAction, getCafesAction, type AccountData } from '@/features/accounts/actions';
 import { getDelaySettings } from '@/shared/hooks/use-delay-settings';
 import { generateKeywords } from '@/shared/api/keyword-gen-api';
-import { userAtom } from '@/shared/store';
+import { userAtom } from '@/shared';
 import { getKeywordPromptProfileForLoginId } from '@/shared/config/user-profile';
 import {
   getImageSummary,

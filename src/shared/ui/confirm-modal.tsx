@@ -1,9 +1,18 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import React, { useEffect, useId, useRef, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
 import { Button } from './button';
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
 
 export interface ConfirmModalProps {
   isOpen: boolean;
@@ -15,7 +24,7 @@ export interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   isLoading?: boolean;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 export const ConfirmModal = ({
@@ -30,29 +39,76 @@ export const ConfirmModal = ({
   isLoading = false,
   children,
 }: ConfirmModalProps) => {
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isLoading) {
-        onClose();
-      }
-    },
-    [onClose, isLoading]
-  );
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const isLoadingRef = useRef(isLoading);
+  const titleId = useId();
+  const descriptionId = useId();
 
   useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousActiveElement =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousBodyOverflow = document.body.style.overflow;
+
+    const getFocusableElements = () => {
+      if (!dialogRef.current) return [];
+
+      return Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+        .filter((element) => element.offsetParent !== null || element === document.activeElement);
     };
-  }, [isOpen, handleKeyDown]);
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      const [firstFocusableElement] = getFocusableElements();
+      (firstFocusableElement ?? dialogRef.current)?.focus();
+    });
+
+    const handleDocumentKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isLoadingRef.current) {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        dialogRef.current?.focus();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleDocumentKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      document.removeEventListener('keydown', handleDocumentKeyDown);
+      document.body.style.overflow = previousBodyOverflow;
+      previousActiveElement?.focus();
+    };
+  }, [isOpen, onClose]);
 
   const iconByVariant = {
     danger: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg aria-hidden="true" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -62,7 +118,7 @@ export const ConfirmModal = ({
       </svg>
     ),
     warning: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg aria-hidden="true" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -72,7 +128,7 @@ export const ConfirmModal = ({
       </svg>
     ),
     info: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg aria-hidden="true" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -101,9 +157,10 @@ export const ConfirmModal = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <React.Fragment>
           {/* Backdrop */}
           <motion.div
+            aria-hidden="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -114,6 +171,12 @@ export const ConfirmModal = ({
 
           {/* Modal */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            aria-describedby={description ? descriptionId : undefined}
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -134,9 +197,9 @@ export const ConfirmModal = ({
                 {iconByVariant[variant]}
               </div>
               <div className={cn('flex-1 pt-1')}>
-                <h3 className={cn('text-lg font-semibold text-ink')}>{title}</h3>
+                <h3 id={titleId} className={cn('text-lg font-semibold text-ink')}>{title}</h3>
                 {description && (
-                  <p className={cn('mt-1 text-sm text-ink-muted')}>{description}</p>
+                  <p id={descriptionId} className={cn('mt-1 text-sm text-ink-muted')}>{description}</p>
                 )}
               </div>
             </div>
@@ -164,7 +227,7 @@ export const ConfirmModal = ({
               </Button>
             </div>
           </motion.div>
-        </>
+        </React.Fragment>
       )}
     </AnimatePresence>
   );

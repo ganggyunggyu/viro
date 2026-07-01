@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
-import { Button } from '@/shared/ui';
+import { cn } from '@/shared';
+import { Button } from '@/shared';
 import { getCompletionMetrics, type ViralPartialResult } from '@/features/viral/viral-batch-ui.helpers';
 
 interface ViralBatchSummaryCardProps {
