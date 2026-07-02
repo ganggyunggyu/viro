@@ -43,6 +43,14 @@ interface GeneratedManuscript {
   comments?: ViralCommentsData;
 }
 
+interface RunArtifactRow {
+  cafeId: string;
+  title?: string;
+  body?: string;
+  keyword?: string;
+  generatedComments?: ViralCommentItem[];
+}
+
 interface CommentGenerationOptions {
   min: number;
   max: number;
@@ -96,6 +104,27 @@ const readPlan = (path: string): SeedPlanItem[] => {
     throw new Error(`plan must be an array: ${path}`);
   }
   return parsed as SeedPlanItem[];
+};
+
+const readGeneratedRows = (path: string): Map<string, GeneratedManuscript> => {
+  const parsed = JSON.parse(readFileSync(path, "utf-8")) as { rows?: RunArtifactRow[] };
+  const rows = Array.isArray(parsed.rows) ? parsed.rows : [];
+  const rowMap = new Map<string, GeneratedManuscript>();
+
+  for (const row of rows) {
+    if (!row.cafeId || !row.title || !row.body) continue;
+    const comments = Array.isArray(row.generatedComments)
+      ? row.generatedComments.filter((comment) => comment.content)
+      : [];
+    rowMap.set(row.cafeId, {
+      title: row.title,
+      body: row.body,
+      rawContent: [row.title, "", row.body].join("\n"),
+      comments: comments.length > 0 ? { comments } : undefined,
+    });
+  }
+
+  return rowMap;
 };
 
 const stripMarkdown = (text: string): string =>
@@ -294,6 +323,7 @@ const writeRunArtifact = (payload: unknown): string => {
 
 const main = async (): Promise<void> => {
   const planPath = getArgValue("--plan", DEFAULT_PLAN);
+  const fromRunArtifact = getArgValue("--from-run-artifact", "");
   const syncCafes = hasFlag("--sync-cafes");
   const generate = hasFlag("--generate") || hasFlag("--enqueue");
   const enqueue = hasFlag("--enqueue");
@@ -312,6 +342,7 @@ const main = async (): Promise<void> => {
   }
 
   const plan = readPlan(planPath);
+  const generatedRows = fromRunArtifact ? readGeneratedRows(fromRunArtifact) : new Map();
   await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
 
   const user = await User.findOne({ loginId: LOGIN_ID, isActive: true }).lean();
@@ -341,7 +372,10 @@ const main = async (): Promise<void> => {
     }
 
     let manuscript: GeneratedManuscript | undefined;
-    if (generate) {
+    const artifactManuscript = generatedRows.get(item.cafeId);
+    if (artifactManuscript) {
+      manuscript = artifactManuscript;
+    } else if (generate) {
       manuscript = await generateManuscript(item);
       if (pregenerateComments && !skipComments) {
         const generatedComments = await generateCommentItems(
@@ -433,6 +467,7 @@ const main = async (): Promise<void> => {
     generatedAt: new Date().toISOString(),
     loginId: LOGIN_ID,
     planPath,
+    fromRunArtifact,
     syncCafes,
     generate,
     enqueue,

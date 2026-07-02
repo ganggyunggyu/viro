@@ -296,7 +296,7 @@ export const writePostWithAccount = async (
 
   try {
     const loginResult = await loginAccount(id, password, {
-      forceFreshLogin: true,
+      forceFreshLogin: false,
       reason: `post_write:${cafeId}:${menuId}`,
     });
     if (!loginResult.success) {
@@ -359,7 +359,7 @@ export const writePostWithAccount = async (
       invalidateLoginCache(id);
 
       const reloginResult = await loginAccount(id, password, {
-        forceFreshLogin: true,
+        forceFreshLogin: false,
         reason: `post_redirect:${cafeId}:${menuId}`,
       });
       if (!reloginResult.success) {
