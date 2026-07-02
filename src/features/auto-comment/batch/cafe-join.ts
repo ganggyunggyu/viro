@@ -16,6 +16,7 @@ import {
   isAccountLoggedIn,
   loginAccount,
 } from '@/shared/lib/multi-session';
+import { toMobileCafeHomeUrl } from '@/shared/lib/naver-cafe-membership';
 import type { NaverAccount } from '@/shared/lib/account-manager';
 import type { Locator, Page } from 'playwright';
 
@@ -164,9 +165,7 @@ export const joinCafeWithAccount = async (
 
     const page = await getPageForAccount(id);
 
-    const cafeHomeUrl = options.cafeUrl
-      ? `https://m.cafe.naver.com/${options.cafeUrl}`
-      : `https://m.cafe.naver.com/ca-fe/web/cafes/${cafeId}`;
+    const cafeHomeUrl = toMobileCafeHomeUrl({ cafeId, cafeUrl: options.cafeUrl });
 
     await page.goto(cafeHomeUrl, {
       waitUntil: 'domcontentloaded',
@@ -175,27 +174,15 @@ export const joinCafeWithAccount = async (
 
     await page.waitForTimeout(2000);
 
-    const writeButton = page.locator(
-      'a:has-text("글쓰기"), button:has-text("글쓰기"), a[href*="/articles/write"]'
-    );
-    if (await hasVisible(writeButton)) {
-      return {
-        success: true,
-        accountId: id,
-        alreadyMember: true,
-      };
-    }
+    const joinSelector = [
+      'button:has-text("카페 가입하기")',
+      'a:has-text("카페 가입하기")',
+      'button:has-text("가입하기")',
+      'a:has-text("가입하기")',
+      'a[href*="/join"]',
+    ].join(', ');
 
-    const clickedJoin = await clickFirstVisible(
-      page,
-      [
-        'button:has-text("카페 가입하기")',
-        'a:has-text("카페 가입하기")',
-        'button:has-text("가입하기")',
-        'a:has-text("가입하기")',
-        'a[href*="/join"]',
-      ].join(', ')
-    );
+    const clickedJoin = await clickFirstVisible(page, joinSelector);
 
     if (!clickedJoin) {
       const pageText = await getPageText(page);
