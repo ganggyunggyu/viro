@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-02T01:17:37.734Z",
+  "generatedAt": "2026-07-02T01:43:11.642Z",
   "loginId": "21lab",
   "targetCafeNames": [
     "맛집 밥상노트",
@@ -18,8 +18,8 @@
     "cafes": 10,
     "total": 250,
     "joined": 0,
-    "alreadyMember": 165,
-    "failed": 40,
+    "alreadyMember": 250,
+    "failed": 60,
     "skipped": 0
   },
   "results": [
@@ -1867,6 +1867,951 @@
       "status": "alreadyMember",
       "finalNickname": "에스앤비안과 정보",
       "updatedAt": "2026-07-02T01:17:37.734Z"
+    },
+    {
+      "accountId": "h9ag469z",
+      "nickname": "에스앤비안과 정보",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과 정보",
+      "updatedAt": "2026-07-02T01:17:42.452Z"
+    },
+    {
+      "accountId": "h9ag469z",
+      "nickname": "에스앤비안과 정보",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과 정보",
+      "updatedAt": "2026-07-02T01:17:47.168Z"
+    },
+    {
+      "accountId": "h9ag469z",
+      "nickname": "에스앤비안과 정보",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과 정보",
+      "updatedAt": "2026-07-02T01:17:51.896Z"
+    },
+    {
+      "accountId": "h9ag469z",
+      "nickname": "에스앤비안과 정보",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과 정보",
+      "updatedAt": "2026-07-02T01:17:56.613Z"
+    },
+    {
+      "accountId": "h9ag469z",
+      "nickname": "에스앤비안과 정보",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과 정보",
+      "updatedAt": "2026-07-02T01:18:01.329Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:18:27.077Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:18:31.733Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:18:36.455Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:18:41.168Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:18:45.890Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:18:50.611Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:18:55.324Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:19:00.047Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:19:04.768Z"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "고래낚시 1",
+      "updatedAt": "2026-07-02T01:19:09.487Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:19:36.826Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:19:41.462Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:19:46.185Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:19:50.903Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:19:55.621Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:20:00.337Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:20:05.062Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:20:09.794Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:20:14.496Z"
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "빨간모자앤  1",
+      "updatedAt": "2026-07-02T01:20:19.216Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "failed",
+      "error": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-02T01:20:56.829Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "failed",
+      "error": "login failed: 로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "updatedAt": "2026-07-02T01:22:47.170Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:20.584Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:25.236Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:29.978Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:34.677Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:39.394Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:44.113Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:48.823Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:53.545Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:28:58.264Z"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "오세아니야 1",
+      "updatedAt": "2026-07-02T01:29:02.986Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:19.645Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:24.312Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:29.028Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:33.745Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:38.462Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:43.182Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:47.899Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:52.619Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:32:57.342Z"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "쉽고간단하게",
+      "updatedAt": "2026-07-02T01:33:02.067Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:36:54.546Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:36:59.227Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:37:03.954Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:37:08.665Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:37:20.211Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:37:24.916Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:37:29.637Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:37:34.358Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:37:39.076Z"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과의원 - 교체",
+      "updatedAt": "2026-07-02T01:37:43.791Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:38:16.348Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:38:21.016Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:38:25.739Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:38:30.459Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:38:48.808Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:38:53.522Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:38:58.246Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:39:02.965Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:39:07.680Z"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "에스앤비안과, 29년 경력 (노출)",
+      "updatedAt": "2026-07-02T01:39:12.396Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:04.106Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:08.786Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:13.507Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:18.226Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:22.948Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:27.674Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:32.386Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:37.102Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:41.813Z"
+    },
+    {
+      "accountId": "rational4640",
+      "nickname": "렙용",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:41:46.545Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:21.715Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:26.388Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:31.100Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:35.820Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:40.542Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:45.262Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:49.982Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:54.696Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:42:59.412Z"
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "alreadyMember",
+      "finalNickname": "렙용",
+      "updatedAt": "2026-07-02T01:43:04.130Z"
     }
   ]
 }
