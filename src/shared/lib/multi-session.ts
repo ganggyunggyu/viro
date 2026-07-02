@@ -190,6 +190,21 @@ export const isLoginRedirect = (url: string): boolean => {
   return url.includes('nidlogin.login') || url.includes('nid.naver.com/nidlogin');
 };
 
+const getLoginBlockedReason = (url: string, bodyText = ''): string | null => {
+  if (url.includes('/user2/help/idRelease')) {
+    return '아이디 보호/해제 페이지로 이동';
+  }
+
+  if (
+    url.includes('nid.naver.com') &&
+    /아이디.{0,10}보호.{0,10}해제|보호조치.{0,10}해제|휴면.{0,10}해제/.test(bodyText)
+  ) {
+    return '로그인 후 보호/휴면 해제 필요';
+  }
+
+  return null;
+};
+
 const getSessionFile = (accountId: string): string => {
   return join(SESSION_DIR, `${accountId}-cookies.json`);
 }
@@ -454,7 +469,8 @@ export const isAccountLoggedIn = async (accountId: string): Promise<boolean> => 
     });
 
     const url = page.url();
-    const isLoggedIn = !url.includes('nidlogin.login');
+    const bodyText = await page.locator('body').innerText({ timeout: 3000 }).catch(() => '');
+    const isLoggedIn = !url.includes('nidlogin.login') && !getLoginBlockedReason(url, bodyText);
 
     if (isLoggedIn) {
       loginStatusCache.set(accountId, Date.now());
@@ -546,6 +562,18 @@ export const loginAccount = async (
           error: '로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.',
         };
       }
+    }
+
+    const blockedReason = getLoginBlockedReason(
+      page.url(),
+      await page.locator('body').innerText({ timeout: 5000 }).catch(() => ''),
+    );
+    if (blockedReason) {
+      loginStatusCache.delete(accountId);
+      return {
+        success: false,
+        error: blockedReason,
+      };
     }
 
     await saveCookiesForAccount(accountId);
