@@ -1,4 +1,5 @@
 import type { Page } from 'playwright';
+import { GoogleGenAI } from '@google/genai';
 
 export interface NaverCafeTarget {
   cafeId: string;
@@ -60,6 +61,43 @@ const JOIN_SUBMIT_SELECTOR = [
   'input[type="submit"]',
 ].join(', ');
 
+const NICKNAME_COLLISION_PATTERN = /사용할 수 없는 별명|별명을 다시|이미 사용|중복/;
+const JOIN_RESTRICTED_PATTERN = /가입이 제한|가입할 수 없습니다|활동이 정지/;
+const JOIN_PENDING_PATTERN = /가입.{0,5}신청.{0,5}완료|승인.{0,5}대기/;
+const CAFE_JOIN_CAPTCHA_IMAGE_SELECTOR = [
+  '.CafeJoinCaptcha img[alt*="보안문자"]',
+  'img[alt*="보안문자"]',
+].join(', ');
+const CAFE_JOIN_CAPTCHA_INPUT_SELECTOR = [
+  'textarea#label_join_captcha',
+  'textarea[placeholder*="보안문자"]',
+  'input[placeholder*="보안문자"]',
+].join(', ');
+const CAFE_JOIN_CAPTCHA_REFRESH_SELECTOR = [
+  '.CafeJoinCaptcha button:has-text("새로고침")',
+  'button.chaptcha_btn',
+  'button:has-text("새로고침")',
+].join(', ');
+const CAFE_JOIN_CAPTCHA_MODEL = process.env.GEMINI_CAPTCHA_MODEL || 'gemini-3.5-flash';
+
+let cafeJoinCaptchaClient: GoogleGenAI | null = null;
+
+const getCafeJoinCaptchaClient = (): GoogleGenAI => {
+  if (cafeJoinCaptchaClient) return cafeJoinCaptchaClient;
+
+  const apiKey =
+    process.env.GOOGLE_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_GENAI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY 없음');
+  }
+
+  cafeJoinCaptchaClient = new GoogleGenAI({ apiKey });
+  return cafeJoinCaptchaClient;
+};
+
 export const sleep = async (ms: number): Promise<void> => {
   await new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -114,6 +152,17 @@ export const extractCafeMemberCount = (text: string): number | null => {
   return Number.isNaN(parsed) ? null : parsed;
 };
 
+export const sanitizeCafeNickname = (
+  nickname: string,
+  fallback: string,
+): string => {
+  const cleaned = nickname.replace(/[^0-9A-Za-z가-힣]/g, '').slice(0, 20);
+  if (cleaned) return cleaned;
+
+  const fallbackCleaned = fallback.replace(/[^0-9A-Za-z가-힣]/g, '').slice(0, 20);
+  return fallbackCleaned || '회원';
+};
+
 export const clickFirstVisible = async (
   page: Page,
   selector: string,
@@ -130,6 +179,102 @@ export const clickFirstVisible = async (
   }
 
   return false;
+};
+
+export const hasVisibleSelector = async (
+  page: Page,
+  selector: string,
+): Promise<boolean> => {
+  const candidates = page.locator(selector);
+  const count = await candidates.count().catch(() => 0);
+
+  for (let index = 0; index < count; index += 1) {
+    if (await candidates.nth(index).isVisible().catch(() => false)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export const solveCafeJoinCaptchaOnPage = async (
+  page: Page,
+  options: { attempts?: number; logPrefix?: string } = {},
+): Promise<{ solved: boolean; attempts: number; error?: string }> => {
+  const { attempts = 3, logPrefix = 'NAVER_CAFE_JOIN' } = options;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const captchaImage = page.locator(CAFE_JOIN_CAPTCHA_IMAGE_SELECTOR).first();
+    const visible = await captchaImage.isVisible({ timeout: 1500 }).catch(() => false);
+    if (!visible) {
+      return { solved: true, attempts: attempt - 1 };
+    }
+
+    try {
+      const image = await captchaImage.screenshot({ type: 'png' });
+      const ai = getCafeJoinCaptchaClient();
+      const response = await ai.models.generateContent({
+        model: CAFE_JOIN_CAPTCHA_MODEL,
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                inlineData: {
+                  mimeType: 'image/png',
+                  data: image.toString('base64'),
+                },
+              },
+              {
+                text: [
+                  '이미지에 보이는 보안문자만 정확히 읽어라.',
+                  '출력은 한 줄로, 설명 없이 문자만 쓴다.',
+                  '공백, 따옴표, 문장부호는 쓰지 않는다.',
+                  '대소문자가 애매하면 이미지에 가까운 형태로 쓴다.',
+                ].join('\n'),
+              },
+            ],
+          },
+        ],
+      });
+      const answer = (response.text || '').replace(/[^0-9A-Za-z가-힣]/g, '').trim();
+      console.log(`[${logPrefix}] cafe join captcha answer attempt=${attempt}: ${answer || '(empty)'}`);
+
+      if (!answer) {
+        await clickFirstVisible(page, CAFE_JOIN_CAPTCHA_REFRESH_SELECTOR);
+        await page.waitForTimeout(1500);
+        continue;
+      }
+
+      const input = page.locator(CAFE_JOIN_CAPTCHA_INPUT_SELECTOR).first();
+      await input.fill(answer).catch(async () => {
+        await input.click({ force: true });
+        await page.keyboard.press('Meta+A');
+        await page.keyboard.type(answer, { delay: 30 });
+      });
+      await page.waitForTimeout(700);
+      await clickFirstVisible(page, JOIN_SUBMIT_SELECTOR);
+      await page.waitForTimeout(2500);
+
+      const stillVisible = await page.locator(CAFE_JOIN_CAPTCHA_IMAGE_SELECTOR).first()
+        .isVisible({ timeout: 1000 })
+        .catch(() => false);
+      const text = await getPageText(page, 3000);
+      if (!stillVisible || !/보안문자를 정확히|보안문자를 입력/.test(text)) {
+        return { solved: true, attempts: attempt };
+      }
+
+      await clickFirstVisible(page, CAFE_JOIN_CAPTCHA_REFRESH_SELECTOR);
+      await page.waitForTimeout(1500);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`[${logPrefix}] cafe join captcha failed attempt=${attempt}: ${message}`);
+      await clickFirstVisible(page, CAFE_JOIN_CAPTCHA_REFRESH_SELECTOR).catch(() => false);
+      await page.waitForTimeout(1500);
+    }
+  }
+
+  return { solved: false, attempts, error: '카페 가입 보안문자 풀이 실패' };
 };
 
 export const gotoWithRetry = async (
@@ -181,7 +326,7 @@ export const fillCafeJoinForm = async (
     const joinedMeta = `${meta.id} ${meta.name} ${meta.placeholder} ${meta.label}`;
     const isNicknameField = /nick|닉네임|별명/.test(joinedMeta);
     const rawValue = isNicknameField
-      ? nickname
+      ? sanitizeCafeNickname(nickname, '회원')
       : answers[answerIndex] || answers.at(-1) || DEFAULT_JOIN_ANSWERS[0];
     const maxLength = meta.maxLength > 0 ? meta.maxLength : rawValue.length;
     const value = rawValue.slice(0, maxLength);
@@ -245,6 +390,7 @@ export const joinCafeMembership = async (
     logPrefix,
   } = options;
   const cafeHome = toMobileCafeHomeUrl(target);
+  const cafeNickname = sanitizeCafeNickname(nickname, '회원');
 
   await gotoWithRetry(page, cafeHome, { logPrefix });
   await page.waitForTimeout(homeWaitMs);
@@ -265,7 +411,7 @@ export const joinCafeMembership = async (
   }
 
   await page.waitForTimeout(formWaitMs);
-  await fillCafeJoinForm(page, nickname, answers);
+  await fillCafeJoinForm(page, cafeNickname, answers);
   await page.waitForTimeout(800);
 
   const clickedSubmit = await clickFirstVisible(page, JOIN_SUBMIT_SELECTOR);
@@ -273,10 +419,21 @@ export const joinCafeMembership = async (
     return { status: 'failed', detail: '가입 제출 버튼 없음', beforeText };
   }
 
+  await page.waitForTimeout(1500);
+  const captchaResult = await solveCafeJoinCaptchaOnPage(page, { logPrefix });
+  if (!captchaResult.solved) {
+    return {
+      status: 'failed',
+      detail: captchaResult.error || '카페 가입 보안문자 풀이 실패',
+      beforeText,
+      afterSubmitText: await getPageText(page),
+    };
+  }
+
   await page.waitForTimeout(submitWaitMs);
   const afterSubmitText = await getPageText(page);
 
-  if (/사용할 수 없는 별명|별명을 다시|이미 사용|중복/.test(afterSubmitText)) {
+  if (NICKNAME_COLLISION_PATTERN.test(afterSubmitText)) {
     return {
       status: 'failed',
       detail: `별명 충돌: ${afterSubmitText.slice(0, 120)}`,
@@ -285,7 +442,7 @@ export const joinCafeMembership = async (
     };
   }
 
-  if (/가입이 제한|가입할 수 없습니다|활동이 정지/.test(afterSubmitText)) {
+  if (JOIN_RESTRICTED_PATTERN.test(afterSubmitText)) {
     return {
       status: 'failed',
       detail: afterSubmitText.slice(0, 160),
@@ -299,8 +456,39 @@ export const joinCafeMembership = async (
     await gotoWithRetry(page, cafeHome, { logPrefix });
     await page.waitForTimeout(verifyWaitMs * attempt);
     verifyText = await getPageText(page);
+    const joinButtonVisible = await hasVisibleSelector(page, JOIN_BUTTON_SELECTOR);
 
-    if (!verifyText.includes('카페 가입하기')) {
+    if (NICKNAME_COLLISION_PATTERN.test(verifyText)) {
+      return {
+        status: 'failed',
+        detail: `별명 충돌: ${verifyText.slice(0, 120)}`,
+        beforeText,
+        afterSubmitText,
+        verifyText,
+      };
+    }
+
+    if (JOIN_RESTRICTED_PATTERN.test(verifyText)) {
+      return {
+        status: 'failed',
+        detail: verifyText.slice(0, 160),
+        beforeText,
+        afterSubmitText,
+        verifyText,
+      };
+    }
+
+    if (JOIN_PENDING_PATTERN.test(verifyText)) {
+      return {
+        status: 'failed',
+        detail: '가입 승인 대기',
+        beforeText,
+        afterSubmitText,
+        verifyText,
+      };
+    }
+
+    if (!joinButtonVisible) {
       return {
         status: 'joined',
         detail: '가입 버튼 사라짐',

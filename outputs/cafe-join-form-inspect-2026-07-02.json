@@ -1,0 +1,179 @@
+{
+  "url": "https://m.cafe.naver.com/ca-fe/web/cafes/31750109/join",
+  "bodyText": "카페 가입하기\n닫기\n애견 반려수첩\n\n별명을 입력해주세요.\n삭제\n\n사용할 수 있는 별명입니다.\n\n운영진에게 성별·연령대 공개\n이 카페에서 활동하는 동안 원활한 카페 운영을 위하여 (필수) 아이디, 별명, 활동내역, (선택) 성별, 연령대, 이름(단, 이름은 실명 공개 카페에 한해 공개)이 이 카페의 운영진에게 공개되며, 최소한의 제재 기록은 카페 탈퇴 후에도 보관됩니다. 본 동의를 거부하실 수 있으나, 카페 가입이 불가능합니다.\n동의 후 가입하기",
+  "inputs": [
+    {
+      "tag": "textarea",
+      "id": "label_join_nick",
+      "className": "join_input",
+      "name": "",
+      "type": "textarea",
+      "placeholder": "별명",
+      "value": "[value]",
+      "alt": "",
+      "src": "",
+      "text": "",
+      "visible": true
+    },
+    {
+      "tag": "input",
+      "id": "img_upload",
+      "className": "blind",
+      "name": "",
+      "type": "file",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": "",
+      "visible": false
+    },
+    {
+      "tag": "input",
+      "id": "e39bdaf9-0cd0-4eae-b0c6-d4fe0bd7f2c8",
+      "className": "checkbox",
+      "name": "",
+      "type": "checkbox",
+      "placeholder": "",
+      "value": "[value]",
+      "alt": "",
+      "src": "",
+      "text": "",
+      "visible": true
+    }
+  ],
+  "images": [
+    {
+      "tag": "img",
+      "id": "",
+      "className": "picture_img",
+      "name": "",
+      "type": "",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "https://ca-fe.pstatic.net/web-mobile/static/img/default_thumb.svg",
+      "text": "",
+      "visible": true
+    },
+    {
+      "tag": "img",
+      "id": "",
+      "className": "picture_img",
+      "name": "",
+      "type": "",
+      "placeholder": "",
+      "value": "",
+      "alt": "프로필 사진",
+      "src": "https://ca-fe.pstatic.net/web-mobile/static/default-image/user/profile-80-x-80.svg",
+      "text": "",
+      "visible": true
+    }
+  ],
+  "buttons": [
+    {
+      "tag": "a",
+      "id": "",
+      "className": "ButtonBase ButtonBase--green",
+      "name": "",
+      "type": "",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": "다시 시도",
+      "visible": false
+    },
+    {
+      "tag": "a",
+      "id": "",
+      "className": "btn btn_close",
+      "name": "",
+      "type": "",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": "닫기",
+      "visible": true
+    },
+    {
+      "tag": "a",
+      "id": "",
+      "className": "",
+      "name": "",
+      "type": "",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": "애견 반려수첩",
+      "visible": true
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "className": "btn_camera",
+      "name": "",
+      "type": "submit",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": "",
+      "visible": true
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "className": "btn_delete btn_delete",
+      "name": "",
+      "type": "button",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": "삭제",
+      "visible": true
+    },
+    {
+      "tag": "a",
+      "id": "",
+      "className": "ButtonBase more_button",
+      "name": "",
+      "type": "",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": " 사진삭제 ",
+      "visible": false
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "className": "btn_guide",
+      "name": "",
+      "type": "submit",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": "",
+      "visible": true
+    },
+    {
+      "tag": "a",
+      "id": "",
+      "className": "ButtonBase ButtonBase--green",
+      "name": "",
+      "type": "",
+      "placeholder": "",
+      "value": "",
+      "alt": "",
+      "src": "",
+      "text": "동의 후 가입하기",
+      "visible": true
+    }
+  ]
+}

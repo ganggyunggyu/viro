@@ -400,6 +400,32 @@ const waitForLoginCompletion = async (
   return !isLoginRedirect(page.url());
 };
 
+const fillLoginInput = async (
+  page: Page,
+  selector: string,
+  value: string,
+): Promise<void> => {
+  const input = page.locator(selector);
+  await input.click({ force: true });
+  await page.keyboard.press('Meta+A');
+  await page.keyboard.type(value, { delay: 50 });
+};
+
+const submitLoginForm = async (page: Page): Promise<void> => {
+  const loginButton = page.locator('button.btn_login, button#log\\.login').first();
+  await loginButton.click({ force: true }).catch(async () => {
+    await page.evaluate(() => {
+      const button = document.querySelector('button.btn_login, button#log\\.login') as HTMLButtonElement | null;
+      button?.click();
+    });
+  });
+  await page.waitForTimeout(1000);
+
+  if (isLoginRedirect(page.url())) {
+    await page.keyboard.press('Enter').catch(() => {});
+  }
+};
+
 const scheduleSessionReservationRelease = (
   accountId: string,
   reservationId: string,
@@ -454,18 +480,21 @@ export const loginAccount = async (
     const forceFreshLogin = options?.forceFreshLogin ?? false;
 
     await page.goto('https://nid.naver.com/nidlogin.login', {
-      waitUntil: 'networkidle',
+      waitUntil: 'domcontentloaded',
+      timeout: 45_000,
     });
 
     if (!isLoginRedirect(page.url())) {
       if (forceFreshLogin) {
         console.log(`[LOGIN] ${accountId} 강제 재로그인 시작`);
         await page.goto('https://nid.naver.com/nidlogin.logout', {
-          waitUntil: 'networkidle',
+          waitUntil: 'domcontentloaded',
+          timeout: 45_000,
         }).catch(() => {});
         await page.waitForTimeout(1000);
         await page.goto('https://nid.naver.com/nidlogin.login', {
-          waitUntil: 'networkidle',
+          waitUntil: 'domcontentloaded',
+          timeout: 45_000,
         });
       } else {
         await saveCookiesForAccount(accountId);
@@ -475,9 +504,9 @@ export const loginAccount = async (
       }
     }
 
-    await page.fill('input#id', accountId);
-    await page.fill('input#pw', password);
-    await page.click('button.btn_login, button#log\\.login');
+    await fillLoginInput(page, 'input#id', accountId);
+    await fillLoginInput(page, 'input#pw', password);
+    await submitLoginForm(page);
 
     // 로그인 버튼 클릭 후 3초 대기
     await page.waitForTimeout(3000);
