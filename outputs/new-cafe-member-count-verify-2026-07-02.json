@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-07-02T06:17:44.204Z",
+  "results": [
+    {
+      "cafeId": "31750114",
+      "name": "맛집 밥상노트",
+      "url": "https://cafe.naver.com/babsangnote702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/01-31750114.png"
+    },
+    {
+      "cafeId": "31750113",
+      "name": "맛집 동네밥상",
+      "url": "https://cafe.naver.com/localtable702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/02-31750113.png"
+    },
+    {
+      "cafeId": "31750111",
+      "name": "맛집 메뉴수첩",
+      "url": "https://cafe.naver.com/menunote702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/03-31750111.png"
+    },
+    {
+      "cafeId": "31750110",
+      "name": "맛집 식탁모임",
+      "url": "https://cafe.naver.com/tableclub702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/04-31750110.png"
+    },
+    {
+      "cafeId": "31750109",
+      "name": "애견 반려수첩",
+      "url": "https://cafe.naver.com/petnote702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/05-31750109.png"
+    },
+    {
+      "cafeId": "31750107",
+      "name": "애견 산책노트",
+      "url": "https://cafe.naver.com/walknote702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/06-31750107.png"
+    },
+    {
+      "cafeId": "31750106",
+      "name": "건강 생활수첩",
+      "url": "https://cafe.naver.com/carelog702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/07-31750106.png"
+    },
+    {
+      "cafeId": "31750105",
+      "name": "건강 습관노트",
+      "url": "https://cafe.naver.com/habitnote702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/08-31750105.png"
+    },
+    {
+      "cafeId": "31750108",
+      "name": "생활 정보마당",
+      "url": "https://cafe.naver.com/infomadang702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/09-31750108.png"
+    },
+    {
+      "cafeId": "31750104",
+      "name": "일상 소통마당",
+      "url": "https://cafe.naver.com/talkmadang702",
+      "memberText": "1",
+      "screenshot": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-member-count-screens-2026-07-02/10-31750104.png"
+    }
+  ]
+}
