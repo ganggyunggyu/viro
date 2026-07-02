@@ -1,28 +1,28 @@
 {
   "summary": {
-    "generatedAt": "2026-07-02T08:27:12.065Z",
+    "generatedAt": "2026-07-02T13:40:20.965Z",
     "targetCafeCount": 10,
     "articleVerifiedCount": 10,
-    "totalMemberCount": 77,
+    "totalMemberCount": 208,
     "joinTotals": {
-      "accounts": 25,
+      "accounts": 24,
       "cafes": 10,
-      "total": 250,
+      "total": 240,
       "owner": 9,
-      "joined": 30,
-      "alreadyMember": 72,
-      "failed": 138
+      "joined": 154,
+      "alreadyMember": 77,
+      "failed": 0
     },
     "plannedCommentCount": 140,
     "lowestMemberCafes": [
-      "일상 소통마당 2명",
-      "건강 습관노트 4명",
-      "생활 정보마당 5명"
+      "애견 반려수첩 18명",
+      "일상 소통마당 18명",
+      "맛집 식탁모임 19명"
     ],
     "sourceFiles": [
-      "outputs/new-cafe-member-count-final-2026-07-02.json",
-      "outputs/new-cafe-real-join-cause-summary-2026-07-02.json",
-      "outputs/new-cafe-real-join-2026-07-02.json",
+      "outputs/new-cafe-member-count-verify-2026-07-02.json",
+      "outputs/new-cafe-member-count-verify-2026-07-02.md",
+      "outputs/new-cafe-retry-joins-2026-07-02.json",
       "outputs/new-cafe-seeding-run-2026-07-01T19-39-21-663Z.json",
       "outputs/new-cafe-post-public-verify-2026-07-02.md"
     ]
@@ -37,7 +37,7 @@
       "ownerNickname": "빨간모자앤  1",
       "cafeUrl": "https://cafe.naver.com/babsangnote702",
       "mobileCafeUrl": "https://m.cafe.naver.com/babsangnote702",
-      "memberCount": 13,
+      "memberCount": 24,
       "contentSource": "blog-filler-restaurant",
       "endpoint": "/generate/blog-filler-restaurant",
       "keyword": "동네에서 부담 없이 먹기 좋은 한 끼 기록",
@@ -59,7 +59,7 @@
       "ownerNickname": "소원 1",
       "cafeUrl": "https://cafe.naver.com/localtable702",
       "mobileCafeUrl": "https://m.cafe.naver.com/localtable702",
-      "memberCount": 14,
+      "memberCount": 22,
       "contentSource": "blog-filler-restaurant",
       "endpoint": "/generate/blog-filler-restaurant",
       "keyword": "동네 식당 고를 때 확인하면 좋은 기준",
@@ -81,7 +81,7 @@
       "ownerNickname": "똑똑한건희씨",
       "cafeUrl": "https://cafe.naver.com/menunote702",
       "mobileCafeUrl": "https://m.cafe.naver.com/menunote702",
-      "memberCount": 14,
+      "memberCount": 23,
       "contentSource": "blog-filler-restaurant",
       "endpoint": "/generate/blog-filler-restaurant",
       "keyword": "오늘 메뉴 정할 때 참고하기 좋은 음식 이야기",
@@ -103,7 +103,7 @@
       "ownerNickname": "고래낚시 1",
       "cafeUrl": "https://cafe.naver.com/tableclub702",
       "mobileCafeUrl": "https://m.cafe.naver.com/tableclub702",
-      "memberCount": 7,
+      "memberCount": 19,
       "contentSource": "blog-filler-restaurant",
       "endpoint": "/generate/blog-filler-restaurant",
       "keyword": "식사 모임 장소를 고를 때 살펴볼 점",
@@ -125,7 +125,7 @@
       "ownerNickname": "티니피쉬 1",
       "cafeUrl": "https://cafe.naver.com/petnote702",
       "mobileCafeUrl": "https://m.cafe.naver.com/petnote702",
-      "memberCount": 6,
+      "memberCount": 18,
       "contentSource": "blog-filler-pet",
       "endpoint": "/generate/blog-filler-pet",
       "keyword": "반려견 생활 관리할 때 자주 확인하는 기본 정보",
@@ -147,7 +147,7 @@
       "ownerNickname": "강아지강하지 1",
       "cafeUrl": "https://cafe.naver.com/walknote702",
       "mobileCafeUrl": "https://m.cafe.naver.com/walknote702",
-      "memberCount": 6,
+      "memberCount": 22,
       "contentSource": "blog-filler-pet",
       "endpoint": "/generate/blog-filler-pet",
       "keyword": "강아지 산책 전후로 챙기면 좋은 습관",
@@ -169,7 +169,7 @@
       "ownerNickname": "고구마스틱2 (10개) 1",
       "cafeUrl": "https://cafe.naver.com/carelog702",
       "mobileCafeUrl": "https://m.cafe.naver.com/carelog702",
-      "memberCount": 6,
+      "memberCount": 20,
       "contentSource": "hanryeo",
       "endpoint": "/generate/hanryeo",
       "keyword": "건강 생활관리 꾸준히 이어가는 방법",
@@ -191,7 +191,7 @@
       "ownerNickname": "룰루랄라 2 (12개) 1",
       "cafeUrl": "https://cafe.naver.com/habitnote702",
       "mobileCafeUrl": "https://m.cafe.naver.com/habitnote702",
-      "memberCount": 4,
+      "memberCount": 21,
       "contentSource": "hanryeo",
       "endpoint": "/generate/hanryeo",
       "keyword": "건강 습관을 무리 없이 만드는 생활 루틴",
@@ -213,7 +213,7 @@
       "ownerNickname": "실눈캐",
       "cafeUrl": "https://cafe.naver.com/infomadang702",
       "mobileCafeUrl": "https://m.cafe.naver.com/infomadang702",
-      "memberCount": 5,
+      "memberCount": 21,
       "contentSource": "blog-filler",
       "endpoint": "/generate/blog-filler",
       "keyword": "일상에서 알아두면 편한 생활 정보 정리",
@@ -235,7 +235,7 @@
       "ownerNickname": "햄부기",
       "cafeUrl": "https://cafe.naver.com/talkmadang702",
       "mobileCafeUrl": "https://m.cafe.naver.com/talkmadang702",
-      "memberCount": 2,
+      "memberCount": 18,
       "contentSource": "blog-filler",
       "endpoint": "/generate/blog-filler",
       "keyword": "가볍게 나누기 좋은 하루 일상 이야기",
@@ -258,11 +258,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 0,
+      "joined": 7,
       "alreadyMember": 3,
       "owner": 0,
-      "failed": 7,
-      "failureSummary": "가입 후 버튼 재노출 7"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "ahffkekd12",
@@ -272,11 +272,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 1,
+      "joined": 6,
       "alreadyMember": 4,
       "owner": 0,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "ahfflwl123",
@@ -286,11 +286,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "일상 소통마당",
-      "joined": 0,
-      "alreadyMember": 0,
-      "owner": 0,
-      "failed": 9,
-      "failureSummary": "로그인 타임아웃 9"
+      "joined": 7,
+      "alreadyMember": 2,
+      "owner": 1,
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "ahsxkfldk12",
@@ -300,11 +300,25 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 0,
+      "joined": 7,
       "alreadyMember": 3,
       "owner": 0,
-      "failed": 7,
-      "failureSummary": "가입 후 버튼 재노출 7"
+      "failed": 0,
+      "failureSummary": ""
+    },
+    {
+      "accountId": "alsrudgus531",
+      "nickname": "운연정",
+      "role": "commenter",
+      "isActive": "활성",
+      "isMain": "",
+      "dailyPostLimit": "",
+      "ownedCafes": "",
+      "joined": 10,
+      "alreadyMember": 0,
+      "owner": 0,
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "angrykoala270",
@@ -314,11 +328,11 @@
       "isMain": "",
       "dailyPostLimit": 5,
       "ownedCafes": "",
-      "joined": 0,
+      "joined": 5,
       "alreadyMember": 5,
       "owner": 0,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "bigfish773",
@@ -328,11 +342,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "맛집 식탁모임",
-      "joined": 3,
+      "joined": 8,
       "alreadyMember": 1,
       "owner": 1,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "compare14310",
@@ -342,11 +356,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "건강 습관노트",
-      "joined": 0,
-      "alreadyMember": 3,
+      "joined": 2,
+      "alreadyMember": 7,
       "owner": 1,
-      "failed": 6,
-      "failureSummary": "가입 후 버튼 재노출 6"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "dhtksk1p",
@@ -356,11 +370,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "맛집 밥상노트",
-      "joined": 1,
+      "joined": 6,
       "alreadyMember": 3,
       "owner": 1,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "dq1h3bjy",
@@ -370,11 +384,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 3,
+      "joined": 9,
       "alreadyMember": 1,
       "owner": 0,
-      "failed": 6,
-      "failureSummary": "가입 후 버튼 재노출 6"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "eghfsa5478",
@@ -384,11 +398,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 1,
+      "joined": 5,
       "alreadyMember": 5,
       "owner": 0,
-      "failed": 4,
-      "failureSummary": "가입 후 버튼 재노출 4"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "fail5644",
@@ -398,11 +412,11 @@
       "isMain": "",
       "dailyPostLimit": 5,
       "ownedCafes": "건강 생활수첩",
-      "joined": 0,
+      "joined": 6,
       "alreadyMember": 3,
       "owner": 1,
-      "failed": 6,
-      "failureSummary": "가입 후 버튼 재노출 6"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "geenl",
@@ -412,11 +426,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 0,
+      "joined": 7,
       "alreadyMember": 3,
       "owner": 0,
-      "failed": 7,
-      "failureSummary": "가입 후 버튼 재노출 7"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "ghostrush7",
@@ -426,11 +440,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "생활 정보마당",
-      "joined": 1,
+      "joined": 3,
       "alreadyMember": 6,
       "owner": 1,
-      "failed": 2,
-      "failureSummary": "가입 후 버튼 재노출 2"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "h9ag469z",
@@ -440,11 +454,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 3,
+      "joined": 7,
       "alreadyMember": 3,
       "owner": 0,
-      "failed": 4,
-      "failureSummary": "가입 후 버튼 재노출 3, 가입 제출 버튼 없음 1"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "hagyga",
@@ -454,11 +468,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 3,
+      "joined": 10,
       "alreadyMember": 0,
       "owner": 0,
-      "failed": 7,
-      "failureSummary": "가입 후 버튼 재노출 7"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "k7d9x2m4",
@@ -468,11 +482,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "애견 산책노트",
-      "joined": 1,
+      "joined": 6,
       "alreadyMember": 3,
       "owner": 1,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "laghunter8",
@@ -482,11 +496,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 0,
+      "joined": 5,
       "alreadyMember": 5,
       "owner": 0,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "mh8j62wm",
@@ -496,11 +510,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 1,
+      "joined": 6,
       "alreadyMember": 4,
       "owner": 0,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "nes1p2kx",
@@ -510,53 +524,25 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 3,
+      "joined": 7,
       "alreadyMember": 3,
       "owner": 0,
-      "failed": 4,
-      "failureSummary": "가입 후 버튼 재노출 4"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
-      "accountId": "orangeswan630",
-      "nickname": "똑똑한건희씨",
-      "role": "commenter",
-      "isActive": "활성",
-      "isMain": "",
-      "dailyPostLimit": 5,
-      "ownedCafes": "맛집 메뉴수첩",
-      "joined": 4,
-      "alreadyMember": 2,
-      "owner": 1,
-      "failed": 3,
-      "failureSummary": "가입 후 버튼 재노출 2, 가입 제출 버튼 없음 1"
-    },
-    {
-      "accountId": "q9v3m7a2",
-      "nickname": "포비 1",
+      "accountId": "produce11745",
+      "nickname": "가중건다",
       "role": "commenter",
       "isActive": "활성",
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 3,
-      "alreadyMember": 2,
-      "owner": 0,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
-    },
-    {
-      "accountId": "rational4640",
-      "nickname": "렙용",
-      "role": "commenter",
-      "isActive": "활성",
-      "isMain": "",
-      "dailyPostLimit": "",
-      "ownedCafes": "",
-      "joined": 0,
+      "joined": 10,
       "alreadyMember": 0,
       "owner": 0,
-      "failed": 10,
-      "failureSummary": "가입 후 버튼 재노출 10"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "regular14631",
@@ -566,11 +552,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "맛집 동네밥상",
-      "joined": 0,
+      "joined": 5,
       "alreadyMember": 4,
       "owner": 1,
-      "failed": 5,
-      "failureSummary": "가입 후 버튼 재노출 5"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "tinyfish183",
@@ -580,11 +566,11 @@
       "isMain": "",
       "dailyPostLimit": 5,
       "ownedCafes": "애견 반려수첩",
-      "joined": 2,
+      "joined": 3,
       "alreadyMember": 6,
       "owner": 1,
-      "failed": 1,
-      "failureSummary": "가입 제출 버튼 없음 1"
+      "failed": 0,
+      "failureSummary": ""
     },
     {
       "accountId": "vegetable10517",
@@ -594,11 +580,11 @@
       "isMain": "",
       "dailyPostLimit": "",
       "ownedCafes": "",
-      "joined": 0,
-      "alreadyMember": 0,
+      "joined": 7,
+      "alreadyMember": 3,
       "owner": 0,
-      "failed": 10,
-      "failureSummary": "캡차 풀이 실패 10"
+      "failed": 0,
+      "failureSummary": ""
     }
   ],
   "autoPublish": [
@@ -776,147 +762,104 @@
   "joins": [
     {
       "cafeName": "맛집 밥상노트",
-      "memberCount": 13,
-      "totalAttempts": 25,
+      "memberCount": 24,
+      "totalAttempts": 24,
       "owner": 1,
-      "joined": 0,
-      "alreadyMember": 10,
-      "failed": 14,
-      "majorFailure": "가입 후 버튼 재노출 12, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "joined": 11,
+      "alreadyMember": 12,
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "맛집 동네밥상",
-      "memberCount": 14,
-      "totalAttempts": 25,
+      "memberCount": 22,
+      "totalAttempts": 24,
       "owner": 1,
-      "joined": 1,
-      "alreadyMember": 12,
-      "failed": 11,
-      "majorFailure": "가입 후 버튼 재노출 9, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "joined": 9,
+      "alreadyMember": 14,
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "맛집 메뉴수첩",
-      "memberCount": 14,
-      "totalAttempts": 25,
-      "owner": 1,
-      "joined": 0,
-      "alreadyMember": 14,
-      "failed": 10,
-      "majorFailure": "가입 후 버튼 재노출 8, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "memberCount": 23,
+      "totalAttempts": 24,
+      "owner": 0,
+      "joined": 9,
+      "alreadyMember": 15,
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "맛집 식탁모임",
-      "memberCount": 7,
-      "totalAttempts": 25,
+      "memberCount": 19,
+      "totalAttempts": 24,
       "owner": 1,
-      "joined": 1,
+      "joined": 12,
       "alreadyMember": 11,
-      "failed": 12,
-      "majorFailure": "가입 후 버튼 재노출 10, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "애견 반려수첩",
-      "memberCount": 6,
-      "totalAttempts": 25,
+      "memberCount": 18,
+      "totalAttempts": 24,
       "owner": 1,
-      "joined": 8,
-      "alreadyMember": 4,
-      "failed": 12,
-      "majorFailure": "가입 후 버튼 재노출 9, 가입 제출 버튼 없음 1, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "joined": 20,
+      "alreadyMember": 3,
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "애견 산책노트",
-      "memberCount": 6,
-      "totalAttempts": 25,
+      "memberCount": 22,
+      "totalAttempts": 24,
       "owner": 1,
-      "joined": 6,
-      "alreadyMember": 2,
-      "failed": 16,
-      "majorFailure": "가입 후 버튼 재노출 12, 가입 제출 버튼 없음 2, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "joined": 20,
+      "alreadyMember": 3,
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "건강 생활수첩",
-      "memberCount": 6,
-      "totalAttempts": 25,
+      "memberCount": 20,
+      "totalAttempts": 24,
       "owner": 1,
-      "joined": 6,
+      "joined": 19,
       "alreadyMember": 4,
-      "failed": 14,
-      "majorFailure": "가입 후 버튼 재노출 12, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "건강 습관노트",
-      "memberCount": 4,
-      "totalAttempts": 25,
+      "memberCount": 21,
+      "totalAttempts": 24,
       "owner": 1,
-      "joined": 2,
+      "joined": 18,
       "alreadyMember": 5,
-      "failed": 17,
-      "majorFailure": "가입 후 버튼 재노출 15, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "생활 정보마당",
-      "memberCount": 5,
-      "totalAttempts": 25,
+      "memberCount": 21,
+      "totalAttempts": 24,
       "owner": 1,
-      "joined": 5,
+      "joined": 19,
       "alreadyMember": 4,
-      "failed": 15,
-      "majorFailure": "가입 후 버튼 재노출 13, 로그인 타임아웃 1, 캡차 풀이 실패 1"
+      "failed": 0,
+      "majorFailure": ""
     },
     {
       "cafeName": "일상 소통마당",
-      "memberCount": 2,
+      "memberCount": 18,
       "totalAttempts": 24,
-      "owner": 0,
-      "joined": 1,
+      "owner": 1,
+      "joined": 17,
       "alreadyMember": 6,
-      "failed": 17,
-      "majorFailure": "가입 후 버튼 재노출 16, 캡차 풀이 실패 1"
+      "failed": 0,
+      "majorFailure": ""
     }
   ],
-  "failures": [
-    {
-      "detail": "가입 후 버튼 재노출",
-      "rawDetail": "가입 후에도 가입 버튼 보임",
-      "count": 116,
-      "action": "가입 완료 판별 로직 재검증"
-    },
-    {
-      "detail": "가입 버튼 없음",
-      "rawDetail": "가입 버튼 없음",
-      "count": 72,
-      "action": "이미가입/권한상태 수동 확인"
-    },
-    {
-      "detail": "가입 버튼 사라짐",
-      "rawDetail": "가입 버튼 사라짐",
-      "count": 30,
-      "action": "가입 성공으로 분류"
-    },
-    {
-      "detail": "캡차 풀이 실패",
-      "rawDetail": "login failed: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
-      "count": 10,
-      "action": "보안문자 수동 확인 후 재시도"
-    },
-    {
-      "detail": "카페장 계정",
-      "rawDetail": "카페장 계정",
-      "count": 9,
-      "action": "정상 제외"
-    },
-    {
-      "detail": "로그인 타임아웃",
-      "rawDetail": "login failed: page.goto: Timeout 30000ms exceeded. Call log: - navigating to \"https://nid.naver.com/nidlogin.login\", waiting until \"networkidle\"",
-      "count": 9,
-      "action": "로그인 세션 재시도"
-    },
-    {
-      "detail": "가입 제출 버튼 없음",
-      "rawDetail": "가입 제출 버튼 없음",
-      "count": 3,
-      "action": "가입 폼 DOM 재확인"
-    }
-  ]
+  "failures": []
 }
