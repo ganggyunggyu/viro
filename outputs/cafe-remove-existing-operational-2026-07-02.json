@@ -1,0 +1,249 @@
+{
+  "generatedAt": "2026-07-02T09:23:35.572Z",
+  "loginId": "21lab",
+  "userId": "user-1768955529317",
+  "targetNames": [
+    "건강한노후준비",
+    "건강관리소",
+    "샤넬오픈런",
+    "쇼핑지름신"
+  ],
+  "before": [
+    {
+      "name": "건강한노후준비",
+      "cafeId": "25636798",
+      "cafeUrl": "freemapleafreecabj",
+      "menuId": "1",
+      "categories": [
+        "자유게시판",
+        "흑염소진액정보",
+        "한약재정보",
+        "건강상식",
+        "건강정보",
+        "질문게시판"
+      ],
+      "isActive": true,
+      "isDefault": true,
+      "createdAt": "2026-01-20T06:06:47.437Z",
+      "updatedAt": "2026-01-20T06:06:47.437Z"
+    },
+    {
+      "name": "건강관리소",
+      "cafeId": "25227349",
+      "cafeUrl": "minemh",
+      "menuId": "1",
+      "categories": [
+        "취미이야기",
+        "건강이야기",
+        "자유로운이야기",
+        "건강 챌린지",
+        "건강 관리 후기",
+        "오늘의 운동"
+      ],
+      "isActive": true,
+      "isDefault": false,
+      "createdAt": "2026-01-20T06:07:24.423Z",
+      "updatedAt": "2026-01-20T06:07:24.423Z"
+    },
+    {
+      "name": "샤넬오픈런",
+      "cafeId": "25460974",
+      "cafeUrl": "shoppingtpw",
+      "menuId": "1",
+      "categories": [
+        "_ 일상샤반사 📆"
+      ],
+      "commentableMenuIds": [],
+      "isActive": true,
+      "isDefault": false,
+      "createdAt": "2026-02-24T06:58:37.255Z",
+      "updatedAt": "2026-06-17T08:18:10.390Z"
+    },
+    {
+      "name": "쇼핑지름신",
+      "cafeId": "25729954",
+      "cafeUrl": "shopjirmsin",
+      "menuId": "1",
+      "categories": [
+        "일반 쇼핑후기",
+        "일상톡톡"
+      ],
+      "commentableMenuIds": [],
+      "isActive": true,
+      "isDefault": false,
+      "createdAt": "2026-02-24T06:58:37.255Z",
+      "updatedAt": "2026-06-17T08:18:12.782Z"
+    }
+  ],
+  "updateResult": {
+    "matchedCount": 4,
+    "modifiedCount": 4,
+    "acknowledged": true
+  },
+  "inactiveTargets": [
+    {
+      "_id": "696f1b77f101cceff413d25d",
+      "cafeId": "25636798",
+      "name": "건강한노후준비",
+      "isDefault": false,
+      "isActive": false,
+      "updatedAt": "2026-07-02T09:23:35.519Z"
+    },
+    {
+      "_id": "696f1b9cf101cceff413d26e",
+      "cafeId": "25227349",
+      "name": "건강관리소",
+      "isDefault": false,
+      "isActive": false,
+      "updatedAt": "2026-07-02T09:23:35.519Z"
+    },
+    {
+      "_id": "699d4c1d4740be2a2fba8c20",
+      "name": "샤넬오픈런",
+      "cafeId": "25460974",
+      "isDefault": false,
+      "isActive": false,
+      "updatedAt": "2026-07-02T09:23:35.519Z"
+    },
+    {
+      "_id": "699d4c1d4740be2a2fba8c23",
+      "name": "쇼핑지름신",
+      "cafeId": "25729954",
+      "isDefault": false,
+      "isActive": false,
+      "updatedAt": "2026-07-02T09:23:35.519Z"
+    }
+  ],
+  "activeAfter": [
+    {
+      "name": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "cafeUrl": "https://cafe.naver.com/babsangnote702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "cafeUrl": "https://cafe.naver.com/localtable702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "cafeUrl": "https://cafe.naver.com/menunote702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "cafeUrl": "https://cafe.naver.com/tableclub702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "애견 반려수첩",
+      "cafeId": "31750109",
+      "cafeUrl": "https://cafe.naver.com/petnote702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "애견 산책노트",
+      "cafeId": "31750107",
+      "cafeUrl": "https://cafe.naver.com/walknote702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "건강 생활수첩",
+      "cafeId": "31750106",
+      "cafeUrl": "https://cafe.naver.com/carelog702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "건강 습관노트",
+      "cafeId": "31750105",
+      "cafeUrl": "https://cafe.naver.com/habitnote702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "생활 정보마당",
+      "cafeId": "31750108",
+      "cafeUrl": "https://cafe.naver.com/infomadang702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    },
+    {
+      "name": "일상 소통마당",
+      "cafeId": "31750104",
+      "cafeUrl": "https://cafe.naver.com/talkmadang702",
+      "menuId": "1",
+      "categories": [
+        "자유게시판"
+      ],
+      "commentableMenuIds": [
+        1
+      ],
+      "isDefault": false
+    }
+  ]
+}

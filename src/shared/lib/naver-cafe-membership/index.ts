@@ -201,7 +201,7 @@ export const solveCafeJoinCaptchaOnPage = async (
   page: Page,
   options: { attempts?: number; logPrefix?: string } = {},
 ): Promise<{ solved: boolean; attempts: number; error?: string }> => {
-  const { attempts = 3, logPrefix = 'NAVER_CAFE_JOIN' } = options;
+  const { attempts = 8, logPrefix = 'NAVER_CAFE_JOIN' } = options;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const captchaImage = page.locator(CAFE_JOIN_CAPTCHA_IMAGE_SELECTOR).first();
@@ -227,7 +227,11 @@ export const solveCafeJoinCaptchaOnPage = async (
               },
               {
                 text: [
-                  '이미지에 보이는 보안문자만 정확히 읽어라.',
+                  '이미지에 보이는 네이버 카페 가입 보안문자만 정확히 읽어라.',
+                  '문자는 흰색 또는 밝은색으로 보이고, 배경 무늬는 무시한다.',
+                  '정답은 영문 알파벳 A-Z와 숫자 0-9 조합이다.',
+                  '왼쪽에서 오른쪽 순서대로 읽는다.',
+                  'I와 1, O와 0, B와 8, S와 5, Z와 2를 특히 조심해서 구분한다.',
                   '출력은 한 줄로, 설명 없이 문자만 쓴다.',
                   '공백, 따옴표, 문장부호는 쓰지 않는다.',
                   '대소문자가 애매하면 이미지에 가까운 형태로 쓴다.',
@@ -237,7 +241,7 @@ export const solveCafeJoinCaptchaOnPage = async (
           },
         ],
       });
-      const answer = (response.text || '').replace(/[^0-9A-Za-z가-힣]/g, '').trim();
+      const answer = (response.text || '').replace(/[^0-9A-Za-z]/g, '').trim();
       console.log(`[${logPrefix}] cafe join captcha answer attempt=${attempt}: ${answer || '(empty)'}`);
 
       if (!answer) {
