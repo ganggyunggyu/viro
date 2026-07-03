@@ -14,6 +14,7 @@ export { BatchJobLog, type IBatchJobLog } from './batch-job-log';
 export { Account, type IAccount, type ActivityHours } from './account';
 export { User, type IUser } from './user';
 export { Cafe, type ICafe } from './cafe';
+export { WorkCafeArticle, type IWorkCafeArticle } from './work-cafe-article';
 export {
   DailyPostCount,
   type IDailyPostCount,
