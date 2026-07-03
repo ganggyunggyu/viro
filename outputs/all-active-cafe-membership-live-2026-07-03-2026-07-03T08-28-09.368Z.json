@@ -1,0 +1,242 @@
+{
+  "summary": {
+    "generatedAt": "2026-07-03T08:28:10.377Z",
+    "loginId": "21lab",
+    "accountCount": 27,
+    "cafeCount": 10,
+    "totalChecks": 270,
+    "checkedRows": 0,
+    "joined": 0,
+    "notJoined": 0,
+    "unknown": 0,
+    "skipped": 0,
+    "failedLoginAccounts": []
+  },
+  "accounts": [
+    {
+      "_id": "6a153104d273c6320e0b9112",
+      "accountId": "angrykoala270",
+      "nickname": "앵그리맨",
+      "role": "writer"
+    },
+    {
+      "_id": "6a152b0fd273c6320e0b90e3",
+      "accountId": "compare14310",
+      "nickname": "룰루랄라 2 (12개) 1",
+      "role": "writer"
+    },
+    {
+      "_id": "6a153104d273c6320e0b910e",
+      "accountId": "fail5644",
+      "nickname": "고구마스틱2 (10개) 1",
+      "role": "writer"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b916e",
+      "accountId": "mh8j62wm",
+      "nickname": "에스앤비안과 2 (노출)",
+      "role": "writer"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b916d",
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer"
+    },
+    {
+      "_id": "6a152b0fd273c6320e0b90e7",
+      "accountId": "regular14631",
+      "nickname": "소원 1",
+      "role": "writer"
+    },
+    {
+      "_id": "6a153104d273c6320e0b9113",
+      "accountId": "tinyfish183",
+      "nickname": "티니피쉬 1",
+      "role": "writer"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9176",
+      "accountId": "ahffkdlek12",
+      "nickname": "바삭바삭해 1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9178",
+      "accountId": "ahffkekd12",
+      "nickname": "긍정이백퍼  1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9175",
+      "accountId": "ahfflwl123",
+      "nickname": "햄부기",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9177",
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a462166fd7c3b56b555fe89",
+      "accountId": "alsrudgus531",
+      "nickname": "운연정",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b916c",
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b916b",
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9170",
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b917b",
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9172",
+      "accountId": "geenl",
+      "nickname": "모험 - 교체",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9174",
+      "accountId": "ghostrush7",
+      "nickname": "실눈캐",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b916f",
+      "accountId": "h9ag469z",
+      "nickname": "에스앤비안과 정보",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9171",
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9173",
+      "accountId": "k7d9x2m4",
+      "nickname": "강아지강하지 1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b917a",
+      "accountId": "laghunter8",
+      "nickname": "도도 1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a44a74ffd7c3b56b555b28c",
+      "accountId": "n7c3w8z2",
+      "nickname": "고양이밥 1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a210deabf7df02bf693160c",
+      "accountId": "pixelninja3",
+      "nickname": "건강박사석사 1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a462166fd7c3b56b555fe88",
+      "accountId": "produce11745",
+      "nickname": "가중건다",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a475c613a28edcd6c8eaaa1",
+      "accountId": "q9v3m7a2",
+      "nickname": "포비 1",
+      "role": "commenter"
+    },
+    {
+      "_id": "6a154ec1d273c6320e0b9169",
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "role": "commenter"
+    }
+  ],
+  "cafes": [
+    {
+      "_id": "6a45329cfd7c3b56b555c4e8",
+      "cafeId": "31750106",
+      "cafeUrl": "https://cafe.naver.com/carelog702",
+      "name": "건강 생활수첩"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4e9",
+      "cafeId": "31750105",
+      "cafeUrl": "https://cafe.naver.com/habitnote702",
+      "name": "건강 습관노트"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4e3",
+      "cafeId": "31750113",
+      "cafeUrl": "https://cafe.naver.com/localtable702",
+      "name": "맛집 동네밥상"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4e4",
+      "cafeId": "31750111",
+      "cafeUrl": "https://cafe.naver.com/menunote702",
+      "name": "맛집 메뉴수첩"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4e2",
+      "cafeId": "31750114",
+      "cafeUrl": "https://cafe.naver.com/babsangnote702",
+      "name": "맛집 밥상노트"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4e5",
+      "cafeId": "31750110",
+      "cafeUrl": "https://cafe.naver.com/tableclub702",
+      "name": "맛집 식탁모임"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4ea",
+      "cafeId": "31750108",
+      "cafeUrl": "https://cafe.naver.com/infomadang702",
+      "name": "생활 정보마당"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4e6",
+      "cafeId": "31750109",
+      "cafeUrl": "https://cafe.naver.com/petnote702",
+      "name": "애견 반려수첩"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4e7",
+      "cafeId": "31750107",
+      "cafeUrl": "https://cafe.naver.com/walknote702",
+      "name": "애견 산책노트"
+    },
+    {
+      "_id": "6a45329cfd7c3b56b555c4eb",
+      "cafeId": "31750104",
+      "cafeUrl": "https://cafe.naver.com/talkmadang702",
+      "name": "일상 소통마당"
+    }
+  ],
+  "rows": []
+}

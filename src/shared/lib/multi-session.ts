@@ -23,6 +23,7 @@ type WarmupScheduleSessionsOptions = {
   waitBetweenAccountsMs?: number;
   reason?: string;
   reservationTtlMs?: number;
+  continueOnFailure?: boolean;
 };
 
 type WarmupScheduleSessionsResult = {
@@ -30,6 +31,7 @@ type WarmupScheduleSessionsResult = {
   warmedAccountIds: string[];
   failedAccountId?: string;
   error?: string;
+  failedAccounts?: Array<{ accountId: string; error: string }>;
 };
 
 // HMR에서 상태 유지 (Next.js dev 모듈 재평가 대응)
@@ -629,7 +631,9 @@ export const warmupScheduleSessions = async (
   const loginWaitMs = options?.loginWaitMs ?? SCHEDULE_LOGIN_WAIT_MS;
   const reservationTtlMs =
     options?.reservationTtlMs ?? DEFAULT_SCHEDULE_RESERVATION_TTL_MS;
+  const continueOnFailure = options?.continueOnFailure ?? false;
   const warmedAccountIds: string[] = [];
+  const failedAccounts: Array<{ accountId: string; error: string }> = [];
 
   for (let i = 0; i < uniqueAccounts.length; i++) {
     const { id, password } = uniqueAccounts[i];
@@ -649,6 +653,13 @@ export const warmupScheduleSessions = async (
 
         if (!loginResult.success) {
           releaseAccountSession(id, reservationId);
+          const error = loginResult.error || '로그인 실패';
+
+          if (continueOnFailure) {
+            failedAccounts.push({ accountId: id, error });
+            console.log(`[SESSION] 스케줄 세션 프리워밍 실패 - 계속 진행: ${id} - ${error}`);
+            continue;
+          }
 
           for (const warmedAccountId of warmedAccountIds) {
             releaseAccountSession(warmedAccountId, reservationId);
@@ -658,7 +669,8 @@ export const warmupScheduleSessions = async (
             success: false,
             warmedAccountIds,
             failedAccountId: id,
-            error: loginResult.error || '로그인 실패',
+            error,
+            failedAccounts,
           };
         }
       }
@@ -678,5 +690,9 @@ export const warmupScheduleSessions = async (
     }
   }
 
-  return { success: true, warmedAccountIds };
+  return {
+    success: failedAccounts.length === 0 || continueOnFailure,
+    warmedAccountIds,
+    failedAccounts,
+  };
 };

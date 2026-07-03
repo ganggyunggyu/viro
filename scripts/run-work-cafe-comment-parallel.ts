@@ -9,6 +9,7 @@ import {
   closeAllContexts,
   getPageForAccount,
   releaseAccountLock,
+  warmupScheduleSessions,
 } from '../src/shared/lib/multi-session';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
@@ -28,6 +29,10 @@ interface RunnerArgs {
   prefetchArticles: number;
   screenshotEvery: number;
   loginWaitMin: number;
+  canarySuccessTarget: number;
+  canaryMaxAttempts: number;
+  canaryMaxActive: number;
+  canaryLaunchGapSec: number;
   onlyAccountIds: Set<string>;
   excludeAccountIds: Set<string>;
   excludePairs: Set<string>;
@@ -108,6 +113,8 @@ interface RunnerState {
   startedAt: string;
   endedAt?: string;
 }
+
+type TaskOutcome = 'success' | 'failed' | 'skipped';
 
 class Semaphore {
   private active = 0;
@@ -205,6 +212,12 @@ const getPairKeys = (row: Pick<ScheduleRow, 'accountId' | 'cafeId' | 'cafeSlug'>
   `${row.accountId}:${row.cafeSlug}`,
 ];
 
+const isRuntimePairBlockError = (errorMessage: string): boolean =>
+  errorMessage.includes('ARTICLE_NOT_READY') ||
+  errorMessage.includes('댓글 입력창을 찾을 수 없습니다') ||
+  errorMessage.includes('로그인 대기 시간 초과') ||
+  errorMessage.includes('캡차 풀이 실패');
+
 const findLatestSchedulePath = (): string => {
   const outputDir = join(process.cwd(), 'outputs');
   const candidates = readdirSync(outputDir)
@@ -236,6 +249,10 @@ const getArgs = (): RunnerArgs => ({
   prefetchArticles: Number(getArgValue('--prefetch-articles', '0')),
   screenshotEvery: Number(getArgValue('--screenshot-every', '25')),
   loginWaitMin: Number(getArgValue('--login-wait-min', '10')),
+  canarySuccessTarget: Number(getArgValue('--canary-success-target', '10')),
+  canaryMaxAttempts: Number(getArgValue('--canary-max-attempts', '40')),
+  canaryMaxActive: Number(getArgValue('--canary-max-active', '3')),
+  canaryLaunchGapSec: Number(getArgValue('--canary-launch-gap-sec', '2')),
   onlyAccountIds: new Set(getArgValues('--account-id')),
   excludeAccountIds: new Set(getArgValues('--exclude-account-id')),
   excludePairs: new Set(getArgValues('--exclude-pair')),
@@ -293,6 +310,44 @@ const groupRowsByArticle = (schedule: ScheduleRow[]): Map<string, ScheduleRow[]>
   }
 
   return grouped;
+};
+
+const filterRunnableSchedule = async (
+  schedule: ScheduleRow[],
+): Promise<{
+  schedule: ScheduleRow[];
+  skippedAlreadyCommented: number;
+}> => {
+  const articleRows = groupRowsByArticle(schedule);
+  const commentedAccountsByArticle = new Map<string, Set<string>>();
+
+  await Promise.all(
+    Array.from(articleRows.entries()).map(async ([articleKey, rows]) => {
+      const firstRow = rows[0];
+      const comments = await getArticleComments(firstRow.cafeId, firstRow.articleId);
+      commentedAccountsByArticle.set(
+        articleKey,
+        new Set(
+          comments
+            .filter((comment) => comment.type === 'comment')
+            .map((comment) => comment.accountId),
+        ),
+      );
+    }),
+  );
+
+  let skippedAlreadyCommented = 0;
+  const runnableSchedule = schedule.filter((row) => {
+    const commentedAccounts = commentedAccountsByArticle.get(getArticleKey(row));
+    const alreadyCommented = commentedAccounts?.has(row.accountId) ?? false;
+    if (alreadyCommented) skippedAlreadyCommented += 1;
+    return !alreadyCommented;
+  });
+
+  return {
+    schedule: runnableSchedule,
+    skippedAlreadyCommented,
+  };
 };
 
 const buildRuntimePlan = (
@@ -737,7 +792,8 @@ const runTask = async (params: {
   summaryPath: string;
   options: RunnerArgs;
   runtimePlan: RuntimeTask[];
-}): Promise<void> => {
+  runtimeBlockedPairs: Set<string>;
+}): Promise<TaskOutcome> => {
   const {
     task,
     accounts,
@@ -748,6 +804,7 @@ const runTask = async (params: {
     summaryPath,
     options,
     runtimePlan,
+    runtimeBlockedPairs,
   } = params;
   const { row } = task;
   const account = accounts.get(row.accountId);
@@ -765,10 +822,27 @@ const runTask = async (params: {
       articleId: row.articleId,
       at: new Date().toISOString(),
     });
-    return;
+    return 'skipped';
   }
 
   try {
+    const pairKeys = getPairKeys(row);
+    if (pairKeys.some((pairKey) => runtimeBlockedPairs.has(pairKey))) {
+      state.skipped += 1;
+      appendJsonl(runLogPath, {
+        event: 'comment-skipped',
+        reason: 'runtime-pair-blocked',
+        sequence: row.sequence,
+        cafeSlug: row.cafeSlug,
+        cafeId: row.cafeId,
+        articleId: row.articleId,
+        accountId: row.accountId,
+        pairKeys,
+        at: new Date().toISOString(),
+      });
+      return 'skipped';
+    }
+
     const alreadyCommented = await hasCommented(row.cafeId, row.articleId, row.accountId, 'comment');
     if (alreadyCommented) {
       state.skipped += 1;
@@ -781,7 +855,7 @@ const runTask = async (params: {
         accountId: row.accountId,
         at: new Date().toISOString(),
       });
-      return;
+      return 'skipped';
     }
 
     const currentWorkArticle = await WorkCafeArticle.findOne(
@@ -806,7 +880,7 @@ const runTask = async (params: {
         effectiveTargetCommentCount,
         at: new Date().toISOString(),
       });
-      return;
+      return 'skipped';
     }
 
     const generated = await getGeneratedArticle(task.articleKey);
@@ -848,7 +922,7 @@ const runTask = async (params: {
         content: comment.content,
         at: new Date().toISOString(),
       });
-      return;
+      return 'skipped';
     }
 
     const result = await writeCommentWithAccount(
@@ -906,9 +980,11 @@ const runTask = async (params: {
         at: new Date().toISOString(),
       });
     }
+    return 'success';
   } catch (error) {
     state.failed += 1;
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+    const pairKeys = getPairKeys(row);
     appendJsonl(runLogPath, {
       event: 'comment-failed',
       sequence: row.sequence,
@@ -920,9 +996,24 @@ const runTask = async (params: {
       failed: state.failed,
       at: new Date().toISOString(),
     });
+    if (isRuntimePairBlockError(errorMessage)) {
+      for (const pairKey of pairKeys) runtimeBlockedPairs.add(pairKey);
+      appendJsonl(runLogPath, {
+        event: 'runtime-pair-blocked',
+        sequence: row.sequence,
+        cafeSlug: row.cafeSlug,
+        cafeId: row.cafeId,
+        articleId: row.articleId,
+        accountId: row.accountId,
+        pairKeys,
+        error: errorMessage,
+        at: new Date().toISOString(),
+      });
+    }
     console.error(
       `[WORK-CAFE-COMMENT] 실패 seq=${row.sequence} ${row.accountId} ${row.cafeSlug}/${row.articleId}: ${errorMessage}`,
     );
+    return 'failed';
   } finally {
     writeSummary(summaryPath, state, options, runtimePlan);
   }
@@ -937,6 +1028,7 @@ const runScheduler = async (params: {
   screenshotDir: string;
   summaryPath: string;
   options: RunnerArgs;
+  runtimeBlockedPairs: Set<string>;
 }): Promise<void> => {
   const {
     runtimePlan,
@@ -947,8 +1039,9 @@ const runScheduler = async (params: {
     screenshotDir,
     summaryPath,
     options,
+    runtimeBlockedPairs,
   } = params;
-  const active = new Set<Promise<void>>();
+  const active = new Set<Promise<TaskOutcome>>();
 
   for (const task of runtimePlan) {
     await sleep(task.dueAtMs - Date.now());
@@ -967,6 +1060,7 @@ const runScheduler = async (params: {
       summaryPath,
       options,
       runtimePlan,
+      runtimeBlockedPairs,
     }).finally(() => {
       active.delete(promise);
     });
@@ -976,15 +1070,129 @@ const runScheduler = async (params: {
   await Promise.all(active);
 };
 
+const runCanary = async (params: {
+  runtimePlan: RuntimeTask[];
+  accounts: Map<string, NaverAccount>;
+  getGeneratedArticle: (articleKey: string) => Promise<GeneratedArticle>;
+  state: RunnerState;
+  runLogPath: string;
+  screenshotDir: string;
+  summaryPath: string;
+  options: RunnerArgs;
+  runtimeBlockedPairs: Set<string>;
+}): Promise<Set<number>> => {
+  const {
+    runtimePlan,
+    accounts,
+    getGeneratedArticle,
+    state,
+    runLogPath,
+    screenshotDir,
+    summaryPath,
+    options,
+    runtimeBlockedPairs,
+  } = params;
+  const targetSuccess = Math.max(0, options.canarySuccessTarget);
+  const attemptedSequences = new Set<number>();
+
+  if (targetSuccess === 0 || runtimePlan.length === 0) {
+    return attemptedSequences;
+  }
+
+  const maxAttempts = Math.min(
+    runtimePlan.length,
+    Math.max(targetSuccess, options.canaryMaxAttempts || targetSuccess * 4),
+  );
+  const maxActive = Math.max(1, Math.min(options.canaryMaxActive || 3, options.maxActive));
+  const active = new Set<Promise<void>>();
+  let cursor = 0;
+  let success = 0;
+  let failed = 0;
+  let skipped = 0;
+
+  appendJsonl(runLogPath, {
+    event: 'canary-started',
+    targetSuccess,
+    maxAttempts,
+    maxActive,
+    launchGapSec: options.canaryLaunchGapSec,
+    at: new Date().toISOString(),
+  });
+
+  const launch = (task: RuntimeTask): void => {
+    attemptedSequences.add(task.row.sequence);
+    const promise = runTask({
+      task,
+      accounts,
+      getGeneratedArticle,
+      state,
+      runLogPath,
+      screenshotDir,
+      summaryPath,
+      options,
+      runtimePlan,
+      runtimeBlockedPairs,
+    })
+      .then((outcome) => {
+        if (outcome === 'success') success += 1;
+        if (outcome === 'failed') failed += 1;
+        if (outcome === 'skipped') skipped += 1;
+      })
+      .finally(() => {
+        active.delete(promise);
+      });
+    active.add(promise);
+  };
+
+  while (success < targetSuccess && cursor < maxAttempts) {
+    while (
+      active.size < maxActive &&
+      cursor < maxAttempts &&
+      success + active.size < targetSuccess
+    ) {
+      launch(runtimePlan[cursor]);
+      cursor += 1;
+      if (options.canaryLaunchGapSec > 0) {
+        await sleep(options.canaryLaunchGapSec * 1000);
+      }
+    }
+
+    if (active.size === 0) break;
+    await Promise.race(active);
+  }
+
+  await Promise.all(active);
+
+  const passed = success >= targetSuccess;
+  appendJsonl(runLogPath, {
+    event: 'canary-completed',
+    passed,
+    targetSuccess,
+    success,
+    failed,
+    skipped,
+    attempted: attemptedSequences.size,
+    attemptedSequences: Array.from(attemptedSequences),
+    runtimeBlockedPairs: Array.from(runtimeBlockedPairs),
+    at: new Date().toISOString(),
+  });
+
+  if (!passed) {
+    throw new Error(
+      `CANARY_FAILED: 실제 댓글 ${targetSuccess}개 성공 전 검증 실패 ` +
+        `(success=${success}, failed=${failed}, skipped=${skipped}, attempted=${attemptedSequences.size})`,
+    );
+  }
+
+  return attemptedSequences;
+};
+
 const main = async (): Promise<void> => {
   if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI missing');
 
   const options = getArgs();
   const schedulePayload = loadSchedule(options.schedulePath, options);
   verifyOwnerExclusion(schedulePayload.schedule);
-
-  const articleGroups = groupRowsByArticle(schedulePayload.schedule);
-  const runtimePlan = buildRuntimePlan(schedulePayload.schedule, articleGroups, options);
   const runId = new Date().toISOString().replace(/[:.]/g, '-');
   const outputDir = join(process.cwd(), 'outputs', `work-cafe-comment-live-${runId}`);
   const screenshotDir = join(outputDir, 'screenshots');
@@ -997,11 +1205,24 @@ const main = async (): Promise<void> => {
 
   await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10_000 });
 
-  const requiredAccountIds = new Set(schedulePayload.schedule.map((row) => row.accountId));
+  const runnable = await filterRunnableSchedule(schedulePayload.schedule);
+  const initiallyFilteredSchedule = runnable.schedule;
+  const requiredAccountIds = new Set(initiallyFilteredSchedule.map((row) => row.accountId));
   const accounts = await loadAccounts(options.loginId, requiredAccountIds);
+  const warmupResult = await warmupScheduleSessions(Array.from(accounts.values()), {
+    continueOnFailure: true,
+    loginWaitMs: options.loginWaitMin * 60_000,
+    reason: `work_cafe_comment_${runId}`,
+    reservationTtlMs: 2 * 60 * 60 * 1000,
+    waitBetweenAccountsMs: 1000,
+  });
+  const warmupFailedAccountIds = new Set((warmupResult.failedAccounts || []).map((failure) => failure.accountId));
+  const filteredSchedule = initiallyFilteredSchedule.filter((row) => !warmupFailedAccountIds.has(row.accountId));
+  const canaryArticleGroups = groupRowsByArticle(filteredSchedule);
+  const canaryRuntimePlan = buildRuntimePlan(filteredSchedule, canaryArticleGroups, options);
   const state: RunnerState = {
     runId,
-    totalTasks: runtimePlan.length,
+    totalTasks: canaryRuntimePlan.length,
     launched: 0,
     success: 0,
     failed: 0,
@@ -1011,6 +1232,43 @@ const main = async (): Promise<void> => {
     screenshots: [],
     startedAt: new Date().toISOString(),
   };
+  const runtimeBlockedPairs = new Set<string>();
+
+  appendJsonl(runLogPath, {
+    event: 'run-started',
+    runId,
+    schedulePath: options.schedulePath,
+    originalTasks: schedulePayload.schedule.length,
+    skippedAlreadyCommented: runnable.skippedAlreadyCommented,
+    warmupWarmedAccountIds: warmupResult.warmedAccountIds,
+    warmupFailedAccounts: warmupResult.failedAccounts || [],
+    canarySuccessTarget: options.canarySuccessTarget,
+    at: state.startedAt,
+  });
+
+  const canaryGenerator = createArticleGenerator({
+    articleGroups: canaryArticleGroups,
+    accounts,
+    options,
+    generationLogPath,
+    state,
+  });
+  const canaryAttemptedSequences = await runCanary({
+    runtimePlan: canaryRuntimePlan,
+    accounts,
+    getGeneratedArticle: canaryGenerator.getGeneratedArticle,
+    state,
+    runLogPath,
+    screenshotDir,
+    summaryPath,
+    options,
+    runtimeBlockedPairs,
+  });
+
+  const mainSchedule = filteredSchedule.filter((row) => !canaryAttemptedSequences.has(row.sequence));
+  const articleGroups = groupRowsByArticle(mainSchedule);
+  const runtimePlan = buildRuntimePlan(mainSchedule, articleGroups, options);
+  state.totalTasks = canaryAttemptedSequences.size + runtimePlan.length;
 
   writeFileSync(
     planPath,
@@ -1020,8 +1278,16 @@ const main = async (): Promise<void> => {
         scheduleGeneratedAt: schedulePayload.generatedAt,
         scheduleCollectionId: schedulePayload.collectionId,
         options,
+        filtered: {
+          originalTasks: schedulePayload.schedule.length,
+          skippedAlreadyCommented: runnable.skippedAlreadyCommented,
+          warmupFailedAccountIds: Array.from(warmupFailedAccountIds),
+          canaryAttemptedSequences: Array.from(canaryAttemptedSequences),
+          runnableTasks: mainSchedule.length,
+        },
         totals: {
-          tasks: runtimePlan.length,
+          tasks: state.totalTasks,
+          mainTasks: runtimePlan.length,
           articles: articleGroups.size,
           accounts: accounts.size,
         },
@@ -1036,15 +1302,15 @@ const main = async (): Promise<void> => {
   );
 
   appendJsonl(runLogPath, {
-    event: 'run-started',
+    event: 'main-schedule-started',
     runId,
-    schedulePath: options.schedulePath,
-    totalTasks: runtimePlan.length,
+    totalTasks: state.totalTasks,
+    mainTasks: runtimePlan.length,
     articleCount: articleGroups.size,
     accountCount: accounts.size,
     firstDueAtKst: runtimePlan[0]?.dueAtKst,
     lastDueAtKst: runtimePlan.at(-1)?.dueAtKst,
-    at: state.startedAt,
+    at: new Date().toISOString(),
   });
   writeSummary(summaryPath, state, options, runtimePlan);
 
@@ -1064,7 +1330,6 @@ const main = async (): Promise<void> => {
     generationLogPath,
     state,
   });
-  generator.startAll();
 
   const prefetchKeys = Array.from(articleGroups.keys()).slice(0, Math.max(0, options.prefetchArticles));
   await Promise.all(prefetchKeys.map((articleKey) => generator.getGeneratedArticle(articleKey).catch(() => undefined)));
@@ -1092,6 +1357,7 @@ const main = async (): Promise<void> => {
       screenshotDir,
       summaryPath,
       options,
+      runtimeBlockedPairs,
     });
   } finally {
     clearInterval(progressTimer);
