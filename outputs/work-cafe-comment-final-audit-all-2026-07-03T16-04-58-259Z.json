@@ -1,0 +1,423 @@
+{
+  "checkedAt": "2026-07-03T16:04:58.260Z",
+  "checkedAtKst": "2026-07-04 01:04:58",
+  "collectionId": "2026-07-03T05-54-31-248Z",
+  "skippedArticleKeys": [
+    "31746910:25"
+  ],
+  "targetArticles": 167,
+  "targetComments": 1336,
+  "targetCount": 8,
+  "currentCapped": 1312,
+  "rawComments": 1319,
+  "shortage": 24,
+  "filled8": 146,
+  "notFilled": 21,
+  "zero": 0,
+  "missingDocs": 0,
+  "buckets": {
+    "6": 3,
+    "7": 18,
+    "8": 146
+  },
+  "duplicateAccountArticles": 0,
+  "duplicateAccountRows": [],
+  "shortageRows": [
+    {
+      "cafeSlug": "driveee",
+      "ownerName": "운연정",
+      "cafeId": "31746635",
+      "articleId": 1,
+      "title": "운연정 카페를 시작합니다.",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/1",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "produce11745",
+        "k7d9x2m4",
+        "dhtksk1p",
+        "dq1h3bjy",
+        "laghunter8",
+        "hagyga"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "ownerName": "티니피쉬 1",
+      "cafeId": "31750098",
+      "articleId": 1,
+      "title": "애견 반려정보 카페를 시작합니다.",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/1",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "geenl",
+        "dhtksk1p",
+        "ahfflwl123",
+        "dq1h3bjy",
+        "bigfish773",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "ownerName": "티니피쉬 1",
+      "cafeId": "31750098",
+      "articleId": 5,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/5",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "vegetable10517",
+        "produce11745",
+        "k7d9x2m4",
+        "laghunter8",
+        "dhtksk1p",
+        "ahsxkfldk12"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "ownerName": "강아지강하지 1",
+      "cafeId": "31750100",
+      "articleId": 7,
+      "title": "선풍기 모터와 소음, 풍량까지 공간별로 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/7",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "geenl",
+        "bigfish773",
+        "eghfsa5478",
+        "dq1h3bjy",
+        "vegetable10517",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "ownerName": "운연정",
+      "cafeId": "31746635",
+      "articleId": 2,
+      "title": "서울운전연수 가격 / 8년 장롱 탈출 찐후기 4일 만에 혼자 강변북로 탔어요",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/2",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "dq1h3bjy",
+        "produce11745",
+        "dhtksk1p",
+        "hagyga",
+        "laghunter8",
+        "ahsxkfldk12"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "ownerName": "운연정",
+      "cafeId": "31746635",
+      "articleId": 4,
+      "title": "수원운전연수 비용부터 업체 고르는 법까지, 장롱면허 7년차가 10시간 다녀온 솔직후기",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/4",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "hagyga",
+        "dq1h3bjy",
+        "ahsxkfldk12",
+        "k7d9x2m4",
+        "dhtksk1p",
+        "laghunter8",
+        "bigfish773"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "ownerName": "운연정",
+      "cafeId": "31746635",
+      "articleId": 11,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "produce11745",
+        "k7d9x2m4",
+        "dq1h3bjy",
+        "dhtksk1p",
+        "ghostrush7",
+        "hagyga",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "ownerName": "운연정",
+      "cafeId": "31746635",
+      "articleId": 12,
+      "title": "수원운전연수 비용 선택기준 후기",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/12",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "dq1h3bjy",
+        "bigfish773",
+        "produce11745",
+        "ghostrush7",
+        "dhtksk1p",
+        "eghfsa5478"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "ownerName": "운연정",
+      "cafeId": "31746635",
+      "articleId": 14,
+      "title": "서울운전연수 추천 선택기준 총정리, 사기 안 당하고 제대로 고르는 법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/14",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ghostrush7",
+        "ahfflwl123",
+        "bigfish773",
+        "eghfsa5478",
+        "ahffkdlek12",
+        "k7d9x2m4",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "ownerName": "운연정",
+      "cafeId": "31746635",
+      "articleId": 15,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/15",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahfflwl123",
+        "produce11745",
+        "k7d9x2m4",
+        "bigfish773",
+        "ahsxkfldk12",
+        "laghunter8",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "ownerName": "운연정",
+      "cafeId": "31746635",
+      "articleId": 18,
+      "title": "올리브오일 효능과 엑스트라버진 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/18",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "dhtksk1p",
+        "bigfish773",
+        "ahfflwl123",
+        "ahffkdlek12",
+        "k7d9x2m4",
+        "dq1h3bjy",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "ownerName": "가중건다",
+      "cafeId": "31746910",
+      "articleId": 5,
+      "title": "흑염소 효능 총정리, 왜 예부터 보양식으로 꼽혔을까",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/5",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "bigfish773",
+        "alsrudgus531",
+        "dq1h3bjy",
+        "ahffkdlek12",
+        "ahfflwl123",
+        "ghostrush7",
+        "ahsxkfldk12"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "ownerName": "가중건다",
+      "cafeId": "31746910",
+      "articleId": 10,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/10",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "alsrudgus531",
+        "q9v3m7a2",
+        "bigfish773",
+        "dhtksk1p",
+        "dq1h3bjy",
+        "ahffkdlek12",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "ownerName": "빨간모자앤 1",
+      "cafeId": "31750099",
+      "articleId": 3,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/3",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "produce11745",
+        "ahfflwl123",
+        "vegetable10517",
+        "k7d9x2m4",
+        "laghunter8",
+        "ahffkdlek12"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "ownerName": "빨간모자앤 1",
+      "cafeId": "31750099",
+      "articleId": 10,
+      "title": "인천웨딩홀 대관료 식대 시세부터 고르는 기준까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/10",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "geenl",
+        "vegetable10517",
+        "produce11745",
+        "h9ag469z",
+        "k7d9x2m4",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "ownerName": "빨간모자앤 1",
+      "cafeId": "31750099",
+      "articleId": 11,
+      "title": "회사 답례품 상황별 추천과 예산, 대량 주문 기준까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745",
+        "geenl",
+        "alsrudgus531"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "ownerName": "티니피쉬 1",
+      "cafeId": "31750098",
+      "articleId": 2,
+      "title": "해충 방역업체 선택법과 방제 방식, 업종별 비용 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/2",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "dhtksk1p",
+        "produce11745",
+        "laghunter8",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "bigfish773",
+        "geenl"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "ownerName": "티니피쉬 1",
+      "cafeId": "31750098",
+      "articleId": 3,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/3",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745",
+        "ahfflwl123",
+        "dq1h3bjy",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "ownerName": "티니피쉬 1",
+      "cafeId": "31750098",
+      "articleId": 9,
+      "title": "드라이기 모터와 소비전력, 소음까지 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/9",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "geenl",
+        "bigfish773",
+        "ahsxkfldk12",
+        "dq1h3bjy",
+        "produce11745",
+        "vegetable10517"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "ownerName": "티니피쉬 1",
+      "cafeId": "31750098",
+      "articleId": 10,
+      "title": "결혼반지 예산과 4C, 구입처별 가격까지 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/10",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "vegetable10517",
+        "produce11745",
+        "geenl",
+        "k7d9x2m4",
+        "laghunter8",
+        "ahsxkfldk12",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "ownerName": "티니피쉬 1",
+      "cafeId": "31750098",
+      "articleId": 11,
+      "title": "부천 PT 비용과 횟수, 효과와 트레이너 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "bigfish773",
+        "geenl",
+        "ahsxkfldk12",
+        "dhtksk1p",
+        "vegetable10517",
+        "dq1h3bjy",
+        "produce11745"
+      ]
+    }
+  ]
+}

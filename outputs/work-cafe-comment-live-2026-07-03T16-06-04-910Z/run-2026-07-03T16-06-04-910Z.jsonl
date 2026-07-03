@@ -1,0 +1,103 @@
+{"event":"run-started","runId":"2026-07-03T16-06-04-910Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-03T16-05-51-566Z.json","originalTasks":24,"skippedAlreadyCommented":0,"warmupWarmedAccountIds":[],"warmupFailedAccounts":[],"canarySuccessTarget":0,"at":"2026-07-03T16:06:06.567Z"}
+{"event":"main-schedule-started","runId":"2026-07-03T16-06-04-910Z","totalTasks":24,"mainTasks":24,"articleCount":21,"accountCount":19,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.570Z"}
+{"event":"account-worker-started","accountId":"ahffkdlek12","taskCount":2,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.572Z"}
+{"event":"account-worker-started","accountId":"ahsxkfldk12","taskCount":2,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.572Z"}
+{"event":"account-worker-started","accountId":"ahfflwl123","taskCount":2,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.572Z"}
+{"event":"account-worker-started","accountId":"eghfsa5478","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.573Z"}
+{"event":"account-worker-started","accountId":"alsrudgus531","taskCount":2,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.574Z"}
+{"event":"account-worker-started","accountId":"dhtksk1p","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.574Z"}
+{"event":"account-worker-started","accountId":"geenl","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.574Z"}
+{"event":"account-worker-started","accountId":"bigfish773","taskCount":2,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.574Z"}
+{"event":"account-worker-started","accountId":"ghostrush7","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.574Z"}
+{"event":"account-worker-started","accountId":"dq1h3bjy","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.574Z"}
+{"event":"account-worker-started","accountId":"h9ag469z","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.574Z"}
+{"event":"account-worker-started","accountId":"hagyga","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.574Z"}
+{"event":"account-worker-started","accountId":"laghunter8","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.575Z"}
+{"event":"account-worker-started","accountId":"n7c3w8z2","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.575Z"}
+{"event":"account-worker-started","accountId":"pixelninja3","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.575Z"}
+{"event":"account-worker-started","accountId":"q9v3m7a2","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.575Z"}
+{"event":"account-worker-started","accountId":"produce11745","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.575Z"}
+{"event":"account-worker-started","accountId":"k7d9x2m4","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.575Z"}
+{"event":"account-worker-started","accountId":"vegetable10517","taskCount":1,"firstDueAtKst":"2026-07-04 01:06:06","lastDueAtKst":"2026-07-04 01:06:06","at":"2026-07-03T16:06:06.575Z"}
+{"event":"comment-started","sequence":1,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":7,"accountId":"ahffkdlek12","commentSlot":8,"at":"2026-07-03T16:06:09.583Z"}
+{"event":"comment-started","sequence":2,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":18,"accountId":"ahsxkfldk12","commentSlot":8,"at":"2026-07-03T16:06:09.743Z"}
+{"event":"comment-started","sequence":4,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":11,"accountId":"eghfsa5478","commentSlot":8,"at":"2026-07-03T16:06:09.815Z"}
+{"event":"comment-started","sequence":5,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"alsrudgus531","commentSlot":8,"at":"2026-07-03T16:06:11.484Z"}
+{"event":"comment-started","sequence":7,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"healthhhh","cafeId":"31746910","articleId":5,"accountId":"geenl","commentSlot":8,"at":"2026-07-03T16:06:11.693Z"}
+{"event":"comment-started","sequence":9,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"petinfo183","cafeId":"31750098","articleId":10,"accountId":"ghostrush7","commentSlot":8,"at":"2026-07-03T16:06:12.664Z"}
+{"event":"comment-started","sequence":8,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":10,"accountId":"bigfish773","commentSlot":8,"at":"2026-07-03T16:06:13.450Z"}
+{"event":"comment-started","sequence":10,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":14,"accountId":"dq1h3bjy","commentSlot":8,"at":"2026-07-03T16:06:13.700Z"}
+{"event":"comment-started","sequence":12,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"petinfo183","cafeId":"31750098","articleId":9,"accountId":"hagyga","commentSlot":8,"at":"2026-07-03T16:06:15.543Z"}
+{"event":"comment-started","sequence":13,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":12,"accountId":"laghunter8","commentSlot":8,"at":"2026-07-03T16:06:18.001Z"}
+{"event":"comment-started","sequence":17,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":4,"accountId":"produce11745","commentSlot":8,"at":"2026-07-03T16:06:20.410Z"}
+{"event":"comment-started","sequence":19,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":2,"accountId":"vegetable10517","commentSlot":8,"at":"2026-07-03T16:06:23.400Z"}
+{"event":"comment-started","sequence":18,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"petinfo183","cafeId":"31750098","articleId":2,"accountId":"k7d9x2m4","commentSlot":8,"at":"2026-07-03T16:06:26.735Z"}
+{"event":"comment-started","sequence":6,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":15,"accountId":"dhtksk1p","commentSlot":8,"at":"2026-07-03T16:07:27.762Z"}
+{"event":"comment-started","sequence":3,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"healthhhh","cafeId":"31746910","articleId":10,"accountId":"ahfflwl123","commentSlot":8,"at":"2026-07-03T16:07:28.652Z"}
+{"event":"comment-failed","sequence":5,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"alsrudgus531","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":1,"at":"2026-07-03T16:07:30.952Z"}
+{"event":"runtime-pair-blocked","sequence":5,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"alsrudgus531","pairKeys":["alsrudgus531:31750098","alsrudgus531:petinfo183"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:07:30.953Z"}
+{"event":"comment-skipped","reason":"runtime-pair-blocked","sequence":22,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":5,"accountId":"alsrudgus531","pairKeys":["alsrudgus531:31750098","alsrudgus531:petinfo183"],"at":"2026-07-03T16:07:30.959Z"}
+{"event":"account-worker-ended","accountId":"alsrudgus531","taskCount":2,"at":"2026-07-03T16:07:30.960Z"}
+{"event":"comment-failed","sequence":12,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":9,"accountId":"hagyga","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":2,"at":"2026-07-03T16:07:39.997Z"}
+{"event":"runtime-pair-blocked","sequence":12,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":9,"accountId":"hagyga","pairKeys":["hagyga:31750098","hagyga:petinfo183"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:07:39.998Z"}
+{"event":"account-worker-ended","accountId":"hagyga","taskCount":1,"at":"2026-07-03T16:07:40.017Z"}
+{"event":"comment-started","sequence":14,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"petinfo183","cafeId":"31750098","articleId":5,"accountId":"n7c3w8z2","commentSlot":7,"at":"2026-07-03T16:07:40.630Z"}
+{"event":"comment-failed","sequence":19,"cafeSlug":"driveee","cafeId":"31746635","articleId":2,"accountId":"vegetable10517","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":3,"at":"2026-07-03T16:07:41.341Z"}
+{"event":"runtime-pair-blocked","sequence":19,"cafeSlug":"driveee","cafeId":"31746635","articleId":2,"accountId":"vegetable10517","pairKeys":["vegetable10517:31746635","vegetable10517:driveee"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:07:41.343Z"}
+{"event":"account-worker-ended","accountId":"vegetable10517","taskCount":1,"at":"2026-07-03T16:07:41.345Z"}
+{"event":"comment-failed","sequence":4,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":11,"accountId":"eghfsa5478","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":4,"at":"2026-07-03T16:07:41.350Z"}
+{"event":"runtime-pair-blocked","sequence":4,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":11,"accountId":"eghfsa5478","pairKeys":["eghfsa5478:31750099","eghfsa5478:mealtalkdht"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:07:41.351Z"}
+{"event":"account-worker-ended","accountId":"eghfsa5478","taskCount":1,"at":"2026-07-03T16:07:41.353Z"}
+{"event":"comment-succeeded","sequence":1,"cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":7,"accountId":"ahffkdlek12","commentId":"76682289","success":1,"at":"2026-07-03T16:07:44.084Z"}
+{"event":"comment-succeeded","sequence":2,"cafeSlug":"driveee","cafeId":"31746635","articleId":18,"accountId":"ahsxkfldk12","commentId":"76370192","success":2,"at":"2026-07-03T16:07:47.522Z"}
+{"event":"comment-started","sequence":23,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"petinfo183","cafeId":"31750098","articleId":1,"accountId":"ahsxkfldk12","commentSlot":8,"at":"2026-07-03T16:07:50.332Z"}
+{"event":"comment-started","sequence":11,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":3,"accountId":"h9ag469z","commentSlot":8,"at":"2026-07-03T16:07:54.793Z"}
+{"event":"comment-succeeded","sequence":13,"cafeSlug":"driveee","cafeId":"31746635","articleId":12,"accountId":"laghunter8","commentId":"76370194","success":3,"at":"2026-07-03T16:07:56.773Z"}
+{"event":"account-worker-ended","accountId":"laghunter8","taskCount":1,"at":"2026-07-03T16:07:56.775Z"}
+{"event":"ui-captured","sequence":1,"screenshot":{"path":"/Users/ganggyunggyu/Programing/cafe-bot/outputs/work-cafe-comment-live-2026-07-03T16-06-04-910Z/screenshots/00001-ahffkdlek12-31750100-7.png","cafeId":"31750100","articleId":7,"accountId":"ahffkdlek12","commentCount":8,"capturedAt":"2026-07-04 01:07:57"},"at":"2026-07-03T16:07:57.134Z"}
+{"event":"comment-started","sequence":20,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"petinfo183","cafeId":"31750098","articleId":1,"accountId":"ahffkdlek12","commentSlot":7,"at":"2026-07-03T16:07:57.256Z"}
+{"event":"comment-failed","sequence":7,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":5,"accountId":"geenl","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":5,"at":"2026-07-03T16:07:59.918Z"}
+{"event":"runtime-pair-blocked","sequence":7,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":5,"accountId":"geenl","pairKeys":["geenl:31746910","geenl:healthhhh"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:07:59.919Z"}
+{"event":"account-worker-ended","accountId":"geenl","taskCount":1,"at":"2026-07-03T16:07:59.920Z"}
+{"event":"comment-succeeded","sequence":10,"cafeSlug":"driveee","cafeId":"31746635","articleId":14,"accountId":"dq1h3bjy","commentId":"76370195","success":4,"at":"2026-07-03T16:08:01.284Z"}
+{"event":"account-worker-ended","accountId":"dq1h3bjy","taskCount":1,"at":"2026-07-03T16:08:01.297Z"}
+{"event":"comment-succeeded","sequence":8,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":10,"accountId":"bigfish773","commentId":"130673369","success":5,"at":"2026-07-03T16:08:01.299Z"}
+{"event":"comment-failed","sequence":17,"cafeSlug":"driveee","cafeId":"31746635","articleId":4,"accountId":"produce11745","error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","failed":6,"at":"2026-07-03T16:08:02.210Z"}
+{"event":"runtime-pair-blocked","sequence":17,"cafeSlug":"driveee","cafeId":"31746635","articleId":4,"accountId":"produce11745","pairKeys":["produce11745:31746635","produce11745:driveee"],"error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","at":"2026-07-03T16:08:02.210Z"}
+{"event":"account-worker-ended","accountId":"produce11745","taskCount":1,"at":"2026-07-03T16:08:02.212Z"}
+{"event":"comment-started","sequence":24,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":1,"accountId":"bigfish773","commentSlot":8,"at":"2026-07-03T16:08:04.094Z"}
+{"event":"comment-failed","sequence":9,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":10,"accountId":"ghostrush7","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":7,"at":"2026-07-03T16:08:04.836Z"}
+{"event":"runtime-pair-blocked","sequence":9,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":10,"accountId":"ghostrush7","pairKeys":["ghostrush7:31750098","ghostrush7:petinfo183"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:08:04.837Z"}
+{"event":"account-worker-ended","accountId":"ghostrush7","taskCount":1,"at":"2026-07-03T16:08:04.840Z"}
+{"event":"comment-failed","sequence":18,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":2,"accountId":"k7d9x2m4","error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","failed":8,"at":"2026-07-03T16:08:05.643Z"}
+{"event":"runtime-pair-blocked","sequence":18,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":2,"accountId":"k7d9x2m4","pairKeys":["k7d9x2m4:31750098","k7d9x2m4:petinfo183"],"error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","at":"2026-07-03T16:08:05.644Z"}
+{"event":"account-worker-ended","accountId":"k7d9x2m4","taskCount":1,"at":"2026-07-03T16:08:05.646Z"}
+{"event":"comment-started","sequence":16,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"petinfo183","cafeId":"31750098","articleId":3,"accountId":"q9v3m7a2","commentSlot":8,"at":"2026-07-03T16:08:07.680Z"}
+{"event":"comment-failed","sequence":14,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":5,"accountId":"n7c3w8z2","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":9,"at":"2026-07-03T16:08:20.900Z"}
+{"event":"runtime-pair-blocked","sequence":14,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":5,"accountId":"n7c3w8z2","pairKeys":["n7c3w8z2:31750098","n7c3w8z2:petinfo183"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:08:20.900Z"}
+{"event":"account-worker-ended","accountId":"n7c3w8z2","taskCount":1,"at":"2026-07-03T16:08:20.902Z"}
+{"event":"comment-started","sequence":15,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":11,"accountId":"pixelninja3","commentSlot":8,"at":"2026-07-03T16:08:38.296Z"}
+{"event":"comment-succeeded","sequence":6,"cafeSlug":"driveee","cafeId":"31746635","articleId":15,"accountId":"dhtksk1p","commentId":"76370196","success":6,"at":"2026-07-03T16:08:39.430Z"}
+{"event":"account-worker-ended","accountId":"dhtksk1p","taskCount":1,"at":"2026-07-03T16:08:39.431Z"}
+{"event":"comment-failed","sequence":3,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":10,"accountId":"ahfflwl123","error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","failed":10,"at":"2026-07-03T16:08:41.305Z"}
+{"event":"runtime-pair-blocked","sequence":3,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":10,"accountId":"ahfflwl123","pairKeys":["ahfflwl123:31746910","ahfflwl123:healthhhh"],"error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","at":"2026-07-03T16:08:41.305Z"}
+{"event":"comment-started","sequence":21,"dueAtKst":"2026-07-04 01:06:06","cafeSlug":"driveee","cafeId":"31746635","articleId":1,"accountId":"ahfflwl123","commentSlot":7,"at":"2026-07-03T16:08:41.439Z"}
+{"event":"comment-failed","sequence":11,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":3,"accountId":"h9ag469z","error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","failed":11,"at":"2026-07-03T16:08:49.811Z"}
+{"event":"runtime-pair-blocked","sequence":11,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":3,"accountId":"h9ag469z","pairKeys":["h9ag469z:31750099","h9ag469z:mealtalkdht"],"error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","at":"2026-07-03T16:08:49.811Z"}
+{"event":"account-worker-ended","accountId":"h9ag469z","taskCount":1,"at":"2026-07-03T16:08:49.816Z"}
+{"event":"comment-succeeded","sequence":24,"cafeSlug":"driveee","cafeId":"31746635","articleId":1,"accountId":"bigfish773","commentId":"76370198","success":7,"at":"2026-07-03T16:08:49.979Z"}
+{"event":"account-worker-ended","accountId":"bigfish773","taskCount":2,"at":"2026-07-03T16:08:49.979Z"}
+{"event":"comment-failed","sequence":20,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":1,"accountId":"ahffkdlek12","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":12,"at":"2026-07-03T16:08:51.454Z"}
+{"event":"runtime-pair-blocked","sequence":20,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":1,"accountId":"ahffkdlek12","pairKeys":["ahffkdlek12:31750098","ahffkdlek12:petinfo183"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:08:51.455Z"}
+{"event":"account-worker-ended","accountId":"ahffkdlek12","taskCount":2,"at":"2026-07-03T16:08:51.455Z"}
+{"event":"comment-failed","sequence":16,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":3,"accountId":"q9v3m7a2","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":13,"at":"2026-07-03T16:08:56.175Z"}
+{"event":"runtime-pair-blocked","sequence":16,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":3,"accountId":"q9v3m7a2","pairKeys":["q9v3m7a2:31750098","q9v3m7a2:petinfo183"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:08:56.175Z"}
+{"event":"account-worker-ended","accountId":"q9v3m7a2","taskCount":1,"at":"2026-07-03T16:08:56.176Z"}
+{"event":"comment-succeeded","sequence":23,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":1,"accountId":"ahsxkfldk12","commentId":"57604118","success":8,"at":"2026-07-03T16:08:57.618Z"}
+{"event":"account-worker-ended","accountId":"ahsxkfldk12","taskCount":2,"at":"2026-07-03T16:08:57.619Z"}
+{"event":"comment-failed","sequence":15,"cafeSlug":"driveee","cafeId":"31746635","articleId":11,"accountId":"pixelninja3","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":14,"at":"2026-07-03T16:09:12.832Z"}
+{"event":"runtime-pair-blocked","sequence":15,"cafeSlug":"driveee","cafeId":"31746635","articleId":11,"accountId":"pixelninja3","pairKeys":["pixelninja3:31746635","pixelninja3:driveee"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-03T16:09:12.833Z"}
+{"event":"account-worker-ended","accountId":"pixelninja3","taskCount":1,"at":"2026-07-03T16:09:12.835Z"}
+{"event":"comment-succeeded","sequence":21,"cafeSlug":"driveee","cafeId":"31746635","articleId":1,"accountId":"ahfflwl123","commentId":"76370199","success":9,"at":"2026-07-03T16:09:21.988Z"}
+{"event":"account-worker-ended","accountId":"ahfflwl123","taskCount":2,"at":"2026-07-03T16:09:21.988Z"}
+{"event":"run-ended","runId":"2026-07-03T16-06-04-910Z","success":9,"failed":14,"skipped":1,"generatedArticles":21,"generationFailed":0,"screenshots":[{"path":"/Users/ganggyunggyu/Programing/cafe-bot/outputs/work-cafe-comment-live-2026-07-03T16-06-04-910Z/screenshots/00001-ahffkdlek12-31750100-7.png","cafeId":"31750100","articleId":7,"accountId":"ahffkdlek12","commentCount":8,"capturedAt":"2026-07-04 01:07:57"}],"at":"2026-07-03T16:09:21.989Z"}

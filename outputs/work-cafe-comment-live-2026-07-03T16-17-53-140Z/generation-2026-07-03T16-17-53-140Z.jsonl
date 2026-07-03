@@ -1,0 +1,6 @@
+{"event":"generation-started","articleKey":"31750098:2","cafeSlug":"petinfo183","cafeId":"31750098","articleId":2,"readerAccountIds":["ahfflwl123"],"exactCount":1,"at":"2026-07-03T16:17:54.467Z"}
+{"event":"generation-reader-succeeded","articleKey":"31750098:2","cafeSlug":"petinfo183","cafeId":"31750098","articleId":2,"readerAccountId":"db","readerAttempt":0,"at":"2026-07-03T16:17:54.518Z"}
+{"event":"generation-started","articleKey":"31750098:11","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"readerAccountIds":["laghunter8"],"exactCount":1,"at":"2026-07-03T16:17:54.879Z"}
+{"event":"generation-reader-succeeded","articleKey":"31750098:11","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"readerAccountId":"db","readerAttempt":0,"at":"2026-07-03T16:17:54.930Z"}
+{"event":"generation-succeeded","articleKey":"31750098:2","cafeSlug":"petinfo183","cafeId":"31750098","articleId":2,"readerAccountId":"ahfflwl123","commentCount":1,"warnings":[],"elapsedMs":2501,"at":"2026-07-03T16:17:56.968Z"}
+{"event":"generation-succeeded","articleKey":"31750098:11","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"readerAccountId":"laghunter8","commentCount":1,"warnings":[],"elapsedMs":2213,"at":"2026-07-03T16:17:57.092Z"}

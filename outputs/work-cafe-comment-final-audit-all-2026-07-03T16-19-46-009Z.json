@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-07-03T16:19:46.010Z",
+  "checkedAtKst": "2026-07-04 01:19:46",
+  "collectionId": "2026-07-03T05-54-31-248Z",
+  "skippedArticleKeys": [
+    "31746910:25"
+  ],
+  "targetArticles": 167,
+  "targetComments": 1336,
+  "targetCount": 8,
+  "currentCapped": 1336,
+  "rawComments": 1343,
+  "shortage": 0,
+  "filled8": 167,
+  "notFilled": 0,
+  "zero": 0,
+  "missingDocs": 0,
+  "buckets": {
+    "8": 167
+  },
+  "duplicateAccountArticles": 0,
+  "duplicateAccountRows": [],
+  "shortageRows": []
+}
