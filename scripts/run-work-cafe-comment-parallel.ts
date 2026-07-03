@@ -13,7 +13,7 @@ import {
 } from '../src/shared/lib/multi-session';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
-import { Account, User, WorkCafeArticle, addCommentToArticle } from '../src/shared/models';
+import { Account, User, WorkCafeArticle, PublishedArticle, addCommentToArticle } from '../src/shared/models';
 import { getArticleComments, hasCommented } from '../src/shared/models/published-article';
 
 interface RunnerArgs {
@@ -616,8 +616,33 @@ const createArticleGenerator = (params: {
       let selectedReaderAccount: NaverAccount | null = null;
       let article: Awaited<ReturnType<typeof readCafeArticleContent>> | null = null;
       const readerErrors: string[] = [];
+      const dbArticle = await PublishedArticle.findOne(
+        { cafeId: firstRow.cafeId, articleId: firstRow.articleId },
+        { title: 1, content: 1, articleUrl: 1 },
+      ).lean<{ title?: string; content?: string; articleUrl?: string } | null>();
+
+      if (dbArticle?.content && normalizeCommentContent(dbArticle.content).length >= 120) {
+        selectedReaderAccount = readerAccounts[0];
+        article = {
+          success: true,
+          title: dbArticle.title || firstRow.subject,
+          content: dbArticle.content,
+          url: dbArticle.articleUrl || firstRow.articleUrl,
+        };
+        appendJsonl(generationLogPath, {
+          event: 'generation-reader-succeeded',
+          articleKey,
+          cafeSlug: firstRow.cafeSlug,
+          cafeId: firstRow.cafeId,
+          articleId: firstRow.articleId,
+          readerAccountId: 'db',
+          readerAttempt: 0,
+          at: new Date().toISOString(),
+        });
+      }
 
       for (const [readerIndex, readerAccount] of readerAccounts.entries()) {
+        if (article?.success && article.content && selectedReaderAccount) break;
         appendJsonl(generationLogPath, {
           event: 'generation-reader-started',
           articleKey,

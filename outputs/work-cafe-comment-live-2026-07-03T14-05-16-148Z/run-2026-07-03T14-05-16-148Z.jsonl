@@ -1,0 +1,73 @@
+{"event":"run-started","runId":"2026-07-03T14-05-16-148Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json","originalTasks":1188,"skippedAlreadyCommented":392,"warmupWarmedAccountIds":[],"warmupFailedAccounts":[],"canarySuccessTarget":0,"at":"2026-07-03T14:05:18.910Z"}
+{"event":"main-schedule-started","runId":"2026-07-03T14-05-16-148Z","totalTasks":796,"mainTasks":796,"articleCount":141,"accountCount":19,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.917Z"}
+{"event":"account-worker-started","accountId":"h9ag469z","taskCount":45,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"q9v3m7a2","taskCount":51,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"n7c3w8z2","taskCount":50,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"laghunter8","taskCount":45,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"vegetable10517","taskCount":46,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"produce11745","taskCount":40,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"dq1h3bjy","taskCount":37,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"pixelninja3","taskCount":50,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"dhtksk1p","taskCount":37,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"eghfsa5478","taskCount":43,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.919Z"}
+{"event":"account-worker-started","accountId":"ghostrush7","taskCount":42,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"account-worker-started","accountId":"k7d9x2m4","taskCount":40,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"account-worker-started","accountId":"ahsxkfldk12","taskCount":33,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"account-worker-started","accountId":"bigfish773","taskCount":27,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"account-worker-started","accountId":"alsrudgus531","taskCount":42,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"account-worker-started","accountId":"geenl","taskCount":39,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"account-worker-started","accountId":"hagyga","taskCount":40,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"account-worker-started","accountId":"ahffkdlek12","taskCount":45,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"account-worker-started","accountId":"ahfflwl123","taskCount":44,"firstDueAtKst":"2026-07-03 23:05:18","lastDueAtKst":"2026-07-03 23:05:18","at":"2026-07-03T14:05:18.920Z"}
+{"event":"comment-failed","sequence":98,"cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":3,"accountId":"produce11745","error":"fetch failed","failed":1,"at":"2026-07-03T14:05:19.589Z"}
+{"event":"comment-failed","sequence":127,"cafeSlug":"localtable702","cafeId":"31750113","articleId":1,"accountId":"dhtksk1p","error":"fetch failed","failed":2,"at":"2026-07-03T14:05:19.591Z"}
+{"event":"comment-failed","sequence":80,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":5,"accountId":"vegetable10517","error":"fetch failed","failed":3,"at":"2026-07-03T14:05:19.650Z"}
+{"event":"comment-failed","sequence":32,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":9,"accountId":"h9ag469z","error":"fetch failed","failed":4,"at":"2026-07-03T14:05:19.654Z"}
+{"event":"comment-failed","sequence":39,"cafeSlug":"driveee","cafeId":"31746635","articleId":22,"accountId":"q9v3m7a2","error":"fetch failed","failed":5,"at":"2026-07-03T14:05:19.703Z"}
+{"event":"comment-failed","sequence":108,"cafeSlug":"talkmadang702","cafeId":"31750104","articleId":4,"accountId":"dq1h3bjy","error":"fetch failed","failed":6,"at":"2026-07-03T14:05:19.706Z"}
+{"event":"comment-failed","sequence":56,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":7,"accountId":"n7c3w8z2","error":"fetch failed","failed":7,"at":"2026-07-03T14:05:19.756Z"}
+{"event":"comment-failed","sequence":117,"cafeSlug":"menunote702","cafeId":"31750111","articleId":3,"accountId":"pixelninja3","error":"fetch failed","failed":8,"at":"2026-07-03T14:05:19.760Z"}
+{"event":"comment-failed","sequence":146,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":7,"accountId":"alsrudgus531","error":"fetch failed","failed":9,"at":"2026-07-03T14:05:19.806Z"}
+{"event":"comment-failed","sequence":145,"cafeSlug":"driveee","cafeId":"31746635","articleId":8,"accountId":"bigfish773","error":"fetch failed","failed":10,"at":"2026-07-03T14:05:19.808Z"}
+{"event":"comment-failed","sequence":161,"cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":11,"accountId":"ahffkdlek12","error":"fetch failed","failed":11,"at":"2026-07-03T14:05:19.858Z"}
+{"event":"comment-failed","sequence":150,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":5,"accountId":"geenl","error":"fetch failed","failed":12,"at":"2026-07-03T14:05:19.860Z"}
+{"event":"comment-failed","sequence":144,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":8,"accountId":"ahsxkfldk12","error":"fetch failed","failed":13,"at":"2026-07-03T14:05:19.909Z"}
+{"event":"comment-failed","sequence":163,"cafeSlug":"habitnote702","cafeId":"31750105","articleId":13,"accountId":"ahfflwl123","error":"fetch failed","failed":14,"at":"2026-07-03T14:05:19.911Z"}
+{"event":"comment-failed","sequence":153,"cafeSlug":"driveee","cafeId":"31746635","articleId":4,"accountId":"hagyga","error":"fetch failed","failed":15,"at":"2026-07-03T14:05:19.959Z"}
+{"event":"comment-failed","sequence":134,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":14,"accountId":"k7d9x2m4","error":"fetch failed","failed":16,"at":"2026-07-03T14:05:19.961Z"}
+{"event":"comment-failed","sequence":131,"cafeSlug":"talkmadang702","cafeId":"31750104","articleId":1,"accountId":"ghostrush7","error":"fetch failed","failed":17,"at":"2026-07-03T14:05:20.079Z"}
+{"event":"comment-failed","sequence":129,"cafeSlug":"menunote702","cafeId":"31750111","articleId":1,"accountId":"eghfsa5478","error":"fetch failed","failed":18,"at":"2026-07-03T14:05:20.085Z"}
+{"event":"comment-failed","sequence":159,"cafeSlug":"driveee","cafeId":"31746635","articleId":1,"accountId":"produce11745","error":"fetch failed","failed":19,"at":"2026-07-03T14:05:20.208Z"}
+{"event":"comment-failed","sequence":147,"cafeSlug":"driveee","cafeId":"31746635","articleId":7,"accountId":"dhtksk1p","error":"fetch failed","failed":20,"at":"2026-07-03T14:05:20.213Z"}
+{"event":"comment-failed","sequence":140,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":11,"accountId":"vegetable10517","error":"fetch failed","failed":21,"at":"2026-07-03T14:05:20.279Z"}
+{"event":"comment-failed","sequence":132,"cafeSlug":"driveee","cafeId":"31746635","articleId":14,"accountId":"h9ag469z","error":"fetch failed","failed":22,"at":"2026-07-03T14:05:20.293Z"}
+{"event":"comment-failed","sequence":99,"cafeSlug":"driveee","cafeId":"31746635","articleId":17,"accountId":"q9v3m7a2","error":"fetch failed","failed":23,"at":"2026-07-03T14:05:20.332Z"}
+{"event":"comment-failed","sequence":116,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":2,"accountId":"n7c3w8z2","error":"fetch failed","failed":24,"at":"2026-07-03T14:05:20.433Z"}
+{"event":"comment-failed","sequence":137,"cafeSlug":"driveee","cafeId":"31746635","articleId":12,"accountId":"pixelninja3","error":"fetch failed","failed":25,"at":"2026-07-03T14:05:20.500Z"}
+{"event":"comment-failed","sequence":166,"cafeSlug":"localtable702","cafeId":"31750113","articleId":13,"accountId":"bigfish773","error":"fetch failed","failed":26,"at":"2026-07-03T14:05:20.574Z"}
+{"event":"comment-failed","sequence":165,"cafeSlug":"infomadang702","cafeId":"31750108","articleId":12,"accountId":"alsrudgus531","error":"fetch failed","failed":27,"at":"2026-07-03T14:05:20.659Z"}
+{"event":"comment-failed","sequence":170,"cafeSlug":"tableclub702","cafeId":"31750110","articleId":12,"accountId":"geenl","error":"fetch failed","failed":28,"at":"2026-07-03T14:05:20.709Z"}
+{"event":"comment-failed","sequence":181,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":10,"accountId":"ahffkdlek12","error":"fetch failed","failed":29,"at":"2026-07-03T14:05:20.784Z"}
+{"event":"comment-failed","sequence":185,"cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":9,"accountId":"ahsxkfldk12","error":"fetch failed","failed":30,"at":"2026-07-03T14:05:20.834Z"}
+{"event":"comment-failed","sequence":184,"cafeSlug":"carelog702","cafeId":"31750106","articleId":10,"accountId":"ahfflwl123","error":"fetch failed","failed":31,"at":"2026-07-03T14:05:20.917Z"}
+{"event":"comment-failed","sequence":154,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":3,"accountId":"k7d9x2m4","error":"fetch failed","failed":32,"at":"2026-07-03T14:05:20.976Z"}
+{"event":"comment-failed","sequence":193,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":9,"accountId":"hagyga","error":"fetch failed","failed":33,"at":"2026-07-03T14:05:21.081Z"}
+{"event":"comment-failed","sequence":128,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":1,"accountId":"dq1h3bjy","error":"fetch failed","failed":34,"at":"2026-07-03T14:05:52.281Z"}
+{"event":"comment-failed","sequence":149,"cafeSlug":"driveee","cafeId":"31746635","articleId":6,"accountId":"eghfsa5478","error":"fetch failed","failed":35,"at":"2026-07-03T14:05:52.324Z"}
+{"event":"comment-failed","sequence":178,"cafeSlug":"localtable702","cafeId":"31750113","articleId":12,"accountId":"produce11745","error":"fetch failed","failed":36,"at":"2026-07-03T14:05:52.387Z"}
+{"event":"comment-failed","sequence":151,"cafeSlug":"driveee","cafeId":"31746635","articleId":5,"accountId":"ghostrush7","error":"fetch failed","failed":37,"at":"2026-07-03T14:05:52.427Z"}
+{"event":"comment-failed","sequence":168,"cafeSlug":"menunote702","cafeId":"31750111","articleId":12,"accountId":"dhtksk1p","error":"fetch failed","failed":38,"at":"2026-07-03T14:05:52.434Z"}
+{"event":"comment-failed","sequence":180,"cafeSlug":"menunote702","cafeId":"31750111","articleId":11,"accountId":"vegetable10517","error":"fetch failed","failed":39,"at":"2026-07-03T14:05:52.472Z"}
+{"event":"comment-failed","sequence":152,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":4,"accountId":"h9ag469z","error":"fetch failed","failed":40,"at":"2026-07-03T14:05:52.482Z"}
+{"event":"comment-failed","sequence":158,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":1,"accountId":"q9v3m7a2","error":"fetch failed","failed":41,"at":"2026-07-03T14:05:52.523Z"}
+{"event":"comment-failed","sequence":156,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":2,"accountId":"n7c3w8z2","error":"fetch failed","failed":42,"at":"2026-07-03T14:05:52.528Z"}
+{"event":"comment-failed","sequence":157,"cafeSlug":"driveee","cafeId":"31746635","articleId":2,"accountId":"pixelninja3","error":"fetch failed","failed":43,"at":"2026-07-03T14:05:52.568Z"}
+{"event":"comment-failed","sequence":183,"cafeSlug":"talkmadang702","cafeId":"31750104","articleId":11,"accountId":"alsrudgus531","error":"fetch failed","failed":44,"at":"2026-07-03T14:05:52.615Z"}
+{"event":"comment-failed","sequence":190,"cafeSlug":"localtable702","cafeId":"31750113","articleId":11,"accountId":"geenl","error":"fetch failed","failed":45,"at":"2026-07-03T14:05:52.662Z"}
+{"event":"comment-failed","sequence":201,"cafeSlug":"infomadang702","cafeId":"31750108","articleId":9,"accountId":"ahffkdlek12","error":"fetch failed","failed":46,"at":"2026-07-03T14:05:52.714Z"}
+{"event":"comment-failed","sequence":204,"cafeSlug":"menunote702","cafeId":"31750111","articleId":9,"accountId":"ahsxkfldk12","error":"fetch failed","failed":47,"at":"2026-07-03T14:05:52.774Z"}
+{"event":"comment-failed","sequence":74,"cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":5,"accountId":"laghunter8","error":"fetch failed","failed":48,"at":"2026-07-03T14:05:53.419Z"}
+{"event":"comment-failed","sequence":233,"cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":5,"accountId":"hagyga","error":"fetch failed","failed":49,"at":"2026-07-03T14:05:53.419Z"}
+{"event":"comment-failed","sequence":175,"cafeSlug":"habitnote702","cafeId":"31750105","articleId":12,"accountId":"k7d9x2m4","error":"fetch failed","failed":50,"at":"2026-07-03T14:05:53.494Z"}
+{"event":"comment-failed","sequence":148,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":6,"accountId":"dq1h3bjy","error":"fetch failed","failed":51,"at":"2026-07-03T14:05:53.581Z"}
+{"event":"comment-failed","sequence":167,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":11,"accountId":"eghfsa5478","error":"fetch failed","failed":52,"at":"2026-07-03T14:05:53.708Z"}
