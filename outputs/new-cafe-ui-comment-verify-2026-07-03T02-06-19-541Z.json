@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-07-03T02:06:19.541Z",
+  "verifyAccountId": "produce11745",
+  "artifactPath": "outputs/new-cafe-comment-enqueue-2026-07-02T14-37-08-558Z.json",
+  "screenshotDir": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-ui-comment-verify-screenshots-2026-07-03T02-05-43-136Z",
+  "rows": [
+    {
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "articleId": 5,
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750110/articles/5",
+      "title": "신정호 카페 호수뷰 좌석, 계절별 즐기는 법",
+      "finalUrl": "https://cafe.naver.com/ca-fe/cafes/31750110/members/FaoXSOdbhbS4QWkSidr9cob8fvBnSSjw5KZmJk5bjBY",
+      "uiCommentCount": 0,
+      "uiReplyCount": 0,
+      "listedCommentTotal": 11,
+      "uiTotalCount": 11,
+      "screenshotPath": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/new-cafe-ui-comment-verify-screenshots-2026-07-03T02-05-43-136Z/31750110-5.png",
+      "durationMs": 18383,
+      "bodyPreview": "신정호 카페 호수뷰 좌석, 계절별 즐기는 법 new 2026.07.02. 1 4 아산 카페 권역별 특징, 목적별 고르는 기준 new 2026.07.02. 0 3 일산 웨딩홀 유형별 특징과 비용, 고르는 기준까지 new 2026.07.02. 8 2 친구들끼리 모임 장소 정할 때 [ 11 ] 2026.07.02. 24 1 맛집 식탁모임 카페를 시작합니다. 2026.07.02. 0 글쓰기",
+      "sample": []
+    }
+  ]
+}

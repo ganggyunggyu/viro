@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-07-03T01:54:14.832Z",
+  "dryRun": true,
+  "loginId": "21lab",
+  "target": {
+    "cafeId": "31750114",
+    "articleId": 3,
+    "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750114/articles/3",
+    "title": "부담 없이 자주 가는 동네 맛집 한 끼 기록이에요",
+    "keyword": "동네에서 부담 없이 먹기 좋은 한 끼 기록"
+  },
+  "count": 8,
+  "delayStepMs": 5000,
+  "waitMs": 900000,
+  "rescheduleToken": "one_article_comments_mr4a5l6p",
+  "beforeWritten": 0,
+  "written": 0,
+  "status": "dry-run",
+  "jobs": [
+    {
+      "accountId": "ahffkdlek12",
+      "nickname": "바삭바삭해 1",
+      "content": "혼밥할 때는 말씀하신 것처럼 자리 편한지가 제일 크게 느껴져요. 맛도 중요하지만 눈치 안 보이는 분위기가 오래 기억나더라고요.",
+      "delayMs": 0
+    },
+    {
+      "accountId": "ahfflwl123",
+      "nickname": "햄부기",
+      "content": "퇴근길에 가볍게 먹을 수 있는 곳 찾는다는 부분 공감돼요. 너무 유명한 곳보다 동네에서 편한 집이 더 자주 가게 되는 것 같아요.",
+      "delayMs": 5000
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1",
+      "content": "가격 부담 없고 맛이 무난한 곳이면 평일 저녁에 진짜 도움 되죠. 저도 그런 식당은 따로 메모해두는 편이에요.",
+      "delayMs": 10000
+    },
+    {
+      "accountId": "k7d9x2m4",
+      "nickname": "강아지강하지 1",
+      "content": "혼자 밥 먹기 좋은 곳은 테이블 간격이나 직원 응대도 은근 중요하더라고요. 글 보니까 그 기준이 잘 정리된 느낌이에요.",
+      "delayMs": 15000
+    },
+    {
+      "accountId": "geenl",
+      "nickname": "모험 - 교체",
+      "content": "친구 추천으로 알게 된 집이 오히려 실패가 적더라고요. 광고 많이 하는 곳보다 실제로 다녀온 사람 얘기가 더 믿음 가요.",
+      "delayMs": 20000
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "content": "저도 동네 식당은 한 번 마음에 들면 메뉴 바꿔가면서 계속 가는 편이에요. 편안한 분위기라는 말이 제일 와닿네요.",
+      "delayMs": 25000
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "content": "혼밥 자주 하시는 분들한테는 이런 기록이 꽤 유용할 것 같아요. 저녁 메뉴 고민될 때 참고하기 좋겠어요.",
+      "delayMs": 30000
+    },
+    {
+      "accountId": "h9ag469z",
+      "nickname": "에스앤비안과 정보",
+      "content": "부담 없이 먹는 한 끼라는 표현이 좋네요. 맛집이라고 해도 너무 거창한 곳보다 일상에서 자주 갈 수 있는 곳이 더 좋더라고요.",
+      "delayMs": 35000
+    }
+  ]
+}

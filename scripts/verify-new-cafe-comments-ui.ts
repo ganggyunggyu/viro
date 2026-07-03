@@ -61,6 +61,40 @@ const readTargets = (artifactPath: string): EnqueueResult[] => {
   );
 };
 
+const readDirectTarget = (): EnqueueResult | null => {
+  const articleUrl = getArgValue('--article-url', '');
+  if (!articleUrl) return null;
+
+  const cafeId = getArgValue('--cafe-id', '');
+  const articleId = Number(getArgValue('--article-id', '0'));
+  const title = getArgValue('--title', `article-${articleId}`);
+  const cafeName = getArgValue('--cafe-name', cafeId || 'direct');
+
+  if (!cafeId || !articleId) {
+    throw new Error('--article-url requires --cafe-id and --article-id');
+  }
+
+  return {
+    cafeName,
+    cafeId,
+    articleId,
+    articleUrl,
+    title,
+  };
+};
+
+const filterTargets = (
+  targets: EnqueueResult[],
+  cafeId: string,
+  articleId: number | null,
+): EnqueueResult[] => {
+  return targets.filter((target) => {
+    if (cafeId && target.cafeId !== cafeId) return false;
+    if (articleId !== null && target.articleId !== articleId) return false;
+    return true;
+  });
+};
+
 const ensureLoggedIn = async (account: NaverAccount): Promise<void> => {
   const loggedIn = await isAccountLoggedIn(account.id);
   if (loggedIn) return;
@@ -234,6 +268,9 @@ const writeArtifacts = (
 const main = async (): Promise<void> => {
   const artifactPath = getArgValue('--artifact', DEFAULT_ARTIFACT);
   const verifyAccountId = getArgValue('--account-id', process.env.VERIFY_ACCOUNT_ID || 'produce11745');
+  const cafeIdFilter = getArgValue('--cafe-id', '');
+  const articleIdFilterValue = getArgValue('--article-id', '');
+  const articleIdFilter = articleIdFilterValue ? Number(articleIdFilterValue) : null;
   const screenshotDir = join(
     process.cwd(),
     'outputs',
@@ -251,7 +288,13 @@ const main = async (): Promise<void> => {
   const verifyAccount = accounts.find((account) => account.id === verifyAccountId) || accounts[0];
   if (!verifyAccount) throw new Error('verify account not found');
 
-  const targets = readTargets(artifactPath);
+  const directTarget = readDirectTarget();
+  const targets = directTarget
+    ? [directTarget]
+    : filterTargets(readTargets(artifactPath), cafeIdFilter, articleIdFilter);
+  if (targets.length === 0) {
+    throw new Error(`verify target not found: cafeId=${cafeIdFilter || '*'}, articleId=${articleIdFilter ?? '*'}`);
+  }
   const rows: Array<Record<string, unknown>> = [];
 
   await acquireAccountLock(verifyAccount.id);
