@@ -1,0 +1,123 @@
+{
+  "schedulePath": "outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json",
+  "summary": {
+    "total": 11,
+    "joined": 0,
+    "alreadyMember": 0,
+    "failed": 0,
+    "loginFailed": 11,
+    "missingAccounts": []
+  },
+  "results": [
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750100",
+      "cafeSlug": "dogwalk2m4",
+      "cafeName": "dogwalk2m4",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31746635",
+      "cafeSlug": "driveee",
+      "cafeName": "driveee",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750105",
+      "cafeSlug": "habitnote702",
+      "cafeName": "habitnote702",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31746910",
+      "cafeSlug": "healthhhh",
+      "cafeName": "healthhhh",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750108",
+      "cafeSlug": "infomadang702",
+      "cafeName": "infomadang702",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750113",
+      "cafeSlug": "localtable702",
+      "cafeName": "localtable702",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750099",
+      "cafeSlug": "mealtalkdht",
+      "cafeName": "mealtalkdht",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750111",
+      "cafeSlug": "menunote702",
+      "cafeName": "menunote702",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750098",
+      "cafeSlug": "petinfo183",
+      "cafeName": "petinfo183",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750110",
+      "cafeSlug": "tableclub702",
+      "cafeName": "tableclub702",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "cafeId": "31750104",
+      "cafeSlug": "talkmadang702",
+      "cafeName": "talkmadang702",
+      "status": "loginFailed",
+      "detail": "GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가",
+      "checkedAt": "2026-07-03 16:55:48"
+    }
+  ]
+}

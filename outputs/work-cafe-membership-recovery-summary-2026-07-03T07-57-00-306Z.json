@@ -1,0 +1,316 @@
+{
+  "createdAt": "2026-07-03T07:57:00.307Z",
+  "schedulePath": "outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json",
+  "accountOrder": [
+    "laghunter8",
+    "k7d9x2m4",
+    "dq1h3bjy",
+    "geenl"
+  ],
+  "summary": [
+    {
+      "accountId": "laghunter8",
+      "counts": {
+        "joined": 0,
+        "alreadyMember": 0,
+        "blocked": 12,
+        "failed": 0
+      },
+      "failedCafes": [
+        {
+          "cafeId": "31750106",
+          "cafeSlug": "carelog702",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750100",
+          "cafeSlug": "dogwalk2m4",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31746635",
+          "cafeSlug": "driveee",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750105",
+          "cafeSlug": "habitnote702",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31746910",
+          "cafeSlug": "healthhhh",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750108",
+          "cafeSlug": "infomadang702",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750113",
+          "cafeSlug": "localtable702",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750099",
+          "cafeSlug": "mealtalkdht",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750111",
+          "cafeSlug": "menunote702",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750098",
+          "cafeSlug": "petinfo183",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750110",
+          "cafeSlug": "tableclub702",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        },
+        {
+          "cafeId": "31750104",
+          "cafeSlug": "talkmadang702",
+          "cause": "로그인 CAPTCHA 감지로 사용자 제약에 따라 계정 단위 blocked 처리"
+        }
+      ],
+      "reusableForCommentWorker": false,
+      "outputs": {
+        "outputDir": "outputs/work-cafe-membership-ensure-2026-07-03T07-53-36-294Z",
+        "progressPath": "outputs/work-cafe-membership-ensure-2026-07-03T07-53-36-294Z/progress-2026-07-03T07-53-36-294Z.jsonl",
+        "note": "로그인 CAPTCHA 감지 후 제약에 따라 중단. progress 1건은 중단 여파로 발생한 부분 실패."
+      }
+    },
+    {
+      "accountId": "k7d9x2m4",
+      "counts": {
+        "joined": 0,
+        "alreadyMember": 0,
+        "blocked": 11,
+        "failed": 0
+      },
+      "failedCafes": [
+        {
+          "cafeId": "31750106",
+          "cafeSlug": "carelog702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31746635",
+          "cafeSlug": "driveee",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750105",
+          "cafeSlug": "habitnote702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31746910",
+          "cafeSlug": "healthhhh",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750108",
+          "cafeSlug": "infomadang702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750113",
+          "cafeSlug": "localtable702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750099",
+          "cafeSlug": "mealtalkdht",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750111",
+          "cafeSlug": "menunote702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750098",
+          "cafeSlug": "petinfo183",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750110",
+          "cafeSlug": "tableclub702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750104",
+          "cafeSlug": "talkmadang702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        }
+      ],
+      "reusableForCommentWorker": false,
+      "outputs": {
+        "outputDir": "outputs/work-cafe-membership-ensure-2026-07-03T07-54-58-729Z",
+        "jsonPath": "outputs/work-cafe-membership-ensure-2026-07-03T07-54-58-729Z/work-cafe-membership-ensure-2026-07-03T07-54-58-729Z.json",
+        "mdPath": "outputs/work-cafe-membership-ensure-2026-07-03T07-54-58-729Z/work-cafe-membership-ensure-2026-07-03T07-54-58-729Z.md"
+      }
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "counts": {
+        "joined": 0,
+        "alreadyMember": 0,
+        "blocked": 11,
+        "failed": 0
+      },
+      "failedCafes": [
+        {
+          "cafeId": "31750100",
+          "cafeSlug": "dogwalk2m4",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31746635",
+          "cafeSlug": "driveee",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750105",
+          "cafeSlug": "habitnote702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31746910",
+          "cafeSlug": "healthhhh",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750108",
+          "cafeSlug": "infomadang702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750113",
+          "cafeSlug": "localtable702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750099",
+          "cafeSlug": "mealtalkdht",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750111",
+          "cafeSlug": "menunote702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750098",
+          "cafeSlug": "petinfo183",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750110",
+          "cafeSlug": "tableclub702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750104",
+          "cafeSlug": "talkmadang702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        }
+      ],
+      "reusableForCommentWorker": false,
+      "outputs": {
+        "outputDir": "outputs/work-cafe-membership-ensure-2026-07-03T07-55-37-230Z",
+        "jsonPath": "outputs/work-cafe-membership-ensure-2026-07-03T07-55-37-230Z/work-cafe-membership-ensure-2026-07-03T07-55-37-230Z.json",
+        "mdPath": "outputs/work-cafe-membership-ensure-2026-07-03T07-55-37-230Z/work-cafe-membership-ensure-2026-07-03T07-55-37-230Z.md"
+      }
+    },
+    {
+      "accountId": "geenl",
+      "counts": {
+        "joined": 0,
+        "alreadyMember": 0,
+        "blocked": 12,
+        "failed": 0
+      },
+      "failedCafes": [
+        {
+          "cafeId": "31750106",
+          "cafeSlug": "carelog702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750100",
+          "cafeSlug": "dogwalk2m4",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31746635",
+          "cafeSlug": "driveee",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750105",
+          "cafeSlug": "habitnote702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31746910",
+          "cafeSlug": "healthhhh",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750108",
+          "cafeSlug": "infomadang702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750113",
+          "cafeSlug": "localtable702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750099",
+          "cafeSlug": "mealtalkdht",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750111",
+          "cafeSlug": "menunote702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750098",
+          "cafeSlug": "petinfo183",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750110",
+          "cafeSlug": "tableclub702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        },
+        {
+          "cafeId": "31750104",
+          "cafeSlug": "talkmadang702",
+          "cause": "로그인 CAPTCHA 감지; 자동 풀이 비활성 상태에서 차단 처리"
+        }
+      ],
+      "reusableForCommentWorker": false,
+      "outputs": {
+        "outputDir": "outputs/work-cafe-membership-ensure-2026-07-03T07-55-54-427Z",
+        "jsonPath": "outputs/work-cafe-membership-ensure-2026-07-03T07-55-54-427Z/work-cafe-membership-ensure-2026-07-03T07-55-54-427Z.json",
+        "mdPath": "outputs/work-cafe-membership-ensure-2026-07-03T07-55-54-427Z/work-cafe-membership-ensure-2026-07-03T07-55-54-427Z.md"
+      }
+    }
+  ],
+  "reusableAccounts": [],
+  "notes": [
+    "대상 계정은 요청 순서대로 단일 계정 실행했다.",
+    "캡차/추가인증은 우회하지 않고 blocked로 분류했다.",
+    "코드 파일은 수정하지 않았다."
+  ]
+}

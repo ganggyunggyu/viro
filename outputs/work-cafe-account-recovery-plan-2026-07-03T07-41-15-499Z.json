@@ -1,0 +1,362 @@
+{
+  "generatedAt": "2026-07-03T07:41:15.500Z",
+  "schedulePath": "outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json",
+  "runLogs": [
+    "outputs/work-cafe-comment-live-2026-07-03T07-11-24-837Z/run-2026-07-03T07-11-24-837Z.jsonl",
+    "outputs/work-cafe-comment-live-2026-07-03T07-24-35-791Z/run-2026-07-03T07-24-35-791Z.jsonl"
+  ],
+  "membershipArtifacts": [
+    "outputs/work-cafe-membership-ensure-2026-07-03T07-23-59-342Z/work-cafe-membership-ensure-2026-07-03T07-23-59-342Z.json",
+    "outputs/work-cafe-membership-ensure-2026-07-03T07-36-38-068Z/progress-2026-07-03T07-36-38-068Z.jsonl"
+  ],
+  "skipArticles": [
+    "31746910:25"
+  ],
+  "totals": {
+    "accounts": 20,
+    "safeAccounts": 12,
+    "blockedAccounts": 8,
+    "commentFailures": 10,
+    "likelyNotJoinedFailures": 8,
+    "interruptedFailures": 2,
+    "membershipProblems": 14
+  },
+  "blockedAccounts": [
+    {
+      "accountId": "ahffkekd12",
+      "nickname": "긍정이백퍼  1",
+      "membershipCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/ensure-work-cafe-memberships.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-concurrency=1 --login-wait-min=10 --account-id=ahffkekd12",
+      "commentResumeCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --account-id=ahffkekd12 --skip-article=31746910:25",
+      "failures": [
+        {
+          "sequence": 22,
+          "accountId": "ahffkekd12",
+          "cafeSlug": "petinfo183",
+          "cafeId": "31750098",
+          "articleId": 10,
+          "error": "ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다."
+        }
+      ],
+      "membershipProblems": []
+    },
+    {
+      "accountId": "dhtksk1p",
+      "nickname": "빨간모자앤  1",
+      "membershipCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/ensure-work-cafe-memberships.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-concurrency=1 --login-wait-min=10 --account-id=dhtksk1p",
+      "commentResumeCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --account-id=dhtksk1p --skip-article=31746910:25",
+      "failures": [
+        {
+          "sequence": 27,
+          "accountId": "dhtksk1p",
+          "cafeSlug": "driveee",
+          "cafeId": "31746635",
+          "articleId": 23,
+          "error": "ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다."
+        }
+      ],
+      "membershipProblems": []
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "nickname": "에스앤비안과, 29년 경력 (노출)",
+      "membershipCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/ensure-work-cafe-memberships.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-concurrency=1 --login-wait-min=10 --account-id=dq1h3bjy",
+      "commentResumeCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --account-id=dq1h3bjy --skip-article=31746910:25",
+      "failures": [
+        {
+          "sequence": 8,
+          "accountId": "dq1h3bjy",
+          "cafeSlug": "mealtalkdht",
+          "cafeId": "31750099",
+          "articleId": 11,
+          "error": "ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다."
+        }
+      ],
+      "membershipProblems": [
+        {
+          "accountId": "dq1h3bjy",
+          "nickname": "에스앤비안과, 29년 경력 (노출)",
+          "cafeId": "31750098",
+          "cafeSlug": "petinfo183",
+          "cafeName": "petinfo183",
+          "status": "failed",
+          "detail": "카페 가입 보안문자 풀이 실패",
+          "screenshotPath": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/work-cafe-membership-ensure-2026-07-03T07-23-59-342Z/dq1h3bjy-petinfo183-31750098.png",
+          "checkedAt": "2026-07-03 16:29:00"
+        },
+        {
+          "accountId": "dq1h3bjy",
+          "nickname": "에스앤비안과, 29년 경력 (노출)",
+          "cafeId": "31750098",
+          "cafeSlug": "petinfo183",
+          "status": "failed",
+          "detail": "page.waitForTimeout: Target page, context or browser has been closed"
+        }
+      ]
+    },
+    {
+      "accountId": "geenl",
+      "nickname": "모험 - 교체",
+      "membershipCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/ensure-work-cafe-memberships.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-concurrency=1 --login-wait-min=10 --account-id=geenl",
+      "commentResumeCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --account-id=geenl --skip-article=31746910:25",
+      "failures": [
+        {
+          "sequence": 10,
+          "accountId": "geenl",
+          "cafeSlug": "petinfo183",
+          "cafeId": "31750098",
+          "articleId": 11,
+          "error": "ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다."
+        }
+      ],
+      "membershipProblems": [
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750106",
+          "cafeSlug": "carelog702",
+          "cafeName": "carelog702",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750100",
+          "cafeSlug": "dogwalk2m4",
+          "cafeName": "dogwalk2m4",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31746635",
+          "cafeSlug": "driveee",
+          "cafeName": "driveee",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750105",
+          "cafeSlug": "habitnote702",
+          "cafeName": "habitnote702",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31746910",
+          "cafeSlug": "healthhhh",
+          "cafeName": "healthhhh",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750108",
+          "cafeSlug": "infomadang702",
+          "cafeName": "infomadang702",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750113",
+          "cafeSlug": "localtable702",
+          "cafeName": "localtable702",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750099",
+          "cafeSlug": "mealtalkdht",
+          "cafeName": "mealtalkdht",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750111",
+          "cafeSlug": "menunote702",
+          "cafeName": "menunote702",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750098",
+          "cafeSlug": "petinfo183",
+          "cafeName": "petinfo183",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750110",
+          "cafeSlug": "tableclub702",
+          "cafeName": "tableclub702",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        },
+        {
+          "accountId": "geenl",
+          "nickname": "모험 - 교체",
+          "cafeId": "31750104",
+          "cafeSlug": "talkmadang702",
+          "cafeName": "talkmadang702",
+          "status": "loginFailed",
+          "detail": "캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+          "checkedAt": "2026-07-03 16:34:38"
+        }
+      ]
+    },
+    {
+      "accountId": "k7d9x2m4",
+      "nickname": "강아지강하지 1",
+      "membershipCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/ensure-work-cafe-memberships.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-concurrency=1 --login-wait-min=10 --account-id=k7d9x2m4",
+      "commentResumeCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --account-id=k7d9x2m4 --skip-article=31746910:25",
+      "failures": [
+        {
+          "sequence": 15,
+          "accountId": "k7d9x2m4",
+          "cafeSlug": "driveee",
+          "cafeId": "31746635",
+          "articleId": 24,
+          "error": "ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다."
+        }
+      ],
+      "membershipProblems": []
+    },
+    {
+      "accountId": "laghunter8",
+      "nickname": "도도 1",
+      "membershipCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/ensure-work-cafe-memberships.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-concurrency=1 --login-wait-min=10 --account-id=laghunter8",
+      "commentResumeCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --account-id=laghunter8 --skip-article=31746910:25",
+      "failures": [
+        {
+          "sequence": 14,
+          "accountId": "laghunter8",
+          "cafeSlug": "dogwalk2m4",
+          "cafeId": "31750100",
+          "articleId": 10,
+          "error": "ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다."
+        }
+      ],
+      "membershipProblems": []
+    },
+    {
+      "accountId": "q9v3m7a2",
+      "nickname": "포비 1",
+      "membershipCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/ensure-work-cafe-memberships.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-concurrency=1 --login-wait-min=10 --account-id=q9v3m7a2",
+      "commentResumeCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --account-id=q9v3m7a2 --skip-article=31746910:25",
+      "failures": [
+        {
+          "sequence": 19,
+          "accountId": "q9v3m7a2",
+          "cafeSlug": "localtable702",
+          "cafeId": "31750113",
+          "articleId": 12,
+          "error": "page.waitForTimeout: Target page, context or browser has been closed"
+        },
+        {
+          "sequence": 19,
+          "accountId": "q9v3m7a2",
+          "cafeSlug": "localtable702",
+          "cafeId": "31750113",
+          "articleId": 12,
+          "error": "ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다."
+        }
+      ],
+      "membershipProblems": []
+    },
+    {
+      "accountId": "vegetable10517",
+      "nickname": "렙용",
+      "membershipCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/ensure-work-cafe-memberships.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-concurrency=1 --login-wait-min=10 --account-id=vegetable10517",
+      "commentResumeCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --account-id=vegetable10517 --skip-article=31746910:25",
+      "failures": [
+        {
+          "sequence": 20,
+          "accountId": "vegetable10517",
+          "cafeSlug": "mealtalkdht",
+          "cafeId": "31750099",
+          "articleId": 10,
+          "error": "ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다."
+        }
+      ],
+      "membershipProblems": []
+    }
+  ],
+  "safeAccounts": [
+    {
+      "accountId": "ahffkdlek12",
+      "nickname": "바삭바삭해 1"
+    },
+    {
+      "accountId": "ahfflwl123",
+      "nickname": "햄부기"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게"
+    },
+    {
+      "accountId": "alsrudgus531",
+      "nickname": "운연정"
+    },
+    {
+      "accountId": "bigfish773",
+      "nickname": "고래낚시 1"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1"
+    },
+    {
+      "accountId": "ghostrush7",
+      "nickname": "실눈캐"
+    },
+    {
+      "accountId": "h9ag469z",
+      "nickname": "에스앤비안과 정보"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체"
+    },
+    {
+      "accountId": "n7c3w8z2",
+      "nickname": "고양이밥 1"
+    },
+    {
+      "accountId": "pixelninja3",
+      "nickname": "건강박사석사 1"
+    },
+    {
+      "accountId": "produce11745",
+      "nickname": "가중건다"
+    }
+  ],
+  "safeCommentCommand": "PLAYWRIGHT_HEADLESS=false npx tsx --env-file=.env.local scripts/run-work-cafe-comment-parallel.ts --schedule=outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json --login-id=21lab --account-gap-min=3 --global-gap-sec=10 --article-gap-min=25 --generation-concurrency=4 --prefetch-articles=0 --max-active=12 --screenshot-every=25 --login-wait-min=10 --exclude-account-id=ahffkekd12,dhtksk1p,dq1h3bjy,geenl,k7d9x2m4,laghunter8,q9v3m7a2,vegetable10517 --skip-article=31746910:25"
+}

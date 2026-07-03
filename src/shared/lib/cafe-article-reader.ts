@@ -22,14 +22,23 @@ export interface ReadCafeArticleResult {
   error?: string;
 }
 
+export interface ReadCafeArticleOptions {
+  loginWaitMs?: number;
+  reason?: string;
+}
+
 const ensureLoggedIn = async (
   id: string,
-  password: string
+  password: string,
+  options?: ReadCafeArticleOptions,
 ): Promise<{ success: true } | { success: false; error: string }> => {
   const loggedIn = await isAccountLoggedIn(id);
   if (loggedIn) return { success: true };
 
-  const loginResult = await loginAccount(id, password);
+  const loginResult = await loginAccount(id, password, {
+    waitForLoginMs: options?.loginWaitMs,
+    reason: options?.reason,
+  });
   if (!loginResult.success) {
     return { success: false, error: loginResult.error || '로그인 실패' };
   }
@@ -40,7 +49,8 @@ const navigateToArticle = async (
   page: Page,
   articleUrl: string,
   id: string,
-  password: string
+  password: string,
+  options?: ReadCafeArticleOptions,
 ): Promise<{ success: true } | { success: false; error: string }> => {
   await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
 
@@ -48,7 +58,10 @@ const navigateToArticle = async (
   if (!isLoginRedirect(currentUrl)) return { success: true };
 
   invalidateLoginCache(id);
-  const reloginResult = await loginAccount(id, password);
+  const reloginResult = await loginAccount(id, password, {
+    waitForLoginMs: options?.loginWaitMs,
+    reason: options?.reason,
+  });
   if (!reloginResult.success) {
     return { success: false, error: `세션 만료 후 재로그인 실패: ${reloginResult.error}` };
   }
@@ -92,7 +105,8 @@ const pickFirstText = async (
 export const readCafeArticleContent = async (
   account: NaverAccount,
   cafeId: string,
-  articleId: number
+  articleId: number,
+  options?: ReadCafeArticleOptions,
 ): Promise<ReadCafeArticleResult> => {
   const { id, password } = account;
   const url = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
@@ -100,13 +114,19 @@ export const readCafeArticleContent = async (
   await acquireAccountLock(id);
 
   try {
-    const loginCheck = await ensureLoggedIn(id, password);
+    const loginCheck = await ensureLoggedIn(id, password, {
+      loginWaitMs: options?.loginWaitMs,
+      reason: options?.reason || `read_article:${id}`,
+    });
     if (!loginCheck.success) {
       return { success: false, cafeId, articleId, url, error: loginCheck.error };
     }
 
     const page = await getPageForAccount(id);
-    const navResult = await navigateToArticle(page, url, id, password);
+    const navResult = await navigateToArticle(page, url, id, password, {
+      loginWaitMs: options?.loginWaitMs,
+      reason: options?.reason || `read_article_redirect:${id}`,
+    });
     if (!navResult.success) {
       return { success: false, cafeId, articleId, url, error: navResult.error };
     }

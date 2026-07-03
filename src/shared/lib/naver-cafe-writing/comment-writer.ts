@@ -20,16 +20,23 @@ export interface WriteCommentResult {
   commentId?: string;
 }
 
+export interface WriteCommentOptions {
+  forceFreshLogin?: boolean;
+  loginWaitMs?: number;
+}
+
 const normalizeText = (value: string | null | undefined): string => {
   return (value ?? '').replace(/\s+/g, ' ').trim();
 };
 
 const ensureLoggedIn = async (
   id: string,
-  password: string
+  password: string,
+  options?: WriteCommentOptions,
 ): Promise<{ success: true } | { success: false; error: string }> => {
   const loginResult = await loginAccount(id, password, {
-    forceFreshLogin: true,
+    forceFreshLogin: options?.forceFreshLogin ?? true,
+    waitForLoginMs: options?.loginWaitMs,
     reason: `comment_write:${id}`,
   });
   if (!loginResult.success) {
@@ -43,7 +50,8 @@ const navigateToArticle = async (
   articleUrl: string,
   id: string,
   password: string,
-  logPrefix: string
+  logPrefix: string,
+  options?: WriteCommentOptions,
 ): Promise<{ success: true } | { success: false; error: string }> => {
   await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
   await page.waitForTimeout(1500);
@@ -55,7 +63,8 @@ const navigateToArticle = async (
   invalidateLoginCache(id);
 
   const reloginResult = await loginAccount(id, password, {
-    forceFreshLogin: true,
+    forceFreshLogin: options?.forceFreshLogin ?? true,
+    waitForLoginMs: options?.loginWaitMs,
     reason: `comment_redirect:${id}`,
   });
   if (!reloginResult.success) {
@@ -222,14 +231,15 @@ export const writeCommentWithAccount = async (
   account: NaverAccount,
   cafeId: string,
   articleId: number,
-  content: string
+  content: string,
+  options?: WriteCommentOptions,
 ): Promise<WriteCommentResult> => {
   const { id, password } = account;
 
   await acquireAccountLock(id);
 
   try {
-    const loginCheck = await ensureLoggedIn(id, password);
+    const loginCheck = await ensureLoggedIn(id, password, options);
     if (!loginCheck.success) {
       return { accountId: id, success: false, error: loginCheck.error };
     }
@@ -238,7 +248,7 @@ export const writeCommentWithAccount = async (
     touchAccount(id);
     const articleUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
 
-    const navResult = await navigateToArticle(page, articleUrl, id, password, 'COMMENT');
+    const navResult = await navigateToArticle(page, articleUrl, id, password, 'COMMENT', options);
     if (!navResult.success) {
       return { accountId: id, success: false, error: navResult.error };
     }
@@ -318,7 +328,7 @@ export const writeCommentWithAccount = async (
 
     if (!found) {
       console.log(`[COMMENT] ${id} 재로딩 후 댓글 재확인 시도`);
-      const reloadResult = await navigateToArticle(page, articleUrl, id, password, 'COMMENT-VERIFY');
+      const reloadResult = await navigateToArticle(page, articleUrl, id, password, 'COMMENT-VERIFY', options);
       if (!reloadResult.success) {
         return { accountId: id, success: false, error: `댓글 검증 재진입 실패: ${reloadResult.error}` };
       }

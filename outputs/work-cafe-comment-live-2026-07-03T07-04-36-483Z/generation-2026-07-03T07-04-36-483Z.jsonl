@@ -1,0 +1,2 @@
+{"event":"generation-started","articleKey":"31750106:12","cafeSlug":"carelog702","cafeId":"31750106","articleId":12,"readerAccountId":"ahffkdlek12","exactCount":1,"at":"2026-07-03T07:04:37.969Z"}
+{"event":"generation-failed","articleKey":"31750106:12","cafeSlug":"carelog702","cafeId":"31750106","articleId":12,"readerAccountId":"ahffkdlek12","error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","at":"2026-07-03T07:05:08.689Z"}

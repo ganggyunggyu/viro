@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import mongoose from 'mongoose';
-import { Account, User, WorkCafeArticle } from '../src/shared/models';
+import { Account, PublishedArticle, User, WorkCafeArticle } from '../src/shared/models';
 
 interface ScheduleArgs {
   loginId: string;
@@ -11,6 +11,8 @@ interface ScheduleArgs {
   globalGapSec: number;
   accountGapMin: number;
   excludeOwnerAccountsGlobal: boolean;
+  excludeAccountIds: Set<string>;
+  skipArticleKeys: Set<string>;
 }
 
 interface ArticleTarget {
@@ -24,6 +26,7 @@ interface ArticleTarget {
   commentCount: number;
   targetCommentCount: number;
   shortage: number;
+  existingCommenterIds: string[];
 }
 
 interface CommenterAccount {
@@ -59,6 +62,26 @@ const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const args = process.argv.slice(2);
 
 const hasFlag = (flag: string): boolean => args.includes(flag);
+
+const getArgValues = (name: string): string[] => {
+  const prefix = `${name}=`;
+  const values: string[] = [];
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg.startsWith(prefix)) {
+      values.push(arg.slice(prefix.length));
+      continue;
+    }
+
+    if (arg === name && args[index + 1]) {
+      values.push(args[index + 1]);
+      index += 1;
+    }
+  }
+
+  return values.flatMap((value) => value.split(',')).map((value) => value.trim()).filter(Boolean);
+};
 
 const getArgValue = (name: string, fallback: string): string => {
   const prefix = `${name}=`;
@@ -100,7 +123,11 @@ const getArgs = (): ScheduleArgs => ({
   globalGapSec: Number(getArgValue('--global-gap-sec', String(DEFAULT_GLOBAL_GAP_SEC))),
   accountGapMin: Number(getArgValue('--account-gap-min', String(DEFAULT_ACCOUNT_GAP_MIN))),
   excludeOwnerAccountsGlobal: hasFlag('--exclude-owner-accounts-global'),
+  excludeAccountIds: new Set(getArgValues('--exclude-account-id')),
+  skipArticleKeys: new Set(getArgValues('--skip-article')),
 });
+
+const getArticleKey = (cafeId: string, articleId: number): string => `${cafeId}:${articleId}`;
 
 const resolveLatestCollectionId = async (requestedCollectionId: string): Promise<string> => {
   if (requestedCollectionId) return requestedCollectionId;
@@ -121,7 +148,7 @@ const loadArticles = async (
     {
       latestCollectionId: collectionId,
       needsCommentWork: true,
-      commentWorkStatus: 'pending',
+      commentWorkStatus: { $in: ['pending', 'generated', 'queued'] },
     },
     {
       ownerName: 1,
@@ -138,6 +165,31 @@ const loadArticles = async (
   )
     .sort({ cafeSlug: 1, articleId: -1 })
     .lean<Array<ArticleTarget & { writeDateTimestamp?: number }>>();
+
+  const articleKeys = articles.map((article) => ({
+    cafeId: article.cafeId,
+    articleId: Number(article.articleId),
+  }));
+  const existingComments = await PublishedArticle.find(
+    {
+      $or: articleKeys,
+    },
+    {
+      cafeId: 1,
+      articleId: 1,
+      comments: 1,
+    },
+  ).lean<Array<{ cafeId: string; articleId: number; comments?: Array<{ accountId?: string; type?: string }> }>>();
+
+  const existingCommenterIdsByArticle = new Map<string, string[]>();
+  for (const article of existingComments) {
+    existingCommenterIdsByArticle.set(
+      getArticleKey(article.cafeId, article.articleId),
+      (article.comments || [])
+        .filter((comment) => comment.type === 'comment' && comment.accountId)
+        .map((comment) => String(comment.accountId)),
+    );
+  }
 
   return articles
     .map((article) => {
@@ -156,6 +208,9 @@ const loadArticles = async (
         commentCount,
         targetCommentCount: effectiveTarget,
         shortage,
+        existingCommenterIds: existingCommenterIdsByArticle.get(
+          getArticleKey(article.cafeId, Number(article.articleId)),
+        ) || [],
       };
     })
     .filter((article) => article.shortage > 0);
@@ -268,7 +323,7 @@ const buildSchedule = (
       if (article.shortage < round) continue;
 
       const articleKey = `${article.cafeId}:${article.articleId}`;
-      const usedAccountIds = usedAccountsByArticle.get(articleKey) || new Set<string>();
+      const usedAccountIds = usedAccountsByArticle.get(articleKey) || new Set<string>(article.existingCommenterIds);
       const { account, plannedAt } = pickAccount(
         accounts,
         article,
@@ -539,9 +594,13 @@ const main = async (): Promise<void> => {
   const accounts = options.excludeOwnerAccountsGlobal
     ? allCommenters.filter((account) => !ownerNames.has(normalizeName(account.nickname)))
     : allCommenters;
+  const filteredAccounts = accounts.filter((account) => !options.excludeAccountIds.has(account.accountId));
   const excludedOwnerAccounts = options.excludeOwnerAccountsGlobal ? ownerMatchedAccounts : [];
+  const articlesToSchedule = articles.filter(
+    (article) => !options.skipArticleKeys.has(getArticleKey(article.cafeId, article.articleId)),
+  );
   const startAtMs = Date.now() + options.startDelayMin * 60_000;
-  const schedule = buildSchedule(articles, accounts, {
+  const schedule = buildSchedule(articlesToSchedule, filteredAccounts, {
     startAtMs,
     globalGapMs: options.globalGapSec * 1000,
     accountGapMs: options.accountGapMin * 60_000,
@@ -561,14 +620,18 @@ const main = async (): Promise<void> => {
       globalGapSec: options.globalGapSec,
       accountGapMin: options.accountGapMin,
       ownerExclusionMode: options.excludeOwnerAccountsGlobal ? 'global' : 'own-cafe-only',
+      excludeAccountIds: Array.from(options.excludeAccountIds),
+      skipArticleKeys: Array.from(options.skipArticleKeys),
       firstRunAtKst: firstRunAt ? toKstDateTime(firstRunAt) : '',
       lastRunAtKst: lastRunAt ? toKstDateTime(lastRunAt) : '',
     },
     totals: {
-      pendingArticles: articles.length,
+      pendingArticles: articlesToSchedule.length,
       totalComments,
-      commenterAccounts: accounts.length,
+      commenterAccounts: filteredAccounts.length,
       excludedOwnerAccounts: options.excludeOwnerAccountsGlobal ? excludedOwnerAccounts.length : 0,
+      excludedManualAccounts: options.excludeAccountIds.size,
+      skippedArticles: articles.length - articlesToSchedule.length,
       ownerMatchedAccounts: ownerMatchedAccounts.length,
     },
     estimates: {
@@ -579,7 +642,7 @@ const main = async (): Promise<void> => {
       serial60s: formatDuration(Math.max(0, totalComments - 1) * 60_000),
       serial90s: formatDuration(Math.max(0, totalComments - 1) * 90_000),
     },
-    byCafe: summarizeByCafe(articles, schedule),
+    byCafe: summarizeByCafe(articlesToSchedule, schedule),
     byAccount: summarizeByAccount(schedule),
     ownerMatchedAccounts,
     excludedOwnerAccounts,

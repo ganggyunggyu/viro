@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-07-03T07:49:24.608Z",
+  "loginId": "21lab",
+  "source": "requested-cafe-membership-pobi-final-retry-worklist-2026-07-03.json",
+  "outputJson": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/requested-cafe-membership-join-run-2026-07-03-2026-07-03T07-44-29.908Z.json",
+  "outputMd": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/requested-cafe-membership-join-run-2026-07-03-2026-07-03T07-44-29.908Z.md",
+  "summary": {
+    "total": 1,
+    "joined": 0,
+    "alreadyMember": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "rows": [
+    {
+      "accountId": "q9v3m7a2",
+      "requestedNickname": "포비 1",
+      "actualNickname": "포비 1",
+      "ownerLoginId": "21lab",
+      "role": "commenter",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "status": "failed",
+      "detail": "로그인 실패: 캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과",
+      "updatedAt": "2026-07-03T07:49:21.599Z"
+    }
+  ]
+}

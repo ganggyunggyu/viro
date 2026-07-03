@@ -545,6 +545,22 @@ export const loginAccount = async (
 
         const captchaResult = await solveCaptchaOnPage(page, accountId, password);
         if (!captchaResult.solved) {
+          const manualWaitMs = options?.waitForLoginMs ?? DEFAULT_LOGIN_WAIT_MS;
+          if (manualWaitMs > DEFAULT_LOGIN_WAIT_MS) {
+            console.log(
+              `[LOGIN] ${accountId} 캡차 자동 풀이 실패 - 수동 로그인 완료 대기 (${Math.round(
+                manualWaitMs / 1000
+              )}초)`
+            );
+            const loginCompleted = await waitForLoginCompletion(page, accountId, options);
+            if (loginCompleted) {
+              await saveCookiesForAccount(accountId);
+              loginStatusCache.set(accountId, Date.now());
+              console.log(`[LOGIN] ${accountId} 수동 로그인 완료, 캐시 갱신`);
+              return { success: true };
+            }
+          }
+
           return {
             success: false,
             error: `캡차 풀이 실패 (${captchaResult.attempts}회 시도): ${captchaResult.error}`,

@@ -1,0 +1,12 @@
+{"event":"generation-started","articleKey":"31750106:12","cafeSlug":"carelog702","cafeId":"31750106","articleId":12,"readerAccountId":"ahffkdlek12","exactCount":8,"at":"2026-07-03T07:44:32.817Z"}
+{"event":"generation-started","articleKey":"31750100:11","cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":11,"readerAccountId":"ahffkekd12","exactCount":7,"at":"2026-07-03T07:44:32.818Z"}
+{"event":"generation-started","articleKey":"31746635:25","cafeSlug":"driveee","cafeId":"31746635","articleId":25,"readerAccountId":"ahfflwl123","exactCount":8,"at":"2026-07-03T07:44:32.818Z"}
+{"event":"generation-started","articleKey":"31750105:13","cafeSlug":"habitnote702","cafeId":"31750105","articleId":13,"readerAccountId":"ahsxkfldk12","exactCount":8,"at":"2026-07-03T07:44:32.818Z"}
+{"event":"generation-succeeded","articleKey":"31746635:25","cafeSlug":"driveee","cafeId":"31746635","articleId":25,"readerAccountId":"ahfflwl123","commentCount":8,"warnings":[],"elapsedMs":67956,"at":"2026-07-03T07:45:40.773Z"}
+{"event":"generation-started","articleKey":"31750108:12","cafeSlug":"infomadang702","cafeId":"31750108","articleId":12,"readerAccountId":"bigfish773","exactCount":8,"at":"2026-07-03T07:45:40.774Z"}
+{"event":"generation-succeeded","articleKey":"31750105:13","cafeSlug":"habitnote702","cafeId":"31750105","articleId":13,"readerAccountId":"ahsxkfldk12","commentCount":8,"warnings":[],"elapsedMs":71979,"at":"2026-07-03T07:45:44.797Z"}
+{"event":"generation-started","articleKey":"31750113:13","cafeSlug":"localtable702","cafeId":"31750113","articleId":13,"readerAccountId":"dhtksk1p","exactCount":8,"at":"2026-07-03T07:45:44.797Z"}
+{"event":"generation-succeeded","articleKey":"31750106:12","cafeSlug":"carelog702","cafeId":"31750106","articleId":12,"readerAccountId":"ahffkdlek12","commentCount":8,"warnings":[],"elapsedMs":73515,"at":"2026-07-03T07:45:46.332Z"}
+{"event":"generation-started","articleKey":"31750099:11","cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":11,"readerAccountId":"dq1h3bjy","exactCount":8,"at":"2026-07-03T07:45:46.332Z"}
+{"event":"generation-failed","articleKey":"31750099:11","cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":11,"readerAccountId":"dq1h3bjy","error":"page.waitForTimeout: Target page, context or browser has been closed","at":"2026-07-03T07:46:01.956Z"}
+{"event":"generation-started","articleKey":"31750111:12","cafeSlug":"menunote702","cafeId":"31750111","articleId":12,"readerAccountId":"eghfsa5478","exactCount":8,"at":"2026-07-03T07:46:01.956Z"}

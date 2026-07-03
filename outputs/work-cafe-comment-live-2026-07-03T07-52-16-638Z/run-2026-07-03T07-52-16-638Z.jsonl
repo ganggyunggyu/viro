@@ -1,0 +1,54 @@
+{"event":"run-started","runId":"2026-07-03T07-52-16-638Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json","totalTasks":1000,"articleCount":158,"accountCount":16,"firstDueAtKst":"2026-07-03 16:52:16","lastDueAtKst":"2026-07-03 20:12:36","at":"2026-07-03T07:52:18.712Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":1,"cafeId":"31750106","articleId":12,"accountId":"ahffkdlek12","at":"2026-07-03T07:52:19.089Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":2,"cafeId":"31750100","articleId":11,"accountId":"ahffkekd12","at":"2026-07-03T07:52:26.718Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":3,"cafeId":"31746635","articleId":25,"accountId":"ahfflwl123","at":"2026-07-03T07:52:36.686Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":4,"cafeId":"31750105","articleId":13,"accountId":"ahsxkfldk12","at":"2026-07-03T07:52:46.835Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":6,"cafeId":"31750108","articleId":12,"accountId":"bigfish773","at":"2026-07-03T07:52:56.681Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":7,"cafeId":"31750113","articleId":13,"accountId":"dhtksk1p","at":"2026-07-03T07:53:06.694Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":9,"cafeId":"31750111","articleId":12,"accountId":"eghfsa5478","at":"2026-07-03T07:53:16.775Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":11,"cafeId":"31750110","articleId":12,"accountId":"ghostrush7","at":"2026-07-03T07:53:26.769Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":12,"cafeId":"31750104","articleId":12,"accountId":"h9ag469z","at":"2026-07-03T07:53:36.859Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":13,"cafeId":"31750106","articleId":11,"accountId":"hagyga","at":"2026-07-03T07:53:46.787Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":16,"cafeId":"31750105","articleId":12,"accountId":"n7c3w8z2","at":"2026-07-03T07:53:56.719Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":18,"cafeId":"31750108","articleId":11,"accountId":"produce11745","at":"2026-07-03T07:54:16.694Z"}
+{"event":"comment-started","sequence":17,"dueAtKst":"2026-07-03 16:54:06","cafeSlug":"healthhhh","cafeId":"31746910","articleId":24,"accountId":"pixelninja3","commentSlot":1,"at":"2026-07-03T07:55:05.755Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":21,"cafeId":"31750111","articleId":11,"accountId":"ahffkdlek12","at":"2026-07-03T07:55:17.482Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":23,"cafeId":"31750110","articleId":11,"accountId":"ahfflwl123","at":"2026-07-03T07:55:36.772Z"}
+{"event":"comment-started","sequence":22,"dueAtKst":"2026-07-03 16:55:26","cafeSlug":"petinfo183","cafeId":"31750098","articleId":10,"accountId":"ahffkekd12","commentSlot":1,"at":"2026-07-03T07:55:53.071Z"}
+{"event":"comment-skipped","reason":"already-commented","sequence":25,"cafeId":"31750106","articleId":10,"accountId":"alsrudgus531","at":"2026-07-03T07:55:56.753Z"}
+{"event":"comment-succeeded","sequence":17,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":24,"accountId":"pixelninja3","commentId":"114790682","success":1,"at":"2026-07-03T07:55:59.626Z"}
+{"event":"comment-started","sequence":19,"dueAtKst":"2026-07-03 16:54:26","cafeSlug":"localtable702","cafeId":"31750113","articleId":12,"accountId":"q9v3m7a2","commentSlot":1,"at":"2026-07-03T07:56:01.288Z"}
+{"event":"comment-started","sequence":20,"dueAtKst":"2026-07-03 16:54:36","cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":10,"accountId":"vegetable10517","commentSlot":1,"at":"2026-07-03T07:56:11.889Z"}
+{"event":"ui-captured","sequence":17,"screenshot":{"path":"/Users/ganggyunggyu/Programing/cafe-bot/outputs/work-cafe-comment-live-2026-07-03T07-52-16-638Z/screenshots/00017-pixelninja3-31746910-24.png","cafeId":"31746910","articleId":24,"accountId":"pixelninja3","commentCount":1,"capturedAt":"2026-07-03 16:56:11"},"at":"2026-07-03T07:56:11.981Z"}
+{"event":"comment-started","sequence":24,"dueAtKst":"2026-07-03 16:55:46","cafeSlug":"talkmadang702","cafeId":"31750104","articleId":11,"accountId":"ahsxkfldk12","commentSlot":1,"at":"2026-07-03T07:56:16.782Z"}
+{"event":"comment-failed","sequence":22,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":10,"accountId":"ahffkekd12","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":1,"at":"2026-07-03T07:56:28.204Z"}
+{"event":"comment-started","sequence":26,"dueAtKst":"2026-07-03 16:56:06","cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":9,"accountId":"bigfish773","commentSlot":1,"at":"2026-07-03T07:56:28.851Z"}
+{"event":"comment-failed","sequence":24,"cafeSlug":"talkmadang702","cafeId":"31750104","articleId":11,"accountId":"ahsxkfldk12","error":"로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.","failed":2,"at":"2026-07-03T07:56:33.618Z"}
+{"event":"comment-started","sequence":27,"dueAtKst":"2026-07-03 16:56:16","cafeSlug":"driveee","cafeId":"31746635","articleId":23,"accountId":"dhtksk1p","commentSlot":1,"at":"2026-07-03T07:56:35.176Z"}
+{"event":"comment-failed","sequence":26,"cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":9,"accountId":"bigfish773","error":"로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.","failed":3,"at":"2026-07-03T07:56:36.821Z"}
+{"event":"comment-failed","sequence":20,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":10,"accountId":"vegetable10517","error":"로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.","failed":4,"at":"2026-07-03T07:56:38.688Z"}
+{"event":"comment-started","sequence":29,"dueAtKst":"2026-07-03 16:56:26","cafeSlug":"healthhhh","cafeId":"31746910","articleId":23,"accountId":"eghfsa5478","commentSlot":1,"at":"2026-07-03T07:56:40.549Z"}
+{"event":"comment-succeeded","sequence":19,"cafeSlug":"localtable702","cafeId":"31750113","articleId":12,"accountId":"q9v3m7a2","commentId":"87104394","success":2,"at":"2026-07-03T07:56:46.194Z"}
+{"event":"comment-started","sequence":31,"dueAtKst":"2026-07-03 16:56:36","cafeSlug":"localtable702","cafeId":"31750113","articleId":11,"accountId":"ghostrush7","commentSlot":1,"at":"2026-07-03T07:56:52.977Z"}
+{"event":"comment-started","sequence":33,"dueAtKst":"2026-07-03 16:56:56","cafeSlug":"menunote702","cafeId":"31750111","articleId":10,"accountId":"hagyga","commentSlot":1,"at":"2026-07-03T07:57:06.264Z"}
+{"event":"comment-started","sequence":36,"dueAtKst":"2026-07-03 16:57:06","cafeSlug":"talkmadang702","cafeId":"31750104","articleId":10,"accountId":"n7c3w8z2","commentSlot":1,"at":"2026-07-03T07:57:12.312Z"}
+{"event":"comment-failed","sequence":27,"cafeSlug":"driveee","cafeId":"31746635","articleId":23,"accountId":"dhtksk1p","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":5,"at":"2026-07-03T07:57:15.923Z"}
+{"event":"comment-started","sequence":37,"dueAtKst":"2026-07-03 16:57:16","cafeSlug":"carelog702","cafeId":"31750106","articleId":9,"accountId":"pixelninja3","commentSlot":1,"at":"2026-07-03T07:57:16.825Z"}
+{"event":"comment-started","sequence":38,"dueAtKst":"2026-07-03 16:57:26","cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":8,"accountId":"produce11745","commentSlot":1,"at":"2026-07-03T07:57:26.848Z"}
+{"event":"comment-started","sequence":32,"dueAtKst":"2026-07-03 16:56:46","cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":9,"accountId":"h9ag469z","commentSlot":1,"at":"2026-07-03T07:57:33.544Z"}
+{"event":"comment-started","sequence":39,"dueAtKst":"2026-07-03 16:57:36","cafeSlug":"driveee","cafeId":"31746635","articleId":22,"accountId":"q9v3m7a2","commentSlot":1,"at":"2026-07-03T07:57:43.435Z"}
+{"event":"comment-started","sequence":40,"dueAtKst":"2026-07-03 16:57:46","cafeSlug":"habitnote702","cafeId":"31750105","articleId":10,"accountId":"vegetable10517","commentSlot":1,"at":"2026-07-03T07:57:47.414Z"}
+{"event":"comment-failed","sequence":36,"cafeSlug":"talkmadang702","cafeId":"31750104","articleId":10,"accountId":"n7c3w8z2","error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","failed":6,"at":"2026-07-03T07:57:47.428Z"}
+{"event":"comment-succeeded","sequence":29,"cafeSlug":"healthhhh","cafeId":"31746910","articleId":23,"accountId":"eghfsa5478","commentId":"114790701","success":3,"at":"2026-07-03T07:57:47.629Z"}
+{"event":"comment-succeeded","sequence":31,"cafeSlug":"localtable702","cafeId":"31750113","articleId":11,"accountId":"ghostrush7","commentId":"87104407","success":4,"at":"2026-07-03T07:57:51.203Z"}
+{"event":"comment-succeeded","sequence":33,"cafeSlug":"menunote702","cafeId":"31750111","articleId":10,"accountId":"hagyga","commentId":"64051138","success":5,"at":"2026-07-03T07:57:58.709Z"}
+{"event":"comment-succeeded","sequence":37,"cafeSlug":"carelog702","cafeId":"31750106","articleId":9,"accountId":"pixelninja3","commentId":"80969746","success":6,"at":"2026-07-03T07:58:02.613Z"}
+{"event":"comment-failed","sequence":38,"cafeSlug":"dogwalk2m4","cafeId":"31750100","articleId":8,"accountId":"produce11745","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":7,"at":"2026-07-03T07:58:03.185Z"}
+{"event":"comment-failed","sequence":32,"cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":9,"accountId":"h9ag469z","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":8,"at":"2026-07-03T07:58:08.283Z"}
+{"event":"comment-started","sequence":41,"dueAtKst":"2026-07-03 16:58:16","cafeSlug":"healthhhh","cafeId":"31746910","articleId":22,"accountId":"ahffkdlek12","commentSlot":1,"at":"2026-07-03T07:58:16.843Z"}
+{"event":"comment-failed","sequence":39,"cafeSlug":"driveee","cafeId":"31746635","articleId":22,"accountId":"q9v3m7a2","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":9,"at":"2026-07-03T07:58:19.363Z"}
+{"event":"comment-started","sequence":42,"dueAtKst":"2026-07-03 16:58:26","cafeSlug":"infomadang702","cafeId":"31750108","articleId":9,"accountId":"ahffkekd12","commentSlot":1,"at":"2026-07-03T07:58:26.816Z"}
+{"event":"comment-succeeded","sequence":40,"cafeSlug":"habitnote702","cafeId":"31750105","articleId":10,"accountId":"vegetable10517","commentId":"79097102","success":7,"at":"2026-07-03T07:58:33.325Z"}
+{"event":"comment-started","sequence":43,"dueAtKst":"2026-07-03 16:58:36","cafeSlug":"localtable702","cafeId":"31750113","articleId":10,"accountId":"ahfflwl123","commentSlot":1,"at":"2026-07-03T07:58:38.663Z"}
+{"event":"comment-started","sequence":44,"dueAtKst":"2026-07-03 16:58:46","cafeSlug":"mealtalkdht","cafeId":"31750099","articleId":8,"accountId":"ahsxkfldk12","commentSlot":1,"at":"2026-07-03T07:58:46.872Z"}
+{"event":"comment-started","sequence":45,"dueAtKst":"2026-07-03 16:58:56","cafeSlug":"menunote702","cafeId":"31750111","articleId":9,"accountId":"alsrudgus531","commentSlot":1,"at":"2026-07-03T07:58:56.811Z"}

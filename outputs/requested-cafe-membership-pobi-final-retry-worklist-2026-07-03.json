@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-07-03T07:44:24.659Z",
+  "source": "requested-cafe-membership-join-run-2026-07-03-2026-07-03T07-35-17.178Z.json",
+  "summary": {
+    "joinNeededCount": 1,
+    "blockedCount": 0,
+    "affectedAccounts": 1
+  },
+  "accounts": [
+    {
+      "accountId": "q9v3m7a2",
+      "requestedNickname": "포비 1",
+      "ownerLoginId": "21lab",
+      "role": "commenter",
+      "joinNeeded": [
+        {
+          "cafeName": "일상 소통마당",
+          "cafeId": "31750104",
+          "detail": "카페 가입 보안문자 풀이 실패"
+        }
+      ],
+      "blocked": []
+    }
+  ]
+}

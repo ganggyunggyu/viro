@@ -1,0 +1,60 @@
+{
+  "generatedAt": "2026-07-03T07:35:11.094Z",
+  "source": "requested-cafe-membership-live-2026-07-03-2026-07-03T07-26-23.521Z.json",
+  "summary": {
+    "joinNeededCount": 8,
+    "blockedCount": 0,
+    "affectedAccounts": 1
+  },
+  "accounts": [
+    {
+      "accountId": "q9v3m7a2",
+      "requestedNickname": "포비 1",
+      "ownerLoginId": "21lab",
+      "role": "commenter",
+      "joinNeeded": [
+        {
+          "cafeName": "맛집 밥상노트",
+          "cafeId": "31750114",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "맛집 동네밥상",
+          "cafeId": "31750113",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "맛집 메뉴수첩",
+          "cafeId": "31750111",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "맛집 식탁모임",
+          "cafeId": "31750110",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "애견 반려수첩",
+          "cafeId": "31750109",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "건강 습관노트",
+          "cafeId": "31750105",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "생활 정보마당",
+          "cafeId": "31750108",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "일상 소통마당",
+          "cafeId": "31750104",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    }
+  ]
+}

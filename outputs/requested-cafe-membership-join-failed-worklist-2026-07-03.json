@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-07-03T07:24:14.154Z",
+  "source": "requested-cafe-membership-join-run-2026-07-03-2026-07-03T06-42-04.778Z.json",
+  "summary": {
+    "joinNeededCount": 2,
+    "blockedCount": 0,
+    "affectedAccounts": 2
+  },
+  "accounts": [
+    {
+      "accountId": "eghfsa5478",
+      "requestedNickname": "오세아니야 1",
+      "ownerLoginId": "21lab",
+      "role": "commenter",
+      "joinNeeded": [
+        {
+          "cafeName": "일상 소통마당",
+          "cafeId": "31750104",
+          "detail": "카페 가입 보안문자 풀이 실패"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "pixelninja3",
+      "requestedNickname": "건강박사석사 1",
+      "ownerLoginId": null,
+      "role": null,
+      "joinNeeded": [
+        {
+          "cafeName": "건강 생활수첩",
+          "cafeId": "31750106",
+          "detail": "카페 가입 보안문자 풀이 실패"
+        }
+      ],
+      "blocked": []
+    }
+  ]
+}

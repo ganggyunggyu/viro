@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-07-03T07:55:16.844Z",
+  "result": "completed",
+  "requestedAccounts": 8,
+  "targetCafesPerAccount": 10,
+  "finalJoinedMemberships": 80,
+  "finalNotJoinedMemberships": 0,
+  "verification": {
+    "sevenAccountsFullVerify": {
+      "source": "outputs/requested-cafe-membership-live-2026-07-03-2026-07-03T07-26-23.521Z.json",
+      "joinedIncludingPobiBeforeFinalJoin": 72,
+      "notJoinedBeforePobiFinalJoin": 8,
+      "note": "이 시점에 포비 1만 8건 미가입이었고 나머지 7계정은 70/70 가입 확인"
+    },
+    "pobiFinalVerify": {
+      "command": "scripts/verify-all-cafe-memberships.ts --account q9v3m7a2 --login-id 21lab",
+      "totalChecks": 10,
+      "joined": 10,
+      "notJoined": 0,
+      "unknown": 0,
+      "failedLoginAccounts": 0
+    }
+  },
+  "runArtifacts": [
+    "outputs/requested-cafe-membership-join-run-2026-07-03-2026-07-03T06-42-04.778Z.json",
+    "outputs/requested-cafe-membership-join-run-2026-07-03-2026-07-03T07-24-21.187Z.json",
+    "outputs/requested-cafe-membership-join-run-2026-07-03-2026-07-03T07-35-17.178Z.json",
+    "outputs/requested-cafe-membership-join-run-2026-07-03-2026-07-03T07-49-33.320Z.json"
+  ],
+  "accounts": [
+    {
+      "accountId": "ahffkdlek12",
+      "nickname": "바삭바삭해 1",
+      "finalJoined": 10,
+      "finalNotJoined": 0
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "finalJoined": 10,
+      "finalNotJoined": 0
+    },
+    {
+      "accountId": "ahffkekd12",
+      "nickname": "긍정이백퍼  1",
+      "finalJoined": 10,
+      "finalNotJoined": 0
+    },
+    {
+      "accountId": "laghunter8",
+      "nickname": "도도 1",
+      "finalJoined": 10,
+      "finalNotJoined": 0
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "finalJoined": 10,
+      "finalNotJoined": 0
+    },
+    {
+      "accountId": "pixelninja3",
+      "nickname": "건강박사석사 1",
+      "finalJoined": 10,
+      "finalNotJoined": 0
+    },
+    {
+      "accountId": "n7c3w8z2",
+      "nickname": "고양이밥 1",
+      "finalJoined": 10,
+      "finalNotJoined": 0
+    },
+    {
+      "accountId": "q9v3m7a2",
+      "nickname": "포비 1",
+      "finalJoined": 10,
+      "finalNotJoined": 0
+    }
+  ]
+}
