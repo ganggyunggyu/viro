@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-07-03T01:21:34.007Z",
+  "uiVerifyPath": "outputs/new-cafe-ui-comment-verify-2026-07-03T01-20-34-300Z.json",
+  "minTotal": 10,
+  "delayStepMs": 45000,
+  "dryRun": true,
+  "rescheduleToken": "new_cafe_topup_mr48zk2n",
+  "totalJobs": 6,
+  "results": [
+    {
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "articleId": 3,
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750114/articles/3",
+      "beforeUiTotal": 8,
+      "shortage": 2,
+      "status": "dry-run",
+      "jobs": [
+        {
+          "type": "comment",
+          "accountId": "alsrudgus531",
+          "delayMs": 0,
+          "content": "동네에서 편하게 먹을 수 있는 한 끼 얘기라 더 공감돼요. 저도 혼밥할 때 자리 편하고 충전 가능한 곳이면 자주 가게 되더라고요."
+        },
+        {
+          "type": "comment",
+          "accountId": "ahsxkfldk12",
+          "delayMs": 45000,
+          "content": "부담 없이 들를 수 있는 식당이 결국 오래 기억나는 것 같아요. 메뉴보다도 편하게 먹고 나올 수 있는 분위기가 중요하더라고요."
+        }
+      ]
+    },
+    {
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "articleId": 2,
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750109/articles/2",
+      "beforeUiTotal": 8,
+      "shortage": 2,
+      "status": "dry-run",
+      "jobs": [
+        {
+          "type": "comment",
+          "accountId": "produce11745",
+          "delayMs": 90000,
+          "content": "반려견 관리도 막상 해보면 작은 체크가 제일 중요하더라고요. 발톱이나 양치처럼 미루기 쉬운 것부터 챙기게 돼요."
+        },
+        {
+          "type": "comment",
+          "accountId": "ghostrush7",
+          "delayMs": 135000,
+          "content": "초보자일수록 이런 기본 관리 목록이 있으면 훨씬 덜 놓치는 것 같아요. 귀랑 눈 상태도 매일 보면 변화가 보이더라고요."
+        }
+      ]
+    },
+    {
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "articleId": 2,
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750108/articles/2",
+      "beforeUiTotal": 9,
+      "shortage": 1,
+      "status": "dry-run",
+      "jobs": [
+        {
+          "type": "comment",
+          "accountId": "produce11745",
+          "delayMs": 180000,
+          "content": "생활 정보는 한 번에 다 바꾸려고 하면 금방 지치더라고요. 말씀처럼 하나씩 적용해보는 게 제일 오래 가는 것 같아요."
+        }
+      ]
+    },
+    {
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "articleId": 2,
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/2",
+      "beforeUiTotal": 9,
+      "shortage": 1,
+      "status": "dry-run",
+      "jobs": [
+        {
+          "type": "comment",
+          "accountId": "alsrudgus531",
+          "delayMs": 225000,
+          "content": "가벼운 일상 얘기라도 남겨두면 나중에 다시 볼 때 은근 기분이 좋더라고요. 부담 없이 나누는 게 핵심인 것 같아요."
+        }
+      ]
+    }
+  ]
+}
