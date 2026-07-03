@@ -1,0 +1,94 @@
+{
+  "runId": "2026-07-03T09-11-50-878Z",
+  "scheduleGeneratedAt": "2026-07-03T06:59:52.593Z",
+  "scheduleCollectionId": "2026-07-03T05-54-31-248Z",
+  "options": {
+    "schedulePath": "outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json",
+    "loginId": "21lab",
+    "model": "deepseek-v4-flash",
+    "accountGapMin": 0.1,
+    "globalGapSec": 1,
+    "articleGapMin": 0.1,
+    "startDelaySec": 0,
+    "maxActive": 1,
+    "generationConcurrency": 1,
+    "prefetchArticles": 0,
+    "screenshotEvery": 1,
+    "loginWaitMin": 0,
+    "canarySuccessTarget": 0,
+    "canaryMaxAttempts": 40,
+    "canaryMaxActive": 3,
+    "canaryLaunchGapSec": 2,
+    "onlyAccountIds": {},
+    "excludeAccountIds": {},
+    "excludePairs": {},
+    "onlyArticleKeys": {},
+    "skipArticleKeys": {},
+    "skipWarmup": true,
+    "limit": 0,
+    "dryRun": false
+  },
+  "filtered": {
+    "originalTasks": 2,
+    "skippedAlreadyCommented": 0,
+    "warmupFailedAccountIds": [],
+    "canaryAttemptedSequences": [],
+    "runnableTasks": 2
+  },
+  "totals": {
+    "tasks": 2,
+    "mainTasks": 2,
+    "articles": 1,
+    "accounts": 2
+  },
+  "firstDueAtKst": "2026-07-03 18:11:52",
+  "lastDueAtKst": "2026-07-03 18:11:58",
+  "runtimePlan": [
+    {
+      "row": {
+        "sequence": 683,
+        "cafeSlug": "carelog702",
+        "ownerName": "고구마스틱2 (10개) 1",
+        "cafeId": "31750106",
+        "articleId": 8,
+        "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750106/articles/8",
+        "subject": "랩다이아몬드 뜻과 천연 차이, 가격과 재판매까지",
+        "currentCommentCount": 0,
+        "targetCommentCount": 8,
+        "shortage": 8,
+        "commentSlot": 5,
+        "accountId": "ahfflwl123",
+        "accountNickname": "햄부기",
+        "plannedRunAt": "2026-07-03T08:53:32.566Z",
+        "plannedRunAtKst": "2026-07-03 17:53"
+      },
+      "articleKey": "31750106:8",
+      "articleCommentIndex": 0,
+      "dueAtMs": 1783069912691,
+      "dueAtKst": "2026-07-03 18:11:52"
+    },
+    {
+      "row": {
+        "sequence": 841,
+        "cafeSlug": "carelog702",
+        "ownerName": "고구마스틱2 (10개) 1",
+        "cafeId": "31750106",
+        "articleId": 8,
+        "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750106/articles/8",
+        "subject": "랩다이아몬드 뜻과 천연 차이, 가격과 재판매까지",
+        "currentCommentCount": 0,
+        "targetCommentCount": 8,
+        "shortage": 8,
+        "commentSlot": 6,
+        "accountId": "ahffkdlek12",
+        "accountNickname": "바삭바삭해 1",
+        "plannedRunAt": "2026-07-03T09:19:52.566Z",
+        "plannedRunAtKst": "2026-07-03 18:19"
+      },
+      "articleKey": "31750106:8",
+      "articleCommentIndex": 1,
+      "dueAtMs": 1783069918691,
+      "dueAtKst": "2026-07-03 18:11:58"
+    }
+  ]
+}

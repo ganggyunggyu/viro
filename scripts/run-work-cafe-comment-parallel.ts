@@ -27,6 +27,7 @@ interface RunnerArgs {
   maxActive: number;
   generationConcurrency: number;
   prefetchArticles: number;
+  backgroundPrefetchArticles: number;
   screenshotEvery: number;
   loginWaitMin: number;
   canarySuccessTarget: number;
@@ -36,7 +37,11 @@ interface RunnerArgs {
   onlyAccountIds: Set<string>;
   excludeAccountIds: Set<string>;
   excludePairs: Set<string>;
+  onlyArticleKeys: Set<string>;
   skipArticleKeys: Set<string>;
+  skipWarmup: boolean;
+  accountWorkers: boolean;
+  articleBatches: boolean;
   limit: number;
   dryRun: boolean;
 }
@@ -247,6 +252,7 @@ const getArgs = (): RunnerArgs => ({
   maxActive: Number(getArgValue('--max-active', '20')),
   generationConcurrency: Number(getArgValue('--generation-concurrency', '4')),
   prefetchArticles: Number(getArgValue('--prefetch-articles', '0')),
+  backgroundPrefetchArticles: Number(getArgValue('--background-prefetch-articles', '0')),
   screenshotEvery: Number(getArgValue('--screenshot-every', '25')),
   loginWaitMin: Number(getArgValue('--login-wait-min', '10')),
   canarySuccessTarget: Number(getArgValue('--canary-success-target', '10')),
@@ -256,14 +262,21 @@ const getArgs = (): RunnerArgs => ({
   onlyAccountIds: new Set(getArgValues('--account-id')),
   excludeAccountIds: new Set(getArgValues('--exclude-account-id')),
   excludePairs: new Set(getArgValues('--exclude-pair')),
+  onlyArticleKeys: new Set([...getArgValues('--article'), ...getArgValues('--only-article')]),
   skipArticleKeys: new Set(getArgValues('--skip-article')),
+  skipWarmup: hasFlag('--skip-warmup'),
+  accountWorkers: hasFlag('--account-workers'),
+  articleBatches: hasFlag('--article-batches'),
   limit: Number(getArgValue('--limit', '0')),
   dryRun: hasFlag('--dry-run'),
 });
 
 const loadSchedule = (
   schedulePath: string,
-  options: Pick<RunnerArgs, 'limit' | 'onlyAccountIds' | 'excludeAccountIds' | 'excludePairs' | 'skipArticleKeys'>,
+  options: Pick<
+    RunnerArgs,
+    'limit' | 'onlyAccountIds' | 'excludeAccountIds' | 'excludePairs' | 'onlyArticleKeys' | 'skipArticleKeys'
+  >,
 ): SchedulePayload => {
   const payload = JSON.parse(readFileSync(resolve(schedulePath), 'utf-8')) as SchedulePayload;
   const schedule = [...payload.schedule]
@@ -271,6 +284,7 @@ const loadSchedule = (
       if (options.onlyAccountIds.size > 0 && !options.onlyAccountIds.has(row.accountId)) return false;
       if (options.excludeAccountIds.has(row.accountId)) return false;
       if (getPairKeys(row).some((pairKey) => options.excludePairs.has(pairKey))) return false;
+      if (options.onlyArticleKeys.size > 0 && !options.onlyArticleKeys.has(getArticleKey(row))) return false;
       if (options.skipArticleKeys.has(getArticleKey(row))) return false;
       return true;
     })
@@ -530,7 +544,7 @@ const captureCommentUi = async (params: {
   try {
     const page = await getPageForAccount(accountId);
     const url = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20_000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
     await page.waitForTimeout(1800);
 
     const root = await getArticleRoot(page);
@@ -1070,6 +1084,185 @@ const runScheduler = async (params: {
   await Promise.all(active);
 };
 
+const groupRuntimePlanByAccount = (runtimePlan: RuntimeTask[]): Map<string, RuntimeTask[]> => {
+  const grouped = new Map<string, RuntimeTask[]>();
+
+  for (const task of runtimePlan) {
+    const accountTasks = grouped.get(task.row.accountId) ?? [];
+    accountTasks.push(task);
+    grouped.set(task.row.accountId, accountTasks);
+  }
+
+  for (const tasks of grouped.values()) {
+    tasks.sort((a, b) => a.dueAtMs - b.dueAtMs || a.row.sequence - b.row.sequence);
+  }
+
+  return grouped;
+};
+
+const runAccountWorkerScheduler = async (params: {
+  runtimePlan: RuntimeTask[];
+  accounts: Map<string, NaverAccount>;
+  getGeneratedArticle: (articleKey: string) => Promise<GeneratedArticle>;
+  state: RunnerState;
+  runLogPath: string;
+  screenshotDir: string;
+  summaryPath: string;
+  options: RunnerArgs;
+  runtimeBlockedPairs: Set<string>;
+}): Promise<void> => {
+  const {
+    runtimePlan,
+    accounts,
+    getGeneratedArticle,
+    state,
+    runLogPath,
+    screenshotDir,
+    summaryPath,
+    options,
+    runtimeBlockedPairs,
+  } = params;
+  const limiter = new Semaphore(Math.max(1, options.maxActive));
+  const grouped = groupRuntimePlanByAccount(runtimePlan);
+
+  await Promise.all(
+    Array.from(grouped.entries()).map(([accountId, tasks]) =>
+      limiter.run(async () => {
+        appendJsonl(runLogPath, {
+          event: 'account-worker-started',
+          accountId,
+          taskCount: tasks.length,
+          firstDueAtKst: tasks[0]?.dueAtKst,
+          lastDueAtKst: tasks.at(-1)?.dueAtKst,
+          at: new Date().toISOString(),
+        });
+
+        for (const task of tasks) {
+          await sleep(task.dueAtMs - Date.now());
+          await runTask({
+            task,
+            accounts,
+            getGeneratedArticle,
+            state,
+            runLogPath,
+            screenshotDir,
+            summaryPath,
+            options,
+            runtimePlan,
+            runtimeBlockedPairs,
+          });
+        }
+
+        appendJsonl(runLogPath, {
+          event: 'account-worker-ended',
+          accountId,
+          taskCount: tasks.length,
+          at: new Date().toISOString(),
+        });
+      }),
+    ),
+  );
+};
+
+const groupRuntimePlanByArticle = (runtimePlan: RuntimeTask[]): Map<string, RuntimeTask[]> => {
+  const grouped = new Map<string, RuntimeTask[]>();
+
+  for (const task of runtimePlan) {
+    const articleTasks = grouped.get(task.articleKey) ?? [];
+    articleTasks.push(task);
+    grouped.set(task.articleKey, articleTasks);
+  }
+
+  for (const tasks of grouped.values()) {
+    tasks.sort((a, b) => a.row.sequence - b.row.sequence);
+  }
+
+  return new Map(
+    Array.from(grouped.entries()).sort(([, leftTasks], [, rightTasks]) =>
+      leftTasks[0].row.sequence - rightTasks[0].row.sequence,
+    ),
+  );
+};
+
+const runArticleBatchScheduler = async (params: {
+  runtimePlan: RuntimeTask[];
+  accounts: Map<string, NaverAccount>;
+  getGeneratedArticle: (articleKey: string) => Promise<GeneratedArticle>;
+  state: RunnerState;
+  runLogPath: string;
+  screenshotDir: string;
+  summaryPath: string;
+  options: RunnerArgs;
+  runtimeBlockedPairs: Set<string>;
+}): Promise<void> => {
+  const {
+    runtimePlan,
+    accounts,
+    getGeneratedArticle,
+    state,
+    runLogPath,
+    screenshotDir,
+    summaryPath,
+    options,
+    runtimeBlockedPairs,
+  } = params;
+  const grouped = groupRuntimePlanByArticle(runtimePlan);
+  const accountNextAt = new Map<string, number>();
+
+  for (const [articleKey, tasks] of grouped.entries()) {
+    appendJsonl(runLogPath, {
+      event: 'article-batch-started',
+      articleKey,
+      cafeSlug: tasks[0]?.row.cafeSlug,
+      cafeId: tasks[0]?.row.cafeId,
+      articleId: tasks[0]?.row.articleId,
+      taskCount: tasks.length,
+      at: new Date().toISOString(),
+    });
+
+    await getGeneratedArticle(articleKey);
+
+    const active = new Set<Promise<TaskOutcome>>();
+    for (const task of tasks) {
+      while (active.size >= options.maxActive) {
+        await Promise.race(active);
+      }
+
+      const promise = (async (): Promise<TaskOutcome> => {
+        await sleep((accountNextAt.get(task.row.accountId) ?? 0) - Date.now());
+        const outcome = await runTask({
+          task,
+          accounts,
+          getGeneratedArticle,
+          state,
+          runLogPath,
+          screenshotDir,
+          summaryPath,
+          options,
+          runtimePlan,
+          runtimeBlockedPairs,
+        });
+        accountNextAt.set(task.row.accountId, Date.now() + options.accountGapMin * 60_000);
+        return outcome;
+      })().finally(() => {
+        active.delete(promise);
+      });
+      active.add(promise);
+    }
+
+    await Promise.all(active);
+    appendJsonl(runLogPath, {
+      event: 'article-batch-ended',
+      articleKey,
+      cafeSlug: tasks[0]?.row.cafeSlug,
+      cafeId: tasks[0]?.row.cafeId,
+      articleId: tasks[0]?.row.articleId,
+      taskCount: tasks.length,
+      at: new Date().toISOString(),
+    });
+  }
+};
+
 const runCanary = async (params: {
   runtimePlan: RuntimeTask[];
   accounts: Map<string, NaverAccount>;
@@ -1209,13 +1402,15 @@ const main = async (): Promise<void> => {
   const initiallyFilteredSchedule = runnable.schedule;
   const requiredAccountIds = new Set(initiallyFilteredSchedule.map((row) => row.accountId));
   const accounts = await loadAccounts(options.loginId, requiredAccountIds);
-  const warmupResult = await warmupScheduleSessions(Array.from(accounts.values()), {
-    continueOnFailure: true,
-    loginWaitMs: options.loginWaitMin * 60_000,
-    reason: `work_cafe_comment_${runId}`,
-    reservationTtlMs: 2 * 60 * 60 * 1000,
-    waitBetweenAccountsMs: 1000,
-  });
+  const warmupResult = options.skipWarmup
+    ? { warmedAccountIds: [], failedAccounts: [] }
+    : await warmupScheduleSessions(Array.from(accounts.values()), {
+        continueOnFailure: true,
+        loginWaitMs: options.loginWaitMin * 60_000,
+        reason: `work_cafe_comment_${runId}`,
+        reservationTtlMs: 2 * 60 * 60 * 1000,
+        waitBetweenAccountsMs: 1000,
+      });
   const warmupFailedAccountIds = new Set((warmupResult.failedAccounts || []).map((failure) => failure.accountId));
   const filteredSchedule = initiallyFilteredSchedule.filter((row) => !warmupFailedAccountIds.has(row.accountId));
   const canaryArticleGroups = groupRowsByArticle(filteredSchedule);
@@ -1319,6 +1514,9 @@ const main = async (): Promise<void> => {
   console.log(`tasks: ${runtimePlan.length}`);
   console.log(`articles: ${articleGroups.size}`);
   console.log(`accounts: ${accounts.size}`);
+  console.log(
+    `schedulerMode: ${options.articleBatches ? 'article-batches' : options.accountWorkers ? 'account-workers' : 'global'}`,
+  );
   console.log(`firstDueAtKst: ${runtimePlan[0]?.dueAtKst}`);
   console.log(`lastDueAtKst: ${runtimePlan.at(-1)?.dueAtKst}`);
   console.log(`outputDir: ${outputDir}`);
@@ -1333,6 +1531,12 @@ const main = async (): Promise<void> => {
 
   const prefetchKeys = Array.from(articleGroups.keys()).slice(0, Math.max(0, options.prefetchArticles));
   await Promise.all(prefetchKeys.map((articleKey) => generator.getGeneratedArticle(articleKey).catch(() => undefined)));
+  const backgroundPrefetchKeys = Array.from(articleGroups.keys())
+    .filter((articleKey) => !prefetchKeys.includes(articleKey))
+    .slice(0, Math.max(0, options.backgroundPrefetchArticles));
+  for (const articleKey of backgroundPrefetchKeys) {
+    void generator.getGeneratedArticle(articleKey).catch(() => undefined);
+  }
   writeSummary(summaryPath, state, options, runtimePlan);
 
   const progressTimer = setInterval(() => {
@@ -1348,7 +1552,12 @@ const main = async (): Promise<void> => {
   }, 30_000);
 
   try {
-    await runScheduler({
+    const scheduler = options.articleBatches
+      ? runArticleBatchScheduler
+      : options.accountWorkers
+        ? runAccountWorkerScheduler
+        : runScheduler;
+    await scheduler({
       runtimePlan,
       accounts,
       getGeneratedArticle: generator.getGeneratedArticle,

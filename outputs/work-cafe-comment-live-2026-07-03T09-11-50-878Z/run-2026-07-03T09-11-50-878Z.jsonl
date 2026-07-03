@@ -1,0 +1,3 @@
+{"event":"run-started","runId":"2026-07-03T09-11-50-878Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json","originalTasks":2,"skippedAlreadyCommented":0,"warmupWarmedAccountIds":[],"warmupFailedAccounts":[],"canarySuccessTarget":0,"at":"2026-07-03T09:11:52.690Z"}
+{"event":"main-schedule-started","runId":"2026-07-03T09-11-50-878Z","totalTasks":2,"mainTasks":2,"articleCount":1,"accountCount":2,"firstDueAtKst":"2026-07-03 18:11:52","lastDueAtKst":"2026-07-03 18:11:58","at":"2026-07-03T09:11:52.691Z"}
+{"event":"comment-started","sequence":683,"dueAtKst":"2026-07-03 18:11:52","cafeSlug":"carelog702","cafeId":"31750106","articleId":8,"accountId":"ahfflwl123","commentSlot":5,"at":"2026-07-03T09:12:40.898Z"}

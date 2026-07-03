@@ -18,6 +18,7 @@ export interface JoinCafeMembershipOptions {
   verifyWaitMs?: number;
   verifyAttempts?: number;
   logPrefix?: string;
+  skipCaptchaSolve?: boolean;
 }
 
 export interface JoinCafeMembershipResult {
@@ -392,6 +393,7 @@ export const joinCafeMembership = async (
     verifyWaitMs = 2500,
     verifyAttempts = 2,
     logPrefix,
+    skipCaptchaSolve = false,
   } = options;
   const cafeHome = toMobileCafeHomeUrl(target);
   const cafeNickname = sanitizeCafeNickname(nickname, '회원');
@@ -424,6 +426,22 @@ export const joinCafeMembership = async (
   }
 
   await page.waitForTimeout(1500);
+  if (skipCaptchaSolve) {
+    const captchaVisible =
+      (await hasVisibleSelector(page, CAFE_JOIN_CAPTCHA_IMAGE_SELECTOR)) ||
+      (await hasVisibleSelector(page, CAFE_JOIN_CAPTCHA_INPUT_SELECTOR));
+    const captchaCheckText = await getPageText(page, 3000);
+
+    if (captchaVisible || captchaCheckText.includes('보안문자')) {
+      return {
+        status: 'failed',
+        detail: 'pending_manual: 카페 가입 보안문자 입력 필요',
+        beforeText,
+        afterSubmitText: captchaCheckText,
+      };
+    }
+  }
+
   const captchaResult = await solveCafeJoinCaptchaOnPage(page, { logPrefix });
   if (!captchaResult.solved) {
     return {

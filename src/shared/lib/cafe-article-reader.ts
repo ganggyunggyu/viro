@@ -52,7 +52,7 @@ const navigateToArticle = async (
   password: string,
   options?: ReadCafeArticleOptions,
 ): Promise<{ success: true } | { success: false; error: string }> => {
-  await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+  await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: 0 });
 
   const currentUrl = page.url();
   if (!isLoginRedirect(currentUrl)) return { success: true };
@@ -66,7 +66,7 @@ const navigateToArticle = async (
     return { success: false, error: `세션 만료 후 재로그인 실패: ${reloginResult.error}` };
   }
 
-  await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+  await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: 0 });
   return { success: true };
 };
 

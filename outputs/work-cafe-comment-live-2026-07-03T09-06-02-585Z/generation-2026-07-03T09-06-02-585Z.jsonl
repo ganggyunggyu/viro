@@ -1,0 +1,4 @@
+{"event":"generation-started","articleKey":"31750106:8","cafeSlug":"carelog702","cafeId":"31750106","articleId":8,"readerAccountIds":["eghfsa5478","dhtksk1p","bigfish773","alsrudgus531","ahfflwl123","ahffkdlek12","q9v3m7a2","pixelninja3"],"exactCount":8,"at":"2026-07-03T09:06:04.372Z"}
+{"event":"generation-reader-started","articleKey":"31750106:8","cafeSlug":"carelog702","cafeId":"31750106","articleId":8,"readerAccountId":"eghfsa5478","readerAttempt":1,"readerAttemptTotal":8,"at":"2026-07-03T09:06:04.372Z"}
+{"event":"generation-reader-succeeded","articleKey":"31750106:8","cafeSlug":"carelog702","cafeId":"31750106","articleId":8,"readerAccountId":"eghfsa5478","readerAttempt":1,"at":"2026-07-03T09:07:01.875Z"}
+{"event":"generation-succeeded","articleKey":"31750106:8","cafeSlug":"carelog702","cafeId":"31750106","articleId":8,"readerAccountId":"eghfsa5478","commentCount":8,"warnings":[],"elapsedMs":82542,"at":"2026-07-03T09:07:26.914Z"}

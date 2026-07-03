@@ -38,6 +38,7 @@ interface RunnerArgs {
   onlyAccountIds: Set<string>;
   excludeAccountIds: Set<string>;
   onlyCafeIds: Set<string>;
+  skipJoinCaptchaSolve: boolean;
 }
 
 interface MembershipPair {
@@ -53,7 +54,7 @@ interface MembershipResult {
   cafeId: string;
   cafeSlug: string;
   cafeName: string;
-  status: 'joined' | 'alreadyMember' | 'failed' | 'loginFailed';
+  status: 'joined' | 'alreadyMember' | 'pending_manual' | 'failed' | 'loginFailed';
   detail: string;
   screenshotPath?: string;
   checkedAt: string;
@@ -127,6 +128,8 @@ const getArgValues = (name: string): string[] => {
   return values.flatMap((value) => value.split(',')).map((value) => value.trim()).filter(Boolean);
 };
 
+const hasFlag = (name: string): boolean => args.includes(name);
+
 const toKstDateTime = (date: Date): string =>
   new Date(date.getTime() + KST_OFFSET_MS).toISOString().slice(0, 19).replace('T', ' ');
 
@@ -141,6 +144,7 @@ const getArgs = (): RunnerArgs => ({
   onlyAccountIds: new Set(getArgValues('--account-id')),
   excludeAccountIds: new Set(getArgValues('--exclude-account-id')),
   onlyCafeIds: new Set(getArgValues('--cafe-id')),
+  skipJoinCaptchaSolve: hasFlag('--skip-join-captcha-solve'),
 });
 
 const loadSchedule = (schedulePath: string): SchedulePayload => {
@@ -221,14 +225,18 @@ const appendJsonl = (path: string, payload: Record<string, unknown>): void => {
   appendFileSync(path, `${JSON.stringify(payload)}\n`, 'utf-8');
 };
 
+const isPendingManualDetail = (detail: string): boolean =>
+  /pending_manual|보안문자|캡차|추가 인증|추가인증|보호\/휴면|휴면 해제|보호조치|로그인 대기 시간 초과|수동/.test(detail);
+
 const ensureAccountMemberships = async (params: {
   account: NaverAccount;
   pairs: MembershipPair[];
   outputDir: string;
   loginWaitMs: number;
   progressPath: string;
+  skipJoinCaptchaSolve: boolean;
 }): Promise<MembershipResult[]> => {
-  const { account, pairs, outputDir, loginWaitMs, progressPath } = params;
+  const { account, pairs, outputDir, loginWaitMs, progressPath, skipJoinCaptchaSolve } = params;
   const results: MembershipResult[] = [];
 
   await acquireAccountLock(account.id);
@@ -241,14 +249,17 @@ const ensureAccountMemberships = async (params: {
     });
 
     if (!loginResult.success) {
+      const detail = loginResult.error || '로그인 실패';
+      const status = isPendingManualDetail(detail) ? 'pending_manual' : 'loginFailed';
+
       return pairs.map((pair) => ({
         accountId: account.id,
         nickname: account.nickname || account.id,
         cafeId: pair.cafeId,
         cafeSlug: pair.cafeSlug,
         cafeName: pair.cafeName,
-        status: 'loginFailed',
-        detail: loginResult.error || '로그인 실패',
+        status,
+        detail,
         checkedAt: toKstDateTime(new Date()),
       }));
     }
@@ -268,8 +279,13 @@ const ensureAccountMemberships = async (params: {
         result = await joinCafeMembership(page, target, {
           nickname: account.nickname || account.id,
           logPrefix: `JOIN:${account.id}:${pair.cafeSlug}`,
+          skipCaptchaSolve: skipJoinCaptchaSolve,
         });
-        status = result.status === 'alreadyMember' ? 'alreadyMember' : result.status;
+        status = isPendingManualDetail(result.detail)
+          ? 'pending_manual'
+          : result.status === 'alreadyMember'
+            ? 'alreadyMember'
+            : result.status;
         if (status === 'failed') {
           screenshotPath = await captureJoinFailure(page, outputDir, pair);
         }
@@ -279,7 +295,7 @@ const ensureAccountMemberships = async (params: {
           status: 'failed',
           detail: errorMessage,
         };
-        status = 'failed';
+        status = isPendingManualDetail(errorMessage) ? 'pending_manual' : 'failed';
         screenshotPath = await captureJoinFailure(page, outputDir, pair).catch(() => undefined);
       }
 
@@ -326,12 +342,13 @@ const writeArtifacts = (params: {
   const mdPath = join(outputDir, `work-cafe-membership-ensure-${runId}.md`);
   const joined = results.filter((result) => result.status === 'joined').length;
   const alreadyMember = results.filter((result) => result.status === 'alreadyMember').length;
+  const pendingManual = results.filter((result) => result.status === 'pending_manual').length;
   const failed = results.filter((result) => result.status === 'failed').length;
   const loginFailed = results.filter((result) => result.status === 'loginFailed').length;
 
   writeFileSync(
     jsonPath,
-    JSON.stringify({ schedulePath, summary: { total: results.length, joined, alreadyMember, failed, loginFailed, missingAccounts }, results }, null, 2),
+    JSON.stringify({ schedulePath, summary: { total: results.length, joined, alreadyMember, pendingManual, failed, loginFailed, missingAccounts }, results }, null, 2),
     'utf-8',
   );
 
@@ -344,6 +361,7 @@ const writeArtifacts = (params: {
       `- total: ${results.length}`,
       `- joined: ${joined}`,
       `- alreadyMember: ${alreadyMember}`,
+      `- pendingManual: ${pendingManual}`,
       `- failed: ${failed}`,
       `- loginFailed: ${loginFailed}`,
       `- missingAccounts: ${missingAccounts.join(', ') || '-'}`,
@@ -403,6 +421,7 @@ const main = async (): Promise<void> => {
             outputDir,
             loginWaitMs: options.loginWaitMin * 60_000,
             progressPath,
+            skipJoinCaptchaSolve: options.skipJoinCaptchaSolve,
           });
         }),
       ),

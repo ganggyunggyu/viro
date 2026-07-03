@@ -1,0 +1,3 @@
+{"event":"run-started","runId":"2026-07-03T09-13-47-821Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json","originalTasks":62,"skippedAlreadyCommented":7,"warmupWarmedAccountIds":[],"warmupFailedAccounts":[],"canarySuccessTarget":0,"at":"2026-07-03T09:13:54.240Z"}
+{"event":"main-schedule-started","runId":"2026-07-03T09-13-47-821Z","totalTasks":55,"mainTasks":55,"articleCount":55,"accountCount":1,"firstDueAtKst":"2026-07-03 18:13:54","lastDueAtKst":"2026-07-03 18:27:24","at":"2026-07-03T09:13:54.241Z"}
+{"event":"comment-started","sequence":146,"dueAtKst":"2026-07-03 18:13:54","cafeSlug":"healthhhh","cafeId":"31746910","articleId":7,"accountId":"alsrudgus531","commentSlot":1,"at":"2026-07-03T09:14:54.745Z"}

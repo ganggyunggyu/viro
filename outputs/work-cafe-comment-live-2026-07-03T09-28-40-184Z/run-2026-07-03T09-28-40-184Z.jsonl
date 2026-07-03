@@ -1,0 +1,10 @@
+{"event":"run-started","runId":"2026-07-03T09-28-40-184Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json","originalTasks":1188,"skippedAlreadyCommented":74,"warmupWarmedAccountIds":[],"warmupFailedAccounts":[],"canarySuccessTarget":0,"at":"2026-07-03T09:28:43.317Z"}
+{"event":"main-schedule-started","runId":"2026-07-03T09-28-40-184Z","totalTasks":1114,"mainTasks":1114,"articleCount":158,"accountCount":19,"firstDueAtKst":"2026-07-03 18:28:43","lastDueAtKst":"2026-07-03 18:44:13","at":"2026-07-03T09:28:43.327Z"}
+{"event":"article-batch-started","articleKey":"31750098:11","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"taskCount":7,"at":"2026-07-03T09:28:43.329Z"}
+{"event":"comment-started","sequence":169,"dueAtKst":"2026-07-03 18:30:28","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"dq1h3bjy","commentSlot":2,"at":"2026-07-03T09:33:07.215Z"}
+{"event":"comment-started","sequence":10,"dueAtKst":"2026-07-03 18:28:43","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"geenl","commentSlot":1,"at":"2026-07-03T09:33:07.276Z"}
+{"event":"comment-started","sequence":1118,"dueAtKst":"2026-07-03 18:42:28","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"produce11745","commentSlot":8,"at":"2026-07-03T09:33:07.393Z"}
+{"event":"comment-started","sequence":328,"dueAtKst":"2026-07-03 18:32:28","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"dhtksk1p","commentSlot":3,"at":"2026-07-03T09:33:07.459Z"}
+{"event":"comment-started","sequence":486,"dueAtKst":"2026-07-03 18:34:28","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"bigfish773","commentSlot":4,"at":"2026-07-03T09:33:07.462Z"}
+{"event":"comment-started","sequence":960,"dueAtKst":"2026-07-03 18:40:28","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"vegetable10517","commentSlot":7,"at":"2026-07-03T09:33:07.644Z"}
+{"event":"comment-started","sequence":644,"dueAtKst":"2026-07-03 18:36:28","cafeSlug":"petinfo183","cafeId":"31750098","articleId":11,"accountId":"ahsxkfldk12","commentSlot":5,"at":"2026-07-03T09:33:07.654Z"}

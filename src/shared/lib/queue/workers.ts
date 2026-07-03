@@ -43,6 +43,7 @@ const WORKER_LOCK_DURATION = 10 * 60 * 1000;
 const WORKER_LOCK_RENEW_TIME = 30 * 1000;
 const WORKER_STALLED_INTERVAL = 2 * 60 * 1000;
 const WORKER_MAX_STALLED_COUNT = 3;
+const TASK_WORKER_CONCURRENCY = Math.max(1, Number(process.env.TASK_WORKER_CONCURRENCY || '1'));
 
 const syncAccountSessionReservation = async (accountId: string): Promise<void> => {
   const { waiting, delayed = 0, active } = await import('./index').then(({ getQueueStatus }) =>
@@ -147,7 +148,7 @@ export const createTaskWorker = (): Worker<TaskJobData, JobResult> => {
 
   const worker = new Worker<TaskJobData, JobResult>(queueName, processTaskJob, {
     connection: getRedisConnection(),
-    concurrency: 1,
+    concurrency: TASK_WORKER_CONCURRENCY,
     lockDuration: WORKER_LOCK_DURATION,
     lockRenewTime: WORKER_LOCK_RENEW_TIME,
     stalledInterval: WORKER_STALLED_INTERVAL,
@@ -174,7 +175,7 @@ export const createTaskWorker = (): Worker<TaskJobData, JobResult> => {
 
   taskWorker = worker;
   globalThis.__taskWorker = worker;
-  console.log(`[WORKER] 글로벌 Task 워커 생성: ${TASK_QUEUE_NAME}`);
+  console.log(`[WORKER] 글로벌 Task 워커 생성: ${TASK_QUEUE_NAME} (concurrency=${TASK_WORKER_CONCURRENCY})`);
 
   return worker;
 };
