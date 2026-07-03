@@ -1,0 +1,1912 @@
+{
+  "checkedAt": "2026-07-03T15:13:50.895Z",
+  "checkedAtKst": "2026-07-04 00:13:50",
+  "schedulePath": "outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json",
+  "skippedArticleKeys": [
+    "31746910:25"
+  ],
+  "targetArticles": 158,
+  "targetComments": 1264,
+  "targetCount": 8,
+  "currentCapped": 1036,
+  "rawComments": 1036,
+  "shortage": 228,
+  "filled8": 47,
+  "notFilled": 111,
+  "zero": 0,
+  "missingDocs": 0,
+  "buckets": {
+    "1": 1,
+    "3": 5,
+    "4": 9,
+    "5": 22,
+    "6": 20,
+    "7": 54,
+    "8": 47
+  },
+  "duplicateAccountArticles": 0,
+  "duplicateAccountRows": [],
+  "shortageRows": [
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 16,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/16",
+      "count": 1,
+      "need": 7,
+      "accountsCommented": [
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 1,
+      "title": "운연정 카페를 시작합니다.",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/1",
+      "count": 3,
+      "need": 5,
+      "accountsCommented": [
+        "produce11745",
+        "k7d9x2m4",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 10,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/10",
+      "count": 3,
+      "need": 5,
+      "accountsCommented": [
+        "ahffkdlek12",
+        "produce11745",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 11,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/11",
+      "count": 3,
+      "need": 5,
+      "accountsCommented": [
+        "produce11745",
+        "k7d9x2m4",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 2,
+      "title": "해충 방역업체 선택법과 방제 방식, 업종별 비용 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/2",
+      "count": 3,
+      "need": 5,
+      "accountsCommented": [
+        "dhtksk1p",
+        "produce11745",
+        "laghunter8"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 5,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/5",
+      "count": 3,
+      "need": 5,
+      "accountsCommented": [
+        "vegetable10517",
+        "produce11745",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 2,
+      "title": "서울운전연수 가격 / 8년 장롱 탈출 찐후기 4일 만에 혼자 강변북로 탔어요",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/2",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "dq1h3bjy",
+        "produce11745",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 8,
+      "title": "동탄운전연수 받기 전 꼭 알아야 할 6가지, 수원운전연수 참고",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/8",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "bigfish773",
+        "ahsxkfldk12",
+        "produce11745",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 9,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/9",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "ahfflwl123",
+        "produce11745",
+        "k7d9x2m4",
+        "ahffkdlek12"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 12,
+      "title": "수원운전연수 비용 선택기준 후기",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/12",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "dq1h3bjy",
+        "bigfish773",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 15,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/15",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "ahfflwl123",
+        "produce11745",
+        "k7d9x2m4",
+        "bigfish773"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 1,
+      "title": "애견 반려정보 카페를 시작합니다.",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/1",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "geenl",
+        "dhtksk1p",
+        "ahfflwl123",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 3,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/3",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 10,
+      "title": "결혼반지 예산과 4C, 구입처별 가격까지 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/10",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "vegetable10517",
+        "produce11745",
+        "geenl",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 2,
+      "title": "강아지 눈 영양제 성분과 눈물자국·백내장 관리, 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/2",
+      "count": 4,
+      "need": 4,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "laghunter8",
+        "ghostrush7",
+        "alsrudgus531"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 4,
+      "title": "수원운전연수 비용부터 업체 고르는 법까지, 장롱면허 7년차가 10시간 다녀온 솔직후기",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/4",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "hagyga",
+        "dq1h3bjy",
+        "ahsxkfldk12",
+        "k7d9x2m4",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 5,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/5",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "ghostrush7",
+        "dq1h3bjy",
+        "ahsxkfldk12",
+        "dhtksk1p",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 6,
+      "title": "의정부운전연수 비용 업체 고르는 법, 12년 장롱면허가 솔직하게 푼 후기",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/6",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "eghfsa5478",
+        "dq1h3bjy",
+        "ahsxkfldk12",
+        "dhtksk1p",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 7,
+      "title": "인천운전연수 비용이랑 업체 고르는 법 솔직후기",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/7",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "dhtksk1p",
+        "eghfsa5478",
+        "ahsxkfldk12",
+        "produce11745",
+        "bigfish773"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 13,
+      "title": "서울운전연수 5년 장롱면허 내돈내산 후기",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/13",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "bigfish773",
+        "dq1h3bjy",
+        "laghunter8",
+        "k7d9x2m4",
+        "ahsxkfldk12"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 20,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/20",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "ahfflwl123",
+        "ahffkdlek12",
+        "k7d9x2m4",
+        "hagyga",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 25,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/25",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "ahfflwl123",
+        "ahffkdlek12",
+        "hagyga",
+        "k7d9x2m4",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 5,
+      "title": "흑염소 효능 총정리, 왜 예부터 보양식으로 꼽혔을까",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/5",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "bigfish773",
+        "alsrudgus531",
+        "dq1h3bjy",
+        "ahffkdlek12",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 7,
+      "title": "인삼 효능 총정리, 기력부터 면역까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/7",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "alsrudgus531",
+        "bigfish773",
+        "ahffkdlek12",
+        "laghunter8",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 15,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/15",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "alsrudgus531",
+        "ahsxkfldk12",
+        "q9v3m7a2",
+        "k7d9x2m4",
+        "n7c3w8z2"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 16,
+      "title": "알파CD 효능과 부작용, 고르는 기준까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/16",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "hagyga",
+        "h9ag469z",
+        "dq1h3bjy",
+        "bigfish773",
+        "ahsxkfldk12"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 7,
+      "title": "울산 위고비 처방 대상과 효과·부작용, 비용 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/7",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "bigfish773",
+        "dq1h3bjy",
+        "produce11745",
+        "geenl"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 8,
+      "title": "밀크씨슬 효능과 실리마린 작용, 복용법·고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/8",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 9,
+      "title": "드라이기 모터와 소비전력, 소음까지 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/9",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "geenl",
+        "bigfish773",
+        "ahsxkfldk12",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 1,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/1",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "alsrudgus531",
+        "ahffkdlek12",
+        "ahfflwl123",
+        "geenl"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 3,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/3",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "produce11745",
+        "ahfflwl123",
+        "vegetable10517",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 6,
+      "title": "두유제조기 가격대와 소음 세척까지 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/6",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "bigfish773",
+        "dq1h3bjy",
+        "vegetable10517",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 11,
+      "title": "회사 답례품 상황별 추천과 예산, 대량 주문 기준까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/11",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 1,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/1",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "ahffkekd12",
+        "ahffkdlek12",
+        "hagyga",
+        "laghunter8",
+        "alsrudgus531"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 4,
+      "title": "헤어드라이어 종류와 부가기능, 처음 고를 때 봐야 할 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/4",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "bigfish773",
+        "ahsxkfldk12",
+        "hagyga",
+        "ahfflwl123",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 7,
+      "title": "선풍기 모터와 소음, 풍량까지 공간별로 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/7",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "geenl",
+        "bigfish773",
+        "eghfsa5478",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 9,
+      "title": "접이식 카트 활용법과 캠핑·차박·이사용 대형 고르는 법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/9",
+      "count": 5,
+      "need": 3,
+      "accountsCommented": [
+        "bigfish773",
+        "ahsxkfldk12",
+        "produce11745",
+        "ahfflwl123",
+        "laghunter8"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 3,
+      "title": "수원운전연수 비용 권선동 예비아빠가 업체 고른 솔직 후기",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/3",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "laghunter8",
+        "k7d9x2m4",
+        "ahsxkfldk12",
+        "dq1h3bjy",
+        "hagyga",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 17,
+      "title": "두유제조기 고르는 기준과 세척·다용도 활용법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/17",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "produce11745",
+        "eghfsa5478",
+        "bigfish773",
+        "hagyga",
+        "k7d9x2m4",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 18,
+      "title": "올리브오일 효능과 엑스트라버진 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/18",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "dhtksk1p",
+        "bigfish773",
+        "ahfflwl123",
+        "ahffkdlek12",
+        "k7d9x2m4",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 21,
+      "title": "푸룬주스 효능과 변비 완화, 먹는 법과 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/21",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "ghostrush7",
+        "bigfish773",
+        "ahfflwl123",
+        "eghfsa5478",
+        "ahffkdlek12",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 22,
+      "title": "장에 좋은 음식과 피해야 할 음식, 장 건강 관리법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/22",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "ghostrush7",
+        "dhtksk1p",
+        "produce11745",
+        "hagyga",
+        "eghfsa5478"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 23,
+      "title": "군대 깔창 소재별 고르는 기준과 행군·반입까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/23",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "dhtksk1p",
+        "dq1h3bjy",
+        "ahfflwl123",
+        "ahffkdlek12",
+        "bigfish773"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 6,
+      "title": "비타민D 효능과 채우는 법, 햇빛 비타민의 모든 것",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/6",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "alsrudgus531",
+        "bigfish773",
+        "eghfsa5478",
+        "ahffkdlek12",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 8,
+      "title": "흑염소진액 효능 총정리, 기력 떨어졌을 때 왜 찾을까",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/8",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "ahffkdlek12",
+        "laghunter8",
+        "alsrudgus531",
+        "ahfflwl123",
+        "hagyga"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 11,
+      "title": "홍삼 효능 총정리, 챙기기 전에 알아두면 좋은 것들",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/11",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "ahffkdlek12",
+        "pixelninja3",
+        "laghunter8",
+        "eghfsa5478",
+        "hagyga",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 17,
+      "title": "무지외반증 교정기 효과와 고르는 기준, 부작용까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/17",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "ahffkdlek12",
+        "q9v3m7a2",
+        "pixelninja3",
+        "hagyga",
+        "laghunter8",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 4,
+      "title": "장바구니 캐리어 종류와 보냉 기능, 용량별 고르는 법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/4",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "geenl",
+        "bigfish773",
+        "k7d9x2m4",
+        "vegetable10517",
+        "ahsxkfldk12",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 5,
+      "title": "강아지 영양제 종류와 나이별 급여 기준, 고르는 법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/5",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "dq1h3bjy",
+        "produce11745",
+        "geenl",
+        "h9ag469z",
+        "vegetable10517"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 8,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/8",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "produce11745",
+        "h9ag469z",
+        "k7d9x2m4",
+        "ahfflwl123",
+        "vegetable10517"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 10,
+      "title": "인천웨딩홀 대관료 식대 시세부터 고르는 기준까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/10",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "geenl",
+        "vegetable10517",
+        "produce11745",
+        "h9ag469z",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 3,
+      "title": "드라이기 잘못 쓰면 모발 손상, 흔한 실수와 안전 사용법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/3",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "laghunter8",
+        "geenl",
+        "h9ag469z",
+        "ahsxkfldk12",
+        "produce11745",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 6,
+      "title": "미용실드라이기 왜 센가, 업소용과 가정용 차이와 고르는 법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/6",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "ahffkekd12",
+        "ahffkdlek12",
+        "produce11745",
+        "laghunter8",
+        "h9ag469z",
+        "geenl"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 8,
+      "title": "인천웨딩홀 대관료와 식대, 보증인원까지 예산 짜는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/8",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "laghunter8",
+        "bigfish773",
+        "geenl",
+        "h9ag469z",
+        "produce11745",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "tableclub702",
+      "cafeId": "31750110",
+      "articleId": 6,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750110/articles/6",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "ahfflwl123",
+        "ahffkdlek12",
+        "q9v3m7a2",
+        "hagyga",
+        "laghunter8",
+        "pixelninja3"
+      ]
+    },
+    {
+      "cafeSlug": "localtable702",
+      "cafeId": "31750113",
+      "articleId": 1,
+      "title": "맛집 동네밥상 카페를 시작합니다.",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750113/articles/1",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "bigfish773",
+        "ahsxkfldk12",
+        "dhtksk1p",
+        "vegetable10517",
+        "produce11745",
+        "n7c3w8z2"
+      ]
+    },
+    {
+      "cafeSlug": "localtable702",
+      "cafeId": "31750113",
+      "articleId": 6,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750113/articles/6",
+      "count": 6,
+      "need": 2,
+      "accountsCommented": [
+        "ghostrush7",
+        "geenl",
+        "alsrudgus531",
+        "ahfflwl123",
+        "ahffkdlek12",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 14,
+      "title": "서울운전연수 추천 선택기준 총정리, 사기 안 당하고 제대로 고르는 법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/14",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ghostrush7",
+        "ahfflwl123",
+        "bigfish773",
+        "eghfsa5478",
+        "ahffkdlek12",
+        "k7d9x2m4",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 2,
+      "title": "오메가3 효능 총정리, 혈관부터 뇌·눈·관절까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/2",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "laghunter8",
+        "eghfsa5478",
+        "alsrudgus531",
+        "n7c3w8z2",
+        "hagyga",
+        "bigfish773",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 4,
+      "title": "아연 효능 총정리, 면역부터 남성 여성 건강까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/4",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "h9ag469z",
+        "eghfsa5478",
+        "bigfish773",
+        "alsrudgus531",
+        "ghostrush7",
+        "dq1h3bjy",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 9,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/9",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahffkekd12",
+        "ahffkdlek12",
+        "laghunter8",
+        "pixelninja3",
+        "hagyga",
+        "ghostrush7",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 12,
+      "title": "산삼 효능 제대로 알기, 귀한 보약의 진짜 가치",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/12",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "q9v3m7a2",
+        "pixelninja3",
+        "dhtksk1p",
+        "ghostrush7",
+        "laghunter8",
+        "eghfsa5478",
+        "hagyga"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 13,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/13",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "n7c3w8z2",
+        "laghunter8",
+        "eghfsa5478",
+        "dhtksk1p",
+        "hagyga",
+        "alsrudgus531",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 14,
+      "title": "LDM 디바이스 원리와 효과, 가정용 고르는 기준까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/14",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "eghfsa5478",
+        "alsrudgus531",
+        "k7d9x2m4",
+        "hagyga",
+        "dhtksk1p",
+        "ghostrush7",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 18,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/18",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "eghfsa5478",
+        "bigfish773",
+        "alsrudgus531",
+        "ahffkdlek12",
+        "dq1h3bjy",
+        "q9v3m7a2",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 19,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/19",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "pixelninja3",
+        "k7d9x2m4",
+        "eghfsa5478",
+        "n7c3w8z2",
+        "dhtksk1p",
+        "hagyga",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 20,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/20",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "alsrudgus531",
+        "ahsxkfldk12",
+        "q9v3m7a2",
+        "ahffkdlek12",
+        "laghunter8",
+        "ahfflwl123",
+        "hagyga"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 22,
+      "title": "신발깔창 종류와 고르는 기준, 냄새 관리까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/22",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahffkdlek12",
+        "q9v3m7a2",
+        "pixelninja3",
+        "laghunter8",
+        "eghfsa5478",
+        "hagyga",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "cafeId": "31746910",
+      "articleId": 23,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/23",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "eghfsa5478",
+        "bigfish773",
+        "alsrudgus531",
+        "ahffkdlek12",
+        "dq1h3bjy",
+        "q9v3m7a2",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 6,
+      "title": "울산 마운자로 처방 절차와 효과·부작용, 비용 정리",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/6",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "bigfish773",
+        "dhtksk1p",
+        "ahsxkfldk12",
+        "geenl",
+        "vegetable10517",
+        "produce11745",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "cafeId": "31750098",
+      "articleId": 11,
+      "title": "부천 PT 비용과 횟수, 효과와 트레이너 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750098/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "bigfish773",
+        "geenl",
+        "ahsxkfldk12",
+        "dhtksk1p",
+        "vegetable10517",
+        "dq1h3bjy",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 4,
+      "title": "대구 가족사진 가격부터 스튜디오 고르는 기준까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/4",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "dq1h3bjy",
+        "bigfish773",
+        "produce11745",
+        "h9ag469z",
+        "ghostrush7",
+        "geenl"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 7,
+      "title": "삼척 카페 오션뷰 명소와 지역별 추천, 시그니처 메뉴까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/7",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "laghunter8",
+        "k7d9x2m4",
+        "dq1h3bjy",
+        "bigfish773",
+        "ahsxkfldk12",
+        "geenl",
+        "h9ag469z"
+      ]
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "cafeId": "31750099",
+      "articleId": 9,
+      "title": "위고비 알약 진짜 가짜 구별법과 처방 정보까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750099/articles/9",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "bigfish773",
+        "ahsxkfldk12",
+        "geenl",
+        "vegetable10517",
+        "h9ag469z",
+        "ghostrush7"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 2,
+      "title": "날개없는 선풍기 원리와 장단점, 청소·안전의 진실까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/2",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "geenl",
+        "eghfsa5478",
+        "dq1h3bjy",
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "laghunter8"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 5,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/5",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "laghunter8",
+        "hagyga",
+        "h9ag469z",
+        "dq1h3bjy",
+        "ahsxkfldk12",
+        "bigfish773",
+        "geenl"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 10,
+      "title": "헤어드라이기 풍속과 바람 세기, 빨리 마르는 원리와 선택 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/10",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "laghunter8",
+        "ahsxkfldk12",
+        "hagyga",
+        "bigfish773",
+        "dq1h3bjy",
+        "h9ag469z",
+        "geenl"
+      ]
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "cafeId": "31750100",
+      "articleId": 11,
+      "title": "헤어드라이어 종류와 부가기능, 처음 고를 때 봐야 할 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750100/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahffkekd12",
+        "ahffkdlek12",
+        "produce11745",
+        "laghunter8",
+        "geenl",
+        "h9ag469z",
+        "vegetable10517"
+      ]
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 1,
+      "title": "일상 소통마당 카페를 시작합니다.",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/1",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "geenl",
+        "dq1h3bjy",
+        "hagyga",
+        "ghostrush7",
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517"
+      ]
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 4,
+      "title": "LDM 디바이스 10회 시술 후기, 효과와 통증 그리고 명현현상",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/4",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "dhtksk1p",
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "hagyga",
+        "produce11745",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 5,
+      "title": "무지외반증 교정기 6개월 착용 후기, 교정 효과와 야간부목 종류까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/5",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "n7c3w8z2",
+        "k7d9x2m4",
+        "laghunter8",
+        "geenl",
+        "h9ag469z",
+        "bigfish773",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 6,
+      "title": "거북목교정기 4개월 후기, 종류별 효과와 각도 부담 그리고 한계",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/6",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "vegetable10517",
+        "n7c3w8z2",
+        "k7d9x2m4",
+        "ghostrush7",
+        "alsrudgus531",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 7,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/7",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "h9ag469z",
+        "ghostrush7",
+        "geenl",
+        "dq1h3bjy",
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517"
+      ]
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 9,
+      "title": "조문 답례품 준비 후기, 종류와 가격 그리고 답례 시기까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/9",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "dq1h3bjy",
+        "bigfish773",
+        "vegetable10517",
+        "ahsxkfldk12",
+        "produce11745",
+        "n7c3w8z2",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 11,
+      "title": "음식물분쇄기 설치 후기, 불법 논란과 합법 기준 그리고 인증 확인법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "alsrudgus531",
+        "n7c3w8z2",
+        "vegetable10517",
+        "produce11745",
+        "h9ag469z",
+        "k7d9x2m4"
+      ]
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 12,
+      "title": "SAT학원 선택 후기, 디지털 시험 대비와 학원 종류 그리고 비용까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/12",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "h9ag469z",
+        "ghostrush7",
+        "geenl",
+        "bigfish773",
+        "dq1h3bjy",
+        "ahsxkfldk12",
+        "vegetable10517"
+      ]
+    },
+    {
+      "cafeSlug": "habitnote702",
+      "cafeId": "31750105",
+      "articleId": 1,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750105/articles/1",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "hagyga",
+        "geenl",
+        "dq1h3bjy",
+        "alsrudgus531",
+        "ahsxkfldk12",
+        "h9ag469z",
+        "laghunter8"
+      ]
+    },
+    {
+      "cafeSlug": "habitnote702",
+      "cafeId": "31750105",
+      "articleId": 6,
+      "title": "랩다이아 반지 예물로 괜찮을까, 세팅과 양가 설득까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750105/articles/6",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "alsrudgus531",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745",
+        "laghunter8",
+        "dq1h3bjy",
+        "dhtksk1p"
+      ]
+    },
+    {
+      "cafeSlug": "habitnote702",
+      "cafeId": "31750105",
+      "articleId": 8,
+      "title": "예물반지 뜻과 품목, 예산 배분과 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750105/articles/8",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "ahfflwl123",
+        "n7c3w8z2",
+        "vegetable10517",
+        "k7d9x2m4",
+        "produce11745",
+        "h9ag469z"
+      ]
+    },
+    {
+      "cafeSlug": "habitnote702",
+      "cafeId": "31750105",
+      "articleId": 9,
+      "title": "웨딩링 소재와 두께 호수 각인까지 고르는 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750105/articles/9",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "h9ag469z",
+        "ghostrush7",
+        "geenl",
+        "dq1h3bjy",
+        "alsrudgus531",
+        "vegetable10517",
+        "ahsxkfldk12"
+      ]
+    },
+    {
+      "cafeSlug": "habitnote702",
+      "cafeId": "31750105",
+      "articleId": 11,
+      "title": "강아지 영양제 종류와 연령별 급여 기준, 과다 주의",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750105/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "produce11745",
+        "n7c3w8z2",
+        "dhtksk1p",
+        "ahsxkfldk12",
+        "alsrudgus531",
+        "vegetable10517",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "habitnote702",
+      "cafeId": "31750105",
+      "articleId": 13,
+      "title": "선풍기 모터와 풍량 날개 소음 기준 고르는 법",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750105/articles/13",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahsxkfldk12",
+        "ahfflwl123",
+        "n7c3w8z2",
+        "vegetable10517",
+        "k7d9x2m4",
+        "produce11745",
+        "h9ag469z"
+      ]
+    },
+    {
+      "cafeSlug": "carelog702",
+      "cafeId": "31750106",
+      "articleId": 5,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750106/articles/5",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "alsrudgus531",
+        "ahfflwl123",
+        "ahsxkfldk12",
+        "q9v3m7a2",
+        "ahffkdlek12",
+        "h9ag469z",
+        "laghunter8"
+      ]
+    },
+    {
+      "cafeSlug": "carelog702",
+      "cafeId": "31750106",
+      "articleId": 8,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750106/articles/8",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "eghfsa5478",
+        "bigfish773",
+        "alsrudgus531",
+        "dhtksk1p",
+        "q9v3m7a2",
+        "ahffkdlek12",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "infomadang702",
+      "cafeId": "31750108",
+      "articleId": 5,
+      "title": "에어컨청소업체 처음 불러본 후기, 벽걸이 스탠드 비용과 업체 고른 기준",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750108/articles/5",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "geenl",
+        "eghfsa5478",
+        "dhtksk1p",
+        "bigfish773",
+        "n7c3w8z2",
+        "ahsxkfldk12",
+        "vegetable10517"
+      ]
+    },
+    {
+      "cafeSlug": "infomadang702",
+      "cafeId": "31750108",
+      "articleId": 7,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750108/articles/7",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "bigfish773",
+        "alsrudgus531",
+        "ahsxkfldk12",
+        "produce11745",
+        "vegetable10517",
+        "k7d9x2m4",
+        "n7c3w8z2"
+      ]
+    },
+    {
+      "cafeSlug": "infomadang702",
+      "cafeId": "31750108",
+      "articleId": 8,
+      "title": "위고비 알약 알아본 후기, 가짜 먹는 약 거르고 정품 복용법까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750108/articles/8",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "k7d9x2m4",
+        "hagyga",
+        "h9ag469z",
+        "geenl",
+        "bigfish773",
+        "ahsxkfldk12",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "infomadang702",
+      "cafeId": "31750108",
+      "articleId": 10,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750108/articles/10",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "geenl",
+        "eghfsa5478",
+        "dhtksk1p",
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "infomadang702",
+      "cafeId": "31750108",
+      "articleId": 12,
+      "title": "알파CD 두 달 먹어본 후기, 지방 흡착 원리와 섭취법 조합까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750108/articles/12",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "bigfish773",
+        "alsrudgus531",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745",
+        "k7d9x2m4",
+        "n7c3w8z2"
+      ]
+    },
+    {
+      "cafeSlug": "tableclub702",
+      "cafeId": "31750110",
+      "articleId": 1,
+      "title": "맛집 식탁모임 카페를 시작합니다.",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750110/articles/1",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "q9v3m7a2",
+        "produce11745",
+        "n7c3w8z2",
+        "k7d9x2m4",
+        "h9ag469z",
+        "geenl",
+        "dq1h3bjy"
+      ]
+    },
+    {
+      "cafeSlug": "tableclub702",
+      "cafeId": "31750110",
+      "articleId": 7,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750110/articles/7",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ghostrush7",
+        "eghfsa5478",
+        "dhtksk1p",
+        "ahfflwl123",
+        "alsrudgus531",
+        "ahffkdlek12",
+        "q9v3m7a2"
+      ]
+    },
+    {
+      "cafeSlug": "tableclub702",
+      "cafeId": "31750110",
+      "articleId": 11,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750110/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahfflwl123",
+        "ahffkdlek12",
+        "q9v3m7a2",
+        "hagyga",
+        "laghunter8",
+        "ghostrush7",
+        "pixelninja3"
+      ]
+    },
+    {
+      "cafeSlug": "menunote702",
+      "cafeId": "31750111",
+      "articleId": 1,
+      "title": "맛집 메뉴수첩 카페를 시작합니다.",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750111/articles/1",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ghostrush7",
+        "eghfsa5478",
+        "dhtksk1p",
+        "bigfish773",
+        "ahsxkfldk12",
+        "vegetable10517",
+        "produce11745"
+      ]
+    },
+    {
+      "cafeSlug": "menunote702",
+      "cafeId": "31750111",
+      "articleId": 5,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750111/articles/5",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "hagyga",
+        "h9ag469z",
+        "ghostrush7",
+        "dhtksk1p",
+        "q9v3m7a2",
+        "alsrudgus531",
+        "ahfflwl123"
+      ]
+    },
+    {
+      "cafeSlug": "menunote702",
+      "cafeId": "31750111",
+      "articleId": 8,
+      "title": "광주웨딩홀 상무지구 밀집, 주차 확인 사항",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750111/articles/8",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "pixelninja3",
+        "n7c3w8z2",
+        "laghunter8",
+        "ghostrush7",
+        "dhtksk1p",
+        "hagyga",
+        "alsrudgus531"
+      ]
+    },
+    {
+      "cafeSlug": "menunote702",
+      "cafeId": "31750111",
+      "articleId": 11,
+      "title": "부천웨딩홀 소사·상동 권역, 뷔페 수준 비교",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750111/articles/11",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahffkdlek12",
+        "vegetable10517",
+        "q9v3m7a2",
+        "pixelninja3",
+        "laghunter8",
+        "ghostrush7",
+        "hagyga"
+      ]
+    },
+    {
+      "cafeSlug": "localtable702",
+      "cafeId": "31750113",
+      "articleId": 5,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750113/articles/5",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahfflwl123",
+        "dq1h3bjy",
+        "ahffkdlek12",
+        "q9v3m7a2",
+        "laghunter8",
+        "hagyga",
+        "pixelninja3"
+      ]
+    },
+    {
+      "cafeSlug": "localtable702",
+      "cafeId": "31750113",
+      "articleId": 7,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750113/articles/7",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "q9v3m7a2",
+        "produce11745",
+        "hagyga",
+        "laghunter8",
+        "ghostrush7",
+        "bigfish773",
+        "pixelninja3"
+      ]
+    },
+    {
+      "cafeSlug": "localtable702",
+      "cafeId": "31750113",
+      "articleId": 8,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750113/articles/8",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "dhtksk1p",
+        "bigfish773",
+        "alsrudgus531",
+        "ahfflwl123",
+        "q9v3m7a2",
+        "ahffkdlek12",
+        "laghunter8"
+      ]
+    },
+    {
+      "cafeSlug": "localtable702",
+      "cafeId": "31750113",
+      "articleId": 10,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750113/articles/10",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "ahfflwl123",
+        "ahffkdlek12",
+        "laghunter8",
+        "ghostrush7",
+        "q9v3m7a2",
+        "pixelninja3",
+        "hagyga"
+      ]
+    },
+    {
+      "cafeSlug": "localtable702",
+      "cafeId": "31750113",
+      "articleId": 12,
+      "title": "천안내성발톱 치료와 예방, 병원 고르는 기준까지",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750113/articles/12",
+      "count": 7,
+      "need": 1,
+      "accountsCommented": [
+        "q9v3m7a2",
+        "produce11745",
+        "pixelninja3",
+        "hagyga",
+        "laghunter8",
+        "ghostrush7",
+        "dhtksk1p"
+      ]
+    }
+  ]
+}

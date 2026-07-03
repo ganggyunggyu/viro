@@ -1,0 +1,135 @@
+# 작업카페 댓글 최종 감사
+
+- checkedAtKst: 2026-07-04 00:13:50
+- targetArticles: 158
+- targetComments: 1264
+- currentCapped: 1036
+- rawComments: 1036
+- shortage: 228
+- filled8: 47
+- notFilled: 111
+- zero: 0
+- missingDocs: 0
+- duplicateAccountArticles: 0
+
+## 분포
+- 1/8: 1개
+- 3/8: 5개
+- 4/8: 9개
+- 5/8: 22개
+- 6/8: 20개
+- 7/8: 54개
+- 8/8: 47개
+
+## 부족 글
+- driveee 31746635/16: 1/8 need=7 https://cafe.naver.com/ca-fe/cafes/31746635/articles/16 외부 글
+- driveee 31746635/1: 3/8 need=5 https://cafe.naver.com/ca-fe/cafes/31746635/articles/1 운연정 카페를 시작합니다.
+- driveee 31746635/10: 3/8 need=5 https://cafe.naver.com/ca-fe/cafes/31746635/articles/10 외부 글
+- driveee 31746635/11: 3/8 need=5 https://cafe.naver.com/ca-fe/cafes/31746635/articles/11 외부 글
+- petinfo183 31750098/2: 3/8 need=5 https://cafe.naver.com/ca-fe/cafes/31750098/articles/2 해충 방역업체 선택법과 방제 방식, 업종별 비용 기준
+- petinfo183 31750098/5: 3/8 need=5 https://cafe.naver.com/ca-fe/cafes/31750098/articles/5 외부 글
+- driveee 31746635/2: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31746635/articles/2 서울운전연수 가격 / 8년 장롱 탈출 찐후기 4일 만에 혼자 강변북로 탔어요
+- driveee 31746635/8: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31746635/articles/8 동탄운전연수 받기 전 꼭 알아야 할 6가지, 수원운전연수 참고
+- driveee 31746635/9: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31746635/articles/9 외부 글
+- driveee 31746635/12: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31746635/articles/12 수원운전연수 비용 선택기준 후기
+- driveee 31746635/15: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31746635/articles/15 외부 글
+- petinfo183 31750098/1: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31750098/articles/1 애견 반려정보 카페를 시작합니다.
+- petinfo183 31750098/3: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31750098/articles/3 외부 글
+- petinfo183 31750098/10: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31750098/articles/10 결혼반지 예산과 4C, 구입처별 가격까지 고르는 기준
+- mealtalkdht 31750099/2: 4/8 need=4 https://cafe.naver.com/ca-fe/cafes/31750099/articles/2 강아지 눈 영양제 성분과 눈물자국·백내장 관리, 고르는 기준
+- driveee 31746635/4: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746635/articles/4 수원운전연수 비용부터 업체 고르는 법까지, 장롱면허 7년차가 10시간 다녀온 솔직후기
+- driveee 31746635/5: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746635/articles/5 외부 글
+- driveee 31746635/6: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746635/articles/6 의정부운전연수 비용 업체 고르는 법, 12년 장롱면허가 솔직하게 푼 후기
+- driveee 31746635/7: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746635/articles/7 인천운전연수 비용이랑 업체 고르는 법 솔직후기
+- driveee 31746635/13: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746635/articles/13 서울운전연수 5년 장롱면허 내돈내산 후기
+- driveee 31746635/20: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746635/articles/20 외부 글
+- driveee 31746635/25: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746635/articles/25 외부 글
+- healthhhh 31746910/5: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746910/articles/5 흑염소 효능 총정리, 왜 예부터 보양식으로 꼽혔을까
+- healthhhh 31746910/7: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746910/articles/7 인삼 효능 총정리, 기력부터 면역까지
+- healthhhh 31746910/15: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746910/articles/15 외부 글
+- healthhhh 31746910/16: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31746910/articles/16 알파CD 효능과 부작용, 고르는 기준까지
+- petinfo183 31750098/7: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750098/articles/7 울산 위고비 처방 대상과 효과·부작용, 비용 기준
+- petinfo183 31750098/8: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750098/articles/8 밀크씨슬 효능과 실리마린 작용, 복용법·고르는 기준
+- petinfo183 31750098/9: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750098/articles/9 드라이기 모터와 소비전력, 소음까지 고르는 기준
+- mealtalkdht 31750099/1: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750099/articles/1 외부 글
+- mealtalkdht 31750099/3: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750099/articles/3 외부 글
+- mealtalkdht 31750099/6: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750099/articles/6 두유제조기 가격대와 소음 세척까지 고르는 기준
+- mealtalkdht 31750099/11: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750099/articles/11 회사 답례품 상황별 추천과 예산, 대량 주문 기준까지
+- dogwalk2m4 31750100/1: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750100/articles/1 외부 글
+- dogwalk2m4 31750100/4: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750100/articles/4 헤어드라이어 종류와 부가기능, 처음 고를 때 봐야 할 기준
+- dogwalk2m4 31750100/7: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750100/articles/7 선풍기 모터와 소음, 풍량까지 공간별로 고르는 기준
+- dogwalk2m4 31750100/9: 5/8 need=3 https://cafe.naver.com/ca-fe/cafes/31750100/articles/9 접이식 카트 활용법과 캠핑·차박·이사용 대형 고르는 법
+- driveee 31746635/3: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746635/articles/3 수원운전연수 비용 권선동 예비아빠가 업체 고른 솔직 후기
+- driveee 31746635/17: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746635/articles/17 두유제조기 고르는 기준과 세척·다용도 활용법
+- driveee 31746635/18: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746635/articles/18 올리브오일 효능과 엑스트라버진 고르는 기준
+- driveee 31746635/21: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746635/articles/21 푸룬주스 효능과 변비 완화, 먹는 법과 고르는 기준
+- driveee 31746635/22: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746635/articles/22 장에 좋은 음식과 피해야 할 음식, 장 건강 관리법
+- driveee 31746635/23: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746635/articles/23 군대 깔창 소재별 고르는 기준과 행군·반입까지
+- healthhhh 31746910/6: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746910/articles/6 비타민D 효능과 채우는 법, 햇빛 비타민의 모든 것
+- healthhhh 31746910/8: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746910/articles/8 흑염소진액 효능 총정리, 기력 떨어졌을 때 왜 찾을까
+- healthhhh 31746910/11: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746910/articles/11 홍삼 효능 총정리, 챙기기 전에 알아두면 좋은 것들
+- healthhhh 31746910/17: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31746910/articles/17 무지외반증 교정기 효과와 고르는 기준, 부작용까지
+- petinfo183 31750098/4: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750098/articles/4 장바구니 캐리어 종류와 보냉 기능, 용량별 고르는 법
+- mealtalkdht 31750099/5: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750099/articles/5 강아지 영양제 종류와 나이별 급여 기준, 고르는 법
+- mealtalkdht 31750099/8: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750099/articles/8 외부 글
+- mealtalkdht 31750099/10: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750099/articles/10 인천웨딩홀 대관료 식대 시세부터 고르는 기준까지
+- dogwalk2m4 31750100/3: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750100/articles/3 드라이기 잘못 쓰면 모발 손상, 흔한 실수와 안전 사용법
+- dogwalk2m4 31750100/6: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750100/articles/6 미용실드라이기 왜 센가, 업소용과 가정용 차이와 고르는 법
+- dogwalk2m4 31750100/8: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750100/articles/8 인천웨딩홀 대관료와 식대, 보증인원까지 예산 짜는 기준
+- tableclub702 31750110/6: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750110/articles/6 외부 글
+- localtable702 31750113/1: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750113/articles/1 맛집 동네밥상 카페를 시작합니다.
+- localtable702 31750113/6: 6/8 need=2 https://cafe.naver.com/ca-fe/cafes/31750113/articles/6 외부 글
+- driveee 31746635/14: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746635/articles/14 서울운전연수 추천 선택기준 총정리, 사기 안 당하고 제대로 고르는 법
+- healthhhh 31746910/2: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/2 오메가3 효능 총정리, 혈관부터 뇌·눈·관절까지
+- healthhhh 31746910/4: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/4 아연 효능 총정리, 면역부터 남성 여성 건강까지
+- healthhhh 31746910/9: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/9 외부 글
+- healthhhh 31746910/12: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/12 산삼 효능 제대로 알기, 귀한 보약의 진짜 가치
+- healthhhh 31746910/13: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/13 외부 글
+- healthhhh 31746910/14: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/14 LDM 디바이스 원리와 효과, 가정용 고르는 기준까지
+- healthhhh 31746910/18: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/18 외부 글
+- healthhhh 31746910/19: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/19 외부 글
+- healthhhh 31746910/20: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/20 외부 글
+- healthhhh 31746910/22: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/22 신발깔창 종류와 고르는 기준, 냄새 관리까지
+- healthhhh 31746910/23: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31746910/articles/23 외부 글
+- petinfo183 31750098/6: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750098/articles/6 울산 마운자로 처방 절차와 효과·부작용, 비용 정리
+- petinfo183 31750098/11: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750098/articles/11 부천 PT 비용과 횟수, 효과와 트레이너 고르는 기준
+- mealtalkdht 31750099/4: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750099/articles/4 대구 가족사진 가격부터 스튜디오 고르는 기준까지
+- mealtalkdht 31750099/7: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750099/articles/7 삼척 카페 오션뷰 명소와 지역별 추천, 시그니처 메뉴까지
+- mealtalkdht 31750099/9: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750099/articles/9 위고비 알약 진짜 가짜 구별법과 처방 정보까지
+- dogwalk2m4 31750100/2: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750100/articles/2 날개없는 선풍기 원리와 장단점, 청소·안전의 진실까지
+- dogwalk2m4 31750100/5: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750100/articles/5 외부 글
+- dogwalk2m4 31750100/10: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750100/articles/10 헤어드라이기 풍속과 바람 세기, 빨리 마르는 원리와 선택 기준
+- dogwalk2m4 31750100/11: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750100/articles/11 헤어드라이어 종류와 부가기능, 처음 고를 때 봐야 할 기준
+- talkmadang702 31750104/1: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750104/articles/1 일상 소통마당 카페를 시작합니다.
+- talkmadang702 31750104/4: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750104/articles/4 LDM 디바이스 10회 시술 후기, 효과와 통증 그리고 명현현상
+- talkmadang702 31750104/5: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750104/articles/5 무지외반증 교정기 6개월 착용 후기, 교정 효과와 야간부목 종류까지
+- talkmadang702 31750104/6: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750104/articles/6 거북목교정기 4개월 후기, 종류별 효과와 각도 부담 그리고 한계
+- talkmadang702 31750104/7: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750104/articles/7 외부 글
+- talkmadang702 31750104/9: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750104/articles/9 조문 답례품 준비 후기, 종류와 가격 그리고 답례 시기까지
+- talkmadang702 31750104/11: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750104/articles/11 음식물분쇄기 설치 후기, 불법 논란과 합법 기준 그리고 인증 확인법
+- talkmadang702 31750104/12: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750104/articles/12 SAT학원 선택 후기, 디지털 시험 대비와 학원 종류 그리고 비용까지
+- habitnote702 31750105/1: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750105/articles/1 외부 글
+- habitnote702 31750105/6: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750105/articles/6 랩다이아 반지 예물로 괜찮을까, 세팅과 양가 설득까지
+- habitnote702 31750105/8: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750105/articles/8 예물반지 뜻과 품목, 예산 배분과 고르는 기준
+- habitnote702 31750105/9: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750105/articles/9 웨딩링 소재와 두께 호수 각인까지 고르는 기준
+- habitnote702 31750105/11: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750105/articles/11 강아지 영양제 종류와 연령별 급여 기준, 과다 주의
+- habitnote702 31750105/13: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750105/articles/13 선풍기 모터와 풍량 날개 소음 기준 고르는 법
+- carelog702 31750106/5: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750106/articles/5 외부 글
+- carelog702 31750106/8: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750106/articles/8 외부 글
+- infomadang702 31750108/5: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750108/articles/5 에어컨청소업체 처음 불러본 후기, 벽걸이 스탠드 비용과 업체 고른 기준
+- infomadang702 31750108/7: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750108/articles/7 외부 글
+- infomadang702 31750108/8: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750108/articles/8 위고비 알약 알아본 후기, 가짜 먹는 약 거르고 정품 복용법까지
+- infomadang702 31750108/10: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750108/articles/10 외부 글
+- infomadang702 31750108/12: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750108/articles/12 알파CD 두 달 먹어본 후기, 지방 흡착 원리와 섭취법 조합까지
+- tableclub702 31750110/1: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750110/articles/1 맛집 식탁모임 카페를 시작합니다.
+- tableclub702 31750110/7: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750110/articles/7 외부 글
+- tableclub702 31750110/11: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750110/articles/11 외부 글
+- menunote702 31750111/1: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750111/articles/1 맛집 메뉴수첩 카페를 시작합니다.
+- menunote702 31750111/5: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750111/articles/5 외부 글
+- menunote702 31750111/8: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750111/articles/8 광주웨딩홀 상무지구 밀집, 주차 확인 사항
+- menunote702 31750111/11: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750111/articles/11 부천웨딩홀 소사·상동 권역, 뷔페 수준 비교
+- localtable702 31750113/5: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750113/articles/5 외부 글
+- localtable702 31750113/7: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750113/articles/7 외부 글
+- localtable702 31750113/8: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750113/articles/8 외부 글
+- localtable702 31750113/10: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750113/articles/10 외부 글
+- localtable702 31750113/12: 7/8 need=1 https://cafe.naver.com/ca-fe/cafes/31750113/articles/12 천안내성발톱 치료와 예방, 병원 고르는 기준까지
