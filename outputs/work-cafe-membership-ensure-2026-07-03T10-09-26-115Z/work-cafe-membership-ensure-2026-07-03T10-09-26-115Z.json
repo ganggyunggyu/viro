@@ -1,0 +1,44 @@
+{
+  "schedulePath": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/priority-work-cafe-membership-targets-resolved-2026-07-03T10-01-35-882Z.json",
+  "summary": {
+    "total": 3,
+    "joined": 0,
+    "alreadyMember": 0,
+    "pendingManual": 3,
+    "failed": 0,
+    "loginFailed": 0,
+    "missingAccounts": []
+  },
+  "results": [
+    {
+      "accountId": "ghostrush7",
+      "nickname": "실눈캐",
+      "cafeId": "31750106",
+      "cafeSlug": "carelog702",
+      "cafeName": "carelog702",
+      "status": "pending_manual",
+      "detail": "로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "checkedAt": "2026-07-03 19:10:35"
+    },
+    {
+      "accountId": "ghostrush7",
+      "nickname": "실눈캐",
+      "cafeId": "31750099",
+      "cafeSlug": "mealtalkdht",
+      "cafeName": "mealtalkdht",
+      "status": "pending_manual",
+      "detail": "로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "checkedAt": "2026-07-03 19:10:35"
+    },
+    {
+      "accountId": "ghostrush7",
+      "nickname": "실눈캐",
+      "cafeId": "31750110",
+      "cafeSlug": "tableclub702",
+      "cafeName": "tableclub702",
+      "status": "pending_manual",
+      "detail": "로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "checkedAt": "2026-07-03 19:10:35"
+    }
+  ]
+}

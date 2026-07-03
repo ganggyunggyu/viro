@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-07-03T10:27:46.030Z",
+  "dryRun": false,
+  "schedulePath": "outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json",
+  "loginId": "21lab",
+  "options": {
+    "targetCount": 8,
+    "articleLimit": 0,
+    "delayStepMs": 15000,
+    "articleDelayMs": 0,
+    "startDelayMs": 0,
+    "useSequence": false,
+    "excludeAccountIds": [
+      "ahffkekd12"
+    ],
+    "skipArticleKeys": [
+      "31746910:25"
+    ],
+    "onlyArticleKeys": [
+      "31750105:11",
+      "31750105:9",
+      "31750108:8",
+      "31746635:22",
+      "31750104:9"
+    ]
+  },
+  "totals": {
+    "articleGroups": 2,
+    "processedArticles": 2,
+    "enqueuedJobs": 3,
+    "enqueuedArticles": 2,
+    "failedArticles": 0
+  },
+  "results": [
+    {
+      "articleKey": "31746635:22",
+      "cafeSlug": "driveee",
+      "cafeId": "31746635",
+      "articleId": 22,
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746635/articles/22",
+      "title": "장에 좋은 음식과 피해야 할 음식, 장 건강 관리법",
+      "status": "enqueued",
+      "currentCount": 6,
+      "pendingCount": 0,
+      "effectiveTarget": 8,
+      "selectedCount": 2,
+      "readerAccountId": "db",
+      "warnings": [],
+      "jobs": [
+        {
+          "accountId": "q9v3m7a2",
+          "commentIndex": 6,
+          "delayMs": 0,
+          "runAtKst": "2026-07-03 19:27:43",
+          "content": "글에 증상별로 어떤 음식이 맞는지 설명한다고 했는데, 변비일 때와 설사일 때 추천 음식이 다르게 나와 있는 건가요?"
+        },
+        {
+          "accountId": "pixelninja3",
+          "commentIndex": 7,
+          "delayMs": 15000,
+          "runAtKst": "2026-07-03 19:27:58",
+          "content": "음식도 물론 중요하지만, 장 건강에는 규칙적인 운동과 충분한 수면도 큰 영향을 준다고 들었어요. 그런 부분도 다뤄주면 좋겠네요."
+        }
+      ]
+    },
+    {
+      "articleKey": "31750104:9",
+      "cafeSlug": "talkmadang702",
+      "cafeId": "31750104",
+      "articleId": 9,
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750104/articles/9",
+      "title": "조문 답례품 준비 후기, 종류와 가격 그리고 답례 시기까지",
+      "status": "enqueued",
+      "currentCount": 6,
+      "pendingCount": 0,
+      "effectiveTarget": 8,
+      "selectedCount": 1,
+      "readerAccountId": "db",
+      "warnings": [],
+      "jobs": [
+        {
+          "accountId": "dhtksk1p",
+          "commentIndex": 6,
+          "delayMs": 0,
+          "runAtKst": "2026-07-03 19:27:46",
+          "content": "3~5천원대면 부담 없겠네요. 소금이 전통적으로 괜찮다는데, 드립백 커피와 비교했을 때 실제로 어떤 게 더 조문객 반응이 좋은 편인가요?"
+        }
+      ]
+    }
+  ]
+}

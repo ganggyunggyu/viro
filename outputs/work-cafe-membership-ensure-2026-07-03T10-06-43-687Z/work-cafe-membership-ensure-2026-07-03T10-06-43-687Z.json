@@ -1,0 +1,64 @@
+{
+  "schedulePath": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/priority-work-cafe-membership-targets-resolved-2026-07-03T10-01-35-882Z.json",
+  "summary": {
+    "total": 5,
+    "joined": 0,
+    "alreadyMember": 0,
+    "pendingManual": 5,
+    "failed": 0,
+    "loginFailed": 0,
+    "missingAccounts": []
+  },
+  "results": [
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeId": "31750100",
+      "cafeSlug": "dogwalk2m4",
+      "cafeName": "dogwalk2m4",
+      "status": "pending_manual",
+      "detail": "로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "checkedAt": "2026-07-03 19:08:03"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeId": "31746635",
+      "cafeSlug": "driveee",
+      "cafeName": "driveee",
+      "status": "pending_manual",
+      "detail": "로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "checkedAt": "2026-07-03 19:08:03"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeId": "31750113",
+      "cafeSlug": "localtable702",
+      "cafeName": "localtable702",
+      "status": "pending_manual",
+      "detail": "로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "checkedAt": "2026-07-03 19:08:03"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeId": "31750099",
+      "cafeSlug": "mealtalkdht",
+      "cafeName": "mealtalkdht",
+      "status": "pending_manual",
+      "detail": "로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "checkedAt": "2026-07-03 19:08:03"
+    },
+    {
+      "accountId": "eghfsa5478",
+      "nickname": "오세아니야 1",
+      "cafeId": "31750110",
+      "cafeSlug": "tableclub702",
+      "cafeName": "tableclub702",
+      "status": "pending_manual",
+      "detail": "로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.",
+      "checkedAt": "2026-07-03 19:08:03"
+    }
+  ]
+}

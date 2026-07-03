@@ -1,0 +1,24 @@
+{
+  "schedulePath": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/priority-work-cafe-membership-targets-resolved-2026-07-03T10-01-35-882Z.json",
+  "summary": {
+    "total": 1,
+    "joined": 0,
+    "alreadyMember": 1,
+    "pendingManual": 0,
+    "failed": 0,
+    "loginFailed": 0,
+    "missingAccounts": []
+  },
+  "results": [
+    {
+      "accountId": "alsrudgus531",
+      "nickname": "운연정",
+      "cafeId": "31750105",
+      "cafeSlug": "habitnote702",
+      "cafeName": "habitnote702",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:03:46"
+    }
+  ]
+}

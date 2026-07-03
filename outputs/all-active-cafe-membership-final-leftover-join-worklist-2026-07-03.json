@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-07-03T10:11:53.935Z",
+  "source": "outputs/all-active-cafe-membership-live-2026-07-03-2026-07-03T10-09-08.517Z.json",
+  "totalTasks": 1,
+  "accountCount": 1,
+  "accounts": [
+    {
+      "accountId": "tinyfish183",
+      "requestedNickname": "티니피쉬 1",
+      "joinNeeded": [
+        {
+          "cafeName": "건강 생활수첩",
+          "cafeId": "31750106",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    }
+  ]
+}

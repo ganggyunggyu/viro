@@ -1,0 +1,54 @@
+{
+  "schedulePath": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/priority-work-cafe-membership-targets-resolved-2026-07-03T10-01-35-882Z.json",
+  "summary": {
+    "total": 4,
+    "joined": 0,
+    "alreadyMember": 4,
+    "pendingManual": 0,
+    "failed": 0,
+    "loginFailed": 0,
+    "missingAccounts": []
+  },
+  "results": [
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeId": "31746635",
+      "cafeSlug": "driveee",
+      "cafeName": "driveee",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:12:01"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeId": "31746910",
+      "cafeSlug": "healthhhh",
+      "cafeName": "healthhhh",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:12:06"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeId": "31750113",
+      "cafeSlug": "localtable702",
+      "cafeName": "localtable702",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:12:10"
+    },
+    {
+      "accountId": "hagyga",
+      "nickname": "에스앤비안과의원 - 교체",
+      "cafeId": "31750110",
+      "cafeSlug": "tableclub702",
+      "cafeName": "tableclub702",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:12:14"
+    }
+  ]
+}

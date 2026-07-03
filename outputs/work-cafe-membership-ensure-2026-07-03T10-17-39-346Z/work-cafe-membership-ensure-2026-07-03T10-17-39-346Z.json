@@ -1,0 +1,54 @@
+{
+  "schedulePath": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/priority-work-cafe-membership-targets-resolved-2026-07-03T10-01-35-882Z.json",
+  "summary": {
+    "total": 4,
+    "joined": 0,
+    "alreadyMember": 2,
+    "pendingManual": 2,
+    "failed": 0,
+    "loginFailed": 0,
+    "missingAccounts": []
+  },
+  "results": [
+    {
+      "accountId": "q9v3m7a2",
+      "nickname": "포비 1",
+      "cafeId": "31746635",
+      "cafeSlug": "driveee",
+      "cafeName": "driveee",
+      "status": "pending_manual",
+      "detail": "pending_manual: 카페 가입 보안문자 입력 필요",
+      "checkedAt": "2026-07-03 19:18:17"
+    },
+    {
+      "accountId": "q9v3m7a2",
+      "nickname": "포비 1",
+      "cafeId": "31750099",
+      "cafeSlug": "mealtalkdht",
+      "cafeName": "mealtalkdht",
+      "status": "pending_manual",
+      "detail": "pending_manual: 카페 가입 보안문자 입력 필요",
+      "checkedAt": "2026-07-03 19:18:26"
+    },
+    {
+      "accountId": "q9v3m7a2",
+      "nickname": "포비 1",
+      "cafeId": "31750110",
+      "cafeSlug": "tableclub702",
+      "cafeName": "tableclub702",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:18:30"
+    },
+    {
+      "accountId": "q9v3m7a2",
+      "nickname": "포비 1",
+      "cafeId": "31750104",
+      "cafeSlug": "talkmadang702",
+      "cafeName": "talkmadang702",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:18:34"
+    }
+  ]
+}

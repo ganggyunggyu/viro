@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-07-03T10:12:55.480Z",
+  "loginId": "21lab",
+  "source": "all-active-cafe-membership-final-leftover-join-worklist-2026-07-03.json",
+  "outputJson": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/requested-cafe-membership-join-run-2026-07-03-2026-07-03T10-12-02.768Z.json",
+  "outputMd": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/requested-cafe-membership-join-run-2026-07-03-2026-07-03T10-12-02.768Z.md",
+  "summary": {
+    "total": 1,
+    "joined": 1,
+    "alreadyMember": 0,
+    "failed": 0,
+    "skipped": 0
+  },
+  "rows": [
+    {
+      "accountId": "tinyfish183",
+      "requestedNickname": "티니피쉬 1",
+      "actualNickname": "티니피쉬 1",
+      "ownerLoginId": "21lab",
+      "role": "writer",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "status": "joined",
+      "detail": "가입 버튼 사라짐",
+      "finalNickname": "티니피쉬1",
+      "attempts": 1,
+      "beforeTextSample": "본문 바로가기 카페홈 앱 열기 카페채팅 검색 메뉴 건강 생활수첩 멤버 26 초대 홈 인기 NEW 전체공지 카페 가입하기 3부 다이아반지 크기와 가격, 예물로 고르는 기준 fai 26.07.02. 조회 18 8 댓글 웨딩밴드 소재와 가격, 폭과 두께 고르는 기준 fai 26.07.02. 조회 7 1 댓글 1캐럿 다이아반지 가격과 등급, 예물 고르는 기준 fai 26.07.02. 조회 6 2 댓글 다이아반지 4C 등급과 캐럿, 고르는 기준과 가격 fai 26.07.02. 조회 3 1 댓글 랩다이아몬드 뜻과 천연 차이, 가격과 재판매까지 fai 26.07.02. 조회 16 3 댓글 드라이기 추천, 모터와 소비전력 풍량 기준 고르는 법 fai ",
+      "afterSubmitTextSample": "본문 바로가기 카페홈 앱 열기 카페채팅 검색 메뉴 건강 생활수첩 멤버 26 초대 홈 인기 NEW MY구독 전체공지 글쓰기 가입을 환영합니다 건강 생활수첩 우리 카페 가입을 환영합니다. 카페앱으로 편하게 둘러보기 3부 다이아반지 크기와 가격, 예물로 고르는 기준 fai 26.07.02. 조회 18 8 댓글 웨딩밴드 소재와 가격, 폭과 두께 고르는 기준 fai 26.07.02. 조회 7 1 댓글 1캐럿 다이아반지 가격과 등급, 예물 고르는 기준 fai 26.07.02. 조회 6 2 댓글 다이아반지 4C 등급과 캐럿, 고르는 기준과 가격 fai 26.07.02. 조회 3 1 댓글 랩다이아몬드 뜻과 천연 차이, 가격과 재판매까지 fai 26.0",
+      "verifyTextSample": "본문 바로가기 카페홈 앱 열기 카페채팅 검색 메뉴 건강 생활수첩 멤버 27 초대 홈 인기 NEW MY구독 전체공지 글쓰기 3부 다이아반지 크기와 가격, 예물로 고르는 기준 fai 26.07.02. 조회 18 게시글 내 이미지 갯수 4+ 8 댓글 웨딩밴드 소재와 가격, 폭과 두께 고르는 기준 fai 26.07.02. 조회 7 게시글 내 이미지 갯수 4+ 1 댓글 1캐럿 다이아반지 가격과 등급, 예물 고르는 기준 fai 26.07.02. 조회 6 게시글 내 이미지 갯수 4+ 2 댓글 다이아반지 4C 등급과 캐럿, 고르는 기준과 가격 fai 26.07.02. 조회 3 게시글 내 이미지 갯수 4+ 1 댓글 랩다이아몬드 뜻과 천연 차이, 가격과 ",
+      "updatedAt": "2026-07-03T10:12:49.969Z"
+    }
+  ]
+}

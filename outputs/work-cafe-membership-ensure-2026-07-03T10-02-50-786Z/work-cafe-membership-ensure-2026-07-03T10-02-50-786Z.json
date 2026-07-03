@@ -1,0 +1,44 @@
+{
+  "schedulePath": "/Users/ganggyunggyu/Programing/cafe-bot/outputs/priority-work-cafe-membership-targets-resolved-2026-07-03T10-01-35-882Z.json",
+  "summary": {
+    "total": 3,
+    "joined": 0,
+    "alreadyMember": 3,
+    "pendingManual": 0,
+    "failed": 0,
+    "loginFailed": 0,
+    "missingAccounts": []
+  },
+  "results": [
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeId": "31750105",
+      "cafeSlug": "habitnote702",
+      "cafeName": "habitnote702",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:03:12"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeId": "31750099",
+      "cafeSlug": "mealtalkdht",
+      "cafeName": "mealtalkdht",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:03:16"
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "nickname": "쉽고간단하게",
+      "cafeId": "31750098",
+      "cafeSlug": "petinfo183",
+      "cafeName": "petinfo183",
+      "status": "alreadyMember",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-03 19:03:20"
+    }
+  ]
+}
