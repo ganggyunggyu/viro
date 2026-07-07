@@ -562,3 +562,7 @@
 {"event":"generation-started","articleKey":"31746635:21","cafeSlug":"driveee","cafeId":"31746635","articleId":21,"readerAccountIds":["laghunter8","h9ag469z"],"exactCount":2,"at":"2026-07-07T16:52:05.155Z"}
 {"event":"generation-reader-succeeded","articleKey":"31746635:21","cafeSlug":"driveee","cafeId":"31746635","articleId":21,"readerAccountId":"db","readerAttempt":0,"at":"2026-07-07T16:52:05.197Z"}
 {"event":"generation-succeeded","articleKey":"31746635:21","cafeSlug":"driveee","cafeId":"31746635","articleId":21,"readerAccountId":"laghunter8","commentCount":2,"warnings":[],"elapsedMs":4471,"at":"2026-07-07T16:52:09.626Z"}
+{"event":"generation-started","articleKey":"31750110:6","cafeSlug":"tableclub702","cafeId":"31750110","articleId":6,"readerAccountIds":["produce11745","k7d9x2m4","dhtksk1p","alsrudgus531","dq1h3bjy","eghfsa5478"],"exactCount":6,"at":"2026-07-07T16:52:50.155Z"}
+{"event":"generation-reader-started","articleKey":"31750110:6","cafeSlug":"tableclub702","cafeId":"31750110","articleId":6,"readerAccountId":"produce11745","readerAttempt":1,"readerAttemptTotal":6,"at":"2026-07-07T16:52:50.196Z"}
+{"event":"generation-reader-succeeded","articleKey":"31750110:6","cafeSlug":"tableclub702","cafeId":"31750110","articleId":6,"readerAccountId":"produce11745","readerAttempt":1,"at":"2026-07-07T16:53:01.767Z"}
+{"event":"generation-succeeded","articleKey":"31750110:6","cafeSlug":"tableclub702","cafeId":"31750110","articleId":6,"readerAccountId":"produce11745","commentCount":6,"warnings":[],"elapsedMs":20230,"at":"2026-07-07T16:53:10.385Z"}
