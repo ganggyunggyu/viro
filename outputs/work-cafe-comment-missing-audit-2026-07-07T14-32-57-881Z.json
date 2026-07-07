@@ -1,0 +1,151 @@
+{
+  "checkedAt": "2026-07-07T14:32:57.881Z",
+  "checkedAtKst": "2026-07-07 23:32:57",
+  "collectionId": "2026-07-03T05-54-31-248Z",
+  "latestCollectedAt": "2026-07-03T05:54:31.248Z",
+  "targetCount": 8,
+  "skippedByInstruction": [
+    "31746910:25"
+  ],
+  "totals": {
+    "allArticles": 168,
+    "allZero": 0,
+    "allUnder8": 1,
+    "targetArticles": 167,
+    "targetZero": 0,
+    "targetUnder8": 0
+  },
+  "byCafe": [
+    {
+      "cafeSlug": "carelog702",
+      "total": 12,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 12,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "dogwalk2m4",
+      "total": 11,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 11,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "driveee",
+      "total": 25,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 25,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "habitnote702",
+      "total": 13,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 13,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "healthhhh",
+      "total": 25,
+      "zero": 0,
+      "under8": 1,
+      "targetTotal": 24,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "infomadang702",
+      "total": 12,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 12,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "localtable702",
+      "total": 12,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 12,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "mealtalkdht",
+      "total": 11,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 11,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "menunote702",
+      "total": 12,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 12,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "petinfo183",
+      "total": 11,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 11,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "tableclub702",
+      "total": 12,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 12,
+      "targetZero": 0,
+      "targetUnder8": 0
+    },
+    {
+      "cafeSlug": "talkmadang702",
+      "total": 12,
+      "zero": 0,
+      "under8": 0,
+      "targetTotal": 12,
+      "targetZero": 0,
+      "targetUnder8": 0
+    }
+  ],
+  "zeroRows": [],
+  "under8Rows": [
+    {
+      "key": "31746910:25",
+      "cafeSlug": "healthhhh",
+      "ownerName": "가중건다",
+      "cafeId": "31746910",
+      "articleId": 25,
+      "title": "외부 글",
+      "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31746910/articles/25",
+      "dbWorkCommentCount": 1,
+      "actualCommentCount": 1,
+      "needTo8": 7,
+      "status": "skipped",
+      "needsCommentWork": false,
+      "skippedByInstruction": true,
+      "commenters": [
+        "alsrudgus531"
+      ]
+    }
+  ],
+  "targetZeroRows": [],
+  "targetUnder8Rows": []
+}
