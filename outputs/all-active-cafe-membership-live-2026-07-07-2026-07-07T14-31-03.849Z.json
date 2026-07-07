@@ -1,13 +1,13 @@
 {
   "summary": {
-    "generatedAt": "2026-07-07T14:34:56.809Z",
+    "generatedAt": "2026-07-07T14:35:56.577Z",
     "loginId": "21lab",
     "accountCount": 27,
     "cafeCount": 14,
     "totalChecks": 378,
-    "checkedRows": 56,
-    "joined": 48,
-    "notJoined": 8,
+    "checkedRows": 70,
+    "joined": 60,
+    "notJoined": 10,
     "unknown": 0,
     "skipped": 0,
     "failedLoginAccounts": []
@@ -892,6 +892,160 @@
       "membershipStatus": "NOT_JOINED",
       "detail": "가입 버튼 보임",
       "checkedAt": "2026-07-07T14:34:56.809Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "건강 생활수첩",
+      "cafeId": "31750106",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:22.800Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "건강 습관노트",
+      "cafeId": "31750105",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:25.456Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "맛집 동네밥상",
+      "cafeId": "31750113",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:28.053Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "맛집 메뉴수첩",
+      "cafeId": "31750111",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:30.638Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "맛집 밥상노트",
+      "cafeId": "31750114",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:33.237Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "맛집 식탁모임",
+      "cafeId": "31750110",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:35.828Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "생활 정보마당",
+      "cafeId": "31750108",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:38.423Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "애견 반려수첩",
+      "cafeId": "31750109",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:41.024Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "애견 산책노트",
+      "cafeId": "31750107",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:43.614Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "일상 소통마당",
+      "cafeId": "31750104",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:46.199Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "건강관리소",
+      "cafeId": "25227349",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:48.779Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "건강한노후준비",
+      "cafeId": "25636798",
+      "loginStatus": "OK",
+      "membershipStatus": "JOINED",
+      "detail": "가입 버튼 없음",
+      "checkedAt": "2026-07-07T14:35:51.371Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "샤넬오픈런",
+      "cafeId": "25460974",
+      "loginStatus": "OK",
+      "membershipStatus": "NOT_JOINED",
+      "detail": "가입 버튼 보임",
+      "checkedAt": "2026-07-07T14:35:53.973Z"
+    },
+    {
+      "accountId": "nes1p2kx",
+      "nickname": "에스앤비안과 1 (노출)",
+      "role": "writer",
+      "cafeName": "쇼핑지름신",
+      "cafeId": "25729954",
+      "loginStatus": "OK",
+      "membershipStatus": "NOT_JOINED",
+      "detail": "가입 버튼 보임",
+      "checkedAt": "2026-07-07T14:35:56.577Z"
     }
   ]
 }

@@ -1,14 +1,14 @@
 # 전체 활성 계정 전체 카페 가입 확인
 
-- 생성시각: 2026. 7. 7. 오후 11:34:56
+- 생성시각: 2026. 7. 7. 오후 11:35:56
 - 기준 loginId: 21lab
 - 계정: 27개
 - 카페: 14개
 - 비활성 카페 포함: 예
 - 총 확인 대상: 378건
-- 확인 완료 row: 56건
-- JOINED: 48
-- NOT_JOINED: 8
+- 확인 완료 row: 70건
+- JOINED: 60
+- NOT_JOINED: 10
 - UNKNOWN: 0
 - SKIPPED: 0
 - 로그인 실패 계정: -
@@ -21,7 +21,7 @@
 | compare14310 | 룰루랄라 2 (12개) 1 | writer | 12 | 2 | 0 | 0 | OK |
 | fail5644 | 고구마스틱2 (10개) 1 | writer | 12 | 2 | 0 | 0 | OK |
 | mh8j62wm | 에스앤비안과 2 (노출) | writer | 12 | 2 | 0 | 0 | OK |
-| nes1p2kx | 에스앤비안과 1 (노출) | writer | 0 | 0 | 0 | 0 | FAIL |
+| nes1p2kx | 에스앤비안과 1 (노출) | writer | 12 | 2 | 0 | 0 | OK |
 | regular14631 | 소원 1 | writer | 0 | 0 | 0 | 0 | FAIL |
 | tinyfish183 | 티니피쉬 1 | writer | 0 | 0 | 0 | 0 | FAIL |
 | ahffkdlek12 | 바삭바삭해 1 | commenter | 0 | 0 | 0 | 0 | FAIL |
@@ -57,3 +57,5 @@
 | fail5644 | 고구마스틱2 (10개) 1 | 쇼핑지름신 | NOT_JOINED | 가입 버튼 보임 |
 | mh8j62wm | 에스앤비안과 2 (노출) | 샤넬오픈런 | NOT_JOINED | 가입 버튼 보임 |
 | mh8j62wm | 에스앤비안과 2 (노출) | 쇼핑지름신 | NOT_JOINED | 가입 버튼 보임 |
+| nes1p2kx | 에스앤비안과 1 (노출) | 샤넬오픈런 | NOT_JOINED | 가입 버튼 보임 |
+| nes1p2kx | 에스앤비안과 1 (노출) | 쇼핑지름신 | NOT_JOINED | 가입 버튼 보임 |
