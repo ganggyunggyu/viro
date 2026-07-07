@@ -1,0 +1,74 @@
+{
+  "runId": "2026-07-07T22-16-49-071Z",
+  "scheduleGeneratedAt": "2026-07-07T22:16:31.396Z",
+  "scheduleCollectionId": "2026-07-07T21-03-44-190Z",
+  "options": {
+    "schedulePath": "outputs/work-cafe-comment-schedule-2026-07-07T22-16-31-396Z.json",
+    "loginId": "21lab",
+    "model": "deepseek-v4-flash",
+    "accountGapMin": 3,
+    "globalGapSec": 10,
+    "articleGapMin": 25,
+    "startDelaySec": 0,
+    "maxActive": 20,
+    "generationConcurrency": 4,
+    "prefetchArticles": 0,
+    "backgroundPrefetchArticles": 0,
+    "screenshotEvery": 25,
+    "loginWaitMin": 10,
+    "canarySuccessTarget": 0,
+    "canaryMaxAttempts": 40,
+    "canaryMaxActive": 3,
+    "canaryLaunchGapSec": 2,
+    "onlyAccountIds": {},
+    "excludeAccountIds": {},
+    "excludePairs": {},
+    "onlyArticleKeys": {},
+    "skipArticleKeys": {},
+    "skipWarmup": true,
+    "accountWorkers": false,
+    "articleBatches": false,
+    "limit": 1,
+    "dryRun": true
+  },
+  "filtered": {
+    "originalTasks": 1,
+    "skippedAlreadyCommented": 0,
+    "warmupFailedAccountIds": [],
+    "canaryAttemptedSequences": [],
+    "runnableTasks": 1
+  },
+  "totals": {
+    "tasks": 1,
+    "mainTasks": 1,
+    "articles": 1,
+    "accounts": 1
+  },
+  "firstDueAtKst": "2026-07-08 07:16:50",
+  "lastDueAtKst": "2026-07-08 07:16:50",
+  "runtimePlan": [
+    {
+      "row": {
+        "sequence": 1,
+        "cafeSlug": "babsangnote702",
+        "ownerName": "맛집 밥상노트",
+        "cafeId": "31750114",
+        "articleId": 13,
+        "articleUrl": "https://cafe.naver.com/ca-fe/cafes/31750114/articles/13",
+        "subject": "알파cd 효과와 부작용, 알파시클로덱스트린 복용법까지",
+        "currentCommentCount": 0,
+        "targetCommentCount": 8,
+        "shortage": 8,
+        "commentSlot": 1,
+        "accountId": "ahffkdlek12",
+        "accountNickname": "바삭바삭해 1",
+        "plannedRunAt": "2026-07-07T23:46:31.376Z",
+        "plannedRunAtKst": "2026-07-08 08:46"
+      },
+      "articleKey": "31750114:13",
+      "articleCommentIndex": 0,
+      "dueAtMs": 1783462610375,
+      "dueAtKst": "2026-07-08 07:16:50"
+    }
+  ]
+}
