@@ -1,0 +1,316 @@
+{
+  "generatedAt": "2026-07-07T15:00:09.874Z",
+  "source": "outputs/all-cafe-membership-expanded-summary-2026-07-07.json",
+  "note": "DB isActive=false 카페에서 발견된 미가입 건. 실행 시 INCLUDE_INACTIVE_CAFES=1 필요.",
+  "totalTasks": 32,
+  "accountCount": 21,
+  "accounts": [
+    {
+      "accountId": "ahffkekd12",
+      "requestedNickname": "긍정이백퍼  1",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "ahsxkfldk12",
+      "requestedNickname": "쉽고간단하게",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "alsrudgus531",
+      "requestedNickname": "운연정",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "angrykoala270",
+      "requestedNickname": "앵그리맨",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "bigfish773",
+      "requestedNickname": "고래낚시 1",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "compare14310",
+      "requestedNickname": "룰루랄라 2 (12개) 1",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "dhtksk1p",
+      "requestedNickname": "빨간모자앤  1",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "dq1h3bjy",
+      "requestedNickname": "에스앤비안과, 29년 경력 (노출)",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "eghfsa5478",
+      "requestedNickname": "오세아니야 1",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "fail5644",
+      "requestedNickname": "고구마스틱2 (10개) 1",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "geenl",
+      "requestedNickname": "모험 - 교체",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "h9ag469z",
+      "requestedNickname": "에스앤비안과 정보",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "hagyga",
+      "requestedNickname": "에스앤비안과의원 - 교체",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "laghunter8",
+      "requestedNickname": "도도 1",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "mh8j62wm",
+      "requestedNickname": "에스앤비안과 2 (노출)",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "nes1p2kx",
+      "requestedNickname": "에스앤비안과 1 (노출)",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "produce11745",
+      "requestedNickname": "가중건다",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "q9v3m7a2",
+      "requestedNickname": "포비 1",
+      "joinNeeded": [
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "regular14631",
+      "requestedNickname": "소원 1",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "tinyfish183",
+      "requestedNickname": "티니피쉬 1",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "accountId": "vegetable10517",
+      "requestedNickname": "렙용",
+      "joinNeeded": [
+        {
+          "cafeName": "샤넬오픈런",
+          "cafeId": "25460974",
+          "detail": "가입 버튼 보임"
+        },
+        {
+          "cafeName": "쇼핑지름신",
+          "cafeId": "25729954",
+          "detail": "가입 버튼 보임"
+        }
+      ],
+      "blocked": []
+    }
+  ]
+}
