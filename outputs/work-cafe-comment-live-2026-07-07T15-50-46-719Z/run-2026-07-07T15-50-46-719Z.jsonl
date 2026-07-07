@@ -62,3 +62,5 @@
 {"event":"comment-started","sequence":18,"dueAtKst":"2026-07-08 00:55:05","cafeSlug":"petinfo183","cafeId":"31750098","articleId":20,"accountId":"q9v3m7a2","commentSlot":2,"at":"2026-07-07T15:56:09.281Z"}
 {"event":"comment-succeeded","sequence":17,"cafeSlug":"menunote702","cafeId":"31750111","articleId":21,"accountId":"produce11745","commentId":"64088537","success":12,"at":"2026-07-07T15:56:24.097Z"}
 {"event":"comment-succeeded","sequence":19,"cafeSlug":"tableclub702","cafeId":"31750110","articleId":31,"accountId":"vegetable10517","commentId":"115339590","success":13,"at":"2026-07-07T15:56:44.993Z"}
+{"event":"comment-failed","sequence":18,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":20,"accountId":"q9v3m7a2","error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","failed":6,"at":"2026-07-07T15:56:53.006Z"}
+{"event":"runtime-pair-blocked","sequence":18,"cafeSlug":"petinfo183","cafeId":"31750098","articleId":20,"accountId":"q9v3m7a2","pairKeys":["q9v3m7a2:31750098","q9v3m7a2:petinfo183"],"error":"ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.","at":"2026-07-07T15:56:53.007Z"}
