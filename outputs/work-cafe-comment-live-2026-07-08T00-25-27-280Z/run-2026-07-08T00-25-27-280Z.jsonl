@@ -1,0 +1,5 @@
+{"event":"run-started","runId":"2026-07-08T00-25-27-280Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-07T22-16-31-396Z.json","originalTasks":1,"skippedAlreadyCommented":0,"warmupWarmedAccountIds":[],"warmupFailedAccounts":[],"canarySuccessTarget":0,"at":"2026-07-08T00:25:29.381Z"}
+{"event":"main-schedule-started","runId":"2026-07-08T00-25-27-280Z","totalTasks":1,"mainTasks":1,"articleCount":1,"accountCount":1,"firstDueAtKst":"2026-07-08 09:25:29","lastDueAtKst":"2026-07-08 09:25:29","at":"2026-07-08T00:25:29.382Z"}
+{"event":"comment-started","sequence":1,"dueAtKst":"2026-07-08 09:25:29","cafeSlug":"babsangnote702","cafeId":"31750114","articleId":13,"accountId":"ahffkdlek12","commentSlot":1,"at":"2026-07-08T00:25:59.539Z"}
+{"event":"comment-dry-run","sequence":1,"cafeId":"31750114","articleId":13,"accountId":"ahffkdlek12","content":"오메가3와 2~3시간 간격을 두라고 하셨는데, 혹시 비타민D나 E도 같은 간격으로 먹어야 하는 건가요?","at":"2026-07-08T00:25:59.540Z"}
+{"event":"run-ended","runId":"2026-07-08T00-25-27-280Z","success":0,"failed":0,"skipped":1,"generatedArticles":1,"generationFailed":0,"screenshots":[],"at":"2026-07-08T00:25:59.541Z"}
