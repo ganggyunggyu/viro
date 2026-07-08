@@ -86,7 +86,7 @@ export const ViralBatchSummaryCard = ({
         <div className={cn('border-b border-border-light px-6 py-5')}>
           <div className={cn('flex items-start justify-between gap-4')}>
             <div>
-              <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>Run Summary</p>
+              <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>실행 요약</p>
               <h3 className={cn('mt-2 text-[26px] font-semibold tracking-tight text-ink')}>
                 실행 요약 패널
               </h3>

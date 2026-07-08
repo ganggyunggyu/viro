@@ -66,8 +66,7 @@ export default function AccountsPage() {
 
         <div className={cn('mt-4 rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
           <ol className={cn('text-sm text-(--ink-muted) space-y-2 list-decimal list-inside')}>
-            <li>처음 사용 시 &quot;설정파일 가져오기&quot; 버튼으로 기존 설정 마이그레이션</li>
-            <li>&quot;+ 추가&quot; 버튼으로 새 계정/카페 등록</li>
+            <li>&quot;계정 추가&quot;/&quot;카페 추가&quot; 버튼으로 새 계정/카페 등록</li>
             <li>&quot;테스트&quot; 버튼으로 로그인 상태 확인</li>
             <li>기본 카페 설정으로 배치 작업 시 사용할 카페 지정</li>
           </ol>

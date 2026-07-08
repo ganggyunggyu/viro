@@ -8,7 +8,6 @@ import {
   addAccountAction,
   updateAccountAction,
   deleteAccountAction,
-  migrateFromConfigAction,
   type AccountData,
   type AccountInput,
 } from './actions';
@@ -168,16 +167,6 @@ export const AccountManagerUI = () => {
     loadAccounts();
   }, []);
 
-  const handleMigrate = () => {
-    startTransition(async () => {
-      const result = await migrateFromConfigAction();
-      if (result.success) {
-        setMessage({ type: 'success', text: `마이그레이션 완료: 계정 ${result.accountsAdded}개, 카페 ${result.cafesAdded}개 추가` });
-        loadAccounts();
-      }
-    });
-  };
-
   const openAddForm = () => {
     setFormData(defaultFormData);
     setEditingId(null);
@@ -318,13 +307,6 @@ export const AccountManagerUI = () => {
           <p className={cn('text-sm text-(--ink-muted) mt-1')}>{accounts.length}개 계정</p>
         </div>
         <div className={cn('flex gap-2')}>
-          <Button
-            variant="secondary"
-            onClick={handleMigrate}
-            disabled={isPending}
-          >
-            설정 가져오기
-          </Button>
           <Button onClick={openAddForm}>
             계정 추가
           </Button>
@@ -483,7 +465,7 @@ export const AccountManagerUI = () => {
       {accounts.length === 0 ? (
         <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-8 text-center')}>
           <p className={cn('text-sm text-(--ink-muted)')}>
-            등록된 계정이 없습니다. &quot;설정 가져오기&quot; 또는 &quot;계정 추가&quot; 버튼을 눌러주세요.
+            등록된 계정이 없습니다. &quot;계정 추가&quot; 버튼을 눌러 네이버 계정을 등록하세요.
           </p>
         </div>
       ) : (

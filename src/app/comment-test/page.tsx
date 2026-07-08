@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/shared';
+import { PageLayout } from '@/widgets';
 
 interface GeneratedComment {
   user: string;
@@ -188,9 +189,10 @@ export default function CommentTestPage() {
   const categories = [...new Set(PERSONAS.map(p => p.category))];
 
   return (
-    <div className={cn('p-6 max-w-4xl mx-auto')}>
-      <h1 className={cn('text-2xl font-bold mb-6')}>댓글 생성 테스트</h1>
-
+    <PageLayout
+      title="댓글 생성 테스트"
+      subtitle="원고/댓글/대댓글 생성 API를 페르소나별로 직접 호출해 확인하는 개발용 도구"
+    >
       {/* 설정 영역 */}
       <div className={cn('bg-surface rounded-xl p-4 mb-6 space-y-4')}>
         <div className={cn('grid grid-cols-2 gap-4')}>
@@ -418,6 +420,6 @@ export default function CommentTestPage() {
           전체 초기화
         </button>
       )}
-    </div>
+    </PageLayout>
   );
 }

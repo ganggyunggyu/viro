@@ -10,8 +10,5 @@ export {
 
 export type { AutoPostResult, AccountActionResult } from './actions';
 
-export { AccountManagerUI } from './account-manager-ui';
-export { AutoPostUI } from './auto-post-ui';
-
 export { likeArticleWithAccount } from '@/shared/lib/naver-cafe-writing';
 export type { LikeResult } from '@/shared/lib/naver-cafe-writing';

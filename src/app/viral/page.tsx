@@ -17,17 +17,17 @@ const WORKFLOW_STEPS = [
   {
     detail: '직접 입력과 AI 생성을 섞어 실행 큐를 만든다.',
     index: '01',
-    title: 'Keyword Prep',
+    title: '키워드 설계',
   },
   {
     detail: '카페, 계정 역할, 모델, 이미지 전략을 확정한다.',
     index: '02',
-    title: 'Routing Setup',
+    title: '실행 설정',
   },
   {
     detail: '실시간 로그를 보고 결과와 큐 전달 상태를 검수한다.',
     index: '03',
-    title: 'Result Review',
+    title: '결과 검수',
   },
 ];
 
@@ -55,12 +55,12 @@ const GUIDE_CARDS = [
 const TAB_META = {
   manual: {
     description: '폴더 기반으로 준비된 원고를 선택해 수동 발행 흐름을 정리.',
-    label: 'Manual Publish',
+    label: '수동 발행',
     pills: ['원고 업로드', '수동 검수'],
   },
   viral: {
     description: '키워드 작성부터 결과 확인까지 같은 화면에서 이어지는 배치 작업대.',
-    label: 'Batch Workspace',
+    label: '바이럴 배치',
     pills: ['실시간 로그', '프리셋 복원', '큐 전달'],
   },
 } as const;
@@ -68,9 +68,8 @@ const TAB_META = {
 export default function ViralPage() {
   return (
     <PageLayout
-      title="Viral Control Room"
-      subtitle="Campaign Operations"
-      description="키워드 설계, 실행 설정, 결과 검수를 한 화면에서 운영."
+      title="바이럴 배치"
+      subtitle="키워드 설계, 실행 설정, 결과 검수를 한 화면에서 운영."
     >
       <SlideUp>
         <div className={cn('grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]')}>
@@ -80,7 +79,7 @@ export default function ViralPage() {
             )}
           >
             <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-(--info)')}>
-              Workflow
+              작업 순서
             </p>
             <h2 className={cn('mt-3 text-[30px] font-semibold tracking-tight text-(--ink) sm:text-[34px]')}>
               작업 흐름을 먼저 고정
@@ -111,7 +110,7 @@ export default function ViralPage() {
             )}
           >
             <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-(--info)')}>
-              Review Rules
+              검수 규칙
             </p>
             <h2 className={cn('mt-3 text-2xl font-semibold tracking-tight text-(--ink)')}>
               검수 기준을 같이 본다

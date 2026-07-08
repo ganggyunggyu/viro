@@ -501,7 +501,7 @@ export const ViralBatchUI = () => {
       >
         <div className={cn('grid gap-6 px-6 py-6 xl:grid-cols-[minmax(0,1fr)_280px] xl:px-7 xl:py-7')}>
           <div>
-            <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>Batch Command Deck</p>
+            <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>배치 실행</p>
             <h2 className={cn('mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-[2rem]')}>
               {runReadiness.label}
             </h2>
@@ -528,7 +528,7 @@ export const ViralBatchUI = () => {
                   canRunBatch ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'
                 )}
               >
-                {canRunBatch ? 'Launch Ready' : 'Setup Check'}
+                {canRunBatch ? '즉시 실행 가능' : '사전 조건 확인'}
               </span>
             </div>
 
@@ -615,7 +615,7 @@ export const ViralBatchUI = () => {
             <div className={cn('border-b border-border-light px-6 py-5')}>
               <div className={cn('flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between')}>
                 <div>
-                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>Step 1</p>
+                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>1단계</p>
                   <h3 className={cn('mt-2', sectionHeadingClassName)}>키워드 작업대</h3>
                   <p className={cn('mt-2', helperTextClassName)}>
                     직접 입력과 AI 생성을 한 흐름에서 정리할 수 있게 구성.
@@ -772,7 +772,7 @@ export const ViralBatchUI = () => {
 
               <div className={cn('space-y-4')}>
                 <div className={cn('rounded-[24px] border border-border-light bg-surface px-5 py-5')}>
-                  <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>Input Brief</p>
+                  <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>입력 정보</p>
                   <h4 className={cn('mt-3 text-lg font-semibold text-ink')}>현재 입력 컨텍스트</h4>
                   <div className={cn('mt-4 space-y-3')}>
                     <div className={cn('rounded-2xl bg-surface-muted px-4 py-3')}>
@@ -793,7 +793,7 @@ export const ViralBatchUI = () => {
                 </div>
 
                 <div className={cn('rounded-[24px] border border-border-light bg-surface px-5 py-5')}>
-                  <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>Keyword Preview</p>
+                  <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>키워드 미리보기</p>
                   <h4 className={cn('mt-3 text-lg font-semibold text-ink')}>최근 입력 미리보기</h4>
                   <div className={cn('mt-4 space-y-2')}>
                     {parsedKeywords.length > 0 ? (
@@ -820,7 +820,7 @@ export const ViralBatchUI = () => {
             <div className={cn('border-b border-border-light px-6 py-5')}>
               <div className={cn('flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between')}>
                 <div>
-                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>Step 2</p>
+                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>2단계</p>
                   <h3 className={cn('mt-2', sectionHeadingClassName)}>프리셋 보관함</h3>
                   <p className={cn('mt-2', helperTextClassName)}>
                     자주 쓰는 카페 조합과 모델 선택을 저장하고 바로 복원 가능.
@@ -927,7 +927,7 @@ export const ViralBatchUI = () => {
             <div className={cn('border-b border-border-light px-6 py-5')}>
               <div className={cn('flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between')}>
                 <div>
-                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>Step 3</p>
+                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>3단계</p>
                   <h3 className={cn('mt-2', sectionHeadingClassName)}>실행 설정</h3>
                   <p className={cn('mt-2', helperTextClassName)}>
                     카페, 계정 역할, 모델, 이미지, 게시 옵션을 한 화면에서 순서대로 조정.
@@ -1210,7 +1210,7 @@ export const ViralBatchUI = () => {
           <section className={cn('rounded-[28px] border border-info/20 bg-info-soft px-6 py-6')}>
             <div className={cn('flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between')}>
               <div>
-                <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>Guide</p>
+                <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>안내</p>
                 <h3 className={cn('mt-2 text-xl font-semibold tracking-tight text-info')}>운영 기준 빠른 확인</h3>
               </div>
               <p className={cn('max-w-xl text-sm leading-6 text-info/80')}>

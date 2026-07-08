@@ -52,7 +52,7 @@ export const CafeJoinUI = () => {
             'text-xs uppercase tracking-[0.3em] text-(--ink-muted)'
           )}
         >
-          Batch Join
+          일괄 가입
         </p>
         <h2 className={cn('font-(--font-display) text-xl text-(--ink)')}>
           일괄 카페 가입

@@ -15,5 +15,3 @@ export {
   updateCafeAction,
   deleteCafeAction,
 } from '@/entities/cafe';
-
-export { migrateFromConfigAction } from './migrate-action';

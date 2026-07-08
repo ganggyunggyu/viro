@@ -57,7 +57,7 @@ export const ViralBatchStatusPanel = ({
       <div className={cn('border-b border-border-light px-6 py-5')}>
         <div className={cn('flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between')}>
           <div>
-            <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>Result Console</p>
+            <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>결과 콘솔</p>
             <h3 className={cn('mt-2 text-[28px] font-semibold tracking-tight text-ink')}>
               실행 로그와 결과 검수
             </h3>
@@ -68,7 +68,7 @@ export const ViralBatchStatusPanel = ({
 
           <div className={cn('min-w-[240px] rounded-[24px] border border-border-light bg-surface-muted px-4 py-4')}>
             <div className={cn('flex items-center justify-between gap-3')}>
-              <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>Progress</p>
+              <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>진행률</p>
               <span className={cn('text-sm font-medium text-ink')}>
                 {result ? result.totalKeywords : completionMetrics.processedCount}/{keywordCount || 0}
               </span>
@@ -138,7 +138,7 @@ export const ViralBatchStatusPanel = ({
             >
               <div className={cn('flex flex-col gap-3 border-b border-border-light px-6 py-5 sm:flex-row sm:items-end sm:justify-between')}>
                 <div>
-                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>Live Feed</p>
+                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>실시간 로그</p>
                   <h4 className={cn('mt-2 text-xl font-semibold tracking-tight text-ink')}>실시간 처리 로그</h4>
                 </div>
                 <span className={cn('text-sm text-ink-muted')}>
@@ -208,7 +208,7 @@ export const ViralBatchStatusPanel = ({
                         result.success ? 'text-success' : 'text-warning'
                       )}
                     >
-                      Batch Result
+                      배치 결과
                     </p>
                     <h4
                       className={cn(
