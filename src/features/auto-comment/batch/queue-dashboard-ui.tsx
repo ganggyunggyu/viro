@@ -38,6 +38,16 @@ const STATUS_COLORS: Record<string, string> = {
   failed: 'bg-danger-soft text-danger',
 };
 
+const STATUS_DOT_COLORS: Record<string, string> = {
+  delayed: 'bg-info',
+  waiting: 'bg-ink-muted',
+  active: 'bg-warning',
+  completed: 'bg-success',
+  failed: 'bg-danger',
+};
+
+const STATUS_ORDER = ['delayed', 'waiting', 'active', 'completed', 'failed'] as const;
+
 const TYPE_COLORS: Record<string, string> = {
   post: 'bg-purple-100 text-purple-700',
   comment: 'bg-cyan-100 text-cyan-700',
@@ -271,6 +281,17 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
             </Button>
           )}
         </div>
+      </div>
+
+      {/* 상태 범례 */}
+      <div className={cn('flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-border-light bg-surface-muted px-4 py-3')}>
+        <span className={cn('text-xs font-medium text-ink-muted')}>상태 범례</span>
+        {STATUS_ORDER.map((status) => (
+          <div key={status} className={cn('flex items-center gap-1.5')}>
+            <span className={cn('h-2.5 w-2.5 rounded-full', STATUS_DOT_COLORS[status])} />
+            <span className={cn('text-xs text-ink')}>{STATUS_LABELS[status]}</span>
+          </div>
+        ))}
       </div>
 
       {/* 요약 카드 */}

@@ -46,19 +46,6 @@ export const CafeJoinUI = () => {
 
   return (
     <div className={cn('space-y-6')}>
-      <div className={cn('space-y-2')}>
-        <p
-          className={cn(
-            'text-xs uppercase tracking-[0.3em] text-(--ink-muted)'
-          )}
-        >
-          일괄 가입
-        </p>
-        <h2 className={cn('font-(--font-display) text-xl text-(--ink)')}>
-          일괄 카페 가입
-        </h2>
-      </div>
-
       {/* 현재 설정 요약 */}
       <div className={cn('rounded-2xl border border-(--border) bg-(--surface-muted) p-4')}>
         <h3 className={cn('text-sm font-semibold text-(--ink) mb-3')}>

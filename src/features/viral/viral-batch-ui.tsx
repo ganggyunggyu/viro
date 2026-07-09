@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useAtom } from 'jotai';
 import { cn } from '@/shared';
-import { Button, Checkbox, ExecuteConfirmModal, Select, type SettingItem } from '@/shared';
+import { Button, Checkbox, ExecuteConfirmModal, HelpAccordion, Select, type SettingItem } from '@/shared';
 import { toast } from '@/shared/lib/toast';
 import { PostOptionsUI } from '@/entities/post-options';
 import { cafesAtom, cafesInitializedAtom, postOptionsAtom } from '@/entities';
@@ -1207,38 +1207,33 @@ export const ViralBatchUI = () => {
             </div>
           </section>
 
-          <section className={cn('rounded-[28px] border border-info/20 bg-info-soft px-6 py-6')}>
-            <div className={cn('flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between')}>
-              <div>
-                <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-info')}>안내</p>
-                <h3 className={cn('mt-2 text-xl font-semibold tracking-tight text-info')}>운영 기준 빠른 확인</h3>
-              </div>
-              <p className={cn('max-w-xl text-sm leading-6 text-info/80')}>
+          <HelpAccordion title="운영 기준 빠른 확인">
+            <div className={cn('space-y-4')}>
+              <p className={cn('text-sm leading-6 text-ink-muted')}>
                 실행 전에 흐름과 태그 규칙을 빠르게 다시 보는 용도. 작업대와 결과 영역을 같은 기준으로 해석 가능.
               </p>
+              <div className={cn('grid gap-4 lg:grid-cols-3')}>
+                <div className={cn('rounded-[20px] bg-surface px-4 py-4')}>
+                  <p className={cn('text-sm font-semibold text-ink')}>키워드 자동 분류</p>
+                  <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
+                    자사는 직접 홍보 흐름, 타사는 질문형 비교 흐름으로 구성.
+                  </p>
+                </div>
+                <div className={cn('rounded-[20px] bg-surface px-4 py-4')}>
+                  <p className={cn('text-sm font-semibold text-ink')}>댓글 태그 규칙</p>
+                  <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
+                    `[댓글N]`, `[작성자-N]`, `[댓글러-N]`, `[제3자-N]` 형식 유지.
+                  </p>
+                </div>
+                <div className={cn('rounded-[20px] bg-surface px-4 py-4')}>
+                  <p className={cn('text-sm font-semibold text-ink')}>생성 구조</p>
+                  <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
+                    AI 1회 호출로 제목, 본문, 댓글, 대댓글까지 한 번에 생성.
+                  </p>
+                </div>
+              </div>
             </div>
-
-            <div className={cn('mt-5 grid gap-4 lg:grid-cols-3')}>
-              <div className={cn('rounded-[20px] bg-info/10 px-4 py-4')}>
-                <p className={cn('text-sm font-semibold text-info')}>키워드 자동 분류</p>
-                <p className={cn('mt-2 text-sm leading-6 text-info/80')}>
-                  자사는 직접 홍보 흐름, 타사는 질문형 비교 흐름으로 구성.
-                </p>
-              </div>
-              <div className={cn('rounded-[20px] bg-info/10 px-4 py-4')}>
-                <p className={cn('text-sm font-semibold text-info')}>댓글 태그 규칙</p>
-                <p className={cn('mt-2 text-sm leading-6 text-info/80')}>
-                  `[댓글N]`, `[작성자-N]`, `[댓글러-N]`, `[제3자-N]` 형식 유지.
-                </p>
-              </div>
-              <div className={cn('rounded-[20px] bg-info/10 px-4 py-4')}>
-                <p className={cn('text-sm font-semibold text-info')}>생성 구조</p>
-                <p className={cn('mt-2 text-sm leading-6 text-info/80')}>
-                  AI 1회 호출로 제목, 본문, 댓글, 대댓글까지 한 번에 생성.
-                </p>
-              </div>
-            </div>
-          </section>
+          </HelpAccordion>
         </div>
 
         <div className={cn('order-first xl:order-none')}>

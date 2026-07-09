@@ -1,10 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { cn } from '@/shared';
 import { PageLayout } from '@/widgets';
-import { AnimatedCard, AnimatedTabs, SlideUp } from '@/shared';
+import { AnimatedCard, AnimatedTabs, HelpAccordion, SlideUp } from '@/shared';
 import { ManualPostUI } from '@/features/manual-post';
 import { ViralBatchUI } from '@/features/viral/viral-batch-ui';
 
@@ -72,80 +71,6 @@ export default function ViralPage() {
       subtitle="키워드 설계, 실행 설정, 결과 검수를 한 화면에서 운영."
     >
       <SlideUp>
-        <div className={cn('grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]')}>
-          <section
-            className={cn(
-              'overflow-hidden rounded-[32px] border border-(--border-light) bg-[linear-gradient(135deg,color-mix(in_srgb,var(--surface)_92%,var(--info-soft)_8%),color-mix(in_srgb,var(--surface)_96%,var(--surface-muted)_4%))] p-6 shadow-sm sm:p-7'
-            )}
-          >
-            <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-(--info)')}>
-              작업 순서
-            </p>
-            <h2 className={cn('mt-3 text-[30px] font-semibold tracking-tight text-(--ink) sm:text-[34px]')}>
-              작업 흐름을 먼저 고정
-            </h2>
-            <p className={cn('mt-3 max-w-2xl text-sm leading-7 text-(--ink-muted) sm:text-base')}>
-              상단에서 운영 리듬을 잡고, 아래 작업대에서 세부 입력과 실행을 마무리.
-            </p>
-
-            <div className={cn('mt-6 grid gap-3 lg:grid-cols-3')}>
-              {WORKFLOW_STEPS.map((step) => (
-                <div
-                  key={step.index}
-                  className={cn('rounded-[24px] border border-(--border-light) bg-(--surface)/90 px-5 py-4')}
-                >
-                  <p className={cn('text-[11px] font-semibold uppercase tracking-[0.22em] text-(--ink-tertiary)')}>
-                    {step.index}
-                  </p>
-                  <p className={cn('mt-2 text-base font-semibold text-(--ink)')}>{step.title}</p>
-                  <p className={cn('mt-2 text-sm leading-6 text-(--ink-muted)')}>{step.detail}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <aside
-            className={cn(
-              'overflow-hidden rounded-[32px] border border-(--border-light) bg-(--surface) p-6 shadow-sm sm:p-7'
-            )}
-          >
-            <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-(--info)')}>
-              검수 규칙
-            </p>
-            <h2 className={cn('mt-3 text-2xl font-semibold tracking-tight text-(--ink)')}>
-              검수 기준을 같이 본다
-            </h2>
-            <div className={cn('mt-5 space-y-3')}>
-              {REVIEW_RULES.map((rule) => (
-                <div
-                  key={rule}
-                  className={cn('rounded-[22px] border border-(--border-light) bg-(--surface-muted) px-4 py-4 text-sm text-(--ink)')}
-                >
-                  {rule}
-                </div>
-              ))}
-            </div>
-
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} className={cn('mt-5')}>
-              <Link
-                href="/viral/debug"
-                className={cn(
-                  'flex items-center justify-between rounded-[24px] border border-(--border-light) bg-(--surface-muted) px-4 py-4',
-                  'transition-colors hover:bg-(--surface)'
-                )}
-              >
-                <div>
-                  <p className={cn('text-sm font-semibold text-(--ink)')}>AI 응답 디버그</p>
-                  <p className={cn('mt-1 text-sm text-(--ink-muted)')}>원문과 파싱 결과 확인</p>
-                </div>
-                <span className={cn('text-sm font-medium text-(--info)')}>열기</span>
-              </Link>
-            </motion.div>
-          </aside>
-        </div>
-      </SlideUp>
-
-      <SlideUp delay={0.08}>
         <div className={cn('rounded-[32px] border border-(--border-light) bg-(--surface)/80 p-3 shadow-sm backdrop-blur-sm sm:p-4')}>
           <AnimatedTabs tabs={TABS} defaultTab="viral">
             {(activeTab) => {
@@ -190,18 +115,64 @@ export default function ViralPage() {
         </div>
       </SlideUp>
 
-      <SlideUp delay={0.16}>
-        <div className={cn('grid gap-4 lg:grid-cols-3')}>
-          {GUIDE_CARDS.map((card) => (
-            <div
-              key={card.title}
-              className={cn('rounded-[28px] border border-(--border-light) bg-(--surface) px-5 py-5 shadow-sm')}
-            >
-              <p className={cn('text-sm font-semibold text-(--ink)')}>{card.title}</p>
-              <p className={cn('mt-3 text-sm leading-6 text-(--ink-muted)')}>{card.body}</p>
+      <SlideUp delay={0.08}>
+        <HelpAccordion title="사용 방법">
+          <div className={cn('space-y-6')}>
+            <div>
+              <p className={cn('text-xs font-semibold uppercase tracking-[0.2em] text-(--ink-tertiary)')}>
+                작업 순서
+              </p>
+              <div className={cn('mt-3 grid gap-3 sm:grid-cols-3')}>
+                {WORKFLOW_STEPS.map((step) => (
+                  <div
+                    key={step.index}
+                    className={cn('rounded-xl border border-(--border-light) bg-(--surface) px-4 py-3')}
+                  >
+                    <p className={cn('text-[11px] font-semibold uppercase tracking-[0.2em] text-(--ink-tertiary)')}>
+                      {step.index}
+                    </p>
+                    <p className={cn('mt-1 text-sm font-semibold text-(--ink)')}>{step.title}</p>
+                    <p className={cn('mt-1 text-sm leading-6 text-(--ink-muted)')}>{step.detail}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
+
+            <div>
+              <p className={cn('text-xs font-semibold uppercase tracking-[0.2em] text-(--ink-tertiary)')}>
+                검수 규칙
+              </p>
+              <ul className={cn('mt-3 list-inside list-disc space-y-2 text-sm text-(--ink-muted)')}>
+                {REVIEW_RULES.map((rule) => (
+                  <li key={rule}>{rule}</li>
+                ))}
+              </ul>
+              <Link
+                href="/viral/debug"
+                className={cn('mt-3 inline-flex items-center gap-1 text-sm font-medium text-(--info) hover:underline')}
+              >
+                AI 응답 디버그에서 원문과 파싱 결과 확인
+              </Link>
+            </div>
+
+            <div>
+              <p className={cn('text-xs font-semibold uppercase tracking-[0.2em] text-(--ink-tertiary)')}>
+                운영 가이드
+              </p>
+              <div className={cn('mt-3 grid gap-3 sm:grid-cols-3')}>
+                {GUIDE_CARDS.map((card) => (
+                  <div
+                    key={card.title}
+                    className={cn('rounded-xl border border-(--border-light) bg-(--surface) px-4 py-3')}
+                  >
+                    <p className={cn('text-sm font-semibold text-(--ink)')}>{card.title}</p>
+                    <p className={cn('mt-1 text-sm leading-6 text-(--ink-muted)')}>{card.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </HelpAccordion>
       </SlideUp>
     </PageLayout>
   );

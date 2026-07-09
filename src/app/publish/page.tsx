@@ -3,7 +3,7 @@
 import { cn } from '@/shared';
 import { PostOnlyUI, CommentOnlyUI } from '@/features/auto-comment/publish';
 import { PageLayout } from '@/widgets';
-import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared';
+import { AnimatedTabs, AnimatedCard, SlideUp, HelpAccordion } from '@/shared';
 
 const TABS = [
   { id: 'post', label: '글만 발행' },
@@ -47,26 +47,9 @@ export default function PublishPage() {
       </AnimatedTabs>
 
       <SlideUp delay={0.2}>
-        <details className={cn('mt-8 group')}>
-          <summary
-            className={cn(
-              'flex items-center gap-2 cursor-pointer text-sm text-(--ink-muted) hover:text-(--ink) transition',
-              'list-none [&::-webkit-details-marker]:hidden'
-            )}
-          >
-            <svg
-              className={cn('w-4 h-4 transition-transform group-open:rotate-90')}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            분리 발행 사용법
-          </summary>
-
-          <div className={cn('mt-4 grid gap-4 lg:grid-cols-2')}>
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
+        <HelpAccordion title="분리 발행 사용법" className={cn('mt-8')}>
+          <div className={cn('grid gap-4 lg:grid-cols-2')}>
+            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>글만 발행</h3>
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
                 <li>• 키워드 입력 후 발행 버튼 클릭</li>
@@ -75,7 +58,7 @@ export default function PublishPage() {
               </ul>
             </div>
 
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
+            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>댓글만 달기</h3>
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
                 <li>• 최근 글 중 랜덤 절반 선택</li>
@@ -88,7 +71,7 @@ export default function PublishPage() {
           <p className={cn('mt-4 text-xs text-(--ink-muted)')}>
             글 발행과 댓글을 분리하면 타임라인이 더 자연스러워집니다.
           </p>
-        </details>
+        </HelpAccordion>
       </SlideUp>
     </PageLayout>
   );

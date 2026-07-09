@@ -2,7 +2,7 @@
 
 import { cn } from '@/shared';
 import { PageLayout } from '@/widgets';
-import { AnimatedCard, SlideUp } from '@/shared';
+import { AnimatedCard, HelpAccordion, SlideUp } from '@/shared';
 import { ManualPostUI } from '@/features/manual-post';
 
 export default function ManualPostPage() {
@@ -24,25 +24,8 @@ export default function ManualPostPage() {
       </AnimatedCard>
 
       <SlideUp delay={0.2}>
-        <details className={cn('mt-8 group')}>
-          <summary
-            className={cn(
-              'flex items-center gap-2 cursor-pointer text-sm text-(--ink-muted) hover:text-(--ink) transition',
-              'list-none [&::-webkit-details-marker]:hidden'
-            )}
-          >
-            <svg
-              className={cn('w-4 h-4 transition-transform group-open:rotate-90')}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            사용 안내
-          </summary>
-
-          <div className={cn('mt-4 grid gap-4 lg:grid-cols-2')}>
+        <HelpAccordion title="사용 안내" className={cn('mt-8')}>
+          <div className={cn('grid gap-4 lg:grid-cols-2')}>
             <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>폴더 구조</h3>
               <pre className={cn('text-xs text-(--ink-muted) bg-(--surface) rounded-lg p-3 font-mono')}>
@@ -85,7 +68,7 @@ export default function ManualPostPage() {
               ))}
             </div>
           </div>
-        </details>
+        </HelpAccordion>
       </SlideUp>
     </PageLayout>
   );

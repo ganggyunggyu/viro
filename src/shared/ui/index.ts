@@ -1,5 +1,6 @@
 export { Select, type SelectOption, type SelectProps } from './select';
 export { Checkbox } from './checkbox';
+export { HelpAccordion } from './help-accordion';
 
 export { AnimatedTabs, type Tab } from './animated-tabs';
 export { AnimatedCard, AnimatedListItem } from './animated-card';

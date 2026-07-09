@@ -3,7 +3,7 @@
 import { cn } from '@/shared';
 import { AccountManagerUI, CafeManagerUI } from '@/features/accounts';
 import { PageLayout } from '@/widgets';
-import { AnimatedTabs, AnimatedCard, SlideUp } from '@/shared';
+import { AnimatedTabs, AnimatedCard, SlideUp, HelpAccordion } from '@/shared';
 
 const TABS = [
   { id: 'accounts', label: '계정 관리' },
@@ -46,32 +46,14 @@ export default function AccountsPage() {
         )}
       </AnimatedTabs>
 
-      <details className={cn('mt-8 group')}>
-        <summary
-          className={cn(
-            'flex items-center gap-2 cursor-pointer text-sm text-(--ink-muted) hover:text-(--ink) transition',
-            'list-none [&::-webkit-details-marker]:hidden'
-          )}
-        >
-          <svg
-            className={cn('w-4 h-4 transition-transform group-open:rotate-90')}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          사용 방법
-        </summary>
-
-        <div className={cn('mt-4 rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
-          <ol className={cn('text-sm text-(--ink-muted) space-y-2 list-decimal list-inside')}>
-            <li>&quot;계정 추가&quot;/&quot;카페 추가&quot; 버튼으로 새 계정/카페 등록</li>
-            <li>&quot;테스트&quot; 버튼으로 로그인 상태 확인</li>
-            <li>기본 카페 설정으로 배치 작업 시 사용할 카페 지정</li>
-          </ol>
-        </div>
-      </details>
+      <HelpAccordion
+        className={cn('mt-8')}
+        items={[
+          '"계정 추가"/"카페 추가" 버튼으로 새 계정/카페 등록',
+          '"테스트" 버튼으로 로그인 상태 확인',
+          '기본 카페 설정으로 배치 작업 시 사용할 카페 지정',
+        ]}
+      />
     </PageLayout>
   );
 }

@@ -417,21 +417,6 @@ export const ManualPostUI = () => {
         )}
       </div>
 
-      {/* 폴더 구조 안내 */}
-      <div className={cn('rounded-xl border border-(--info)/20 bg-(--info-soft) p-4 space-y-2')}>
-        <p className={cn('text-sm font-semibold text-(--info)')}>폴더 구조 안내</p>
-        <pre className={cn('text-xs text-(--info)/80 font-mono leading-relaxed')}>
-{`상위폴더/
-├── 원고1/
-│   ├── 원고.txt (첫 줄: 제목, 이후: 본문)
-│   ├── image1.jpg
-│   └── image2.png
-├── 원고2:카테고리/  (폴더명에 카테고리 지정 가능)
-│   └── 원고.txt
-└── ...`}
-        </pre>
-      </div>
-
       {/* 초기화 확인 모달 */}
       <ConfirmModal
         isOpen={showClearModal}
