@@ -25,6 +25,8 @@ export const getAllAccounts = async (userId?: string): Promise<NaverAccount[]> =
       dailyPostLimit: a.dailyPostLimit,
       personaId: a.personaId,
       role: a.role as AccountRole,
+      campaignTag: a.campaignTag,
+      excludeFromAutoComment: a.excludeFromAutoComment,
     }));
   } catch (error) {
     console.error('[ACCOUNTS] MongoDB 조회 실패:', error);
@@ -63,6 +65,8 @@ export const getAllAccountsForMonitoring = async (): Promise<NaverAccount[]> => 
       dailyPostLimit: a.dailyPostLimit,
       personaId: a.personaId,
       role: a.role as AccountRole,
+      campaignTag: a.campaignTag,
+      excludeFromAutoComment: a.excludeFromAutoComment,
     }));
   } catch (error) {
     console.error('[ACCOUNTS] 모니터링용 조회 실패:', error);
@@ -90,6 +94,8 @@ export const getAccountById = async (accountId: string): Promise<NaverAccount | 
       dailyPostLimit: dbAccount.dailyPostLimit,
       personaId: dbAccount.personaId,
       role: dbAccount.role as AccountRole,
+      campaignTag: dbAccount.campaignTag,
+      excludeFromAutoComment: dbAccount.excludeFromAutoComment,
     };
   } catch (error) {
     console.error('[ACCOUNTS] accountId 조회 실패:', error);
@@ -130,6 +136,8 @@ export const addAccount = async (
       dailyPostLimit: account.dailyPostLimit,
       personaId: account.personaId,
       role: account.role,
+      campaignTag: account.campaignTag,
+      excludeFromAutoComment: account.excludeFromAutoComment ?? false,
       isActive: true,
     },
     { upsert: true, new: true, setDefaultsOnInsert: true },

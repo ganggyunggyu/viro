@@ -12,6 +12,8 @@ export interface NaverAccount {
   restDays?: number[];
   dailyPostLimit?: number;
   personaId?: string;
+  campaignTag?: string;
+  excludeFromAutoComment?: boolean;
 }
 
 export type Account = NaverAccount;
@@ -29,4 +31,6 @@ export interface AccountInput {
   restDays?: number[];
   dailyPostLimit?: number;
   personaId?: string;
+  campaignTag?: string;
+  excludeFromAutoComment?: boolean;
 }

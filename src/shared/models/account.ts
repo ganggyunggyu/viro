@@ -19,6 +19,8 @@ export interface IAccount extends Document {
   personaId?: string;
   role?: AccountRole;
   isActive: boolean;
+  campaignTag?: string;
+  excludeFromAutoComment?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,6 +46,8 @@ const AccountSchema = new Schema<IAccount>(
     personaId: { type: String },
     role: { type: String, enum: ['writer', 'commenter'] },
     isActive: { type: Boolean, default: true },
+    campaignTag: { type: String },
+    excludeFromAutoComment: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -14,6 +14,7 @@ const MAIN_NAV = [
   { href: '/viral', label: '바이럴' },
   { href: '/manual-post', label: '수동' },
   { href: '/publish', label: '분리' },
+  { href: '/comment-jobs', label: '댓글작업' },
   { href: '/queue', label: '큐' },
 ];
 

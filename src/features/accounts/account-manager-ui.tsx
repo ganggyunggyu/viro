@@ -124,6 +124,8 @@ interface AccountFormData {
   restDays: number[];
   dailyPostLimit: string;
   personaId: string;
+  campaignTag: string;
+  excludeFromAutoComment: boolean;
 }
 
 const defaultFormData: AccountFormData = {
@@ -136,6 +138,8 @@ const defaultFormData: AccountFormData = {
   restDays: [],
   dailyPostLimit: '5',
   personaId: '',
+  campaignTag: '',
+  excludeFromAutoComment: false,
 };
 
 export const AccountManagerUI = () => {
@@ -184,6 +188,8 @@ export const AccountManagerUI = () => {
       restDays: account.restDays || [],
       dailyPostLimit: account.dailyPostLimit?.toString() || '5',
       personaId: account.personaId || '',
+      campaignTag: account.campaignTag || '',
+      excludeFromAutoComment: account.excludeFromAutoComment || false,
     });
     setEditingId(account.id);
     setShowForm(true);
@@ -207,6 +213,8 @@ export const AccountManagerUI = () => {
       restDays: formData.restDays,
       dailyPostLimit: parseInt(formData.dailyPostLimit) || undefined,
       personaId: formData.personaId,
+      campaignTag: formData.campaignTag || undefined,
+      excludeFromAutoComment: formData.excludeFromAutoComment,
     };
 
     startTransition(async () => {
@@ -443,6 +451,23 @@ export const AccountManagerUI = () => {
             />
           </div>
 
+          {/* 캠페인 태그 & 자동 댓글 제외 */}
+          <div className={cn('space-y-2')}>
+            <label className={labelClassName}>캠페인 태그 (다른 업체/용도로 쓰는 계정이면 표시)</label>
+            <input
+              type="text"
+              placeholder="예: 안과의원 노출용"
+              value={formData.campaignTag}
+              onChange={(e) => setFormData((p) => ({ ...p, campaignTag: e.target.value }))}
+              className={inputClassName}
+            />
+          </div>
+          <Checkbox
+            label="자동 댓글 작업 풀에서 제외 (다른 업체 전용 계정 등)"
+            checked={formData.excludeFromAutoComment}
+            onChange={(e) => setFormData((p) => ({ ...p, excludeFromAutoComment: e.target.checked }))}
+          />
+
           {/* 메인 계정 */}
           <Checkbox
             label="메인 계정으로 설정"
@@ -501,6 +526,11 @@ export const AccountManagerUI = () => {
                       {account.personaId && (
                         <span className={cn('text-xs bg-(--surface-muted) text-(--ink-muted) px-2 py-0.5 rounded-md')}>
                           {PERSONA_OPTIONS.find((opt) => opt.id === account.personaId)?.label || account.personaId}
+                        </span>
+                      )}
+                      {account.excludeFromAutoComment && (
+                        <span className={cn('text-xs bg-(--danger-soft) text-(--danger) px-2 py-0.5 rounded-md font-medium')}>
+                          자동댓글 제외{account.campaignTag ? ` · ${account.campaignTag}` : ''}
                         </span>
                       )}
                     </div>
