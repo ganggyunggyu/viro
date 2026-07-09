@@ -30,22 +30,6 @@ const normalizeText = (value: string | null | undefined): string => {
   return (value ?? '').replace(/\s+/g, ' ').trim();
 };
 
-const ensureLoggedIn = async (
-  id: string,
-  password: string,
-  options?: WriteCommentOptions,
-): Promise<{ success: true } | { success: false; error: string }> => {
-  const loginResult = await loginAccount(id, password, {
-    forceFreshLogin: options?.forceFreshLogin ?? true,
-    waitForLoginMs: options?.loginWaitMs,
-    reason: `comment_write:${id}`,
-  });
-  if (!loginResult.success) {
-    return { success: false, error: loginResult.error || '로그인 실패' };
-  }
-  return { success: true };
-};
-
 const navigateToArticle = async (
   page: Page,
   articleUrl: string,
@@ -242,11 +226,6 @@ export const writeCommentWithAccount = async (
   await acquireAccountLock(id);
 
   try {
-    const loginCheck = await ensureLoggedIn(id, password, options);
-    if (!loginCheck.success) {
-      return { accountId: id, success: false, error: loginCheck.error };
-    }
-
     const page = await getPageForAccount(id);
     touchAccount(id);
     const articleUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
@@ -389,11 +368,6 @@ export const writeReplyWithAccount = async (
   await acquireAccountLock(id);
 
   try {
-    const loginCheck = await ensureLoggedIn(id, password);
-    if (!loginCheck.success) {
-      return { accountId: id, success: false, error: loginCheck.error };
-    }
-
     const page = await getPageForAccount(id);
     touchAccount(id);
     const articleUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
