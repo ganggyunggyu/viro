@@ -4,6 +4,7 @@ import { hasCommented } from '../src/shared/models/published-article';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
 import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
+import { runDeepSeekAgentCommentJob, type DeepSeekAgentEvent } from '../src/shared/lib/deepseek-agent-comment';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
 
 const WORKER_ID = `worker-${process.pid}-${Date.now()}`;
@@ -93,7 +94,58 @@ const appendResult = async (
   );
 };
 
+const processAgentJob = async (job: IManualCommentJob): Promise<void> => {
+  console.log(`[JOB ${job._id}] 시작 (agent): ${job.cafeSlug}/${job.articleId}`);
+  let resultIndex = 0;
+
+  const onEvent = async (event: DeepSeekAgentEvent): Promise<void> => {
+    if (event.type === 'post_success' || event.type === 'post_fail') {
+      await appendResult(job._id as mongoose.Types.ObjectId, {
+        index: resultIndex,
+        accountId: event.accountId,
+        nickname: event.nickname,
+        content: event.content || event.message,
+        success: event.type === 'post_success',
+        error: event.type === 'post_fail' ? event.message : undefined,
+        commentId: event.commentId,
+      });
+      resultIndex += 1;
+    }
+  };
+
+  try {
+    const { successCount, summary } = await runDeepSeekAgentCommentJob({
+      userId: job.userId,
+      cafeId: job.cafeId,
+      cafeSlug: job.cafeSlug,
+      articleId: job.articleId,
+      onEvent,
+    });
+
+    await ManualCommentJob.updateOne(
+      { _id: job._id },
+      {
+        $set: {
+          status: successCount > 0 ? 'done' : 'failed',
+          agentSummary: summary,
+          errorMessage: successCount === 0 ? '에이전트가 댓글을 하나도 등록하지 못함' : undefined,
+        },
+      },
+    );
+    console.log(`[JOB ${job._id}] 종료 (agent): ${successCount}개 성공, summary="${summary}"`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '알 수 없는 오류';
+    await ManualCommentJob.updateOne({ _id: job._id }, { $set: { status: 'failed', errorMessage: message } });
+    console.error(`[JOB ${job._id}] 실패 (agent): ${message}`);
+  }
+};
+
 const processJob = async (job: IManualCommentJob): Promise<void> => {
+  if (job.mode === 'agent') {
+    await processAgentJob(job);
+    return;
+  }
+
   console.log(`[JOB ${job._id}] 시작: ${job.cafeSlug}/${job.articleId}`);
 
   const accountsForRead = await Account.find({

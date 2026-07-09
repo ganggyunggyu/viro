@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export type ManualCommentJobStatus = 'pending' | 'running' | 'done' | 'failed';
-export type ManualCommentJobMode = 'fixed' | 'generate';
+export type ManualCommentJobMode = 'fixed' | 'generate' | 'agent';
 
 export interface IManualCommentResult {
   index: number;
@@ -28,6 +28,7 @@ export interface IManualCommentJob extends Document {
   delayMaxMs: number;
   status: ManualCommentJobStatus;
   errorMessage?: string;
+  agentSummary?: string;
   results: IManualCommentResult[];
   claimedAt?: Date;
   claimedBy?: string;
@@ -56,7 +57,7 @@ const ManualCommentJobSchema = new Schema<IManualCommentJob>(
     cafeSlug: { type: String, required: true },
     cafeId: { type: String, required: true, index: true },
     articleId: { type: Number, required: true },
-    mode: { type: String, enum: ['fixed', 'generate'], required: true },
+    mode: { type: String, enum: ['fixed', 'generate', 'agent'], required: true },
     fixedComments: { type: [String] },
     generateMinCount: { type: Number },
     generateMaxCount: { type: Number },
@@ -64,6 +65,7 @@ const ManualCommentJobSchema = new Schema<IManualCommentJob>(
     delayMaxMs: { type: Number, required: true },
     status: { type: String, enum: ['pending', 'running', 'done', 'failed'], default: 'pending', index: true },
     errorMessage: { type: String },
+    agentSummary: { type: String },
     results: { type: [ManualCommentResultSchema], default: [] },
     claimedAt: { type: Date },
     claimedBy: { type: String },

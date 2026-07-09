@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 
 export interface CreateManualCommentJobInput {
   articleUrl: string;
-  mode: 'fixed' | 'generate';
+  mode: 'fixed' | 'generate' | 'agent';
   fixedComments?: string[];
   generateMinCount?: number;
   generateMaxCount?: number;
@@ -22,7 +22,7 @@ export interface ManualCommentJobView {
   cafeSlug: string;
   cafeId: string;
   articleId: number;
-  mode: 'fixed' | 'generate';
+  mode: 'fixed' | 'generate' | 'agent';
   fixedComments?: string[];
   generateMinCount?: number;
   generateMaxCount?: number;
@@ -30,6 +30,7 @@ export interface ManualCommentJobView {
   delayMaxMs: number;
   status: 'pending' | 'running' | 'done' | 'failed';
   errorMessage?: string;
+  agentSummary?: string;
   results: Array<{
     index: number;
     accountId?: string;
@@ -58,6 +59,7 @@ const toView = (doc: IManualCommentJob): ManualCommentJobView => ({
   delayMaxMs: doc.delayMaxMs,
   status: doc.status,
   errorMessage: doc.errorMessage,
+  agentSummary: doc.agentSummary,
   results: (doc.results || []).map((r) => ({
     index: r.index,
     accountId: r.accountId,
@@ -88,7 +90,7 @@ export const createManualCommentJobAction = async (
     if (comments.length === 0) {
       return { success: false, error: '댓글 내용을 최소 1개 이상 입력해주세요' };
     }
-  } else {
+  } else if (input.mode === 'generate') {
     const min = input.generateMinCount ?? 0;
     const max = input.generateMaxCount ?? 0;
     if (min < 1 || max < min) {
