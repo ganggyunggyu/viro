@@ -82,9 +82,9 @@ const WORK_CAFES: WorkCafeInput[] = [
   { ownerName: '룰루랄라 2 (12개) 1', cafeUrl: 'https://cafe.naver.com/habitnote702' },
   { ownerName: '실눈캐', cafeUrl: 'https://cafe.naver.com/infomadang702' },
   { ownerName: '햄부기', cafeUrl: 'https://cafe.naver.com/talkmadang702' },
-  { ownerName: '애견 산책노트', cafeUrl: 'https://cafe.naver.com/walknote702' },
-  { ownerName: '애견 반려수첩', cafeUrl: 'https://cafe.naver.com/petnote702' },
-  { ownerName: '맛집 밥상노트', cafeUrl: 'https://cafe.naver.com/babsangnote702' },
+  { ownerName: '강아지강하지 1', cafeUrl: 'https://cafe.naver.com/walknote702' },
+  { ownerName: '티니피쉬 1', cafeUrl: 'https://cafe.naver.com/petnote702' },
+  { ownerName: '빨간모자앤  1', cafeUrl: 'https://cafe.naver.com/babsangnote702' },
 ];
 
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';

@@ -227,6 +227,7 @@ const loadCommenters = async (loginId: string): Promise<CommenterAccount[]> => {
     userId: user.userId,
     isActive: true,
     role: 'commenter',
+    excludeFromAutoComment: { $ne: true },
   })
     .select('accountId nickname')
     .sort({ createdAt: 1 })
