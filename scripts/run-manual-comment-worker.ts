@@ -31,12 +31,18 @@ const claimNextJob = async (): Promise<IManualCommentJob | null> => {
 };
 
 const buildAccountPool = async (
+  userId: string,
   cafeId: string,
   articleId: number,
   ownerNickname: string,
   needed: number,
 ): Promise<Array<{ accountId: string; password: string; nickname?: string }>> => {
-  const commenterAccounts = await Account.find({ isActive: true, role: 'commenter', excludeFromAutoComment: { $ne: true } })
+  const commenterAccounts = await Account.find({
+    userId,
+    isActive: true,
+    role: 'commenter',
+    excludeFromAutoComment: { $ne: true },
+  })
     .select('accountId password nickname')
     .lean<Array<{ accountId: string; password: string; nickname?: string }>>();
 
@@ -90,7 +96,12 @@ const appendResult = async (
 const processJob = async (job: IManualCommentJob): Promise<void> => {
   console.log(`[JOB ${job._id}] 시작: ${job.cafeSlug}/${job.articleId}`);
 
-  const accountsForRead = await Account.find({ isActive: true, role: 'commenter', excludeFromAutoComment: { $ne: true } })
+  const accountsForRead = await Account.find({
+    userId: job.userId,
+    isActive: true,
+    role: 'commenter',
+    excludeFromAutoComment: { $ne: true },
+  })
     .select('accountId password nickname')
     .limit(3)
     .lean<Array<{ accountId: string; password: string; nickname?: string }>>();
@@ -157,7 +168,7 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
     return;
   }
 
-  const pool = await buildAccountPool(job.cafeId, job.articleId, ownerNickname, texts.length);
+  const pool = await buildAccountPool(job.userId, job.cafeId, job.articleId, ownerNickname, texts.length);
   console.log(`[JOB ${job._id}] 계정 풀 ${pool.length}개, 댓글 ${texts.length}개, 소유자 닉네임="${ownerNickname}"`);
 
   let accountIdx = 0;

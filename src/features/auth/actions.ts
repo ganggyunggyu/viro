@@ -3,6 +3,7 @@
 import { connectDB } from '@/shared/lib/mongodb';
 import { User } from '@/shared/models';
 import { setCurrentUserId, getCurrentUserId } from '@/shared/config/user';
+import { hashPassword, isHashedPassword, verifyPassword } from '@/shared/lib/password';
 
 export interface LoginResult {
   success: boolean;
@@ -24,8 +25,17 @@ export const login = async (loginId: string, password: string): Promise<LoginRes
       return { success: false, error: '존재하지 않는 아이디' };
     }
 
-    if (user.password !== password) {
+    const passwordMatches = isHashedPassword(user.password)
+      ? verifyPassword(password, user.password)
+      : user.password === password;
+
+    if (!passwordMatches) {
       return { success: false, error: '비밀번호 불일치' };
+    }
+
+    if (!isHashedPassword(user.password)) {
+      user.password = hashPassword(password);
+      await user.save();
     }
 
     await setCurrentUserId(user.userId);
@@ -91,7 +101,7 @@ export const register = async (
     await User.create({
       userId,
       loginId,
-      password,
+      password: hashPassword(password),
       displayName,
     });
 
