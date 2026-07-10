@@ -141,6 +141,12 @@ export const setCafeVisibilityDefaults = async (page: Page): Promise<void> => {
  * 주의: 소분류 드롭다운을 열면 대분류 목록의 `.option` 엘리먼트가 DOM에서 사라지지 않고
  * display:none 상태로 남아있다. `.option` 전체를 텍스트로 찾으면 숨어있는 대분류 옵션이
  * 먼저 걸릴 수 있으므로 반드시 `isVisible()` 로 걸러낸 요소 중에서만 선택해야 한다.
+ *
+ * 주의 2: 소분류를 고른 뒤에도 드롭다운 패널이 화면에 남아있는 카테고리가 있다(예: 친목/모임 —
+ * 옵션이 11개로 길어서인지 소분류 선택 후에도 닫히지 않는다). 그 상태로 아래쪽 "카페 검색어
+ * 등록" 버튼을 클릭하면 남아있는 드롭다운의 `<tr class="cafe_directory">` 가 클릭을 가로채서
+ * `locator.click: Timeout 30000ms exceeded` 로 죽는다 — 실제로 겪은 버그. 그래서 소분류 선택
+ * 직후 열려있는 `.option` 이 남아있으면 소분류 버튼을 다시 눌러 강제로 접는다.
  */
 export const selectCafeTopic = async (
   page: Page,
@@ -156,7 +162,8 @@ export const selectCafeTopic = async (
     .catch(() => false);
   await page.waitForTimeout(800);
 
-  await page.locator('button:has-text("소분류 선택")').first().click();
+  const minorTriggerButton = page.locator('button:has-text("소분류 선택")').first();
+  await minorTriggerButton.click();
   await page.waitForTimeout(500);
 
   const allOptions = page.locator('.option');
@@ -173,6 +180,14 @@ export const selectCafeTopic = async (
     }
   }
   await page.waitForTimeout(500);
+
+  // 소분류 선택 후 드롭다운이 안 닫혀있으면(옵션이 여전히 보이면) 트리거 버튼을 다시 눌러 접는다
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const stillOpen = await allOptions.first().isVisible({ timeout: 500 }).catch(() => false);
+    if (!stillOpen) break;
+    await minorTriggerButton.click({ force: true }).catch(() => {});
+    await page.waitForTimeout(400);
+  }
 
   return { majorSelected, minorSelected };
 };
