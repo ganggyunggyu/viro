@@ -59,7 +59,7 @@ export const AnimatedTabs = ({ tabs, defaultTab, onChange, children }: AnimatedT
         aria-orientation="horizontal"
         className={cn(
           'relative flex gap-2 overflow-x-auto pb-1',
-          '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+          'scrollbar-hidden'
         )}
       >
         {tabs.map((tab) => (

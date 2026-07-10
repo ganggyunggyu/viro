@@ -1,6 +1,5 @@
 {
-  "/cafe-create/page": "app/cafe-create/page.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js",
-  "/viral/page": "app/viral/page.js"
+  "/publish/page": "app/publish/page.js"
 }

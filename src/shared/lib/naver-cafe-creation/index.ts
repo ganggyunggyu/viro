@@ -203,18 +203,42 @@ export const agreeToCafePolicy = async (page: Page): Promise<void> => {
  *
  * 주의: "만들기" 버튼은 `<button>` 이 아니라 `<a class="BaseButton--green">` 앵커다.
  * `button:has-text("만들기")` 로 찾으면 0건 매칭되어 30초 타임아웃으로 죽는다 — 실제로 겪은 버그.
+ *
+ * 주의 2: 클릭 후 리다이렉트가 항상 4초 안에 끝나는 게 아니다. 같은 계정/같은 폼으로 재현해보면
+ * 성공 판정이 붙었다 안 붙었다 하는데, 클릭 직후 한 번만 읽으면 리다이렉트가 아직 안 끝난
+ * `cafe.naver.com` 포털 홈 화면(카페홈/이웃/구독 등 GNB 텍스트만 있는 상태)을 잡아서 실패로
+ * 오판하는 경우가 실제로 있었다 — 그 사이 카페는 이미 만들어져 있었음. 그래서 한 번에 판정하지 않고
+ * 새 카페 URL(`cafe.naver.com/{slug}`)로 이동했는지 + 성공 문구가 뜨는지를 몇 번 폴링해서 확인한다.
  */
 export const submitCafeCreateForm = async (
   page: Page,
+  slug: string,
 ): Promise<{ success: boolean; resultText: string; cafeUrl?: string }> => {
   await page.locator('a.BaseButton--green:has-text("만들기")').last().click();
-  await page.waitForTimeout(4000);
 
-  const resultText = await page.locator('body').innerText({ timeout: 5000 }).catch(() => '');
-  const success = resultText.includes('카페가 개설되었어요');
-  const cafeUrl = success ? page.url() : undefined;
+  const expectedUrl = `https://cafe.naver.com/${slug}`;
+  let resultText = '';
 
-  return { success, resultText, cafeUrl };
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    await page.waitForTimeout(1500);
+    resultText = await page.locator('body').innerText({ timeout: 5000 }).catch(() => '');
+
+    if (resultText.includes('카페가 개설되었어요')) {
+      return { success: true, resultText, cafeUrl: page.url() };
+    }
+
+    // 리다이렉트가 성공 팝업보다 늦게 뜨는 경우 대비: URL이 이미 새 카페면 한 번 더 텍스트를 다시 읽어본다
+    if (page.url().startsWith(expectedUrl)) {
+      await page.waitForTimeout(1000);
+      resultText = await page.locator('body').innerText({ timeout: 5000 }).catch(() => '');
+      const looksLikeCafeHome = resultText.includes('카페정보') && resultText.includes('매니저');
+      if (looksLikeCafeHome) {
+        return { success: true, resultText, cafeUrl: page.url() };
+      }
+    }
+  }
+
+  return { success: false, resultText };
 };
 
 /**
@@ -279,7 +303,7 @@ export const createNaverCafe = async (
       return { success: true, dryRun, name: input.name };
     }
 
-    const submitResult = await submitCafeCreateForm(page);
+    const submitResult = await submitCafeCreateForm(page, input.slug);
     if (!submitResult.success) {
       return {
         success: false,

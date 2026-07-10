@@ -1,5 +1,6 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
+@source '../**/*.{js,jsx,ts,tsx,mdx}';
 
 :root {
   --background: #fafaf9;
@@ -245,6 +246,19 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--ink-tertiary);
+}
+
+.details-marker-hidden::-webkit-details-marker {
+  display: none;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }
 
 /* Custom Checkbox */

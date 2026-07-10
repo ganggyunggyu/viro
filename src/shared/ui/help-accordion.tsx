@@ -16,7 +16,7 @@ export const HelpAccordion = ({ title = '사용 방법', items, children, classN
       <summary
         className={cn(
           'flex items-center gap-2 cursor-pointer text-sm text-(--ink-muted) hover:text-(--ink) transition',
-          'list-none [&::-webkit-details-marker]:hidden',
+          'list-none details-marker-hidden',
         )}
       >
         <svg

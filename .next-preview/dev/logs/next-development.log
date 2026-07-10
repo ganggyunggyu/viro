@@ -1,33 +1,21 @@
-[00:00:01.492] Server  LOG     ✓ Ready in 1134ms
-[00:00:05.017] Server  LOG     ○ Compiling / ...
-[00:00:07.540] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:08.407] Server  LOG     [MongoDB] 새 연결 시도...
-[00:00:09.020] Server  LOG     [MongoDB] 연결 완료, readyState: 1
-[00:00:10.546] Server  LOG     ○ Compiling /cafe-create ...
-[00:00:12.721] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
-[00:00:16.028] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:16.174] Server  LOG     [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
-[00:00:16.176] Server  LOG     [dotenv@17.2.3] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
-[00:00:16.722] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
-[00:03:12.694] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783672801571"
-[00:03:12.714] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:03:12.729] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783672801571"
-[00:03:12.751] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
-[00:03:12.787] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783672801571"
-[00:03:12.806] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:03:12.819] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783672801571"
-[00:03:12.969] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
-[00:03:34.019] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:04:06.918] Server  LOG     ✓ Compiled in 3.6s
-[00:04:07.723] Browser ERROR   ./src/app/globals.css:3038:17
+[00:00:01.135] Server  LOG     ✓ Ready in 868ms
+[00:00:05.308] Server  LOG     ○ Compiling / ...
+[00:00:07.072] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:07.320] Server  LOG     [MongoDB] 새 연결 시도...
+[00:00:08.367] Server  LOG     [MongoDB] 연결 완료, readyState: 1
+[00:00:10.360] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[00:00:27.167] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:28.358] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[00:01:55.733] Server  LOG     ✓ Compiled in 1432ms
+[00:01:56.360] Browser ERROR   ./src/app/globals.css:3008:17
 Parsing CSS source code failed
-  3036 |   }
-  3037 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
-> 3038 |     &::-webkit-��-marker {
+  3006 |   }
+  3007 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3008 |     &::-webkit-��-marker {
        |                 ^
-  3039 |       display: none;
-  3040 |     }
-  3041 |   }
+  3009 |       display: none;
+  3010 |     }
+  3011 |   }
 
 Unexpected token Delim('\u{2}')
 
@@ -35,15 +23,209 @@ Import trace:
   Client Component Browser:
     ./src/app/globals.css [Client Component Browser]
     ./src/app/layout.tsx [Server Component]
-[00:04:08.721] Browser ERROR   ./src/app/globals.css:3038:17
+[00:03:25.357] Browser ERROR   ./src/app/globals.css:3027:17
 Parsing CSS source code failed
-  3036 |   }
-  3037 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
-> 3038 |     &::-webkit-��-marker {
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
        |                 ^
-  3039 |       display: none;
-  3040 |     }
-  3041 |   }
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:03:38.363] Browser ERROR   ./src/app/globals.css:3027:17
+Parsing CSS source code failed
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
+       |                 ^
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:04:01.363] Browser ERROR   ./src/app/globals.css:3027:17
+Parsing CSS source code failed
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
+       |                 ^
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:04:09.362] Browser ERROR   ./src/app/globals.css:3027:17
+Parsing CSS source code failed
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
+       |                 ^
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:04:33.359] Browser ERROR   ./src/app/globals.css:3027:17
+Parsing CSS source code failed
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
+       |                 ^
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:06:11.362] Browser ERROR   ./src/app/globals.css:3027:17
+Parsing CSS source code failed
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
+       |                 ^
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:06:13.367] Browser ERROR   ./src/app/globals.css:3027:17
+Parsing CSS source code failed
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
+       |                 ^
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:06:59.364] Browser ERROR   ./src/app/globals.css:3027:17
+Parsing CSS source code failed
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
+       |                 ^
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:07:56.364] Browser ERROR   ./src/app/globals.css:3027:17
+Parsing CSS source code failed
+  3025 |   }
+  3026 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 3027 |     &::-webkit-��-marker {
+       |                 ^
+  3028 |       display: none;
+  3029 |     }
+  3030 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:20:22.347] Server  LOG     ✓ Compiled in 3.2s
+[00:20:23.363] Browser ERROR   ./src/app/globals.css:2962:17
+Parsing CSS source code failed
+  2960 |   }
+  2961 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 2962 |     &::-webkit-��-marker {
+       |                 ^
+  2963 |       display: none;
+  2964 |     }
+  2965 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:21:40.143] Server  LOG     ✓ Compiled in 3.2s
+[00:21:40.363] Browser ERROR   ./src/app/globals.css:2957:17
+Parsing CSS source code failed
+  2955 |   }
+  2956 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 2957 |     &::-webkit-��-marker {
+       |                 ^
+  2958 |       display: none;
+  2959 |     }
+  2960 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:22:57.361] Browser ERROR   ./src/app/globals.css:2957:17
+Parsing CSS source code failed
+  2955 |   }
+  2956 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 2957 |     &::-webkit-��-marker {
+       |                 ^
+  2958 |       display: none;
+  2959 |     }
+  2960 |   }
+
+Unexpected token Delim('\u{2}')
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+[00:22:57.361] Browser ERROR   ./src/app/globals.css:2957:17
+Parsing CSS source code failed
+  2955 |   }
+  2956 |   .\[\&\:\:-webkit-�\2 �\1 -marker\]\:hidden {
+> 2957 |     &::-webkit-��-marker {
+       |                 ^
+  2958 |       display: none;
+  2959 |     }
+  2960 |   }
 
 Unexpected token Delim('\u{2}')
 

@@ -135,7 +135,7 @@ export const AppHeader = () => {
             <div
               className={cn(
                 'flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto pb-1 pr-1',
-                '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+                'scrollbar-hidden'
               )}
             >
               <nav aria-label="주요 메뉴" className={cn('flex min-w-max items-center gap-0.5')}>
