@@ -5,8 +5,10 @@ import { cn, Button } from '@/shared';
 import {
   createManualCommentJobAction,
   getManualCommentJobsAction,
+  scanLowCommentArticlesAction,
   type ManualCommentJobView,
 } from './actions';
+import type { ScanLowCommentArticlesResult } from './low-comment-scan';
 
 interface FormState {
   articleUrl: string;
@@ -77,6 +79,8 @@ export const ManualCommentJobUI = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [jobs, setJobs] = useState<ManualCommentJobView[]>([]);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [isScanPending, startScanTransition] = useTransition();
+  const [scanResult, setScanResult] = useState<ScanLowCommentArticlesResult | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const inputClassName = cn(
@@ -127,6 +131,15 @@ export const ManualCommentJobUI = () => {
     setMessage({
       type: 'success',
       text: comments.length > 0 ? `URL + 댓글 ${comments.length}개 자동 인식됨` : 'URL 자동 인식됨',
+    });
+  };
+
+  const handleScan = () => {
+    setScanResult(null);
+    startScanTransition(async () => {
+      const result = await scanLowCommentArticlesAction();
+      setScanResult(result);
+      loadJobs();
     });
   };
 
@@ -271,6 +284,36 @@ export const ManualCommentJobUI = () => {
         </Button>
       </div>
 
+      {/* 댓글 부족 글 자동 스캔 */}
+      <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-5 space-y-3')}>
+        <div className={cn('flex items-center justify-between gap-3')}>
+          <div>
+            <h2 className={cn('text-base font-semibold text-(--ink)')}>댓글 부족 글 자동 스캔</h2>
+            <p className={cn('text-xs text-(--ink-muted)')}>
+              등록된 모든 카페에서 댓글 3개 이하인 글을 찾아 8~13개 댓글 작업을 큐에 등록함
+            </p>
+          </div>
+          <Button onClick={handleScan} disabled={isScanPending}>
+            {isScanPending ? '스캔 중...' : '지금 스캔'}
+          </Button>
+        </div>
+
+        {scanResult && (
+          <div className={cn('rounded-lg bg-(--surface-muted) p-3 text-xs text-(--ink-muted) space-y-1')}>
+            <p>
+              카페 {scanResult.scannedCafes}개 스캔 · 대상 글 {scanResult.foundArticles.length}개 · 신규 등록{' '}
+              {scanResult.queuedJobs.length}건
+            </p>
+            {scanResult.skipped.length > 0 && <p>스킵 {scanResult.skipped.length}건 (이미 진행/대기 중인 작업 있음)</p>}
+            {scanResult.errors.length > 0 && (
+              <p className={cn('text-(--danger)')}>
+                에러: {scanResult.errors.map((e) => `${e.cafeSlug}(${e.error})`).join(', ')}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* 작업 목록 */}
       <div className={cn('space-y-2')}>
         <h2 className={cn('text-base font-semibold text-(--ink)')}>최근 작업</h2>
@@ -289,6 +332,7 @@ export const ManualCommentJobUI = () => {
                     ? job.generateMaxCount || 0
                     : 0;
               const successCount = job.results.filter((r) => r.success).length;
+              const percent = job.mode !== 'agent' && total > 0 ? Math.round((successCount / total) * 100) : null;
               const isExpanded = expandedIds.has(job.id);
 
               return (
@@ -309,10 +353,24 @@ export const ManualCommentJobUI = () => {
                     {job.mode === 'agent' && (
                       <span className={cn('shrink-0 text-xs text-(--accent)')}>에이전트</span>
                     )}
-                    <span className={cn('text-xs text-(--ink-muted) truncate flex-1')}>
-                      {successCount}
-                      {job.mode !== 'agent' ? `/${total || '?'}` : ''}건 · {formatRelativeTime(job.createdAt)}
-                      {job.errorMessage ? ` · ${job.errorMessage}` : ''}
+                    <span className={cn('min-w-0 flex-1 space-y-1')}>
+                      <span className={cn('block text-xs text-(--ink-muted) truncate')}>
+                        {successCount}
+                        {job.mode !== 'agent' ? `/${total || '?'}` : ''}건
+                        {percent !== null ? ` · ${percent}%` : ''} · {formatRelativeTime(job.createdAt)}
+                        {job.errorMessage ? ` · ${job.errorMessage}` : ''}
+                      </span>
+                      {percent !== null && (
+                        <span className={cn('block h-1 w-full max-w-40 overflow-hidden rounded-full bg-(--surface-muted)')}>
+                          <span
+                            className={cn(
+                              'block h-full rounded-full transition-all',
+                              job.status === 'failed' ? 'bg-(--danger)' : 'bg-(--accent)',
+                            )}
+                            style={{ width: `${percent}%` }}
+                          />
+                        </span>
+                      )}
                     </span>
                     <svg
                       className={cn('shrink-0 w-4 h-4 text-(--ink-tertiary) transition-transform', isExpanded && 'rotate-180')}

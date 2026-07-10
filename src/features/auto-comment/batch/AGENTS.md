@@ -51,7 +51,8 @@ batch/
 | 단일 키워드 처리 | `keyword-processor.ts` | 콘텐츠 생성→발행→댓글→답글 파이프라인 |
 | 글 작성 | `post-writer.ts` | `writePostWithAccount()` — Playwright DOM 조작 |
 | 이미지 업로드 | `image-uploader.ts` | Base64 → 에디터 삽입 |
-| 카페 가입 | `cafe-join.ts` | `joinCafeWithAccount()` — 자동 가입 |
+| 카페 가입 (기존 카페) | `cafe-join.ts` | `joinCafeWithAccount()` — 자동 가입. 신규 카페를 만드는 기능은 아님 |
+| 카페 개설 (신규 생성) | `shared/lib/naver-cafe-creation/index.ts` | `createNaverCafe()` — 여기 없음, shared/lib 참고 |
 | 닉네임 변경 | `nickname-changer.ts` | 배치 닉네임 변경 |
 | 큐 모니터링 | `queue-dashboard-ui.tsx` | Bull Board 대안 UI |
 | 발행 옵션 | `types.ts` | `PostOptions` — 댓글/스크랩/CCL 설정 |
@@ -86,3 +87,5 @@ BatchJobResult   // 배치 결과 (success, completed, failed)
 3. **DEFAULT_DELAYS vs DB 설정**: `types.ts`의 하드코딩 vs `queue-settings` MongoDB. **DB 우선**
 4. **이미지 크기**: Base64 이미지 → Server Action 500mb 제한 주의
 5. **cafe-join 실패 조용함**: 이미 가입된 카페 → 에러 로그만, 예외 없음
+6. **cafe-join.ts 캡차 처리 없음**: `joinCafeWithAccount()` 는 캡차 뜨면 그냥 실패 처리됨. 캡차 자동 풀이가 필요하면 `shared/lib/naver-cafe-membership`의 `joinCafeMembership()` 사용 (둘이 로직이 상당 부분 중복돼 있으니 헷갈리지 말 것)
+7. **joinCafeWithNicknameRetry 미연결**: 별명 충돌 자동 재시도 함수가 존재하지만 실제 호출부(UI/스크립트) 어디서도 안 쓰임 — 별명 충돌까지 처리하려면 `joinCafeWithAccount` 대신 이걸 직접 호출해야 함
