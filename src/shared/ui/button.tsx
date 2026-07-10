@@ -16,9 +16,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: cn(
-    'bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))]',
-    'text-background shadow-[0_12px_30px_rgba(0,0,0,0.15)]',
-    'hover:brightness-105'
+    'bg-accent text-background shadow-xs',
+    'hover:bg-accent-hover'
   ),
   secondary: cn(
     'border border-border bg-surface-muted',
@@ -28,19 +27,16 @@ const variantStyles: Record<ButtonVariant, string> = {
     'text-ink-muted hover:text-ink hover:bg-surface-muted'
   ),
   danger: cn(
-    'bg-danger text-background',
-    'shadow-[0_10px_24px_rgba(181,65,50,0.35)]',
-    'hover:brightness-105'
+    'bg-danger text-background shadow-xs',
+    'hover:brightness-95'
   ),
   warning: cn(
-    'bg-warning text-background',
-    'shadow-[0_10px_24px_rgba(217,119,6,0.35)]',
-    'hover:brightness-105'
+    'bg-warning text-background shadow-xs',
+    'hover:brightness-95'
   ),
   teal: cn(
-    'bg-[linear-gradient(135deg,var(--teal),var(--teal-strong))]',
-    'text-background shadow-[0_10px_24px_rgba(31,111,103,0.35)]',
-    'hover:brightness-105'
+    'bg-teal text-background shadow-xs',
+    'hover:brightness-95'
   ),
 };
 

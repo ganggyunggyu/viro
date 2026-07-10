@@ -89,16 +89,16 @@ const waitForCommentItem = async (
 
 const getCommentRoot = async (page: Page): Promise<Page | Frame> => {
   try {
-    await page.waitForSelector('iframe#cafe_main', { timeout: 10000 });
+    await page.waitForSelector('iframe#cafe_main', { timeout: 20000 });
   } catch {
-    await waitForCommentItem(page, 3000);
+    await waitForCommentItem(page, 5000);
     return page;
   }
 
   const frameHandle = await page.$('iframe#cafe_main');
   const frame = await frameHandle?.contentFrame();
   if (!frame) {
-    await waitForCommentItem(page, 3000);
+    await waitForCommentItem(page, 5000);
     return page;
   }
 
@@ -257,7 +257,7 @@ export const writeCommentWithAccount = async (
 
     if (!commentInput) {
       try {
-        commentInput = await root.waitForSelector(commentInputSelector, { timeout: 5000 });
+        commentInput = await root.waitForSelector(commentInputSelector, { timeout: 12000 });
       } catch {}
     }
 
