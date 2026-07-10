@@ -56,10 +56,14 @@ export const setMainAccountAction = async (id: string): Promise<AccountActionRes
 
 export const loginAccountAction = async (
   id: string,
-  password: string,
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    return await loginAccount(id, password);
+    const accounts = await getAllAccounts();
+    const account = accounts.find((a) => a.id === id);
+    if (!account) {
+      return { success: false, error: '계정을 찾을 수 없습니다' };
+    }
+    return await loginAccount(id, account.password);
   } catch (error) {
     return { success: false, error: getErrorMessage(error, '알 수 없는 오류') };
   }

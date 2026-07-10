@@ -1,3 +1,0 @@
-{"event":"run-started","runId":"2026-07-03T07-04-36-483Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json","totalTasks":1,"articleCount":1,"accountCount":1,"firstDueAtKst":"2026-07-03 16:04:36","lastDueAtKst":"2026-07-03 16:04:36","at":"2026-07-03T07:04:37.968Z"}
-{"event":"comment-failed","sequence":1,"cafeSlug":"carelog702","cafeId":"31750106","articleId":12,"accountId":"ahffkdlek12","error":"캡차 풀이 실패 (3회 시도): 캡차 풀이 최대 시도 초과","failed":1,"at":"2026-07-03T07:05:08.691Z"}
-{"event":"run-ended","runId":"2026-07-03T07-04-36-483Z","success":0,"failed":1,"skipped":0,"generatedArticles":0,"generationFailed":1,"screenshots":[],"at":"2026-07-03T07:05:08.691Z"}

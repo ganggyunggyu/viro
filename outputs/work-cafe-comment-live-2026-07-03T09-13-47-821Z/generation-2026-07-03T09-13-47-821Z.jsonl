@@ -1,4 +1,0 @@
-{"event":"generation-started","articleKey":"31746910:7","cafeSlug":"healthhhh","cafeId":"31746910","articleId":7,"readerAccountIds":["alsrudgus531"],"exactCount":1,"at":"2026-07-03T09:13:54.415Z"}
-{"event":"generation-reader-started","articleKey":"31746910:7","cafeSlug":"healthhhh","cafeId":"31746910","articleId":7,"readerAccountId":"alsrudgus531","readerAttempt":1,"readerAttemptTotal":1,"at":"2026-07-03T09:13:54.415Z"}
-{"event":"generation-reader-succeeded","articleKey":"31746910:7","cafeSlug":"healthhhh","cafeId":"31746910","articleId":7,"readerAccountId":"alsrudgus531","readerAttempt":1,"at":"2026-07-03T09:14:49.333Z"}
-{"event":"generation-succeeded","articleKey":"31746910:7","cafeSlug":"healthhhh","cafeId":"31746910","articleId":7,"readerAccountId":"alsrudgus531","commentCount":1,"warnings":[],"elapsedMs":58228,"at":"2026-07-03T09:14:52.643Z"}

@@ -18,7 +18,8 @@ export interface NaverAccount {
 
 export type Account = NaverAccount;
 
-export interface AccountData extends NaverAccount {
+export interface AccountData extends Omit<NaverAccount, 'password'> {
+  hasPassword: boolean;
   fromConfig?: boolean;
 }
 

@@ -3,6 +3,7 @@
 import { Fragment, useState, useTransition, useEffect } from 'react';
 import { cn } from '@/shared';
 import { Select, Button } from '@/shared';
+import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { getCafesAction } from '@/features/accounts/actions';
 import { runAutoCommentAction } from './actions';
 import type { CommentOnlyResult } from './types';
@@ -16,6 +17,7 @@ interface CafeConfig {
 export const CommentOnlyUI = () => {
   const [isPending, startTransition] = useTransition();
   const [cafes, setCafes] = useState<CafeConfig[]>([]);
+  const [cafesLoaded, setCafesLoaded] = useState(false);
   const [selectedCafeId, setSelectedCafeId] = useState('');
 
   useEffect(() => {
@@ -24,6 +26,7 @@ export const CommentOnlyUI = () => {
       setCafes(data);
       const defaultCafe = data.find((c) => c.isDefault) || data[0];
       if (defaultCafe) setSelectedCafeId(defaultCafe.cafeId);
+      setCafesLoaded(true);
     };
     loadCafes();
   }, []);
@@ -75,15 +78,21 @@ export const CommentOnlyUI = () => {
     <div className={cn('space-y-6')}>
       {phase === 'ready' && (
         <div className={cn('space-y-4')}>
-          <Select
-            label="카페 선택"
-            value={selectedCafeId}
-            onChange={(e) => setSelectedCafeId(e.target.value)}
-            options={cafes.map((cafe) => ({
-              value: cafe.cafeId,
-              label: `${cafe.name}${cafe.isDefault ? ' (기본)' : ''}`,
-            }))}
-          />
+          {cafesLoaded && cafes.length === 0 ? (
+            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-4 text-sm text-(--ink-muted)')}>
+              등록된 카페가 없습니다. 카페 관리 화면에서 먼저 카페를 등록해주세요.
+            </div>
+          ) : (
+            <Select
+              label="카페 선택"
+              value={selectedCafeId}
+              onChange={(e) => setSelectedCafeId(e.target.value)}
+              options={cafes.map((cafe) => ({
+                value: cafe.cafeId,
+                label: `${cafe.name}${cafe.isDefault ? ' (기본)' : ''}`,
+              }))}
+            />
+          )}
 
           <div className={cn('space-y-2')}>
             <label className={labelClassName}>기간 설정 (일)</label>
@@ -112,7 +121,7 @@ export const CommentOnlyUI = () => {
       {phase === 'ready' && (
         <Button
           onClick={handleExecute}
-          disabled={isPending}
+          disabled={isPending || !selectedCafeId}
           size="lg"
           fullWidth
         >
@@ -122,7 +131,7 @@ export const CommentOnlyUI = () => {
 
       {phase === 'running' && (
         <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-8 text-center')}>
-          <div className={cn('animate-spin w-8 h-8 border-2 border-(--accent) border-t-transparent rounded-full mx-auto mb-4')} />
+          <Loader2 className={cn('w-8 h-8 text-(--accent) animate-spin mx-auto mb-4')} />
           <p className={cn('text-sm font-medium text-(--ink)')}>댓글 작성 중...</p>
           <p className={cn('text-xs text-(--ink-muted) mt-1')}>
             각 글에 댓글/대댓글을 달고 있습니다
@@ -169,7 +178,11 @@ export const CommentOnlyUI = () => {
                   )}
                 >
                   <div className={cn('flex items-center gap-2')}>
-                    <span>{r.success ? '✅' : '❌'}</span>
+                    {r.success ? (
+                      <CheckCircle2 className={cn('w-4 h-4 text-(--success) shrink-0')} />
+                    ) : (
+                      <XCircle className={cn('w-4 h-4 text-(--danger) shrink-0')} />
+                    )}
                     <a
                       href={`https://cafe.naver.com/ca-fe/cafes/${selectedCafeId}/articles/${r.articleId}`}
                       target="_blank"

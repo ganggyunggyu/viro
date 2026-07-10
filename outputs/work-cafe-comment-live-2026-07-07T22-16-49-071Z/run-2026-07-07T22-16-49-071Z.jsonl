@@ -1,4 +1,0 @@
-{"event":"run-started","runId":"2026-07-07T22-16-49-071Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-07T22-16-31-396Z.json","originalTasks":1,"skippedAlreadyCommented":0,"warmupWarmedAccountIds":[],"warmupFailedAccounts":[],"canarySuccessTarget":0,"at":"2026-07-07T22:16:50.374Z"}
-{"event":"main-schedule-started","runId":"2026-07-07T22-16-49-071Z","totalTasks":1,"mainTasks":1,"articleCount":1,"accountCount":1,"firstDueAtKst":"2026-07-08 07:16:50","lastDueAtKst":"2026-07-08 07:16:50","at":"2026-07-07T22:16:50.376Z"}
-{"event":"comment-failed","sequence":1,"cafeSlug":"babsangnote702","cafeId":"31750114","articleId":13,"accountId":"ahffkdlek12","error":"fetch failed","failed":1,"at":"2026-07-07T22:17:18.934Z"}
-{"event":"run-ended","runId":"2026-07-07T22-16-49-071Z","success":0,"failed":1,"skipped":0,"generatedArticles":0,"generationFailed":1,"screenshots":[],"at":"2026-07-07T22:17:18.934Z"}

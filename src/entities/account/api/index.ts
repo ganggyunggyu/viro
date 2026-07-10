@@ -16,7 +16,7 @@ export const getAccountsAction = async (): Promise<AccountData[]> => {
 
   return dbAccounts.map((a) => ({
     id: a.accountId,
-    password: a.password,
+    hasPassword: !!a.password,
     nickname: a.nickname,
     isMain: a.isMain,
     activityHours: a.activityHours,

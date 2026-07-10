@@ -180,7 +180,7 @@ export const AccountManagerUI = () => {
   const openEditForm = (account: AccountData) => {
     setFormData({
       id: account.id,
-      password: account.password,
+      password: '',
       nickname: account.nickname || '',
       isMain: account.isMain || false,
       activityStart: account.activityHours?.start?.toString() || '9',
@@ -196,14 +196,14 @@ export const AccountManagerUI = () => {
   };
 
   const handleSubmit = () => {
-    if (!formData.id || !formData.password) {
+    if (!formData.id || (!editingId && !formData.password)) {
       setMessage({ type: 'error', text: '아이디와 비밀번호를 입력해주세요' });
       return;
     }
 
-    const input: AccountInput = {
+    const input: Partial<AccountInput> = {
       accountId: formData.id,
-      password: formData.password,
+      ...(formData.password ? { password: formData.password } : {}),
       nickname: formData.nickname || undefined,
       isMain: formData.isMain,
       activityHours: {
@@ -222,7 +222,7 @@ export const AccountManagerUI = () => {
         await updateAccountAction(editingId, input);
         setMessage({ type: 'success', text: '계정 수정 완료' });
       } else {
-        const result = await addAccountAction(input);
+        const result = await addAccountAction(input as AccountInput);
         if (result.success) {
           setMessage({ type: 'success', text: '계정 추가 완료' });
         } else {
@@ -256,11 +256,11 @@ export const AccountManagerUI = () => {
     });
   };
 
-  const handleLogin = (id: string, password: string) => {
+  const handleLogin = (id: string) => {
     setLoginStatus((prev) => ({ ...prev, [id]: 'loading' }));
 
     startTransition(async () => {
-      const result = await loginAccountAction(id, password);
+      const result = await loginAccountAction(id);
       setLoginStatus((prev) => ({
         ...prev,
         [id]: result.success ? 'success' : 'error',
@@ -368,7 +368,7 @@ export const AccountManagerUI = () => {
               <label className={labelClassName}>비밀번호</label>
               <input
                 type="password"
-                placeholder="비밀번호"
+                placeholder={editingId ? '비워두면 기존 비밀번호 유지' : '비밀번호'}
                 value={formData.password}
                 onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
                 className={inputClassName}
@@ -553,7 +553,7 @@ export const AccountManagerUI = () => {
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => handleLogin(account.id, account.password)}
+                    onClick={() => handleLogin(account.id)}
                     disabled={isPending || loginStatus[account.id] === 'loading'}
                   >
                     테스트
