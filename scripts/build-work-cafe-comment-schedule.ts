@@ -118,7 +118,7 @@ const formatDuration = (ms: number): string => {
 const getArgs = (): ScheduleArgs => ({
   loginId: getArgValue('--login-id', DEFAULT_LOGIN_ID),
   collectionId: getArgValue('--collection-id', ''),
-  targetCommentCount: Number(getArgValue('--target-comment-count', String(DEFAULT_TARGET_COMMENT_COUNT))),
+  targetCommentCount: Number(getArgValue('--target-comment-count', '0')),
   startDelayMin: Number(getArgValue('--start-delay-min', String(DEFAULT_START_DELAY_MIN))),
   globalGapSec: Number(getArgValue('--global-gap-sec', String(DEFAULT_GLOBAL_GAP_SEC))),
   accountGapMin: Number(getArgValue('--account-gap-min', String(DEFAULT_ACCOUNT_GAP_MIN))),
