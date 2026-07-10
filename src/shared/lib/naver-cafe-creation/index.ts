@@ -59,57 +59,59 @@ const getCafeCreateCaptchaClient = (): GoogleGenAI => {
   return cafeCreateCaptchaClient;
 };
 
-/** 카페 만들기 폼 하단의 그림문자 보안절차를 Gemini 비전으로 풀어서 입력칸에 채운다 */
+const CAPTCHA_REJECTED_PATTERN = /보안문자를 입력해주세요|보안문자가 일치하지|보안문자를 다시|보안문자를 정확히/;
+
+/**
+ * 카페 만들기 폼 하단의 그림문자 보안절차를 Gemini 비전으로 읽어서 입력칸에 한 번 채운다.
+ * 이 함수 자체는 채운 답이 실제로 맞았는지는 모른다 — 이 폼은 "만들기"를 눌러야만
+ * 정답 여부가 검증되기 때문. 정답 확인 + 오답 시 재시도는 submitCafeCreateForm() 쪽에서 한다.
+ */
 export const solveCafeCreateCaptcha = async (
   page: Page,
-  attempts = 6,
 ): Promise<{ solved: boolean; error?: string }> => {
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    const container = page.locator('.SectionCreateCafeCaptcha').first();
-    const image = container.locator('img').first();
-    const input = container.locator('input.input_txt').first();
-    const refreshBtn = container.locator('.captcha_btn.btn_re').first();
+  const container = page.locator('.SectionCreateCafeCaptcha').first();
+  const image = container.locator('img').first();
+  const input = container.locator('input.input_txt').first();
 
-    const visible = await image.isVisible({ timeout: 2000 }).catch(() => false);
-    if (!visible) return { solved: true };
+  const visible = await image.isVisible({ timeout: 2000 }).catch(() => false);
+  if (!visible) return { solved: true };
 
-    const shot = await image.screenshot({ type: 'png' }).catch(() => null);
-    if (!shot) return { solved: false, error: '캡차 이미지 스크린샷 실패' };
+  const shot = await image.screenshot({ type: 'png' }).catch(() => null);
+  if (!shot) return { solved: false, error: '캡차 이미지 스크린샷 실패' };
 
-    const ai = getCafeCreateCaptchaClient();
-    const response = await ai.models.generateContent({
-      model: CAPTCHA_MODEL,
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { inlineData: { mimeType: 'image/png', data: shot.toString('base64') } },
-            {
-              text: [
-                '이미지에 보이는 네이버 카페 만들기 보안문자(그림문자)를 정확히 읽어라.',
-                '문자는 배경 사진 위에 겹쳐진 왜곡된 영문/숫자다.',
-                'I와 1, O와 0, B와 8, S와 5, Z와 2를 조심해서 구분한다.',
-                '출력은 한 줄, 설명 없이 문자만.',
-                '공백, 따옴표, 문장부호는 쓰지 않는다.',
-              ].join('\n'),
-            },
-          ],
-        },
-      ],
-    });
-    const answer = (response.text || '').replace(/[^0-9A-Za-z]/g, '').trim();
+  const ai = getCafeCreateCaptchaClient();
+  const response = await ai.models.generateContent({
+    model: CAPTCHA_MODEL,
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          { inlineData: { mimeType: 'image/png', data: shot.toString('base64') } },
+          {
+            text: [
+              '이미지에 보이는 네이버 카페 만들기 보안문자(그림문자)를 정확히 읽어라.',
+              '문자는 배경 사진 위에 겹쳐진 왜곡된 영문/숫자다.',
+              'I와 1, O와 0, B와 8, S와 5, Z와 2를 조심해서 구분한다.',
+              '출력은 한 줄, 설명 없이 문자만.',
+              '공백, 따옴표, 문장부호는 쓰지 않는다.',
+            ].join('\n'),
+          },
+        ],
+      },
+    ],
+  });
+  const answer = (response.text || '').replace(/[^0-9A-Za-z]/g, '').trim();
 
-    if (!answer) {
-      await refreshBtn.click().catch(() => {});
-      await page.waitForTimeout(1500);
-      continue;
-    }
+  if (!answer) return { solved: false, error: 'AI가 빈 답변 반환' };
 
-    await input.fill(answer);
-    return { solved: true };
-  }
+  await input.fill(answer);
+  return { solved: true };
+};
 
-  return { solved: false, error: '캡차 풀이 시도 초과' };
+/** 캡차 이미지를 새로고침해서 새 문제를 받는다 (오답 재시도용) */
+export const refreshCafeCreateCaptcha = async (page: Page): Promise<void> => {
+  await page.locator('.SectionCreateCafeCaptcha .captcha_btn.btn_re').first().click().catch(() => {});
+  await page.waitForTimeout(1500);
 };
 
 /** 카페이름 + 카페주소(slug) 입력. 실제로 입력된 값을 읽어 리턴해서 자동생성/트림 등으로 값이 달라졌는지 확인할 수 있게 한다 */
@@ -199,7 +201,8 @@ export const agreeToCafePolicy = async (page: Page): Promise<void> => {
 };
 
 /**
- * 최종 제출.
+ * 최종 제출. 캡차를 풀고 → 클릭하고 → 결과를 몇 번 폴링해서 판정하는 사이클을
+ * 캡차가 오답으로 거부될 때마다 새로고침해서 최대 captchaAttempts 번까지 반복한다.
  *
  * 주의: "만들기" 버튼은 `<button>` 이 아니라 `<a class="BaseButton--green">` 앵커다.
  * `button:has-text("만들기")` 로 찾으면 0건 매칭되어 30초 타임아웃으로 죽는다 — 실제로 겪은 버그.
@@ -209,36 +212,65 @@ export const agreeToCafePolicy = async (page: Page): Promise<void> => {
  * `cafe.naver.com` 포털 홈 화면(카페홈/이웃/구독 등 GNB 텍스트만 있는 상태)을 잡아서 실패로
  * 오판하는 경우가 실제로 있었다 — 그 사이 카페는 이미 만들어져 있었음. 그래서 한 번에 판정하지 않고
  * 새 카페 URL(`cafe.naver.com/{slug}`)로 이동했는지 + 성공 문구가 뜨는지를 몇 번 폴링해서 확인한다.
+ *
+ * 주의 3: 캡차를 오답으로 채워도 "만들기" 클릭 자체는 막히지 않는다 — 같은 폼 페이지에
+ * "보안문자를 입력해주세요" 같은 빨간 인라인 에러만 뜨고 어디로도 이동하지 않는다.
+ * 이걸 확인 안 하고 캡차 입력만으로 성공 처리하면(예전 버그) 실제로는 카페가 안 만들어졌는데
+ * 성공으로 오판하거나, 반대로 계속 같은 자리에서 멈춰있는 걸 알아채지 못한다.
  */
 export const submitCafeCreateForm = async (
   page: Page,
   slug: string,
+  options: { captchaAttempts?: number } = {},
 ): Promise<{ success: boolean; resultText: string; cafeUrl?: string }> => {
-  await page.locator('a.BaseButton--green:has-text("만들기")').last().click();
-
+  const { captchaAttempts = 4 } = options;
   const expectedUrl = `https://cafe.naver.com/${slug}`;
   let resultText = '';
 
-  for (let attempt = 0; attempt < 6; attempt += 1) {
-    await page.waitForTimeout(1500);
-    resultText = await page.locator('body').innerText({ timeout: 5000 }).catch(() => '');
-
-    if (resultText.includes('카페가 개설되었어요')) {
-      return { success: true, resultText, cafeUrl: page.url() };
+  for (let captchaAttempt = 1; captchaAttempt <= captchaAttempts; captchaAttempt += 1) {
+    const captchaResult = await solveCafeCreateCaptcha(page);
+    if (!captchaResult.solved) {
+      return { success: false, resultText: captchaResult.error || '캡차 풀이 실패' };
     }
 
-    // 리다이렉트가 성공 팝업보다 늦게 뜨는 경우 대비: URL이 이미 새 카페면 한 번 더 텍스트를 다시 읽어본다
-    if (page.url().startsWith(expectedUrl)) {
-      await page.waitForTimeout(1000);
+    await page.locator('a.BaseButton--green:has-text("만들기")').last().click();
+
+    let captchaRejected = false;
+
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      await page.waitForTimeout(1500);
       resultText = await page.locator('body').innerText({ timeout: 5000 }).catch(() => '');
-      const looksLikeCafeHome = resultText.includes('카페정보') && resultText.includes('매니저');
-      if (looksLikeCafeHome) {
+
+      if (resultText.includes('카페가 개설되었어요')) {
         return { success: true, resultText, cafeUrl: page.url() };
       }
+
+      if (CAPTCHA_REJECTED_PATTERN.test(resultText)) {
+        captchaRejected = true;
+        break;
+      }
+
+      // 리다이렉트가 성공 팝업보다 늦게 뜨는 경우 대비: URL이 이미 새 카페면 한 번 더 텍스트를 다시 읽어본다
+      if (page.url().startsWith(expectedUrl)) {
+        await page.waitForTimeout(1000);
+        resultText = await page.locator('body').innerText({ timeout: 5000 }).catch(() => '');
+        const looksLikeCafeHome = resultText.includes('카페정보') && resultText.includes('매니저');
+        if (looksLikeCafeHome) {
+          return { success: true, resultText, cafeUrl: page.url() };
+        }
+      }
+    }
+
+    if (!captchaRejected) {
+      return { success: false, resultText };
+    }
+
+    if (captchaAttempt < captchaAttempts) {
+      await refreshCafeCreateCaptcha(page);
     }
   }
 
-  return { success: false, resultText };
+  return { success: false, resultText: resultText || '캡차 재시도 초과' };
 };
 
 /**
@@ -292,17 +324,18 @@ export const createNaverCafe = async (
       await addCafeSearchKeywords(page, input.keywords);
     }
 
-    const captchaResult = await solveCafeCreateCaptcha(page);
-    if (!captchaResult.solved) {
-      return { success: false, dryRun, error: captchaResult.error || '캡차 풀이 실패' };
-    }
-
-    await agreeToCafePolicy(page);
-
     if (dryRun) {
+      // 드라이런은 제출을 안 하므로 캡차 정답 여부를 검증할 방법이 없다 — 폼이 여기까지
+      // 정상적으로 채워지는지만 확인하고 캡차는 한 번만 채워본다.
+      const captchaResult = await solveCafeCreateCaptcha(page);
+      if (!captchaResult.solved) {
+        return { success: false, dryRun, error: captchaResult.error || '캡차 풀이 실패' };
+      }
+      await agreeToCafePolicy(page);
       return { success: true, dryRun, name: input.name };
     }
 
+    await agreeToCafePolicy(page);
     const submitResult = await submitCafeCreateForm(page, input.slug);
     if (!submitResult.success) {
       return {
