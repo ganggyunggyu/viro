@@ -86,7 +86,8 @@ const main = async () => {
       const { subject, content } = parseManuscript(manuscript.content);
       console.log(`[원고] 유형=${manuscript.contentType} 제목="${subject}" 길이=${content.replace(/\s/g, '').length}자`);
 
-      const imageResult = await generateImages({ keyword, category: manuscript.category, count: 3 });
+      // TODO: 이미지 2장 이상 삽입 시 se-popup-dim 겹침으로 발행 자체가 실패하는 버그 있음 — 수정 전까지 1장만.
+      const imageResult = await generateImages({ keyword, category: manuscript.category, count: 1 });
       const imageUrls = imageResult.images || [];
       console.log(`[이미지] ${imageUrls.length}장 생성`);
 
