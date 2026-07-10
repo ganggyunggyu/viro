@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition, type ClipboardEvent } from 'react';
 import { cn, Button } from '@/shared';
 import {
   createManualCommentJobAction,
@@ -46,6 +46,19 @@ const STATUS_STYLE: Record<ManualCommentJobView['status'], string> = {
   running: 'bg-(--info-soft) text-(--info)',
   done: 'bg-(--success-soft) text-(--success)',
   failed: 'bg-(--danger-soft) text-(--danger)',
+};
+
+const CAFE_URL_PATTERN = /https?:\/\/[^\s]*cafe\.naver\.com[^\s]*/i;
+const NUMBERED_LINE_PATTERN = /^\s*\d+[.)]\s*(.+)$/;
+
+const parseSmartPaste = (raw: string): { url: string | null; comments: string[] } => {
+  const urlMatch = raw.match(CAFE_URL_PATTERN);
+  const comments = raw
+    .split('\n')
+    .map((line) => line.match(NUMBERED_LINE_PATTERN)?.[1]?.trim())
+    .filter((line): line is string => Boolean(line));
+
+  return { url: urlMatch?.[0] ?? null, comments };
 };
 
 const formatRelativeTime = (iso: string): string => {
@@ -97,6 +110,26 @@ export const ManualCommentJobUI = () => {
     });
   };
 
+  const handleUrlPaste = (e: ClipboardEvent<HTMLInputElement>) => {
+    const raw = e.clipboardData.getData('text');
+    if (!raw.includes('\n') && !raw.match(NUMBERED_LINE_PATTERN)) return;
+
+    const { url, comments } = parseSmartPaste(raw);
+    if (!url) return;
+
+    e.preventDefault();
+    setFormData((p) => ({
+      ...p,
+      articleUrl: url,
+      mode: comments.length > 0 ? 'fixed' : p.mode,
+      fixedCommentsText: comments.length > 0 ? comments.join('\n') : p.fixedCommentsText,
+    }));
+    setMessage({
+      type: 'success',
+      text: comments.length > 0 ? `URL + 댓글 ${comments.length}개 자동 인식됨` : 'URL 자동 인식됨',
+    });
+  };
+
   const handleSubmit = () => {
     if (!formData.articleUrl.trim()) {
       setMessage({ type: 'error', text: '글 URL을 입력해주세요' });
@@ -142,9 +175,10 @@ export const ManualCommentJobUI = () => {
 
         <input
           type="text"
-          placeholder="카페 글 URL"
+          placeholder="카페 글 URL (URL + 번호매긴 댓글을 통째로 붙여넣어도 자동 인식됨)"
           value={formData.articleUrl}
           onChange={(e) => setFormData((p) => ({ ...p, articleUrl: e.target.value }))}
+          onPaste={handleUrlPaste}
           className={inputClassName}
         />
 
