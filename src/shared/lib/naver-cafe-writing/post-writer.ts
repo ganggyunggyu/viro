@@ -512,8 +512,23 @@ export const writePostWithAccount = async (
       .replace(/<[^>]*>/g, '')         // 나머지 태그 제거
       .trim();
 
+    // 원고가 문장마다 빈 줄로 끊겨 오는 경우가 많아 2~4문장씩 묶어 단락화
+    // (단락 사이에만 빈 줄을 두어 너무 좁게 보이는 것을 방지)
+    const groupLinesIntoParagraphs = (rawLines: string[]): string[] => {
+      const sentences = rawLines.map((l) => l.trim()).filter(Boolean);
+      const grouped: string[] = [];
+      let i = 0;
+      while (i < sentences.length) {
+        const groupSize = 2 + Math.floor(Math.random() * 3); // 2~4문장
+        grouped.push(...sentences.slice(i, i + groupSize));
+        i += groupSize;
+        if (i < sentences.length) grouped.push('');
+      }
+      return grouped;
+    };
+
     // SmartEditor는 contenteditable이므로 줄바꿈은 Enter 키로 처리
-    const lines = plainContent.split('\n');
+    const lines = groupLinesIntoParagraphs(plainContent.split('\n'));
 
     // 이미지 삽입 위치 계산 (단락 구분점 = 빈 줄)
     const paragraphBreaks: number[] = [];

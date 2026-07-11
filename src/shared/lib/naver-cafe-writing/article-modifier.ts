@@ -230,7 +230,33 @@ export const modifyArticleWithAccount = async (
       .replace(/<[^>]*>/g, '')         // 나머지 태그 제거
       .trim();
 
-    const lines = plainContent.split('\n');
+    // 원고가 문장마다 빈 줄로 끊겨 오는 경우가 많아 2~4문장씩 묶어 단락화
+    // (부제 줄은 항상 새 단락으로 분리해 이미지 삽입 위치 탐지에 영향 없게 유지)
+    const groupLinesIntoParagraphs = (rawLines: string[]): string[] => {
+      const items = rawLines.map((l) => l.trim()).filter(Boolean);
+      const grouped: string[] = [];
+      let i = 0;
+      while (i < items.length) {
+        if (SUBTITLE_PATTERN.test(items[i])) {
+          if (grouped.length > 0 && grouped[grouped.length - 1] !== '') grouped.push('');
+          grouped.push(items[i]);
+          grouped.push('');
+          i++;
+          continue;
+        }
+        const groupSize = 2 + Math.floor(Math.random() * 3); // 2~4문장
+        let taken = 0;
+        while (taken < groupSize && i < items.length && !SUBTITLE_PATTERN.test(items[i])) {
+          grouped.push(items[i]);
+          i++;
+          taken++;
+        }
+        if (i < items.length) grouped.push('');
+      }
+      return grouped;
+    };
+
+    const lines = groupLinesIntoParagraphs(plainContent.split('\n'));
 
     // 부제 위치 찾기 (숫자. 형식)
     const subtitleIndices: number[] = [];

@@ -7,12 +7,11 @@ import { parseViralResponse } from "../src/features/viral/viral-parser";
 const TEXT_GEN_HUB_URL = process.env.TEXT_GEN_HUB_URL || "http://localhost:8000";
 const IMAGE_GEN_URL = process.env.IMAGE_GEN_URL || "http://localhost:3939";
 
-const CAFE_ID = "31754875";
-const MENU_ID = "1";
-const ACCOUNT_ID = "ahsxkfldk12";
-const ENDPOINT = "/generate/hanryeo";
-const SERVICE = "건강";
-const KEYWORD = "종합비타민 성분 비교하기";
+const CAFE_ID = process.argv[2];
+const ACCOUNT_ID = process.argv[3];
+const ENDPOINT = process.argv[4];
+const SERVICE = process.argv[5];
+const KEYWORD = process.argv[6];
 
 const stripMarkdown = (text: string): string =>
   text
@@ -66,11 +65,11 @@ const main = async (): Promise<void> => {
   }
 
   const image = await fetchImageAsBase64(KEYWORD);
-  console.log(`이미지 ${image ? "찾음" : "못찾음"}`);
+  console.log(`[${KEYWORD}] 이미지 ${image ? "찾음" : "못찾음"}`);
 
   const result = await writePostWithAccount(account, {
     cafeId: CAFE_ID,
-    menuId: MENU_ID,
+    menuId: "1",
     subject: title,
     content: body,
     images: image ? [image] : undefined,
@@ -85,7 +84,7 @@ const main = async (): Promise<void> => {
     },
   });
 
-  console.log(result.success ? `[OK] articleId=${result.articleId}` : `[FAIL] ${result.error}`);
+  console.log(result.success ? `[OK][${KEYWORD}] articleId=${result.articleId}` : `[FAIL][${KEYWORD}] ${result.error}`);
 
   await closeAllContexts();
   await mongoose.disconnect();
@@ -94,7 +93,7 @@ const main = async (): Promise<void> => {
 main()
   .then(() => process.exit(0))
   .catch(async (e) => {
-    console.error("ERROR:", e.message);
+    console.error(`[ERROR][${KEYWORD}]`, e.message);
     try { await closeAllContexts(); } catch {}
     try { await mongoose.disconnect(); } catch {}
     process.exit(1);
