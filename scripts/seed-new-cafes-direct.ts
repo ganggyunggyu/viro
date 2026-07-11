@@ -26,10 +26,7 @@ const TARGETS: CafeSeedTarget[] = [
     endpoint: "/generate/hanryeo",
     service: "건강",
     keywords: [
-      "요산 수치 낮추는 방법",
       "체지방률 정상범위 알아보기",
-      "이명 증상과 원인 정리",
-      "위산 역류 예방하는 습관",
     ],
   },
   {
@@ -40,11 +37,6 @@ const TARGETS: CafeSeedTarget[] = [
     endpoint: "/generate/hanryeo",
     service: "건강",
     keywords: [
-      "비타민D 부족 증상 알아보기",
-      "오메가3 효능과 부작용",
-      "마그네슘 섭취 기준량",
-      "프로바이오틱스 고르는 법",
-      "철분제 복용 시기와 방법",
       "종합비타민 성분 비교하기",
       "루테인 효과 알아보기",
       "아연 부족 증상 체크",

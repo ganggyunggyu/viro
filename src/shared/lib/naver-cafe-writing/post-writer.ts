@@ -380,6 +380,21 @@ export const writePostWithAccount = async (
       }
     }
 
+    // 새로 만든 카페 등에서 SPA 라우팅이 글쓰기 페이지 대신 기존 글로 되돌아가는 경우가 있어
+    // 실제 URL이 write 페이지인지 확인하고 아니면 재시도
+    for (let bounceRetry = 0; bounceRetry < 2 && !page.url().includes('/articles/write'); bounceRetry++) {
+      console.log(`[POST] ${id} 글쓰기 페이지 이탈 감지 (현재: ${page.url()}) - 재시도 ${bounceRetry + 1}/2`);
+      await page.waitForTimeout(2000);
+      await navigateToWritePage();
+    }
+    if (!page.url().includes('/articles/write')) {
+      return {
+        success: false,
+        writerAccountId: id,
+        error: `글쓰기 페이지 진입 실패 - 현재 URL: ${page.url()}`,
+      };
+    }
+
     // 스마트 에디터 팝업 닫기 (지도/장소 등)
     const popupCloseButton = await page.$('.se-popup-close-button');
     if (popupCloseButton) {
