@@ -26,15 +26,10 @@ const TARGETS: CafeSeedTarget[] = [
     endpoint: "/generate/hanryeo",
     service: "건강",
     keywords: [
-      "콜레스테롤 수치 관리하는 법",
-      "혈압 낮추는 생활습관",
-      "갑상선 수치 정상범위 알아보기",
-      "당뇨 전단계 관리법",
-      "간수치 높을 때 주의사항",
-      "빈혈 원인과 개선법",
-      "골밀도 검사 결과 보는 법",
-      "심박수 정상범위 확인하기",
-      "콩팥 기능 저하 초기증상",
+      "요산 수치 낮추는 방법",
+      "체지방률 정상범위 알아보기",
+      "이명 증상과 원인 정리",
+      "위산 역류 예방하는 습관",
     ],
   },
   {
@@ -150,62 +145,89 @@ const generateManuscript = async (
   return { title, body };
 };
 
+const runTarget = async (
+  target: CafeSeedTarget
+): Promise<{ name: string; success: number; fail: number }> => {
+  console.log(`\n=== ${target.cafeName} 시작 (${target.keywords.length}개) ===`);
+  const acc = await Account.findOne({ accountId: target.ownerAccountId }).lean();
+  if (!acc) {
+    console.log(`[${target.cafeName}] 계정 없음, 스킵`);
+    return { name: target.cafeName, success: 0, fail: 0 };
+  }
+  const account = { id: target.ownerAccountId, password: (acc as any).password, nickname: (acc as any).nickname };
+
+  let success = 0;
+  let fail = 0;
+
+  for (const keyword of target.keywords) {
+    try {
+      console.log(`[${target.cafeName}] 생성 중: ${keyword}`);
+      const manuscript = await generateManuscript(target, keyword);
+      console.log(`[${target.cafeName}] 이미지 검색 중: ${keyword}`);
+      const image = await fetchImageAsBase64(keyword);
+      console.log(`[${target.cafeName}] 이미지 ${image ? "찾음" : "못찾음"}`);
+      console.log(`[${target.cafeName}] 발행 중: ${manuscript.title}`);
+      const result = await writePostWithAccount(account, {
+        cafeId: target.cafeId,
+        menuId: target.menuId,
+        subject: manuscript.title,
+        content: manuscript.body,
+        images: image ? [image] : undefined,
+        postOptions: {
+          allowComment: true,
+          allowScrap: true,
+          allowCopy: false,
+          useAutoSource: false,
+          useCcl: false,
+          cclCommercial: "disallow",
+          cclModify: "disallow",
+        },
+      });
+      if (result.success) {
+        success += 1;
+        console.log(`[OK] articleId=${result.articleId}`);
+      } else {
+        fail += 1;
+        console.log(`[FAIL] ${result.error}`);
+      }
+    } catch (e: any) {
+      fail += 1;
+      console.log(`[ERROR] ${e.message}`);
+    }
+  }
+
+  console.log(`=== ${target.cafeName} 완료: 성공 ${success} / 실패 ${fail} ===`);
+  return { name: target.cafeName, success, fail };
+};
+
+const CONCURRENCY = 2;
+
+const runPool = async (
+  targets: CafeSeedTarget[]
+): Promise<Array<{ name: string; success: number; fail: number }>> => {
+  const queue = [...targets];
+  const results: Array<{ name: string; success: number; fail: number }> = [];
+
+  const worker = async (): Promise<void> => {
+    while (queue.length > 0) {
+      const target = queue.shift();
+      if (!target) break;
+      results.push(await runTarget(target));
+    }
+  };
+
+  await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
+  return results;
+};
+
 const main = async (): Promise<void> => {
   await mongoose.connect(process.env.MONGODB_URI!);
 
+  const results = await runPool(TARGETS);
+
   const summary: Record<string, { success: number; fail: number }> = {};
-
-  for (const target of TARGETS) {
-    console.log(`\n=== ${target.cafeName} 시작 (${target.keywords.length}개) ===`);
-    const acc = await Account.findOne({ accountId: target.ownerAccountId }).lean();
-    if (!acc) {
-      console.log(`[${target.cafeName}] 계정 없음, 스킵`);
-      continue;
-    }
-    const account = { id: target.ownerAccountId, password: (acc as any).password, nickname: (acc as any).nickname };
-
-    let success = 0;
-    let fail = 0;
-
-    for (const keyword of target.keywords) {
-      try {
-        console.log(`[${target.cafeName}] 생성 중: ${keyword}`);
-        const manuscript = await generateManuscript(target, keyword);
-        console.log(`[${target.cafeName}] 이미지 검색 중: ${keyword}`);
-        const image = await fetchImageAsBase64(keyword);
-        console.log(`[${target.cafeName}] 이미지 ${image ? "찾음" : "못찾음"}`);
-        console.log(`[${target.cafeName}] 발행 중: ${manuscript.title}`);
-        const result = await writePostWithAccount(account, {
-          cafeId: target.cafeId,
-          menuId: target.menuId,
-          subject: manuscript.title,
-          content: manuscript.body,
-          images: image ? [image] : undefined,
-          postOptions: {
-            allowComment: true,
-            allowScrap: true,
-            allowCopy: false,
-            useAutoSource: false,
-            useCcl: false,
-            cclCommercial: "disallow",
-            cclModify: "disallow",
-          },
-        });
-        if (result.success) {
-          success += 1;
-          console.log(`[OK] articleId=${result.articleId}`);
-        } else {
-          fail += 1;
-          console.log(`[FAIL] ${result.error}`);
-        }
-      } catch (e: any) {
-        fail += 1;
-        console.log(`[ERROR] ${e.message}`);
-      }
-    }
-
-    summary[target.cafeName] = { success, fail };
-    console.log(`=== ${target.cafeName} 완료: 성공 ${success} / 실패 ${fail} ===`);
+  for (const r of results) {
+    summary[r.name] = { success: r.success, fail: r.fail };
   }
 
   console.log("\n=== 최종 요약 ===");

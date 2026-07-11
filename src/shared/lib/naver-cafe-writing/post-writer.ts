@@ -391,7 +391,10 @@ export const writePostWithAccount = async (
     console.log(`[POST] ${id} 카테고리 지정: "${category || '없음'}"`);
 
     // 게시판 선택 (드롭다운 클릭 → 카테고리 선택)
-    const boardSelectButton = await page.$('.FormSelectButton button.button');
+    // 동시 다중 계정 실행 시 에디터 렌더링이 늦어질 수 있어 즉시 조회 대신 대기 후 조회
+    const boardSelectButton = await page
+      .waitForSelector('.FormSelectButton button.button', { timeout: 8000 })
+      .catch(() => null);
     if (boardSelectButton) {
       await boardSelectButton.click();
       await page.waitForTimeout(500);
