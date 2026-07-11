@@ -16,9 +16,10 @@ import { generateTeteContent, generateImages, downloadImageAsBase64 } from '../s
 import { writePostWithAccount } from '../src/shared/lib/naver-cafe-writing';
 import type { NaverAccount } from '../src/shared/lib/account-manager';
 
+// 이미 발행된 5개(천안웨딩홀/수원웨딩홀/인천웨딩홀/인천예식장/강아지 관절 영양제)는 웨딩홀·예식장 쪽에
+// 쏠려있어서, 남은 5개는 완전히 다른 카테고리로 채워 전체 10편의 다양성을 맞춘다.
 const KEYWORDS = [
-  '천안웨딩홀', '수원웨딩홀', '인천웨딩홀', '대구 가족사진', '강아지 관절 영양제',
-  '인천예식장', '먹는 위고비', '부평웨딩홀', '광주웨딩홀', '부천웨딩홀',
+  '종로반지', '먹는 위고비', '시스템에어컨청소업체', '드라이기 추천', '부천pt',
 ];
 
 const CAFE_ID = '31754837'; // 육아 돌봄수첩
