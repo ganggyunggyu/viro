@@ -2,12 +2,6 @@
   "node": {
     "00ab089168221bbcc44bae95d2a2913f08e616e2c2": {
       "workers": {
-        "app/login/page": {
-          "moduleId": "[project]/.next-internal/server/app/login/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "getCurrentUser",
-          "filename": "src/features/auth/actions.ts"
-        },
         "app/page": {
           "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": false,
@@ -19,45 +13,51 @@
           "async": true,
           "exportedName": "getCurrentUser",
           "filename": "src/features/auth/actions.ts"
+        },
+        "app/viral/page": {
+          "moduleId": "[project]/.next-internal/server/app/viral/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/manual-post/manual-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getCurrentUser",
+          "filename": "src/features/auth/actions.ts"
         }
       },
       "layer": {
-        "app/login/page": "action-browser",
         "app/page": "action-browser",
-        "app/publish/page": "action-browser"
+        "app/publish/page": "action-browser",
+        "app/viral/page": "action-browser"
       },
       "filename": "src/features/auth/actions.ts",
       "exportedName": "getCurrentUser"
     },
-    "60a194a865e3bd3af5d71919804cba241403cd6503": {
+    "40d3bec0fced50d202d7a9856a430232a2ff5ae58f": {
       "workers": {
-        "app/login/page": {
-          "moduleId": "[project]/.next-internal/server/app/login/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "login",
-          "filename": "src/features/auth/actions.ts"
+        "app/viral/page": {
+          "moduleId": "[project]/.next-internal/server/app/viral/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/manual-post/manual-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "runManualPublishAction",
+          "filename": "src/features/manual-post/manual-actions.ts"
         }
       },
       "layer": {
-        "app/login/page": "action-browser"
+        "app/viral/page": "action-browser"
       },
-      "filename": "src/features/auth/actions.ts",
-      "exportedName": "login"
+      "filename": "src/features/manual-post/manual-actions.ts",
+      "exportedName": "runManualPublishAction"
     },
-    "700ec4dea6a8c98297860ed1a21c9d8d4489b6c1f0": {
+    "402e666dbb52813b850b5ce71fdfff645f884c3913": {
       "workers": {
-        "app/login/page": {
-          "moduleId": "[project]/.next-internal/server/app/login/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "register",
-          "filename": "src/features/auth/actions.ts"
+        "app/viral/page": {
+          "moduleId": "[project]/.next-internal/server/app/viral/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/manual-post/manual-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "runManualModifyAction",
+          "filename": "src/features/manual-post/manual-actions.ts"
         }
       },
       "layer": {
-        "app/login/page": "action-browser"
+        "app/viral/page": "action-browser"
       },
-      "filename": "src/features/auth/actions.ts",
-      "exportedName": "register"
+      "filename": "src/features/manual-post/manual-actions.ts",
+      "exportedName": "runManualModifyAction"
     },
     "00fcebe0d8b7ffd728da7115f7c761568114a4b2b3": {
       "workers": {
@@ -66,13 +66,57 @@
           "async": true,
           "exportedName": "getCafesAction",
           "filename": "src/entities/cafe/api/index.ts"
+        },
+        "app/viral/page": {
+          "moduleId": "[project]/.next-internal/server/app/viral/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/manual-post/manual-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getCafesAction",
+          "filename": "src/entities/cafe/api/index.ts"
         }
       },
       "layer": {
-        "app/publish/page": "action-browser"
+        "app/publish/page": "action-browser",
+        "app/viral/page": "action-browser"
       },
       "filename": "src/entities/cafe/api/index.ts",
       "exportedName": "getCafesAction"
+    },
+    "0008b6ff334c2072c6e4f6eab76e5c765bc6e7a5a3": {
+      "workers": {
+        "app/viral/page": {
+          "moduleId": "[project]/.next-internal/server/app/viral/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/manual-post/manual-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getAccountsAction",
+          "filename": "src/entities/account/api/index.ts"
+        }
+      },
+      "layer": {
+        "app/viral/page": "action-browser"
+      },
+      "filename": "src/entities/account/api/index.ts",
+      "exportedName": "getAccountsAction"
+    },
+    "00ba43b06b44b5ff61002c5831f0aac3fa1d4ed9c2": {
+      "workers": {
+        "app/publish/page": {
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "logout",
+          "filename": "src/features/auth/actions.ts"
+        },
+        "app/viral/page": {
+          "moduleId": "[project]/.next-internal/server/app/viral/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/manual-post/manual-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "logout",
+          "filename": "src/features/auth/actions.ts"
+        }
+      },
+      "layer": {
+        "app/publish/page": "action-browser",
+        "app/viral/page": "action-browser"
+      },
+      "filename": "src/features/auth/actions.ts",
+      "exportedName": "logout"
     },
     "4067d70e0e817250b99ba89f6b1a397f49877d243d": {
       "workers": {
@@ -148,21 +192,6 @@
       },
       "filename": "src/features/auto-comment/publish/manuscript-actions.ts",
       "exportedName": "runManuscriptModifyAction"
-    },
-    "00ba43b06b44b5ff61002c5831f0aac3fa1d4ed9c2": {
-      "workers": {
-        "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": true,
-          "exportedName": "logout",
-          "filename": "src/features/auth/actions.ts"
-        }
-      },
-      "layer": {
-        "app/publish/page": "action-browser"
-      },
-      "filename": "src/features/auth/actions.ts",
-      "exportedName": "logout"
     }
   },
   "edge": {},

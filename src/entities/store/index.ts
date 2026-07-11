@@ -17,4 +17,6 @@ export {
 export {
   postKeywordsTextAtom,
   postRefAtom,
+  postAttachImagesAtom,
+  postsPerDayAtom,
 } from './post-draft-atom';

@@ -92,6 +92,7 @@
     --color-rose-500: #ff2357;
     --color-rose-600: #e70044;
     --color-black: #000;
+    --color-white: #fff;
     --spacing: .25rem;
     --container-sm: 24rem;
     --container-md: 28rem;
@@ -721,6 +722,10 @@
     height: calc(var(--spacing) * 8);
   }
 
+  .h-9 {
+    height: calc(var(--spacing) * 9);
+  }
+
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
@@ -847,6 +852,10 @@
 
   .w-8 {
     width: calc(var(--spacing) * 8);
+  }
+
+  .w-9 {
+    width: calc(var(--spacing) * 9);
   }
 
   .w-10 {
@@ -1037,6 +1046,10 @@
 
   .list-none {
     list-style-type: none;
+  }
+
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 
   .grid-cols-2 {
@@ -2343,6 +2356,10 @@
     .text-warning\/80 {
       color: color-mix(in oklab, var(--warning) 80%, transparent);
     }
+  }
+
+  .text-white {
+    color: var(--color-white);
   }
 
   .uppercase {

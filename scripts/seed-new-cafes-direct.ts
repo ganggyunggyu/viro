@@ -5,6 +5,7 @@ import { closeAllContexts } from "../src/shared/lib/multi-session";
 import { parseViralResponse } from "../src/features/viral/viral-parser";
 
 const TEXT_GEN_HUB_URL = process.env.TEXT_GEN_HUB_URL || "http://localhost:8000";
+const IMAGE_GEN_URL = process.env.IMAGE_GEN_URL || "http://localhost:3939";
 
 interface CafeSeedTarget {
   cafeName: string;
@@ -17,20 +18,6 @@ interface CafeSeedTarget {
 }
 
 const TARGETS: CafeSeedTarget[] = [
-  {
-    cafeName: "육아 돌봄수첩",
-    cafeId: "31754837",
-    menuId: "1",
-    ownerAccountId: "ahffkdlek12",
-    endpoint: "/generate/blog-filler",
-    service: "육아",
-    keywords: [
-      "신생아 수유 텀 잡는 법",
-      "이유식 시작 시기와 순서",
-      "아기 수면교육 방법",
-      "영유아 예방접종 일정 정리",
-    ],
-  },
   {
     cafeName: "건강 체크노트",
     cafeId: "31754869",
@@ -117,6 +104,29 @@ const stripMarkdown = (text: string): string =>
     .replace(/`(.+?)`/g, "$1")
     .trim();
 
+const fetchImageAsBase64 = async (keyword: string): Promise<string | null> => {
+  try {
+    const searchRes = await fetch(
+      `${IMAGE_GEN_URL}/api/image/search?q=${encodeURIComponent(keyword)}&n=5`,
+    );
+    if (!searchRes.ok) return null;
+    const searchData = (await searchRes.json()) as {
+      success: boolean;
+      data?: { results: Array<{ imageUrl: string }> };
+    };
+    const results = searchData.data?.results || [];
+    if (results.length === 0) return null;
+
+    const picked = results[Math.floor(Math.random() * results.length)];
+    const proxyRes = await fetch(`${IMAGE_GEN_URL}${picked.imageUrl}`);
+    if (!proxyRes.ok) return null;
+    const buf = Buffer.from(await proxyRes.arrayBuffer());
+    return `data:image/webp;base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+};
+
 const generateManuscript = async (
   target: CafeSeedTarget,
   keyword: string,
@@ -161,12 +171,16 @@ const main = async (): Promise<void> => {
       try {
         console.log(`[${target.cafeName}] 생성 중: ${keyword}`);
         const manuscript = await generateManuscript(target, keyword);
+        console.log(`[${target.cafeName}] 이미지 검색 중: ${keyword}`);
+        const image = await fetchImageAsBase64(keyword);
+        console.log(`[${target.cafeName}] 이미지 ${image ? "찾음" : "못찾음"}`);
         console.log(`[${target.cafeName}] 발행 중: ${manuscript.title}`);
         const result = await writePostWithAccount(account, {
           cafeId: target.cafeId,
           menuId: target.menuId,
           subject: manuscript.title,
           content: manuscript.body,
+          images: image ? [image] : undefined,
           postOptions: {
             allowComment: true,
             allowScrap: true,

@@ -7,6 +7,7 @@ import { generateContent, generateContentWithPrompt } from '@/shared/api/content
 import { buildCafePostContent } from '@/shared/lib/cafe-content';
 import { warmupScheduleSessions } from '@/shared/lib/multi-session';
 import { PostJobData } from '@/shared/lib/queue/types';
+import { fetchTopicImageAsBase64 } from '@/shared/lib/fetch-topic-image';
 import { getNextActiveTime, getPersonaId, type NaverAccount } from '@/shared/lib/account-manager';
 import type { BatchJobInput } from './types';
 import { parseKeywordWithCategory } from './keyword-utils';
@@ -114,7 +115,12 @@ export const addBatchToQueue = async (
     skipComments,
     contentPrompt,
     contentModel,
+    attachImages,
+    postsPerDay,
   } = input;
+
+  const postsPerDayDelayMs =
+    postsPerDay && postsPerDay > 0 ? Math.floor((24 * 60 * 60 * 1000) / postsPerDay) : undefined;
 
   const trimmedPrompt = contentPrompt?.trim() || '';
   const hasCustomPrompt = Boolean(trimmedPrompt);
@@ -203,6 +209,11 @@ export const addBatchToQueue = async (
 
       const { title, htmlContent } = buildCafePostContent(generatedContent, keywordLabel);
 
+      const image = attachImages ? await fetchTopicImageAsBase64(keyword) : null;
+      if (attachImages) {
+        console.log(`[QUEUE-BATCH] 이미지 ${image ? '찾음' : '못찾음'}: ${keywordLabel}`);
+      }
+
       const jobData: PostJobData = {
         type: 'post',
         accountId: writerAccount.id,
@@ -217,6 +228,7 @@ export const addBatchToQueue = async (
         rawContent: generatedContent,
         skipComments,
         commenterAccountIds,
+        images: image ? [image] : undefined,
       };
 
       const currentAccountDelay = accountDelays.get(writerAccount.id) ?? 0;
@@ -226,7 +238,7 @@ export const addBatchToQueue = async (
       await addTaskJob(writerAccount.id, jobData, totalDelay);
       jobsAdded++;
 
-      const randomDelay = getRandomDelay(settings.delays.betweenPosts);
+      const randomDelay = postsPerDayDelayMs ?? getRandomDelay(settings.delays.betweenPosts);
       accountDelays.set(writerAccount.id, totalDelay + randomDelay);
 
       const delayInfo = activityDelay > 0

@@ -1527,7 +1527,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/action-validate.js [app-rsc] (ecmascript)");
 ;
 const runPostOnlyAction = async (input)=>{
-    const { keywords, ref, cafeId, postOptions } = input;
+    const { keywords, ref, cafeId, postOptions, attachImages, postsPerDay } = input;
     console.log('[POST-ONLY] 큐 추가 시작:', keywords.length, '개 키워드');
     try {
         const { addBatchToQueue } = await __turbopack_context__.A("[project]/src/features/auto-comment/batch/batch-queue.ts [app-rsc] (ecmascript, async loader)");
@@ -1537,7 +1537,9 @@ const runPostOnlyAction = async (input)=>{
             ref,
             cafeId,
             postOptions,
-            skipComments: true
+            skipComments: true,
+            attachImages,
+            postsPerDay
         });
     } catch (error) {
         console.error('[POST-ONLY] Redis 연결 실패:', error);
@@ -2835,6 +2837,10 @@ const closeAllContexts = async ()=>{
     if (g.__pwBrowser) {
         await g.__pwBrowser.close();
         g.__pwBrowser = null;
+    }
+    if (g.__pwIdleTimer) {
+        clearInterval(g.__pwIdleTimer);
+        g.__pwIdleTimer = null;
     }
 };
 const waitForLoginCompletion = async (page, accountId, options)=>{

@@ -6,6 +6,8 @@ export interface PostOnlyInput {
   ref?: string;
   cafeId?: string;
   postOptions?: import('@/shared/types').PostOptions;
+  attachImages?: boolean;
+  postsPerDay?: number;
 }
 
 export interface PostOnlyResult {

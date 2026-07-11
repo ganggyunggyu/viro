@@ -3,7 +3,7 @@ module.exports = [
 
 __turbopack_context__.v((parentImport) => {
     return Promise.all([
-  "server/chunks/ssr/src_91e442f9._.js"
+  "server/chunks/ssr/src_a8d1b83d._.js"
 ].map((chunk) => __turbopack_context__.l(chunk))).then(() => {
         return parentImport("[project]/src/features/auto-comment/batch/batch-queue.ts [app-rsc] (ecmascript)");
     });
