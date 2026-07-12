@@ -3,6 +3,8 @@ dotenv.config({ path: ".env" });
 dotenv.config({ path: ".env.local" });
 import mongoose from "mongoose";
 
+const SCRATCH = "/private/tmp/claude-501/-Users-ganggyunggyu-Programing-cafe-bot/7fc48bb3-780d-4d48-bfbc-1be391ceec28/scratchpad";
+
 const main = async (): Promise<void> => {
   await mongoose.connect(process.env.MONGODB_URI!);
   const { Account } = await import("../src/shared/models/account");
@@ -10,9 +12,9 @@ const main = async (): Promise<void> => {
     "../src/shared/lib/multi-session"
   );
 
-  const accountId = "ahffkdlek12";
-  const cafeId = "31754837";
-  const articleId = 23;
+  const accountId = "pixelninja3";
+  const cafeId = "31755069";
+  const articleId = 19;
 
   const acc = await Account.findOne({ accountId }).lean();
   if (!acc) {
@@ -34,14 +36,9 @@ const main = async (): Promise<void> => {
     });
     await page.waitForTimeout(1500);
     await page.screenshot({
-      path: "/private/tmp/claude-501/-Users-ganggyunggyu-Programing-cafe-bot/7fc48bb3-780d-4d48-bfbc-1be391ceec28/scratchpad/verify-article23-v3.png",
+      path: `${SCRATCH}/check-fresh-publish-19.png`,
       fullPage: true,
     });
-
-    const frame =
-      page.frames().find((f) => f.url().includes("ArticleRead") || f.name() === "cafe_main") || page.mainFrame();
-    const imageCount = await frame.locator(".se-image-resource").count();
-    console.log(`이미지 개수: ${imageCount}`);
     console.log("스크린샷 저장 완료");
   } finally {
     releaseAccountLock(accountId);

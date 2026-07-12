@@ -381,13 +381,21 @@ export const modifyArticleWithAccount = async (
     await submitButton.click();
 
     // 수정 완료 후 글 상세 페이지로 리다이렉트 대기
+    // 주의: 시작 URL 자체가 이미 articles/\d+/modify 형태라 /articles\/\d+/ 정규식은
+    // 리다이렉트 없이도 즉시 통과해버린다 — 실제로는 저장이 끝나기도 전에 성공
+    // 처리되어 다음 작업으로 넘어가며 저장이 중간에 끊기는 원인이었다. modify가
+    // 아닌 진짜 상세 페이지로 옮겨갔는지까지 확인해야 한다.
     try {
-      await page.waitForURL(/articles\/\d+/, { timeout: 10000 });
-      console.log('[DEBUG] 수정 완료, URL 변화 감지됨');
+      await page.waitForURL((url) => /articles\/\d+/.test(url.href) && !url.href.includes('/modify'), {
+        timeout: 15000,
+      });
+      console.log('[DEBUG] 수정 완료, URL 변화 감지됨:', page.url());
     } catch {
       console.log('[DEBUG] URL 변화 없음, 추가 대기...');
-      await page.waitForTimeout(3000);
+      await page.waitForTimeout(5000);
     }
+    // 리다이렉트 이후에도 서버 쪽 저장 처리가 이어질 수 있어 약간의 여유를 둔다
+    await page.waitForTimeout(1500);
 
     await saveCookiesForAccount(id);
 
