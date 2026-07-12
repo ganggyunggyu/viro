@@ -15,10 +15,6 @@ interface CafeInfo {
 
 const CAFES: CafeInfo[] = [
   { cafeName: "육아 돌봄수첩", cafeId: "31754837", ownerAccountId: "ahffkdlek12", service: "육아" },
-  { cafeName: "건강 체크노트", cafeId: "31754869", ownerAccountId: "ahffkekd12", service: "건강" },
-  { cafeName: "건강 정보노트", cafeId: "31754875", ownerAccountId: "ahsxkfldk12", service: "건강" },
-  { cafeName: "생활 살림노트", cafeId: "31754939", ownerAccountId: "alsrudgus531", service: "생활" },
-  { cafeName: "일상 소소담", cafeId: "31755069", ownerAccountId: "pixelninja3", service: "일상" },
 ];
 
 const extractKeywordFromSubject = (subject: string): string => {
