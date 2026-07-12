@@ -214,12 +214,11 @@ const uploadSingleImageFile = async (page: Page, filePath: string, index: number
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
-    // 에디터 본문 클릭하여 포커스 복귀 (force로 오버레이 무시)
-    const editorBody = await page.$('.se-component-content, .se-content');
-    if (editorBody) {
-      await editorBody.click({ force: true });
-      await page.waitForTimeout(500);
-    }
+    // 팝업이 닫히면 contenteditable은 커서 위치를 그대로 유지하므로 별도로 클릭해
+    // 포커스를 복귀시키지 않는다. (예전엔 여기서 '.se-component-content, .se-content'를
+    // page.$()로 다시 찾아 클릭했는데, 이는 항상 문서의 첫 번째 매치를 잡아버려 이미지를
+    // 여러 장 연속 업로드할 때마다 커서가 맨 위로 튀는 버그였다 — 뒤 이미지·본문이
+    // 엉뚱한 위치에 들어가는 원인)
 
     return true;
   } catch (error) {

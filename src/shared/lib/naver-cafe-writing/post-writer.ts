@@ -13,7 +13,7 @@ import type { Page } from 'playwright';
 import type { PostOptions, PostResult } from '@/shared/types';
 import { DEFAULT_POST_OPTIONS } from '@/shared/types';
 import { incrementActivity } from '@/shared/models/daily-activity';
-import { uploadSingleImage } from './image-uploader';
+import { uploadImages } from './image-uploader';
 import type { ElementHandle } from 'playwright';
 
 // 팝업 닫고 클릭 재시도 헬퍼
@@ -530,31 +530,20 @@ export const writePostWithAccount = async (
     // SmartEditor는 contenteditable이므로 줄바꿈은 Enter 키로 처리
     const lines = groupLinesIntoParagraphs(plainContent.split('\n'));
 
-    // 이미지 삽입 위치 계산 (단락 구분점 = 빈 줄)
-    const paragraphBreaks: number[] = [];
-    for (let i = 0; i < lines.length; i++) {
-      if (!lines[i].trim()) {
-        paragraphBreaks.push(i);
+    // 이미지는 맨 위에 전부 몰아서 넣고, 그 다음에 본문을 이어서 작성한다
+    if (images && images.length > 0) {
+      console.log(`[POST] ${id} 이미지 ${images.length}장 상단에 먼저 삽입`);
+      const uploadSuccess = await uploadImages(page, images);
+      if (uploadSuccess) {
+        console.log(`[POST] ${id} 이미지 업로드 완료`);
+      } else {
+        console.warn(`[POST] ${id} 이미지 업로드 실패 - 글 작성은 계속 진행`);
       }
+      await page.waitForTimeout(500);
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(300);
     }
 
-    // 이미지 삽입 위치 결정 (N장일 때: 중간에 N-1장, 끝에 1장)
-    const imageInsertPoints: Map<number, string> = new Map();
-    if (images && images.length > 1 && paragraphBreaks.length > 0) {
-      const imgCount = images.length;
-      const breakCount = paragraphBreaks.length;
-      // 이미지 N-1개를 단락 구분점에 균등 분배
-      const interval = Math.max(1, Math.floor(breakCount / (imgCount - 1 || 1)));
-      for (let j = 0; j < imgCount - 1; j++) {
-        const breakIdx = Math.min(j * interval, breakCount - 1);
-        const lineIdx = paragraphBreaks[breakIdx];
-        imageInsertPoints.set(lineIdx, images[j]);
-        console.log(`[POST] 이미지 ${j + 1} 삽입 위치: line ${lineIdx}`);
-      }
-    }
-
-    // 글 작성 + 이미지 삽입
-    let insertedImageCount = 0;
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].trim()) {
         await page.keyboard.type(lines[i], { delay: 100 }); // 600타/분 속도
@@ -562,35 +551,9 @@ export const writePostWithAccount = async (
       if (i < lines.length - 1) {
         await page.keyboard.press('Enter');
       }
-
-      // 단락 구분점에서 이미지 삽입
-      if (imageInsertPoints.has(i)) {
-        const img = imageInsertPoints.get(i)!;
-        console.log(`[POST] ${id} 이미지 ${insertedImageCount + 1} 삽입 중 (line ${i})`);
-        await page.waitForTimeout(500);
-        const success = await uploadSingleImage(page, img);
-        if (success) {
-          insertedImageCount++;
-          console.log(`[POST] ${id} 이미지 ${insertedImageCount} 삽입 완료`);
-        }
-        await page.waitForTimeout(500);
-      }
     }
 
     await page.waitForTimeout(500);
-
-    // 마지막 이미지는 본문 끝에 삽입
-    if (images && images.length > 0) {
-      const lastImage = images[images.length - 1];
-      console.log(`[POST] ${id} 마지막 이미지 (${images.length}번째) 삽입 중`);
-      const success = await uploadSingleImage(page, lastImage);
-      if (success) {
-        console.log(`[POST] ${id} 마지막 이미지 삽입 완료`);
-      } else {
-        console.warn(`[POST] ${id} 마지막 이미지 삽입 실패`);
-      }
-      await page.waitForTimeout(1000);
-    }
 
     // 게시 옵션 설정 (체크박스 조작)
     await applyPostOptions(page, postOptions);

@@ -9,7 +9,7 @@ import {
   invalidateLoginCache,
 } from '@/shared/lib/multi-session';
 import type { NaverAccount } from '@/shared/lib/account-manager';
-import { uploadImages, uploadSingleImage } from './image-uploader';
+import { uploadImages } from './image-uploader';
 
 // 부제 패턴 (숫자. 형식)
 const SUBTITLE_PATTERN = /^\d+\.\s*/;
@@ -223,6 +223,23 @@ export const modifyArticleWithAccount = async (
     await page.keyboard.press('Backspace');
     await page.waitForTimeout(300);
 
+    // Meta+A로 선택된 텍스트만 지워지고 기존에 삽입된 이미지 컴포넌트는 남는 경우가 있어
+    // (재수정 시 이미지가 계속 누적되는 원인) 남은 이미지 컴포넌트를 하나씩 개별 삭제한다.
+    let remainingImageGuard = 0;
+    while (remainingImageGuard < 10) {
+      const staleImage = await page.$('.se-component.se-image');
+      if (!staleImage) break;
+      await staleImage.click();
+      await page.waitForTimeout(200);
+      await page.keyboard.press('Backspace');
+      await page.waitForTimeout(200);
+      remainingImageGuard++;
+    }
+    if (remainingImageGuard > 0) {
+      console.log(`[MODIFY] ${id} 기존 이미지 컴포넌트 ${remainingImageGuard}개 정리`);
+      await page.waitForTimeout(300);
+    }
+
     // 새 본문 입력 - HTML 태그를 plain text로 변환
     const plainContent = newContent
       .replace(/<\/p>\s*<p>/gi, '\n')  // </p><p> → 줄바꿈
@@ -258,19 +275,21 @@ export const modifyArticleWithAccount = async (
 
     const lines = groupLinesIntoParagraphs(plainContent.split('\n'));
 
-    // 부제 위치 찾기 (숫자. 형식)
-    const subtitleIndices: number[] = [];
-    for (let i = 0; i < lines.length; i++) {
-      if (SUBTITLE_PATTERN.test(lines[i].trim())) {
-        subtitleIndices.push(i);
+    // 이미지는 맨 위에 전부 몰아서 넣고, 그 다음에 본문을 이어서 작성한다
+    // (부제마다 중간에 끼워 넣는 방식은 이미지 삽입 도중 커서 위치가 틀어지며
+    // 이미지가 유실되는 문제가 있었음 — 상단 일괄 삽입이 더 안정적)
+    if (images && images.length > 0) {
+      console.log(`[MODIFY] ${id} 이미지 ${images.length}장 상단에 먼저 삽입`);
+      const uploadSuccess = await uploadImages(page, images);
+      if (uploadSuccess) {
+        console.log(`[MODIFY] ${id} 이미지 업로드 완료`);
+      } else {
+        console.warn(`[MODIFY] ${id} 이미지 업로드 실패 - 글 수정은 계속 진행`);
       }
+      await page.waitForTimeout(500);
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(300);
     }
-
-    // 이미지 삽입 위치 결정
-    const imageQueue = images ? [...images] : [];
-    const hasSubtitles = subtitleIndices.length > 0;
-
-    console.log(`[MODIFY] 부제 ${subtitleIndices.length}개 발견, 이미지 ${imageQueue.length}장`);
 
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].trim()) {
@@ -279,45 +298,9 @@ export const modifyArticleWithAccount = async (
       if (i < lines.length - 1) {
         await page.keyboard.press('Enter');
       }
-
-      // 부제 다음에 이미지 삽입 (이미지가 남아있고, 현재 줄이 부제인 경우)
-      if (hasSubtitles && imageQueue.length > 0 && subtitleIndices.includes(i)) {
-        await page.waitForTimeout(300);
-        await page.keyboard.press('Enter');
-        await page.waitForTimeout(500);
-
-        const imageToUpload = imageQueue.shift();
-        if (imageToUpload) {
-          console.log(`[MODIFY] 부제 ${i + 1} 아래에 이미지 삽입`);
-          await uploadSingleImage(page, imageToUpload);
-          await page.waitForTimeout(500);
-
-          // 이미지 삽입 후 본문 영역으로 돌아가기
-          const newContentArea = await page.$('p.se-text-paragraph');
-          if (newContentArea) {
-            await newContentArea.click();
-          }
-          await page.keyboard.press('End');
-          await page.keyboard.press('Enter');
-        }
-      }
     }
 
     await page.waitForTimeout(500);
-
-    // 남은 이미지는 마지막에 업로드
-    if (imageQueue.length > 0) {
-      console.log(`[MODIFY] ${id} 남은 이미지 ${imageQueue.length}장 마지막에 업로드`);
-      await page.keyboard.press('Enter');
-      await page.waitForTimeout(300);
-      const uploadSuccess = await uploadImages(page, imageQueue);
-      if (uploadSuccess) {
-        console.log(`[MODIFY] ${id} 이미지 업로드 완료`);
-      } else {
-        console.warn(`[MODIFY] ${id} 이미지 업로드 실패 - 글 수정은 계속 진행`);
-      }
-      await page.waitForTimeout(1000);
-    }
 
     // 댓글 허용 토글
     if (input.enableComments !== undefined) {

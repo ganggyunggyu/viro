@@ -15,6 +15,10 @@ interface CafeInfo {
 
 const CAFES: CafeInfo[] = [
   { cafeName: "육아 돌봄수첩", cafeId: "31754837", ownerAccountId: "ahffkdlek12", service: "육아" },
+  { cafeName: "건강 체크노트", cafeId: "31754869", ownerAccountId: "ahffkekd12", service: "건강" },
+  { cafeName: "건강 정보노트", cafeId: "31754875", ownerAccountId: "ahsxkfldk12", service: "건강" },
+  { cafeName: "생활 살림노트", cafeId: "31754939", ownerAccountId: "alsrudgus531", service: "생활" },
+  { cafeName: "일상 소소담", cafeId: "31755069", ownerAccountId: "pixelninja3", service: "일상" },
 ];
 
 const extractKeywordFromSubject = (subject: string): string => {
@@ -153,11 +157,7 @@ const runPool = async (tasks: ArticleTask[]): Promise<{ success: number; fail: n
 const main = async (): Promise<void> => {
   await mongoose.connect(process.env.MONGODB_URI!);
 
-  // 검증 결과 이미지 3장이 안 맞는 것으로 확인된 글만 정확히 재시도
-  const TARGET_ONLY: Record<string, number[]> = {
-    "31754837": [11, 15], // 육아 돌봄수첩
-  };
-
+  // 이미지 배치 구조가 바뀌어서(중간 삽입 → 상단 일괄) 인트로를 뺀 전체 글을 다시 재작성한다
   const tasks: ArticleTask[] = [];
   for (const cafe of CAFES) {
     const acc = await Account.findOne({ accountId: cafe.ownerAccountId }).lean();
@@ -172,9 +172,8 @@ const main = async (): Promise<void> => {
       console.log(`[${cafe.cafeName}] 목록 조회 실패: ${result.error}`);
       continue;
     }
-    const targetIds = new Set(TARGET_ONLY[cafe.cafeId] || []);
     for (const article of result.articles as any[]) {
-      if (!targetIds.has(article.articleId)) continue; // 검증에서 확인된 대상만
+      if (article.articleId === 1) continue; // 인트로 글 제외
       tasks.push({
         cafeName: cafe.cafeName,
         cafeId: cafe.cafeId,
