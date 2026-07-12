@@ -62,6 +62,8 @@ __turbopack_context__.s([
     ()=>generateContentWithPrompt,
     "generateImages",
     ()=>generateImages,
+    "generateTeteContent",
+    ()=>generateTeteContent,
     "generateViralContent",
     ()=>generateViralContent
 ]);
@@ -87,6 +89,30 @@ const generateContent = async (request)=>{
         throw new Error(`Content generation failed: ${response.status} - ${errorBody}`);
     }
     return response.json();
+};
+const generateTeteContent = async (request)=>{
+    const response = await fetch(`${CONTENT_API_URL}/generate/tete`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            service: 'tete',
+            keyword: request.keyword,
+            ref: request.ref || '',
+            content_type: request.contentType || ''
+        })
+    });
+    if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('[TETE API] 에러 응답:', response.status, errorBody);
+        throw new Error(`테테 원고 생성 실패: ${response.status} - ${errorBody}`);
+    }
+    const data = await response.json();
+    return {
+        ...data,
+        contentType: data.contentType
+    };
 };
 const generateContentWithPrompt = async (request)=>{
     const response = await fetch(`${CONTENT_API_URL}/generate/test/cafe-daily`, {
@@ -300,7 +326,8 @@ const estimateReservationTtlMs = (accounts, keywordCount, includeCommenters, set
     return maxScheduledDelay + chainBufferMs;
 };
 const addBatchToQueue = async (input)=>{
-    const { service, keywords, ref, cafeId: inputCafeId, postOptions, skipComments, contentPrompt, contentModel } = input;
+    const { service, keywords, ref, cafeId: inputCafeId, postOptions, skipComments, contentPrompt, contentModel, attachImages, postsPerDay } = input;
+    const postsPerDayDelayMs = postsPerDay && postsPerDay > 0 ? Math.floor(24 * 60 * 60 * 1000 / postsPerDay) : undefined;
     const trimmedPrompt = contentPrompt?.trim() || '';
     const hasCustomPrompt = Boolean(trimmedPrompt);
     const ctx = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$features$2f$auto$2d$comment$2f$batch$2f$batch$2d$helpers$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["initBatchContext"])(inputCafeId, 2);
@@ -350,6 +377,16 @@ const addBatchToQueue = async (input)=>{
                 personaId: writerAccount.personaId
             }));
             console.log(`[QUEUE-BATCH] getPersonaId 반환값: ${personaId}`);
+            // 이미지 3장 먼저 확보 → 그 다음 본문 작성 (S3 큐레이션 뱅크 우선, 없으면 AI 생성)
+            let images = [];
+            if (attachImages) {
+                const imageResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$api$2f$content$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["generateImages"])({
+                    keyword,
+                    count: 3
+                });
+                images = imageResult.images || [];
+                console.log(`[QUEUE-BATCH] 이미지 ${images.length}장 확보: ${keywordLabel}`);
+            }
             let generatedContent = '';
             if (hasCustomPrompt) {
                 const prompt = `키워드: ${keyword}${category ? `\n카테고리: ${category}` : ''}\n\n${trimmedPrompt}`;
@@ -360,12 +397,10 @@ const addBatchToQueue = async (input)=>{
                 });
                 generatedContent = generated.content || generated.comment || '';
             } else {
-                console.log(`[QUEUE-BATCH] 콘텐츠 생성 중: ${keywordLabel}${personaId ? ` (persona: ${personaId})` : ''}`);
-                const generated = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$api$2f$content$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["generateContent"])({
+                console.log(`[QUEUE-BATCH] 테테 원고 생성 중: ${keywordLabel}${personaId ? ` (persona: ${personaId})` : ''}`);
+                const generated = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$api$2f$content$2d$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["generateTeteContent"])({
                     keyword: keywordLabel,
-                    service,
-                    ref,
-                    personaId
+                    ref
                 });
                 generatedContent = generated.content;
             }
@@ -387,14 +422,15 @@ const addBatchToQueue = async (input)=>{
                 service,
                 rawContent: generatedContent,
                 skipComments,
-                commenterAccountIds
+                commenterAccountIds,
+                images: images.length > 0 ? images : undefined
             };
             const currentAccountDelay = accountDelays.get(writerAccount.id) ?? 0;
             const activityDelay = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$lib$2f$account$2d$manager$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getNextActiveTime"])(writerAccount);
             const totalDelay = Math.max(currentAccountDelay, activityDelay);
             await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$lib$2f$queue$2f$index$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["addTaskJob"])(writerAccount.id, jobData, totalDelay);
             jobsAdded++;
-            const randomDelay = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$models$2f$queue$2d$settings$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getRandomDelay"])(settings.delays.betweenPosts);
+            const randomDelay = postsPerDayDelayMs ?? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$models$2f$queue$2d$settings$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getRandomDelay"])(settings.delays.betweenPosts);
             accountDelays.set(writerAccount.id, totalDelay + randomDelay);
             const delayInfo = activityDelay > 0 ? `${Math.round(totalDelay / 1000)}초 (활동시간까지 ${Math.round(activityDelay / 60000)}분)` : `${Math.round(totalDelay / 1000)}초`;
             console.log(`[QUEUE-BATCH] Job 추가: ${keywordLabel} → ${writerAccount.id}, 딜레이: ${delayInfo}`);

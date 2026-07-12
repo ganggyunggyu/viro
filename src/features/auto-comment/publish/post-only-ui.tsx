@@ -182,7 +182,7 @@ export const PostOnlyUI = () => {
             </div>
             <div>
               <p className={cn('text-sm font-medium text-(--ink)')}>이미지 자동 첨부</p>
-              <p className={cn('text-xs text-(--ink-muted)')}>키워드로 이미지를 검색해 본문에 삽입</p>
+              <p className={cn('text-xs text-(--ink-muted)')}>AI로 이미지 3장 생성해 본문에 삽입</p>
             </div>
           </button>
 

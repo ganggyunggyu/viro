@@ -322,7 +322,7 @@ export const writePostWithAccount = async (
       const apiUrl = `https://apis.naver.com/cafe-web/cafe2/ArticleListV2dot1.json?search.clubid=${cafeId}&search.page=1&search.perPage=10&search.queryType=lastArticle&search.boardtype=L`;
       const articleIds = await page.evaluate(async (url: string) => {
         try {
-          const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' } });
+          const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
           if (!res.ok) return [];
           const data = await res.json();
           return (data?.message?.result?.articleList ?? []).map((a: { articleId: number }) => a.articleId);
@@ -660,7 +660,7 @@ export const writePostWithAccount = async (
         const apiUrl = `https://apis.naver.com/cafe-web/cafe2/ArticleListV2dot1.json?search.clubid=${cafeId}&search.page=1&search.perPage=10&search.queryType=lastArticle&search.boardtype=L`;
         const browseIds = await page.evaluate(async (url: string) => {
           try {
-            const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' } });
+            const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
             if (!res.ok) return [];
             const data = await res.json();
             return (data?.message?.result?.articleList ?? []).map((a: { articleId: number }) => a.articleId);

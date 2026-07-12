@@ -3,11 +3,10 @@ import { getCafeCommenterAccounts, getCafeWriterAccounts } from '@/shared/config
 import { addTaskJob, getQueueStatus, closeAllQueues } from '@/shared/lib/queue';
 import { closeAllWorkers } from '@/shared/lib/queue/workers';
 import { getRandomDelay } from '@/shared/models/queue-settings';
-import { generateContent, generateContentWithPrompt } from '@/shared/api/content-api';
+import { generateContentWithPrompt, generateTeteContent, generateImages } from '@/shared/api/content-api';
 import { buildCafePostContent } from '@/shared/lib/cafe-content';
 import { warmupScheduleSessions } from '@/shared/lib/multi-session';
 import { PostJobData } from '@/shared/lib/queue/types';
-import { fetchTopicImageAsBase64 } from '@/shared/lib/fetch-topic-image';
 import { getNextActiveTime, getPersonaId, type NaverAccount } from '@/shared/lib/account-manager';
 import type { BatchJobInput } from './types';
 import { parseKeywordWithCategory } from './keyword-utils';
@@ -189,6 +188,14 @@ export const addBatchToQueue = async (
       console.log(`[QUEUE-BATCH] 계정 정보:`, JSON.stringify({ id: writerAccount.id, personaId: writerAccount.personaId }));
       console.log(`[QUEUE-BATCH] getPersonaId 반환값: ${personaId}`);
 
+      // 이미지 3장 먼저 확보 → 그 다음 본문 작성 (S3 큐레이션 뱅크 우선, 없으면 AI 생성)
+      let images: string[] = [];
+      if (attachImages) {
+        const imageResult = await generateImages({ keyword, count: 3 });
+        images = imageResult.images || [];
+        console.log(`[QUEUE-BATCH] 이미지 ${images.length}장 확보: ${keywordLabel}`);
+      }
+
       let generatedContent = '';
 
       if (hasCustomPrompt) {
@@ -197,8 +204,8 @@ export const addBatchToQueue = async (
         const generated = await generateContentWithPrompt({ prompt, model: contentModel });
         generatedContent = generated.content || (generated as { comment?: string }).comment || '';
       } else {
-        console.log(`[QUEUE-BATCH] 콘텐츠 생성 중: ${keywordLabel}${personaId ? ` (persona: ${personaId})` : ''}`);
-        const generated = await generateContent({ keyword: keywordLabel, service, ref, personaId });
+        console.log(`[QUEUE-BATCH] 테테 원고 생성 중: ${keywordLabel}${personaId ? ` (persona: ${personaId})` : ''}`);
+        const generated = await generateTeteContent({ keyword: keywordLabel, ref });
         generatedContent = generated.content;
       }
 
@@ -208,11 +215,6 @@ export const addBatchToQueue = async (
       }
 
       const { title, htmlContent } = buildCafePostContent(generatedContent, keywordLabel);
-
-      const image = attachImages ? await fetchTopicImageAsBase64(keyword) : null;
-      if (attachImages) {
-        console.log(`[QUEUE-BATCH] 이미지 ${image ? '찾음' : '못찾음'}: ${keywordLabel}`);
-      }
 
       const jobData: PostJobData = {
         type: 'post',
@@ -228,7 +230,7 @@ export const addBatchToQueue = async (
         rawContent: generatedContent,
         skipComments,
         commenterAccountIds,
-        images: image ? [image] : undefined,
+        images: images.length > 0 ? images : undefined,
       };
 
       const currentAccountDelay = accountDelays.get(writerAccount.id) ?? 0;

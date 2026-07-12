@@ -22,7 +22,7 @@ export const downloadImageToTempFile = async (
 ): Promise<string | null> => {
   try {
     console.log(`[IMAGE] 이미지 다운로드 중: ${imageUrl}`);
-    const response = await fetch(imageUrl);
+    const response = await fetch(imageUrl, { signal: AbortSignal.timeout(20000) });
     if (!response.ok) {
       console.error(`[IMAGE] 다운로드 실패: ${response.status}`);
       return null;

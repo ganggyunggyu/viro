@@ -1,18 +1,19 @@
-[00:00:01.296] Server  LOG     ✓ Ready in 946ms
-[00:00:03.962] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:04.237] Server  LOG     [MongoDB] 새 연결 시도...
-[00:00:04.765] Server  LOG     [MongoDB] 연결 완료, readyState: 1
-[00:00:06.754] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:06.802] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:06.814] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
-[00:00:06.868] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
-[00:00:06.878] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:06.921] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:06.932] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
-[00:00:06.974] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
-[00:00:07.040] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
-[00:00:07.977] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:08.165] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:08.206] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:08.223] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:08.265] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:00:01.434] Server  LOG     ✓ Ready in 1063ms
+[00:00:03.761] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:03.959] Server  LOG     [MongoDB] 새 연결 시도...
+[00:00:04.536] Server  LOG     [MongoDB] 연결 완료, readyState: 1
+[00:00:05.703] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:00:05.749] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:00:05.760] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
+[00:00:05.807] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
+[00:00:05.818] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:00:05.865] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:00:05.874] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
+[00:00:05.917] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
+[00:00:06.161] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[00:00:09.326] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:09.526] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:00:09.568] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:00:09.580] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:00:09.621] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:00:33.554] Server  LOG     ✓ Compiled in 63ms

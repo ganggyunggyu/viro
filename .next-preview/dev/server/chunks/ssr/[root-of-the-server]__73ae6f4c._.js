@@ -3137,7 +3137,9 @@ const getExtensionFromUrl = (url)=>{
 const downloadImageToTempFile = async (imageUrl, index)=>{
     try {
         console.log(`[IMAGE] 이미지 다운로드 중: ${imageUrl}`);
-        const response = await fetch(imageUrl);
+        const response = await fetch(imageUrl, {
+            signal: AbortSignal.timeout(20000)
+        });
         if (!response.ok) {
             console.error(`[IMAGE] 다운로드 실패: ${response.status}`);
             return null;
@@ -3653,7 +3655,8 @@ const writePostWithAccount = async (account, input)=>{
                         credentials: 'include',
                         headers: {
                             Accept: 'application/json'
-                        }
+                        },
+                        signal: AbortSignal.timeout(10000)
                     });
                     if (!res.ok) return [];
                     const data = await res.json();
@@ -3711,6 +3714,20 @@ const writePostWithAccount = async (account, input)=>{
                 };
             }
         }
+        // 새로 만든 카페 등에서 SPA 라우팅이 글쓰기 페이지 대신 기존 글로 되돌아가는 경우가 있어
+        // 실제 URL이 write 페이지인지 확인하고 아니면 재시도
+        for(let bounceRetry = 0; bounceRetry < 2 && !page.url().includes('/articles/write'); bounceRetry++){
+            console.log(`[POST] ${id} 글쓰기 페이지 이탈 감지 (현재: ${page.url()}) - 재시도 ${bounceRetry + 1}/2`);
+            await page.waitForTimeout(2000);
+            await navigateToWritePage();
+        }
+        if (!page.url().includes('/articles/write')) {
+            return {
+                success: false,
+                writerAccountId: id,
+                error: `글쓰기 페이지 진입 실패 - 현재 URL: ${page.url()}`
+            };
+        }
         // 스마트 에디터 팝업 닫기 (지도/장소 등)
         const popupCloseButton = await page.$('.se-popup-close-button');
         if (popupCloseButton) {
@@ -3720,7 +3737,10 @@ const writePostWithAccount = async (account, input)=>{
         }
         console.log(`[POST] ${id} 카테고리 지정: "${category || '없음'}"`);
         // 게시판 선택 (드롭다운 클릭 → 카테고리 선택)
-        const boardSelectButton = await page.$('.FormSelectButton button.button');
+        // 동시 다중 계정 실행 시 에디터 렌더링이 늦어질 수 있어 즉시 조회 대신 대기 후 조회
+        const boardSelectButton = await page.waitForSelector('.FormSelectButton button.button', {
+            timeout: 8000
+        }).catch(()=>null);
         if (boardSelectButton) {
             await boardSelectButton.click();
             await page.waitForTimeout(500);
@@ -3807,8 +3827,22 @@ const writePostWithAccount = async (account, input)=>{
         .replace(/<br\s*\/?>/gi, '\n') // <br> → 줄바꿈
         .replace(/<[^>]*>/g, '') // 나머지 태그 제거
         .trim();
+        // 원고가 문장마다 빈 줄로 끊겨 오는 경우가 많아 2~4문장씩 묶어 단락화
+        // (단락 사이에만 빈 줄을 두어 너무 좁게 보이는 것을 방지)
+        const groupLinesIntoParagraphs = (rawLines)=>{
+            const sentences = rawLines.map((l)=>l.trim()).filter(Boolean);
+            const grouped = [];
+            let i = 0;
+            while(i < sentences.length){
+                const groupSize = 2 + Math.floor(Math.random() * 3); // 2~4문장
+                grouped.push(...sentences.slice(i, i + groupSize));
+                i += groupSize;
+                if (i < sentences.length) grouped.push('');
+            }
+            return grouped;
+        };
         // SmartEditor는 contenteditable이므로 줄바꿈은 Enter 키로 처리
-        const lines = plainContent.split('\n');
+        const lines = groupLinesIntoParagraphs(plainContent.split('\n'));
         // 이미지 삽입 위치 계산 (단락 구분점 = 빈 줄)
         const paragraphBreaks = [];
         for(let i = 0; i < lines.length; i++){
@@ -3929,7 +3963,8 @@ const writePostWithAccount = async (account, input)=>{
                             credentials: 'include',
                             headers: {
                                 Accept: 'application/json'
-                            }
+                            },
+                            signal: AbortSignal.timeout(10000)
                         });
                         if (!res.ok) return [];
                         const data = await res.json();
@@ -4154,7 +4189,32 @@ const modifyArticleWithAccount = async (account, input)=>{
         .replace(/<br\s*\/?>/gi, '\n') // <br> → 줄바꿈
         .replace(/<[^>]*>/g, '') // 나머지 태그 제거
         .trim();
-        const lines = plainContent.split('\n');
+        // 원고가 문장마다 빈 줄로 끊겨 오는 경우가 많아 2~4문장씩 묶어 단락화
+        // (부제 줄은 항상 새 단락으로 분리해 이미지 삽입 위치 탐지에 영향 없게 유지)
+        const groupLinesIntoParagraphs = (rawLines)=>{
+            const items = rawLines.map((l)=>l.trim()).filter(Boolean);
+            const grouped = [];
+            let i = 0;
+            while(i < items.length){
+                if (SUBTITLE_PATTERN.test(items[i])) {
+                    if (grouped.length > 0 && grouped[grouped.length - 1] !== '') grouped.push('');
+                    grouped.push(items[i]);
+                    grouped.push('');
+                    i++;
+                    continue;
+                }
+                const groupSize = 2 + Math.floor(Math.random() * 3); // 2~4문장
+                let taken = 0;
+                while(taken < groupSize && i < items.length && !SUBTITLE_PATTERN.test(items[i])){
+                    grouped.push(items[i]);
+                    i++;
+                    taken++;
+                }
+                if (i < items.length) grouped.push('');
+            }
+            return grouped;
+        };
+        const lines = groupLinesIntoParagraphs(plainContent.split('\n'));
         // 부제 위치 찾기 (숫자. 형식)
         const subtitleIndices = [];
         for(let i = 0; i < lines.length; i++){

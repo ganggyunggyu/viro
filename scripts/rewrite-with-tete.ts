@@ -33,6 +33,7 @@ const fetchImages = async (keyword: string, count: number): Promise<string[]> =>
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ keyword, count }),
+      signal: AbortSignal.timeout(150000),
     });
     if (!res.ok) return [];
     const data = (await res.json()) as { images?: Array<{ url: string }> };
@@ -52,6 +53,7 @@ const generateTete = async (keyword: string, service: string): Promise<TeteRespo
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ service, keyword, ref: "" }),
+    signal: AbortSignal.timeout(120000),
   });
   if (!res.ok) throw new Error(`tete generate failed: ${res.status} ${await res.text()}`);
   const data = (await res.json()) as { content?: string; contentType?: string };
@@ -120,25 +122,46 @@ const rewriteOne = async (task: ArticleTask): Promise<boolean> => {
 
 const CONCURRENCY = 2;
 
+// 카페(=계정) 단위로 묶어서 처리한다. 같은 계정의 글을 서로 다른 워커가 동시에 집으면
+// 계정 락 경합으로 한쪽이 5분 타임아웃을 반복하며 헛돌게 되므로, 카페별로 큐를 분리하고
+// 카페 큐 자체를 병렬로 돌린다(카페 내부는 항상 순차).
 const runPool = async (tasks: ArticleTask[]): Promise<{ success: number; fail: number }> => {
-  const queue = [...tasks];
+  const byCafe = new Map<string, ArticleTask[]>();
+  for (const task of tasks) {
+    const list = byCafe.get(task.cafeId) || [];
+    list.push(task);
+    byCafe.set(task.cafeId, list);
+  }
+
+  const cafeQueues = [...byCafe.values()];
   let success = 0;
   let fail = 0;
-  const worker = async (): Promise<void> => {
-    while (queue.length > 0) {
-      const task = queue.shift();
-      if (!task) break;
+
+  const runCafeQueue = async (queue: ArticleTask[]): Promise<void> => {
+    for (const task of queue) {
       const ok = await rewriteOne(task);
       if (ok) success++;
       else fail++;
     }
   };
-  await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
+
+  // 카페 큐들을 CONCURRENCY개씩 묶어서 실행 (카페 수가 CONCURRENCY보다 많을 때 대비)
+  for (let i = 0; i < cafeQueues.length; i += CONCURRENCY) {
+    const batch = cafeQueues.slice(i, i + CONCURRENCY);
+    await Promise.all(batch.map((q) => runCafeQueue(q)));
+  }
+
   return { success, fail };
 };
 
 const main = async (): Promise<void> => {
   await mongoose.connect(process.env.MONGODB_URI!);
+
+  // 이전 실행에서 이미 테테로 재작성 성공한 글은 다시 돌리지 않음
+  const ALREADY_DONE: Record<string, number[]> = {
+    "31754837": [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 22], // 육아 돌봄수첩
+    "31754869": [6, 8, 10, 12, 17, 19, 20], // 건강 체크노트
+  };
 
   const tasks: ArticleTask[] = [];
   for (const cafe of CAFES) {
@@ -154,8 +177,10 @@ const main = async (): Promise<void> => {
       console.log(`[${cafe.cafeName}] 목록 조회 실패: ${result.error}`);
       continue;
     }
+    const doneIds = new Set(ALREADY_DONE[cafe.cafeId] || []);
     for (const article of result.articles as any[]) {
       if (article.articleId === 1) continue; // 인트로 글 제외
+      if (doneIds.has(article.articleId)) continue; // 이미 재작성 완료
       tasks.push({
         cafeName: cafe.cafeName,
         cafeId: cafe.cafeId,
