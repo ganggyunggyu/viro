@@ -157,10 +157,13 @@ const runPool = async (tasks: ArticleTask[]): Promise<{ success: number; fail: n
 const main = async (): Promise<void> => {
   await mongoose.connect(process.env.MONGODB_URI!);
 
-  // 이전 실행에서 이미 테테로 재작성 성공한 글은 다시 돌리지 않음
-  const ALREADY_DONE: Record<string, number[]> = {
-    "31754837": [3, 5, 7, 9, 11, 12, 13, 14, 15, 16, 17, 19, 21, 22, 23], // 육아 돌봄수첩
-    "31754869": [6, 8, 10, 12, 15, 16, 17, 18, 19, 20], // 건강 체크노트
+  // 검증 결과 이미지 3장이 안 맞는 것으로 확인된 글만 정확히 재시도
+  const TARGET_ONLY: Record<string, number[]> = {
+    "31754837": [23, 22, 21, 19, 15, 11], // 육아 돌봄수첩
+    "31754869": [20, 19, 17, 16, 12, 8, 6, 3, 2], // 건강 체크노트
+    "31754875": [20, 12, 11, 10, 9, 8, 3, 2], // 건강 정보노트
+    "31754939": [20, 18, 5, 4, 3, 2], // 생활 살림노트
+    "31755069": [6, 2], // 일상 소소담
   };
 
   const tasks: ArticleTask[] = [];
@@ -177,10 +180,9 @@ const main = async (): Promise<void> => {
       console.log(`[${cafe.cafeName}] 목록 조회 실패: ${result.error}`);
       continue;
     }
-    const doneIds = new Set(ALREADY_DONE[cafe.cafeId] || []);
+    const targetIds = new Set(TARGET_ONLY[cafe.cafeId] || []);
     for (const article of result.articles as any[]) {
-      if (article.articleId === 1) continue; // 인트로 글 제외
-      if (doneIds.has(article.articleId)) continue; // 이미 재작성 완료
+      if (!targetIds.has(article.articleId)) continue; // 검증에서 확인된 대상만
       tasks.push({
         cafeName: cafe.cafeName,
         cafeId: cafe.cafeId,
