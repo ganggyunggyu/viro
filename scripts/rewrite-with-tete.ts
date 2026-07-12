@@ -88,12 +88,12 @@ const rewriteOne = async (task: ArticleTask): Promise<boolean> => {
   const keyword = extractKeywordFromSubject(task.subject);
 
   try {
-    console.log(`[${task.cafeName}][articleId=${task.articleId}] 이미지 3장 검색 중`);
-    const images = await fetchImages(keyword, 3);
-    console.log(`[${task.cafeName}][articleId=${task.articleId}] 이미지 ${images.length}장 확보`);
-
-    console.log(`[${task.cafeName}][articleId=${task.articleId}] 테테 생성 중: ${keyword}`);
-    const tete = await generateTete(keyword, task.service);
+    console.log(`[${task.cafeName}][articleId=${task.articleId}] 이미지 3장 검색 + 테테 생성 동시 시작: ${keyword}`);
+    const [images, tete] = await Promise.all([
+      fetchImages(keyword, 3),
+      generateTete(keyword, task.service),
+    ]);
+    console.log(`[${task.cafeName}][articleId=${task.articleId}] 이미지 ${images.length}장 확보, 테테 생성 완료`);
     const { title, body } = splitTitleBody(tete.content);
     if (!title || !body) {
       console.log(`[${task.cafeName}][articleId=${task.articleId}] 제목/본문 파싱 실패, 스킵`);
