@@ -1,13 +1,14 @@
 'use client';
 
 import { cn } from '@/shared';
-import { PostOnlyUI, CommentOnlyUI } from '@/features/auto-comment/publish';
+import { PostOnlyUI, CommentOnlyUI, ExposureCheckUI } from '@/features/auto-comment/publish';
 import { PageLayout } from '@/widgets';
 import { AnimatedTabs, AnimatedCard, SlideUp, HelpAccordion } from '@/shared';
 
 const TABS = [
   { id: 'post', label: '글만 발행' },
   { id: 'comment', label: '댓글만 달기' },
+  { id: 'exposure', label: '노출 체크' },
 ];
 
 export default function PublishPage() {
@@ -42,13 +43,25 @@ export default function PublishPage() {
                 <CommentOnlyUI />
               </div>
             )}
+
+            {activeTab === 'exposure' && (
+              <div className={cn('space-y-6')}>
+                <SlideUp>
+                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>노출 체크</h2>
+                  <p className={cn('text-sm text-(--ink-muted) mt-1')}>
+                    발행한 글이 네이버 카페 검색 결과에 실제로 노출되는지 확인
+                  </p>
+                </SlideUp>
+                <ExposureCheckUI />
+              </div>
+            )}
           </AnimatedCard>
         )}
       </AnimatedTabs>
 
       <SlideUp delay={0.2}>
         <HelpAccordion title="분리 발행 사용법" className={cn('mt-8')}>
-          <div className={cn('grid gap-4 lg:grid-cols-2')}>
+          <div className={cn('grid gap-4 lg:grid-cols-3')}>
             <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>글만 발행</h3>
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
@@ -64,6 +77,15 @@ export default function PublishPage() {
                 <li>• 최근 글 중 랜덤 절반 선택</li>
                 <li>• 글당 3~15개 (대댓글 50%)</li>
                 <li>• 자동으로 댓글/대댓글 추가</li>
+              </ul>
+            </div>
+
+            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
+              <h3 className={cn('font-semibold text-(--ink) mb-3')}>노출 체크</h3>
+              <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
+                <li>• 발행글 선택 또는 키워드 직접 입력</li>
+                <li>• 네이버 통합검색을 실제로 열어 확인</li>
+                <li>• 결과는 DB + 구글시트에 함께 기록</li>
               </ul>
             </div>
           </div>

@@ -540,6 +540,16 @@ export const writePostWithAccount = async (
         console.warn(`[POST] ${id} 이미지 업로드 실패 - 글 작성은 계속 진행`);
       }
       await page.waitForTimeout(500);
+      // 마지막 이미지가 선택된 채로 뜬 플로팅 툴바가 클릭을 가로막을 수 있어
+      // Escape로 선택 해제 후, 실제 마지막 문단 끝으로 명시적으로 이동한다.
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(200);
+      const paragraphsAfterImages = await page.$$('p.se-text-paragraph');
+      const lastParagraphAfterImages = paragraphsAfterImages[paragraphsAfterImages.length - 1];
+      if (lastParagraphAfterImages) {
+        await lastParagraphAfterImages.click({ timeout: 5000, force: true }).catch(() => {});
+        await page.keyboard.press('End');
+      }
       await page.keyboard.press('Enter');
       await page.waitForTimeout(300);
     }

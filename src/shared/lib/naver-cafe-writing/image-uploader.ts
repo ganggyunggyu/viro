@@ -274,6 +274,28 @@ export const uploadImages = async (page: Page, images: string[]): Promise<boolea
       // 다음 이미지 업로드 전 잠시 대기
       if (i < tempFiles.length - 1) {
         await page.waitForTimeout(1000);
+
+        // 이미지를 여러 장 연속으로 올릴 때, 파일 선택창(OS 네이티브 다이얼로그)이
+        // 뜨고 닫히는 과정에서 에디터의 커서/선택 상태가 풀리는 경우가 있다.
+        // 그 상태에서 다음 이미지를 올리면 엉뚱한 위치(문서 맨 끝 등)에 붙는 문제가
+        // 있어, 매번 실제 "마지막" 문단을 다시 찾아 그 끝으로 커서를 명시적으로 옮긴다.
+        // (첫 번째 매치를 쓰는 page.$()가 아니라 마지막 요소를 써야 한다 — 안 그러면
+        // 문서 맨 위 첫 문단을 잡아버리는 별개의 버그가 생긴다)
+        // 방금 올린 이미지가 선택된 채로 떠 있는 플로팅 툴바가 문단 클릭을 가로막을 수
+        // 있어, Escape로 이미지 선택을 먼저 해제한다.
+        // Escape만으로는 이 툴바가 닫히지 않는 경우가 많아(실측: 5초 타임아웃까지
+        // 계속 intercepts pointer events), force 클릭으로 툴바를 무시하고 문단을
+        // 직접 클릭한다 — force는 액션 가능성 검사만 건너뛰고 대상 요소에 클릭을
+        // 그대로 전달하므로 실제 포커스 이동은 정상적으로 이뤄진다.
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(200);
+        const paragraphs = await page.$$('p.se-text-paragraph');
+        const lastParagraph = paragraphs[paragraphs.length - 1];
+        if (lastParagraph) {
+          await lastParagraph.click({ timeout: 5000, force: true }).catch(() => {});
+          await page.keyboard.press('End');
+          await page.waitForTimeout(200);
+        }
       }
     }
 

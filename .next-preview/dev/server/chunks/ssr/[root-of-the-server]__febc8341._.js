@@ -77,10 +77,14 @@ __turbopack_context__.s([
     ()=>getArticleComments,
     "getArticleIdByKeyword",
     ()=>getArticleIdByKeyword,
+    "getRecentPublishedArticles",
+    ()=>getRecentPublishedArticles,
     "getRecentWriters",
     ()=>getRecentWriters,
     "hasCommented",
-    ()=>hasCommented
+    ()=>hasCommented,
+    "updateArticleExposure",
+    ()=>updateArticleExposure
 ]);
 var __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$2c$__$5b$project$5d2f$node_modules$2f$mongoose$29$__ = __turbopack_context__.i("[externals]/mongoose [external] (mongoose, cjs, [project]/node_modules/mongoose)");
 ;
@@ -192,6 +196,23 @@ const PublishedArticleSchema = new __TURBOPACK__imported__module__$5b$externals$
             ArticleCommentSchema
         ],
         default: []
+    },
+    exposureStatus: {
+        type: String,
+        enum: [
+            '노출',
+            '미노출',
+            '확인실패'
+        ]
+    },
+    exposureRank: {
+        type: Number
+    },
+    exposureFoundLink: {
+        type: String
+    },
+    exposureCheckedAt: {
+        type: Date
     }
 }, {
     timestamps: true
@@ -308,6 +329,33 @@ const getRecentWriters = async (cafeId, limit = 5)=>{
         publishedAt: -1
     }).limit(limit).lean();
     return articles.map((a)=>a.writerAccountId);
+};
+const updateArticleExposure = async (cafeId, articleId, result)=>{
+    const updated = await PublishedArticle.findOneAndUpdate({
+        cafeId,
+        articleId
+    }, {
+        $set: {
+            exposureStatus: result.status,
+            exposureRank: result.rank,
+            exposureFoundLink: result.foundLink,
+            exposureCheckedAt: new Date()
+        }
+    });
+    return !!updated;
+};
+const getRecentPublishedArticles = async (cafeId, limit = 30)=>{
+    return PublishedArticle.find({
+        cafeId,
+        status: {
+            $in: [
+                'published',
+                'modified'
+            ]
+        }
+    }).sort({
+        publishedAt: -1
+    }).limit(limit);
 };
 }),
 "[project]/src/shared/models/modified-article.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {

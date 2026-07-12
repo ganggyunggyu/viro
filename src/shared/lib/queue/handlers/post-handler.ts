@@ -7,6 +7,7 @@ import { getRandomDelay } from '@/shared/models/queue-settings';
 import { connectDB } from '@/shared/lib/mongodb';
 import { PublishedArticle, incrementTodayPostCount } from '@/shared/models';
 import { createLogger } from '@/shared/lib/logger';
+import { logPublishToSheet } from '@/shared/lib/publish-log-sheet';
 import { limitViralCommentItems } from '../viral-comment-limits';
 import mongoose from 'mongoose';
 
@@ -126,11 +127,26 @@ const saveArticleOnly = async (
 
       await incrementTodayPostCount(writerAccountId, cafeId);
       console.log(`[WORKER] 원고 저장 완료 (글만 발행): #${articleId}`);
+
+      await logSheetNonFatal({ cafeId, keyword: keyword || '', articleId, articleUrl, writerAccountId });
     }
   } catch (dbError) {
     console.error('[WORKER] 원고 저장 실패:', dbError);
   }
 
+};
+
+const logSheetNonFatal = async (record: {
+  cafeId: string;
+  keyword: string;
+  articleId: number;
+  articleUrl: string;
+  writerAccountId: string;
+}): Promise<void> => {
+  const result = await logPublishToSheet(record);
+  if (!result.success) {
+    console.error(`[WORKER] 발행 시트 기록 실패: #${record.articleId} - ${result.error}`);
+  }
 };
 
 const FIRST_COMMENT_DELAY = { min: 4 * 60 * 1000, max: 7 * 60 * 1000 }; // 글 저장 후 첫 댓글까지 4~7분
@@ -320,6 +336,8 @@ const handlePostSuccess = async (
 
       await incrementTodayPostCount(writerAccountId, cafeId);
       console.log(`[WORKER] 원고 저장 완료: #${articleId}, _id=${created._id}`);
+
+      await logSheetNonFatal({ cafeId, keyword: keyword || '', articleId, articleUrl, writerAccountId });
     } else {
       console.log(`[WORKER] MongoDB 미연결 - 원고 저장 스킵: #${articleId}`);
     }

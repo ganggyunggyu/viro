@@ -240,6 +240,32 @@ export const modifyArticleWithAccount = async (
       await page.waitForTimeout(300);
     }
 
+    // SmartEditor는 문단(component)마다 별도의 편집 영역이라 Meta+A는 포커스된
+    // 문단 하나만 지운다 — 이전 저장본에 문단이 여러 개였다면 첫 문단 이후 내용이
+    // 그대로 남아 새 이미지/본문 앞에 잔존 텍스트가 끼는 원인이 된다. 빈 문단
+    // 하나만 남을 때까지 남은 문단을 개별적으로 지운다.
+    let remainingTextGuard = 0;
+    while (remainingTextGuard < 60) {
+      const paragraphs = await page.$$('p.se-text-paragraph');
+      const nonEmpty: typeof paragraphs = [];
+      for (const p of paragraphs) {
+        const text = await p.textContent();
+        if (text && text.trim()) nonEmpty.push(p);
+      }
+      if (nonEmpty.length === 0) break;
+      await nonEmpty[0].click({ clickCount: 3, force: true }).catch(() => {});
+      await page.waitForTimeout(150);
+      await page.keyboard.press('Meta+A');
+      await page.waitForTimeout(100);
+      await page.keyboard.press('Backspace');
+      await page.waitForTimeout(150);
+      remainingTextGuard++;
+    }
+    if (remainingTextGuard > 0) {
+      console.log(`[MODIFY] ${id} 남은 텍스트 문단 ${remainingTextGuard}개 정리`);
+      await page.waitForTimeout(300);
+    }
+
     // 새 본문 입력 - HTML 태그를 plain text로 변환
     const plainContent = newContent
       .replace(/<\/p>\s*<p>/gi, '\n')  // </p><p> → 줄바꿈
@@ -287,6 +313,16 @@ export const modifyArticleWithAccount = async (
         console.warn(`[MODIFY] ${id} 이미지 업로드 실패 - 글 수정은 계속 진행`);
       }
       await page.waitForTimeout(500);
+      // 마지막 이미지가 선택된 채로 뜬 플로팅 툴바가 클릭을 가로막을 수 있어
+      // Escape로 선택 해제 후, 실제 마지막 문단 끝으로 명시적으로 이동한다.
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(200);
+      const paragraphsAfterImages = await page.$$('p.se-text-paragraph');
+      const lastParagraphAfterImages = paragraphsAfterImages[paragraphsAfterImages.length - 1];
+      if (lastParagraphAfterImages) {
+        await lastParagraphAfterImages.click({ timeout: 5000, force: true }).catch(() => {});
+        await page.keyboard.press('End');
+      }
       await page.keyboard.press('Enter');
       await page.waitForTimeout(300);
     }

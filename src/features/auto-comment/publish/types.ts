@@ -104,3 +104,51 @@ export interface ManuscriptModifyArticleResult {
   success: boolean;
   error?: string;
 }
+
+export type ExposureCheckStatus = '노출' | '미노출' | '확인실패';
+
+export interface PublishedArticleSummary {
+  articleId: number;
+  cafeId: string;
+  keyword: string;
+  title: string;
+  articleUrl: string;
+  publishedAt: string;
+  writerAccountId: string;
+  exposureStatus?: ExposureCheckStatus;
+  exposureRank?: number;
+  exposureCheckedAt?: string;
+}
+
+export interface ExposureCheckRequestItem {
+  cafeId: string;
+  keyword: string;
+  articleId?: number;
+}
+
+export interface ExposureCheckInput {
+  accountId: string;
+  items: ExposureCheckRequestItem[];
+}
+
+export interface ExposureCheckResultItem {
+  cafeId: string;
+  cafeName: string;
+  keyword: string;
+  articleId?: number;
+  status: ExposureCheckStatus;
+  rank?: number;
+  foundTitle?: string;
+  foundLink?: string;
+  error?: string;
+}
+
+export interface ExposureCheckRunResult {
+  success: boolean;
+  total: number;
+  exposed: number;
+  notExposed: number;
+  failed: number;
+  results: ExposureCheckResultItem[];
+  message: string;
+}

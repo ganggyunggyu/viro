@@ -3,7 +3,7 @@
     "00ab089168221bbcc44bae95d2a2913f08e616e2c2": {
       "workers": {
         "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": true,
           "exportedName": "getCurrentUser",
           "filename": "src/features/auth/actions.ts"
@@ -18,7 +18,7 @@
     "00fcebe0d8b7ffd728da7115f7c761568114a4b2b3": {
       "workers": {
         "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": true,
           "exportedName": "getCafesAction",
           "filename": "src/entities/cafe/api/index.ts"
@@ -33,7 +33,7 @@
     "4067d70e0e817250b99ba89f6b1a397f49877d243d": {
       "workers": {
         "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": true,
           "exportedName": "runPostOnlyAction",
           "filename": "src/features/auto-comment/publish/queue-actions.ts"
@@ -48,7 +48,7 @@
     "00220d5d66515dc1daef9f190d034d9daf34ec7eb2": {
       "workers": {
         "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": true,
           "exportedName": "getPostQueueStatusAction",
           "filename": "src/features/auto-comment/publish/queue-actions.ts"
@@ -63,7 +63,7 @@
     "606855e91d1c001013e53e8b4d79c05dd94c2606b2": {
       "workers": {
         "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": true,
           "exportedName": "runAutoCommentAction",
           "filename": "src/features/auto-comment/publish/actions.ts"
@@ -75,10 +75,55 @@
       "exportedName": "runAutoCommentAction",
       "filename": "src/features/auto-comment/publish/actions.ts"
     },
+    "0008b6ff334c2072c6e4f6eab76e5c765bc6e7a5a3": {
+      "workers": {
+        "app/publish/page": {
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getAccountsAction",
+          "filename": "src/entities/account/api/index.ts"
+        }
+      },
+      "layer": {
+        "app/publish/page": "action-browser"
+      },
+      "exportedName": "getAccountsAction",
+      "filename": "src/entities/account/api/index.ts"
+    },
+    "60a2d389d791f71635570ae869226c9bd710cfe252": {
+      "workers": {
+        "app/publish/page": {
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "fetchRecentPublishedArticlesAction",
+          "filename": "src/features/auto-comment/publish/exposure-actions.ts"
+        }
+      },
+      "layer": {
+        "app/publish/page": "action-browser"
+      },
+      "exportedName": "fetchRecentPublishedArticlesAction",
+      "filename": "src/features/auto-comment/publish/exposure-actions.ts"
+    },
+    "404d0d33d6454104f7eb34d7f4601b219cf06c0ed6": {
+      "workers": {
+        "app/publish/page": {
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "runExposureCheckAction",
+          "filename": "src/features/auto-comment/publish/exposure-actions.ts"
+        }
+      },
+      "layer": {
+        "app/publish/page": "action-browser"
+      },
+      "exportedName": "runExposureCheckAction",
+      "filename": "src/features/auto-comment/publish/exposure-actions.ts"
+    },
     "40fd828fd50916c9ce4dc1a3325b7e3b6b048b80da": {
       "workers": {
         "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": true,
           "exportedName": "runManuscriptUploadAction",
           "filename": "src/features/auto-comment/publish/manuscript-actions.ts"
@@ -93,7 +138,7 @@
     "4004a238121d140fff6a1b2e3b2178649c3be98edc": {
       "workers": {
         "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": true,
           "exportedName": "runManuscriptModifyAction",
           "filename": "src/features/auto-comment/publish/manuscript-actions.ts"
@@ -108,7 +153,7 @@
     "00ba43b06b44b5ff61002c5831f0aac3fa1d4ed9c2": {
       "workers": {
         "app/publish/page": {
-          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "moduleId": "[project]/.next-internal/server/app/publish/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/entities/cafe/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/features/auto-comment/publish/queue-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/features/auto-comment/publish/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/entities/account/api/index.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/features/auto-comment/publish/exposure-actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/features/auto-comment/publish/manuscript-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": true,
           "exportedName": "logout",
           "filename": "src/features/auth/actions.ts"
