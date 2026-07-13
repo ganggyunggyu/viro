@@ -10,6 +10,12 @@ import {
 } from '@/shared/lib/multi-session';
 import type { NaverAccount } from '@/shared/lib/account-manager';
 import { uploadImages, placeCursorAtEndOfParagraph } from './image-uploader';
+import {
+  isRealParagraphText,
+  isModifyRedirectComplete,
+  isTypedContentTooShort,
+  convertHtmlContentToPlainText,
+} from './article-modifier-utils';
 
 // 부제 패턴 (숫자. 형식)
 const SUBTITLE_PATTERN = /^\d+\.\s*/;
@@ -188,6 +194,16 @@ export const modifyArticleWithAccount = async (
       titleInput = await page.$(TITLE_INPUT_SELECTOR);
     }
 
+    // 세션이 이 시점에 만료되면 제목 입력창을 못 찾는 것으로만 나타나는데, 여기서
+    // 로그인 리다이렉트 여부를 확인하지 않고 바로 실패 처리해버리면 캐시된 로그인
+    // 상태가 갱신되지 않아 같은 계정으로 이어지는 다음 글들도 전부 같은 이유로
+    // 연쇄 실패한다 — 재로그인을 시도해 세션을 복구한다.
+    if (!titleInput && isLoginRedirect(page.url())) {
+      const recoverResult = await recoverModifyLoginRedirect('제목 입력창 대기 중 로그인 페이지 감지');
+      if (recoverResult) return recoverResult;
+      titleInput = await page.$(TITLE_INPUT_SELECTOR);
+    }
+
     if (!titleInput) {
       return {
         success: false,
@@ -248,15 +264,13 @@ export const modifyArticleWithAccount = async (
     // ("내용을 입력하세요.") — 이걸 잔존 텍스트로 오인하면 지울 게 없는 문단을
     // 60번 반복 시도하다 가드에 걸려 끝나고, 그 여파로 뒤이은 진짜 본문 타이핑이
     // 커밋되지 않아 사진만 남고 글이 통째로 빈 상태로 저장되는 문제로 이어졌다.
-    const PLACEHOLDER_TEXT = '내용을 입력하세요.';
     let remainingTextGuard = 0;
     while (remainingTextGuard < 60) {
       const paragraphs = await page.$$('p.se-text-paragraph');
       const nonEmpty: typeof paragraphs = [];
       for (const p of paragraphs) {
         const text = await p.textContent();
-        const trimmed = text?.trim();
-        if (trimmed && trimmed !== PLACEHOLDER_TEXT) nonEmpty.push(p);
+        if (isRealParagraphText(text)) nonEmpty.push(p);
       }
       if (nonEmpty.length === 0) break;
       await nonEmpty[0].click({ clickCount: 3, force: true }).catch(() => {});
@@ -273,11 +287,7 @@ export const modifyArticleWithAccount = async (
     }
 
     // 새 본문 입력 - HTML 태그를 plain text로 변환
-    const plainContent = newContent
-      .replace(/<\/p>\s*<p>/gi, '\n')  // </p><p> → 줄바꿈
-      .replace(/<br\s*\/?>/gi, '\n')   // <br> → 줄바꿈
-      .replace(/<[^>]*>/g, '')         // 나머지 태그 제거
-      .trim();
+    const plainContent = convertHtmlContentToPlainText(newContent);
 
     // 원고가 문장마다 빈 줄로 끊겨 오는 경우가 많아 2~4문장씩 묶어 단락화
     // (부제 줄은 항상 새 단락으로 분리해 이미지 삽입 위치 탐지에 영향 없게 유지)
@@ -363,14 +373,12 @@ export const modifyArticleWithAccount = async (
     const editorText = await page.$$eval('p.se-text-paragraph', (nodes) =>
       nodes.map((node) => node.textContent || '').join('\n')
     );
-    const editorLength = editorText.replace(/[​-‍﻿]/g, '').replace(/내용을 입력하세요\./g, '').trim().length;
-    const expectedLength = plainContent.replace(/\s+/g, '').length;
-    if (editorLength < expectedLength * 0.5) {
+    if (isTypedContentTooShort(editorText, plainContent)) {
       return {
         success: false,
         articleId,
         modifierAccountId: id,
-        error: `타이핑된 본문이 비정상적으로 짧음 (에디터 ${editorLength}자 / 예상 ${expectedLength}자) — 제출 중단`,
+        error: `타이핑된 본문이 비정상적으로 짧음 (제출 중단) — 에디터: ${editorText.length}자, 원본: ${plainContent.length}자`,
       };
     }
 
@@ -422,7 +430,7 @@ export const modifyArticleWithAccount = async (
     // 처리되어 다음 작업으로 넘어가며 저장이 중간에 끊기는 원인이었다. modify가
     // 아닌 진짜 상세 페이지로 옮겨갔는지까지 확인해야 한다.
     try {
-      await page.waitForURL((url) => /articles\/\d+/.test(url.href) && !url.href.includes('/modify'), {
+      await page.waitForURL((url) => isModifyRedirectComplete(url.href), {
         timeout: 15000,
       });
       console.log('[DEBUG] 수정 완료, URL 변화 감지됨:', page.url());

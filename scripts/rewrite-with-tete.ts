@@ -229,14 +229,27 @@ const main = async (): Promise<void> => {
   for (const cafe of CAFES) {
     const acc = await Account.findOne({ accountId: cafe.ownerAccountId }).lean();
     if (!acc) continue;
-    const result = await browseCafePosts(
+    // 캡차 실패는 확률적이라 목록 조회 한 번 실패했다고 그 카페를 통째로
+    // 빼버리면(과거 실제로 3/5 카페가 이렇게 통째로 빠진 적 있음) 재실행해서
+    // 운이 좋아지길 바라는 수밖에 없었다 — 여기서 바로 몇 번 더 재시도한다.
+    let result = await browseCafePosts(
       { id: cafe.ownerAccountId, password: (acc as any).password },
       cafe.cafeId,
       undefined,
       { page: 1, perPage: 50 }
     );
+    for (let retry = 0; retry < 2 && !result.success; retry++) {
+      console.log(`[${cafe.cafeName}] 목록 조회 실패, 재시도 ${retry + 1}/2: ${result.error}`);
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      result = await browseCafePosts(
+        { id: cafe.ownerAccountId, password: (acc as any).password },
+        cafe.cafeId,
+        undefined,
+        { page: 1, perPage: 50 }
+      );
+    }
     if (!result.success) {
-      console.log(`[${cafe.cafeName}] 목록 조회 실패: ${result.error}`);
+      console.log(`[${cafe.cafeName}] 목록 조회 최종 실패 (재시도 소진): ${result.error}`);
       continue;
     }
     for (const article of result.articles as any[]) {

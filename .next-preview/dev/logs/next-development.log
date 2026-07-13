@@ -1,28 +1,30 @@
-[00:00:01.184] Server  LOG     ✓ Ready in 890ms
-[00:00:03.459] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:03.640] Server  LOG     [MongoDB] 새 연결 시도...
-[00:00:04.652] Server  LOG     [MongoDB] 연결 완료, readyState: 1
-[00:00:08.603] Server  LOG     [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
-[00:00:08.607] Server  LOG     [dotenv@17.2.3] injecting env (0) from .env.local -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
-[00:00:08.855] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:08.858] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
-[00:00:09.709] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:09.724] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
-[00:00:09.906] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
-[00:00:09.920] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:09.952] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:09.964] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
-[00:00:10.010] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
-[00:00:13.687] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:14.565] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:14.614] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:14.636] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:14.693] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:29.824] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:30.115] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:30.127] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
-[00:00:30.173] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
-[00:00:30.184] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
-[00:00:30.231] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
-[00:00:30.242] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
-[00:00:30.292] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
+[00:00:01.226] Server  LOG     ✓ Ready in 866ms
+[00:00:04.083] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:04.496] Server  LOG     [MongoDB] 새 연결 시도...
+[00:00:05.022] Server  LOG     [MongoDB] 연결 완료, readyState: 1
+[00:00:06.669] Server  LOG     [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[00:00:06.674] Server  LOG     [dotenv@17.2.3] injecting env (0) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+[00:00:06.905] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:00:06.965] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:00:06.977] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
+[00:00:06.992] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
+[00:00:07.007] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:00:07.017] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:00:07.028] Server  LOG     [ACCOUNT-ACTION] getAccountsAction 호출, userId: "user-1783673830751"
+[00:00:07.043] Server  LOG     [ACCOUNT-ACTION] DB 계정 수: 0
+[00:00:07.637] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[00:00:42.961] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:43.250] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:00:43.265] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:00:43.277] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:00:43.291] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:02:46.865] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:47.181] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:02:47.214] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:02:47.225] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:02:47.260] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:03:12.870] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:13.039] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:03:13.049] Server  LOG     [CAFE-ACTION] DB 카페 수: 0
+[00:03:13.060] Server  LOG     [CAFE-ACTION] getCafesAction 호출, userId: "user-1783673830751"
+[00:03:13.074] Server  LOG     [CAFE-ACTION] DB 카페 수: 0

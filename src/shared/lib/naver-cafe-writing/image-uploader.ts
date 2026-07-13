@@ -3,36 +3,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-// 이미지가 선택된 채로 뜨는 SmartEditor 플로팅 툴바(se-flayer-unified-toolbar)가
-// 실제로 DOM에서 사라질 때까지 기다린 뒤 문단을 클릭한다.
-// force:true는 Playwright의 액션 가능성 사전검사만 건너뛸 뿐 실제 브라우저
-// 히트테스트는 그대로 진행되므로, 툴바가 시각적으로 남아있으면 클릭이 문단이
-// 아니라 툴바로 들어가 커서가 전혀 이동하지 않고, 이후 타이핑한 본문이 통째로
-// 유실되는 문제가 있었다(에디터 상에서도, 저장 후에도 본문이 빈 채로 남음).
-export const clickParagraphAfterToolbarClears = async (
-  page: Page,
-  paragraph: ElementHandle
-): Promise<boolean> => {
-  await page.keyboard.press('Escape');
-  try {
-    await page.waitForSelector('.se-flayer-unified-toolbar', { state: 'hidden', timeout: 3000 });
-  } catch {
-    // 툴바가 원래 없었거나 hidden 처리가 안 되는 경우 — 그대로 진행
-  }
-  try {
-    await paragraph.click({ timeout: 5000 });
-    return true;
-  } catch {
-    // 그래도 막혀 있으면 최후 수단으로 force 클릭 (완전 실패보다는 낫다)
-    try {
-      await paragraph.click({ timeout: 3000, force: true });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-};
-
 // 클릭 기반 커서 이동은 결국 브라우저의 실제 히트테스트를 타기 때문에, 화면 어딘가에
 // 남아있는 오버레이(플로팅 툴바 등)가 있으면 문단이 아니라 그 오버레이를 클릭해버릴
 // 수 있다 — 클릭 자체는 에러 없이 "성공"하지만 커서는 전혀 이동하지 않고, 그 뒤에
@@ -53,7 +23,7 @@ export const placeCursorAtEndOfParagraph = async (page: Page, paragraph: Element
 };
 
 // URL에서 확장자 추출 (쿼리스트링 제거)
-const getExtensionFromUrl = (url: string): string => {
+export const getExtensionFromUrl = (url: string): string => {
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
@@ -178,6 +148,12 @@ export const uploadImages = async (page: Page, images: string[]): Promise<boolea
     // 아닌 상태에서 단독으로 테스트하면 잘 되는 걸 보면 방금 끝난 DOM 조작과의
     // 상호작용 문제로 보인다. 한 장씩 순차로 올리는 예전 방식은 안정적으로
     // 검증됐으므로, 이미지 사이 커서 복구만 Selection API로 교체해 유지한다.
+    //
+    // successCount는 "새로 올라간 개수"여야 하는데, 업로드 시작 시점에 이미
+    // DOM에 남아있던 이미지(정리 루프가 가드 상한에 걸려 다 못 지운 잔존 이미지 등)가
+    // 있으면 새 이미지가 0장이어도 카운트가 채워져 "성공"으로 오판할 수 있었다.
+    // 시작 시점의 개수를 기준선으로 잡고 델타로 계산한다.
+    const baselineImageCount = await page.$$('.se-component.se-image').then((items) => items.length);
     for (let i = 0; i < tempFiles.length; i++) {
       let imageButton = null;
       for (const selector of IMAGE_BUTTON_SELECTORS) {
@@ -198,7 +174,7 @@ export const uploadImages = async (page: Page, images: string[]): Promise<boolea
 
       for (let attempt = 0; attempt < 20; attempt++) {
         const count = await page.$$('.se-component.se-image').then((items) => items.length);
-        if (count >= i + 1) break;
+        if (count >= baselineImageCount + i + 1) break;
         await page.waitForTimeout(500);
       }
 
@@ -221,7 +197,8 @@ export const uploadImages = async (page: Page, images: string[]): Promise<boolea
       }
     }
 
-    successCount = await page.$$('.se-component.se-image').then((items) => Math.min(items.length, tempFiles.length));
+    const finalImageCount = await page.$$('.se-component.se-image').then((items) => items.length);
+    successCount = Math.min(Math.max(finalImageCount - baselineImageCount, 0), tempFiles.length);
 
     // 최종 이미지 컴포넌트 확인
     let totalImageCount = 0;
