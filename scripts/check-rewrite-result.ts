@@ -12,9 +12,9 @@ const main = async (): Promise<void> => {
     "../src/shared/lib/multi-session"
   );
 
-  const accountId = "ahffkdlek12";
-  const cafeId = "31754837";
-  const articleId = 3;
+  const accountId = "ahffkekd12";
+  const cafeId = "31754869";
+  const articleId = 9;
 
   const acc = await Account.findOne({ accountId }).lean();
   if (!acc) {
