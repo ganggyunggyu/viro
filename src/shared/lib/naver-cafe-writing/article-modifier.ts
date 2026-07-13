@@ -9,7 +9,7 @@ import {
   invalidateLoginCache,
 } from '@/shared/lib/multi-session';
 import type { NaverAccount } from '@/shared/lib/account-manager';
-import { uploadImages, clickParagraphAfterToolbarClears } from './image-uploader';
+import { uploadImages, placeCursorAtEndOfParagraph } from './image-uploader';
 
 // 부제 패턴 (숫자. 형식)
 const SUBTITLE_PATTERN = /^\d+\.\s*/;
@@ -311,20 +311,35 @@ export const modifyArticleWithAccount = async (
     // (부제마다 중간에 끼워 넣는 방식은 이미지 삽입 도중 커서 위치가 틀어지며
     // 이미지가 유실되는 문제가 있었음 — 상단 일괄 삽입이 더 안정적)
     if (images && images.length > 0) {
+      // 방금 끝난 클리어(Meta+A/Backspace, 이미지·텍스트 정리 루프) 직후라 에디터
+      // 내부 상태가 아직 안정화되지 않은 채로 업로드 버튼을 누르면 파일선택창은
+      // 뜨지만 이미지가 하나도 삽입되지 않는(0/3) 경우가 있었다 — 짧게 안정화 시간을 둔다.
+      await page.waitForTimeout(1000);
       console.log(`[MODIFY] ${id} 이미지 ${images.length}장 상단에 먼저 삽입`);
-      const uploadSuccess = await uploadImages(page, images);
+      let uploadSuccess = await uploadImages(page, images);
+      if (!uploadSuccess) {
+        console.warn(`[MODIFY] ${id} 이미지 업로드 실패 - 1회 재시도`);
+        await page.waitForTimeout(1500);
+        uploadSuccess = await uploadImages(page, images);
+      }
       if (uploadSuccess) {
         console.log(`[MODIFY] ${id} 이미지 업로드 완료`);
       } else {
-        console.warn(`[MODIFY] ${id} 이미지 업로드 실패 - 글 수정은 계속 진행`);
+        return {
+          success: false,
+          articleId,
+          modifierAccountId: id,
+          error: '이미지 업로드 실패 (재시도 후에도 0장) - 제출 중단',
+        };
       }
       await page.waitForTimeout(500);
-      // 마지막 이미지가 선택된 채로 뜬 플로팅 툴바가 클릭을 가로막을 수 있어
-      // 툴바가 실제로 사라질 때까지 기다린 뒤 마지막 문단 끝으로 이동한다.
+      // 클릭 기반 커서 이동은 남아있는 플로팅 툴바를 대신 때릴 수 있어(포커스는
+      // 전혀 이동하지 않고 이후 타이핑이 통째로 유실됨), Selection API로 마지막
+      // 문단 끝에 커서를 직접 꽂는다.
       const paragraphsAfterImages = await page.$$('p.se-text-paragraph');
       const lastParagraphAfterImages = paragraphsAfterImages[paragraphsAfterImages.length - 1];
       if (lastParagraphAfterImages) {
-        await clickParagraphAfterToolbarClears(page, lastParagraphAfterImages);
+        await placeCursorAtEndOfParagraph(page, lastParagraphAfterImages);
         await page.keyboard.press('End');
       }
       await page.keyboard.press('Enter');
@@ -341,6 +356,23 @@ export const modifyArticleWithAccount = async (
     }
 
     await page.waitForTimeout(500);
+
+    // 타이핑이 실제로 에디터에 반영됐는지 제출 전에 확인한다 — 커서가 엉뚱한 곳에
+    // 꽂혀 있었으면 여기서 걸러내지 않는 한 사진만 있고 본문은 빈 글이 그대로
+    // 저장되어 버린다(과거 실제로 발생했던 사고).
+    const editorText = await page.$$eval('p.se-text-paragraph', (nodes) =>
+      nodes.map((node) => node.textContent || '').join('\n')
+    );
+    const editorLength = editorText.replace(/[​-‍﻿]/g, '').replace(/내용을 입력하세요\./g, '').trim().length;
+    const expectedLength = plainContent.replace(/\s+/g, '').length;
+    if (editorLength < expectedLength * 0.5) {
+      return {
+        success: false,
+        articleId,
+        modifierAccountId: id,
+        error: `타이핑된 본문이 비정상적으로 짧음 (에디터 ${editorLength}자 / 예상 ${expectedLength}자) — 제출 중단`,
+      };
+    }
 
     // 댓글 허용 토글
     if (input.enableComments !== undefined) {

@@ -82,6 +82,16 @@ const assignDiverseKeywords = (tasks: ArticleTask[]): void => {
   }
 };
 
+// 7/11~7/12(KST)에 발행된 글만 대상으로 한다 — 이 기간에 이미지 배치/본문 유실
+// 버그가 있던 코드로 발행/재작성된 글들이라 재작성 범위를 여기로 한정한다.
+const TARGET_PUBLISH_DATES = new Set(["2026-07-11", "2026-07-12"]);
+const isTargetPublishDate = (writeDateTimestamp: number): boolean => {
+  if (!writeDateTimestamp) return false;
+  const kst = new Date(writeDateTimestamp + 9 * 60 * 60 * 1000);
+  const dateStr = kst.toISOString().slice(0, 10);
+  return TARGET_PUBLISH_DATES.has(dateStr);
+};
+
 // S3 큐레이션 뱅크 우선 조회, 없으면 자동으로 AI(Imagen/Gemini/Recraft) 이미지 생성
 const fetchImages = async (keyword: string, count: number): Promise<string[]> => {
   try {
@@ -231,6 +241,7 @@ const main = async (): Promise<void> => {
     }
     for (const article of result.articles as any[]) {
       if (article.articleId === 1) continue; // 인트로 글 제외
+      if (!isTargetPublishDate(article.writeDateTimestamp)) continue; // 7/11~7/12 발행분만
       tasks.push({
         cafeName: cafe.cafeName,
         cafeId: cafe.cafeId,

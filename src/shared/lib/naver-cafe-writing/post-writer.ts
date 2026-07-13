@@ -13,7 +13,7 @@ import type { Page } from 'playwright';
 import type { PostOptions, PostResult } from '@/shared/types';
 import { DEFAULT_POST_OPTIONS } from '@/shared/types';
 import { incrementActivity } from '@/shared/models/daily-activity';
-import { uploadImages, clickParagraphAfterToolbarClears } from './image-uploader';
+import { uploadImages, placeCursorAtEndOfParagraph } from './image-uploader';
 import type { ElementHandle } from 'playwright';
 
 // 팝업 닫고 클릭 재시도 헬퍼
@@ -533,19 +533,29 @@ export const writePostWithAccount = async (
     // 이미지는 맨 위에 전부 몰아서 넣고, 그 다음에 본문을 이어서 작성한다
     if (images && images.length > 0) {
       console.log(`[POST] ${id} 이미지 ${images.length}장 상단에 먼저 삽입`);
-      const uploadSuccess = await uploadImages(page, images);
+      let uploadSuccess = await uploadImages(page, images);
+      if (!uploadSuccess) {
+        console.warn(`[POST] ${id} 이미지 업로드 실패 - 1회 재시도`);
+        await page.waitForTimeout(1500);
+        uploadSuccess = await uploadImages(page, images);
+      }
       if (uploadSuccess) {
         console.log(`[POST] ${id} 이미지 업로드 완료`);
       } else {
-        console.warn(`[POST] ${id} 이미지 업로드 실패 - 글 작성은 계속 진행`);
+        return {
+          success: false,
+          writerAccountId: id,
+          error: '이미지 업로드 실패 (재시도 후에도 0장) - 제출 중단',
+        };
       }
       await page.waitForTimeout(500);
-      // 마지막 이미지가 선택된 채로 뜬 플로팅 툴바가 클릭을 가로막을 수 있어
-      // 툴바가 실제로 사라질 때까지 기다린 뒤 마지막 문단 끝으로 이동한다.
+      // 클릭 기반 커서 이동은 남아있는 플로팅 툴바를 대신 때릴 수 있어(포커스는
+      // 전혀 이동하지 않고 이후 타이핑이 통째로 유실됨), Selection API로 마지막
+      // 문단 끝에 커서를 직접 꽂는다.
       const paragraphsAfterImages = await page.$$('p.se-text-paragraph');
       const lastParagraphAfterImages = paragraphsAfterImages[paragraphsAfterImages.length - 1];
       if (lastParagraphAfterImages) {
-        await clickParagraphAfterToolbarClears(page, lastParagraphAfterImages);
+        await placeCursorAtEndOfParagraph(page, lastParagraphAfterImages);
         await page.keyboard.press('End');
       }
       await page.keyboard.press('Enter');

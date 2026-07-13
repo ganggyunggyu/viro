@@ -49,9 +49,11 @@ const parseManuscript = (raw: string): { subject: string; content: string } => {
 };
 
 const main = async () => {
+  const startArgIndex = process.argv.indexOf('--start-index');
+  const startIndex = startArgIndex >= 0 ? Number(process.argv[startArgIndex + 1]) : 0;
   const limitArgIndex = process.argv.indexOf('--limit');
-  const limit = limitArgIndex >= 0 ? Number(process.argv[limitArgIndex + 1]) : KEYWORDS.length;
-  const keywords = KEYWORDS.slice(0, limit);
+  const limit = limitArgIndex >= 0 ? Number(process.argv[limitArgIndex + 1]) : KEYWORDS.length - startIndex;
+  const keywords = KEYWORDS.slice(startIndex, startIndex + limit);
 
   await connectDB();
   const user = await User.findOne({ loginId: LOGIN_ID }).lean();
@@ -72,12 +74,13 @@ const main = async () => {
   let failCount = 0;
 
   for (let i = 0; i < keywords.length; i += 1) {
+    const absoluteIndex = startIndex + i;
     const keyword = keywords[i];
-    const cafe = cafeDocs[i % cafeDocs.length];
+    const cafe = cafeDocs[absoluteIndex % cafeDocs.length];
     const ownerAccountId = cafe.ownerAccountId;
     const accountDoc = ownerAccountId ? accountByOwnerId.get(ownerAccountId) : undefined;
 
-    console.log(`\n===== [${i + 1}/${keywords.length}] "${keyword}" → ${cafe.name} (owner=${ownerAccountId}) =====`);
+    console.log(`\n===== [${absoluteIndex + 1}/${KEYWORDS.length}] "${keyword}" → ${cafe.name} (owner=${ownerAccountId}) =====`);
 
     if (!ownerAccountId || !accountDoc) {
       console.error('!!! 카페 주인 계정 정보 없음, 스킵');

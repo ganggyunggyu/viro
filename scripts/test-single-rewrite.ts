@@ -8,7 +8,7 @@ const main = async (): Promise<void> => {
 
   const TEXT_GEN_HUB_URL = process.env.TEXT_GEN_HUB_URL || "http://localhost:8000";
   const cafeId = "31754837";
-  const articleId = 2;
+  const articleId = 3;
   const accountId = "ahffkdlek12";
   const keyword = "천안웨딩홀 비교 비용";
 
