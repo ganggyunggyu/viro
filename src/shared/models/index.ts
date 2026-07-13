@@ -4,6 +4,7 @@ export {
   type IArticleComment,
   hasCommented,
   addCommentToArticle,
+  removeCommentFromArticle,
   getArticleComments,
   getAccountCommentStats,
   getArticleIdByKeyword,

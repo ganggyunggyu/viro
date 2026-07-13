@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import { Account, ManualCommentJob, PublishedArticle, type IManualCommentJob } from '../src/shared/models';
-import { hasCommented } from '../src/shared/models/published-article';
+import { hasCommented, getArticleComments, removeCommentFromArticle } from '../src/shared/models/published-article';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
+import { listLiveComments, deleteCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-deleter';
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
 import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
 import { runDeepSeekAgentCommentJob, type DeepSeekAgentEvent } from '../src/shared/lib/deepseek-agent-comment';
@@ -92,6 +93,120 @@ const appendResult = async (
     { _id: jobId },
     { $push: { results: { ...result, postedAt: new Date() } } },
   );
+};
+
+const appendDeleteResult = async (
+  jobId: mongoose.Types.ObjectId,
+  result: {
+    index: number;
+    commentId: string;
+    accountId?: string;
+    nickname?: string;
+    content: string;
+    success: boolean;
+    error?: string;
+  },
+): Promise<void> => {
+  await ManualCommentJob.updateOne(
+    { _id: jobId },
+    { $push: { deleteResults: { ...result, deletedAt: new Date() } } },
+  );
+};
+
+/**
+ * job.deleteExisting이 true일 때 posting 전에 호출. DB(comments 배열)가 아니라
+ * 라이브 댓글을 기준으로 삭제 대상을 정한다 — DB 기록이 실제 게시 여부와 어긋나는 경우가 있었음.
+ * 개별 댓글 삭제 실패(캡차 로그인 실패 등)는 잡 전체를 막지 않고 해당 댓글만 원본 유지한 채 계속 진행한다.
+ */
+const deleteExistingComments = async (
+  job: IManualCommentJob,
+  accountsForRead: Array<{ accountId: string; password: string; nickname?: string }>,
+): Promise<void> => {
+  console.log(`[JOB ${job._id}] 기존 댓글 삭제 시작: ${job.cafeSlug}/${job.articleId}`);
+
+  let liveComments: Array<{ commentId: string; nickname: string; content: string }> = [];
+  for (const reader of accountsForRead) {
+    const result = await listLiveComments(
+      { id: reader.accountId, password: reader.password, nickname: reader.nickname || reader.accountId },
+      job.cafeId,
+      job.articleId,
+    );
+    if (result.success && result.comments) {
+      liveComments = result.comments;
+      break;
+    }
+  }
+
+  if (liveComments.length === 0) {
+    console.log(`[JOB ${job._id}] 삭제할 라이브 댓글 없음`);
+    return;
+  }
+
+  const dbComments = await getArticleComments(job.cafeId, job.articleId);
+
+  let resultIndex = 0;
+  for (const live of liveComments) {
+    const dbMatch = dbComments.find((c) => c.commentId === live.commentId);
+    const accountId = dbMatch?.accountId;
+
+    if (!accountId) {
+      await appendDeleteResult(job._id as mongoose.Types.ObjectId, {
+        index: resultIndex,
+        commentId: live.commentId,
+        nickname: live.nickname,
+        content: live.content,
+        success: false,
+        error: '매칭 실패 (외부 계정 - 우리 DB에 기록 없음)',
+      });
+      resultIndex += 1;
+      continue;
+    }
+
+    const acc = await Account.findOne({ accountId, userId: job.userId })
+      .select('accountId password nickname')
+      .lean<{ accountId: string; password: string; nickname?: string } | null>();
+
+    if (!acc) {
+      await appendDeleteResult(job._id as mongoose.Types.ObjectId, {
+        index: resultIndex,
+        commentId: live.commentId,
+        accountId,
+        nickname: live.nickname,
+        content: live.content,
+        success: false,
+        error: '계정을 찾을 수 없음 (현재 사용자 소유 아님)',
+      });
+      resultIndex += 1;
+      continue;
+    }
+
+    const deleteResult = await deleteCommentWithAccount(
+      { id: acc.accountId, password: acc.password, nickname: acc.nickname || acc.accountId },
+      job.cafeId,
+      job.articleId,
+      live.commentId,
+    );
+
+    await appendDeleteResult(job._id as mongoose.Types.ObjectId, {
+      index: resultIndex,
+      commentId: live.commentId,
+      accountId,
+      nickname: live.nickname,
+      content: live.content,
+      success: deleteResult.success,
+      error: deleteResult.error,
+    });
+    resultIndex += 1;
+
+    if (deleteResult.success) {
+      await removeCommentFromArticle(job.cafeId, job.articleId, live.commentId);
+      console.log(`[JOB ${job._id}] 삭제 성공: ${accountId} / ${live.commentId}`);
+    } else {
+      console.log(`[JOB ${job._id}] 삭제 실패: ${accountId} / ${live.commentId} - ${deleteResult.error}`);
+    }
+  }
+
+  console.log(`[JOB ${job._id}] 기존 댓글 삭제 종료`);
 };
 
 const processAgentJob = async (job: IManualCommentJob): Promise<void> => {
@@ -186,6 +301,12 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
     );
     console.error(`[JOB ${job._id}] 실패: 본문 읽기 실패 (${readError})`);
     return;
+  }
+
+  if (job.deleteExisting) {
+    // buildAccountPool이 PublishedArticle.comments 기준으로 "이미 댓글단 계정"을 제외하므로,
+    // 삭제의 DB 반영($pull)이 완료된 뒤에 계정 풀을 구성해야 방금 삭제한 계정이 재작성 후보로 돌아온다.
+    await deleteExistingComments(job, accountsForRead);
   }
 
   let texts: string[] = [];
@@ -293,9 +414,13 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
   console.log(`[JOB ${job._id}] 종료: ${successCount}/${texts.length} 성공`);
 };
 
-const runLoop = async (): Promise<void> => {
-  console.log(`[WORKER] 시작 (${WORKER_ID}), ${POLL_INTERVAL_MS / 1000}초마다 폴링`);
+// 잡을 동시에 여러 개 처리하되, 같은 프로세스 안에서만 병렬화한다.
+// pm2 프로세스를 여러 개 띄우는 방식은 acquireAccountLock이 프로세스 메모리 기반이라
+// 서로 다른 프로세스 간에는 같은 네이버 계정 동시 조작을 막지 못해 위험함.
+// 슬롯을 여러 개 두되 전부 한 프로세스 안에서 돌리면 락이 정상적으로 동작한다.
+const WORKER_CONCURRENCY = Number(process.env.WORKER_CONCURRENCY || 3);
 
+const runWorkerSlot = async (slotId: number): Promise<void> => {
   while (true) {
     try {
       const job = await claimNextJob();
@@ -304,10 +429,20 @@ const runLoop = async (): Promise<void> => {
         continue;
       }
     } catch (error) {
-      console.error('[WORKER] 처리 중 오류:', error instanceof Error ? error.message : error);
+      console.error(`[WORKER-${slotId}] 처리 중 오류:`, error instanceof Error ? error.message : error);
     }
     await sleep(POLL_INTERVAL_MS);
   }
+};
+
+const runLoop = async (): Promise<void> => {
+  console.log(
+    `[WORKER] 시작 (${WORKER_ID}), 동시 슬롯 ${WORKER_CONCURRENCY}개, ${POLL_INTERVAL_MS / 1000}초마다 폴링`,
+  );
+
+  await Promise.all(
+    Array.from({ length: WORKER_CONCURRENCY }, (_, i) => runWorkerSlot(i + 1)),
+  );
 };
 
 const main = async (): Promise<void> => {

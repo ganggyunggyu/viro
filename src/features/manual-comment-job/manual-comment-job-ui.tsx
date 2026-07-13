@@ -18,6 +18,7 @@ interface FormState {
   generateMaxCount: string;
   delayMinMinutes: string;
   delayMaxMinutes: string;
+  deleteExisting: boolean;
 }
 
 const defaultFormState: FormState = {
@@ -28,6 +29,7 @@ const defaultFormState: FormState = {
   generateMaxCount: '13',
   delayMinMinutes: '3',
   delayMaxMinutes: '8',
+  deleteExisting: false,
 };
 
 const MODE_OPTIONS: Array<{ value: FormState['mode']; label: string }> = [
@@ -50,8 +52,8 @@ const STATUS_STYLE: Record<ManualCommentJobView['status'], string> = {
   failed: 'bg-(--danger-soft) text-(--danger)',
 };
 
-const CAFE_URL_PATTERN = /https?:\/\/[^\s]*cafe\.naver\.com[^\s]*/i;
-const NUMBERED_LINE_PATTERN = /^\s*\d+[.)]\s*(.+)$/;
+const CAFE_URL_PATTERN = /https?:\/\/[^\s]*(?:cafe\.naver\.com|naver\.me)[^\s]*/i;
+const NUMBERED_LINE_PATTERN = /^\s*\d+[.)번]\s*(.+)$/;
 
 const parseSmartPaste = (raw: string): { url: string | null; comments: string[] } => {
   const urlMatch = raw.match(CAFE_URL_PATTERN);
@@ -151,7 +153,7 @@ export const ManualCommentJobUI = () => {
 
     const fixedComments = formData.fixedCommentsText
       .split('\n')
-      .map((line) => line.replace(/^\d+[.\s]*/, '').trim())
+      .map((line) => line.replace(/^\d+[.)번]?\s*/, '').trim())
       .filter(Boolean);
 
     if (formData.mode === 'fixed' && fixedComments.length === 0) {
@@ -168,6 +170,7 @@ export const ManualCommentJobUI = () => {
         generateMaxCount: formData.mode === 'generate' ? parseInt(formData.generateMaxCount) || 13 : undefined,
         delayMinMinutes: parseFloat(formData.delayMinMinutes) || 3,
         delayMaxMinutes: parseFloat(formData.delayMaxMinutes) || 8,
+        deleteExisting: formData.deleteExisting,
       });
 
       if (result.success) {
@@ -212,6 +215,16 @@ export const ManualCommentJobUI = () => {
             </button>
           ))}
         </div>
+
+        <label className={cn('flex items-center gap-2 text-sm text-(--ink)')}>
+          <input
+            type="checkbox"
+            checked={formData.deleteExisting}
+            onChange={(e) => setFormData((p) => ({ ...p, deleteExisting: e.target.checked }))}
+            className={cn('h-4 w-4 rounded border-(--border) accent-(--accent)')}
+          />
+          기존 댓글 전체 삭제 후 재작성
+        </label>
 
         {formData.mode === 'fixed' && (
           <textarea
@@ -358,6 +371,9 @@ export const ManualCommentJobUI = () => {
                         {successCount}
                         {job.mode !== 'agent' ? `/${total || '?'}` : ''}건
                         {percent !== null ? ` · ${percent}%` : ''} · {formatRelativeTime(job.createdAt)}
+                        {job.deleteExisting
+                          ? ` · 삭제 ${job.deleteResults.filter((r) => r.success).length}/${job.deleteResults.length}건`
+                          : ''}
                         {job.errorMessage ? ` · ${job.errorMessage}` : ''}
                       </span>
                       {percent !== null && (
@@ -393,6 +409,26 @@ export const ManualCommentJobUI = () => {
                         {job.articleUrl}
                       </a>
                       {job.agentSummary && <p className={cn('text-xs text-(--ink-muted)')}>{job.agentSummary}</p>}
+                      {job.deleteResults.length > 0 && (
+                        <div className={cn('space-y-1.5')}>
+                          <p className={cn('text-xs font-medium text-(--ink-muted)')}>삭제된 기존 댓글</p>
+                          <ul className={cn('space-y-1.5 rounded-lg bg-(--surface-muted) p-3')}>
+                            {job.deleteResults.map((r) => (
+                              <li key={r.index} className={cn('text-xs flex items-start gap-2')}>
+                                <span className={cn('shrink-0', r.success ? 'text-(--success)' : 'text-(--danger)')}>
+                                  {r.success ? '✓' : '✗'}
+                                </span>
+                                <span className={cn('text-(--ink-muted)')}>
+                                  {r.accountId && <span className={cn('text-(--ink)')}>{r.accountId}</span>}
+                                  {r.accountId ? ' — ' : ''}
+                                  {r.content}
+                                  {r.error ? ` (${r.error})` : ''}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                       {job.results.length > 0 && (
                         <ul className={cn('space-y-1.5 rounded-lg bg-(--surface-muted) p-3')}>
                           {job.results.map((r) => (

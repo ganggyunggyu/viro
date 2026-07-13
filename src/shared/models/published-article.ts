@@ -132,6 +132,19 @@ export const addCommentToArticle = async (
   return !!result;
 };
 
+export const removeCommentFromArticle = async (
+  cafeId: string,
+  articleId: number,
+  commentId: string
+): Promise<boolean> => {
+  const result = await PublishedArticle.updateOne(
+    { cafeId, articleId, 'comments.commentId': commentId },
+    { $pull: { comments: { commentId } }, $inc: { commentCount: -1 } }
+  );
+
+  return result.modifiedCount > 0;
+};
+
 export const getArticleComments = async (
   cafeId: string,
   articleId: number
