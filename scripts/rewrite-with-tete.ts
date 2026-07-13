@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { Account } from "../src/shared/models/account";
 import { browseCafePosts } from "../src/shared/lib/cafe-browser";
 import { modifyArticleWithAccount } from "../src/shared/lib/naver-cafe-writing/article-modifier";
-import { closeAllContexts } from "../src/shared/lib/multi-session";
+import { closeAllContexts, closeContextForAccount } from "../src/shared/lib/multi-session";
 
 const TEXT_GEN_HUB_URL = process.env.TEXT_GEN_HUB_URL || "http://localhost:8000";
 
@@ -207,8 +207,22 @@ const runPool = async (tasks: ArticleTask[]): Promise<{ success: number; fail: n
   const runCafeQueue = async (queue: ArticleTask[]): Promise<void> => {
     for (const task of queue) {
       const ok = await rewriteOne(task);
-      if (ok) success++;
-      else fail++;
+      if (ok) {
+        success++;
+      } else {
+        fail++;
+        // 한 번 실패한 뒤(특히 이미지 업로드 0/3, 타임아웃) 같은 계정의 브라우저
+        // 컨텍스트를 계속 재사용하면 페이지 상태가 안 풀린 채로 이후 글도 전부
+        // 같은 이유로 연쇄 실패하는 게 실측으로 확인됐다(한 카페에서 10건 연속
+        // 실패). 실패 직후 컨텍스트를 닫아 다음 글은 완전히 새 페이지로 시작한다.
+        console.log(`[${task.cafeName}] 실패 후 ${task.ownerAccountId} 컨텍스트 초기화`);
+        try {
+          await closeContextForAccount(task.ownerAccountId);
+        } catch (e) {
+          const message = e instanceof Error ? e.message : String(e);
+          console.log(`[${task.cafeName}] 컨텍스트 초기화 실패 (무시): ${message}`);
+        }
+      }
     }
   };
 
