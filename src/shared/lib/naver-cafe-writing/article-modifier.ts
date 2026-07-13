@@ -244,13 +244,19 @@ export const modifyArticleWithAccount = async (
     // 문단 하나만 지운다 — 이전 저장본에 문단이 여러 개였다면 첫 문단 이후 내용이
     // 그대로 남아 새 이미지/본문 앞에 잔존 텍스트가 끼는 원인이 된다. 빈 문단
     // 하나만 남을 때까지 남은 문단을 개별적으로 지운다.
+    // 빈 문단은 SmartEditor가 플레이스홀더 문구를 실제 textContent로 채워둔다
+    // ("내용을 입력하세요.") — 이걸 잔존 텍스트로 오인하면 지울 게 없는 문단을
+    // 60번 반복 시도하다 가드에 걸려 끝나고, 그 여파로 뒤이은 진짜 본문 타이핑이
+    // 커밋되지 않아 사진만 남고 글이 통째로 빈 상태로 저장되는 문제로 이어졌다.
+    const PLACEHOLDER_TEXT = '내용을 입력하세요.';
     let remainingTextGuard = 0;
     while (remainingTextGuard < 60) {
       const paragraphs = await page.$$('p.se-text-paragraph');
       const nonEmpty: typeof paragraphs = [];
       for (const p of paragraphs) {
         const text = await p.textContent();
-        if (text && text.trim()) nonEmpty.push(p);
+        const trimmed = text?.trim();
+        if (trimmed && trimmed !== PLACEHOLDER_TEXT) nonEmpty.push(p);
       }
       if (nonEmpty.length === 0) break;
       await nonEmpty[0].click({ clickCount: 3, force: true }).catch(() => {});

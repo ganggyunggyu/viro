@@ -21,9 +21,31 @@ const CAFES: CafeInfo[] = [
   { cafeName: "일상 소소담", cafeId: "31755069", ownerAccountId: "pixelninja3", service: "일상" },
 ];
 
+const cleanWord = (word: string): string => word.replace(/[,.!?]/g, "");
+
 const extractKeywordFromSubject = (subject: string): string => {
   // 제목에서 첫 어절 2~4개 정도를 키워드로 근사 사용
-  return subject.split(/\s+/).slice(0, 3).join(" ").replace(/[,.!?]/g, "");
+  return subject.split(/\s+/).slice(0, 3).map(cleanWord).join(" ");
+};
+
+// 같은 루트 키워드(제목 첫 어절, 예: "수원웨딩홀")가 여러 카페에 걸쳐 중복되는 경우
+// (원래 시딩 때 마스터 키워드가 카페 5개에 라운드로빈 배정된 결과) 그대로 재작성하면
+// 서로 다른 카페에서 거의 같은 주제·같은 짧은 키워드로 이미지/원고를 생성하게 된다.
+// 전체 대상 목록을 한 번에 훑어서, 루트가 먼저 등장한 카페 이후로는 제목에서 더 많은
+// 어절을 가져와 키워드를 구체화해 검색·생성 결과가 갈라지게 만든다.
+const assignDiverseKeywords = (tasks: ArticleTask[]): void => {
+  const usedRoots = new Set<string>();
+  for (const task of tasks) {
+    const words = task.subject.split(/\s+/).filter(Boolean);
+    const root = cleanWord(words[0] || task.subject);
+
+    let sliceLen = 3;
+    if (usedRoots.has(root)) {
+      sliceLen = Math.min(words.length, 6);
+    }
+    task.keyword = words.slice(0, sliceLen).map(cleanWord).join(" ") || task.subject;
+    usedRoots.add(root);
+  }
 };
 
 // S3 큐레이션 뱅크 우선 조회, 없으면 자동으로 AI(Imagen/Gemini/Recraft) 이미지 생성
@@ -76,6 +98,7 @@ interface ArticleTask {
   service: string;
   articleId: number;
   subject: string;
+  keyword?: string;
 }
 
 const rewriteOne = async (task: ArticleTask): Promise<boolean> => {
@@ -85,7 +108,7 @@ const rewriteOne = async (task: ArticleTask): Promise<boolean> => {
     return false;
   }
   const account = { id: task.ownerAccountId, password: (acc as any).password, nickname: (acc as any).nickname };
-  const keyword = extractKeywordFromSubject(task.subject);
+  const keyword = task.keyword || extractKeywordFromSubject(task.subject);
 
   try {
     console.log(`[${task.cafeName}][articleId=${task.articleId}] 이미지 3장 검색 + 테테 생성 동시 시작: ${keyword}`);
@@ -185,8 +208,10 @@ const main = async (): Promise<void> => {
     }
   }
 
+  assignDiverseKeywords(tasks);
+
   console.log(`\n=== 총 재작성 대상: ${tasks.length}개 ===`);
-  tasks.forEach((t) => console.log(`  - [${t.cafeName}] articleId=${t.articleId} ${t.subject}`));
+  tasks.forEach((t) => console.log(`  - [${t.cafeName}] articleId=${t.articleId} 키워드="${t.keyword}" ${t.subject}`));
 
   const { success, fail } = await runPool(tasks);
 

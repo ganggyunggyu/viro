@@ -8,9 +8,9 @@ const main = async (): Promise<void> => {
 
   const TEXT_GEN_HUB_URL = process.env.TEXT_GEN_HUB_URL || "http://localhost:8000";
   const cafeId = "31754837";
-  const articleId = 23;
+  const articleId = 2;
   const accountId = "ahffkdlek12";
-  const keyword = "접이식카트 활용법";
+  const keyword = "천안웨딩홀 비교 비용";
 
   const acc = await Account.findOne({ accountId }).lean();
   if (!acc) {
