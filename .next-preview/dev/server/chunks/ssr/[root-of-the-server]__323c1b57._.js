@@ -451,7 +451,8 @@ const BatchJobLogSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$
         type: String,
         enum: [
             'publish',
-            'modify'
+            'modify',
+            'rewrite'
         ],
         required: true
     },
@@ -3288,30 +3289,54 @@ const uploadImages = async (page, images)=>{
         // DOM에 남아있던 이미지(정리 루프가 가드 상한에 걸려 다 못 지운 잔존 이미지 등)가
         // 있으면 새 이미지가 0장이어도 카운트가 채워져 "성공"으로 오판할 수 있었다.
         // 시작 시점의 개수를 기준선으로 잡고 델타로 계산한다.
+        // 실측 원인: 버튼 클릭 자체는 항상 "성공"하지만(에러 없음), 2~3번째 이미지에서
+        // 가끔 filechooser 이벤트가 아예 안 뜬다 — 클릭이 등록은 됐는데 SmartEditor가
+        // 파일선택창을 안 여는 상태(포커스/커서 위치 문제로 추정, 확실한 원인은 못 찾음).
+        // 이 타임아웃이 예외로 튀면 그전에 성공한 이미지 개수까지 통째로 버려지고
+        // "0/3"으로 보고되는 이중 버그가 있었다 — (1) 같은 이미지에 대해 버튼을
+        // 다시 찾아 재클릭하는 재시도를 걸고, (2) 그래도 실패하면 예외를 던지지 않고
+        // 그 이미지만 실패로 남긴 채 나머지 이미지 시도를 계속한다.
         const baselineImageCount = await page.$$('.se-component.se-image').then((items)=>items.length);
+        let uploadedSoFar = 0;
         for(let i = 0; i < tempFiles.length; i++){
-            let imageButton = null;
-            for (const selector of IMAGE_BUTTON_SELECTORS){
-                imageButton = await page.$(selector);
-                if (imageButton) break;
+            let fileChooser = null;
+            for(let clickAttempt = 0; clickAttempt < 3 && !fileChooser; clickAttempt++){
+                let imageButton = null;
+                for (const selector of IMAGE_BUTTON_SELECTORS){
+                    imageButton = await page.$(selector);
+                    if (imageButton) break;
+                }
+                if (!imageButton) {
+                    console.log(`[IMAGE] ${i + 1}번째 이미지 버튼 찾을 수 없음 (시도 ${clickAttempt + 1}/3)`);
+                    await page.waitForTimeout(500);
+                    continue;
+                }
+                try {
+                    const [chooser] = await Promise.all([
+                        page.waitForEvent('filechooser', {
+                            timeout: 6000
+                        }),
+                        imageButton.click()
+                    ]);
+                    fileChooser = chooser;
+                } catch  {
+                    console.log(`[IMAGE] ${i + 1}번째 filechooser 미발생, 재시도 ${clickAttempt + 1}/3`);
+                    await page.keyboard.press('Escape');
+                    await page.waitForTimeout(500);
+                }
             }
-            if (!imageButton) {
-                console.log(`[IMAGE] ${i + 1}번째 이미지 버튼 찾을 수 없음`);
-                break;
+            if (!fileChooser) {
+                console.log(`[IMAGE] ${i + 1}번째 이미지 업로드 포기 (3회 재시도 소진)`);
+                continue;
             }
-            const [fileChooser] = await Promise.all([
-                page.waitForEvent('filechooser', {
-                    timeout: 10000
-                }),
-                imageButton.click()
-            ]);
             await fileChooser.setFiles([
                 tempFiles[i]
             ]);
             console.log(`[IMAGE] ${i + 1}/${tempFiles.length}번째 파일 설정 완료`);
+            uploadedSoFar++;
             for(let attempt = 0; attempt < 20; attempt++){
                 const count = await page.$$('.se-component.se-image').then((items)=>items.length);
-                if (count >= baselineImageCount + i + 1) break;
+                if (count >= baselineImageCount + uploadedSoFar) break;
                 await page.waitForTimeout(500);
             }
             for(let attempt = 0; attempt < 10; attempt++){

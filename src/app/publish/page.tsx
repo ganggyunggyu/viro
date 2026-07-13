@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/shared';
-import { PostOnlyUI, CommentOnlyUI, ExposureCheckUI } from '@/features/auto-comment/publish';
+import { PostOnlyUI, CommentOnlyUI, ExposureCheckUI, RewriteUI } from '@/features/auto-comment/publish';
 import { PageLayout } from '@/widgets';
 import { AnimatedTabs, AnimatedCard, SlideUp, HelpAccordion } from '@/shared';
 
@@ -9,6 +9,7 @@ const TABS = [
   { id: 'post', label: '글만 발행' },
   { id: 'comment', label: '댓글만 달기' },
   { id: 'exposure', label: '노출 체크' },
+  { id: 'rewrite', label: '글 재작성' },
 ];
 
 export default function PublishPage() {
@@ -55,13 +56,25 @@ export default function PublishPage() {
                 <ExposureCheckUI />
               </div>
             )}
+
+            {activeTab === 'rewrite' && (
+              <div className={cn('space-y-6')}>
+                <SlideUp>
+                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>글 재작성</h2>
+                  <p className={cn('text-sm text-(--ink-muted) mt-1')}>
+                    선택한 카페의 기존 글을 날짜 범위로 골라 AI 원고 + 이미지 3장으로 덮어씁니다
+                  </p>
+                </SlideUp>
+                <RewriteUI />
+              </div>
+            )}
           </AnimatedCard>
         )}
       </AnimatedTabs>
 
       <SlideUp delay={0.2}>
         <HelpAccordion title="분리 발행 사용법" className={cn('mt-8')}>
-          <div className={cn('grid gap-4 lg:grid-cols-3')}>
+          <div className={cn('grid gap-4 lg:grid-cols-4')}>
             <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>글만 발행</h3>
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
@@ -86,6 +99,15 @@ export default function PublishPage() {
                 <li>• 발행글 선택 또는 키워드 직접 입력</li>
                 <li>• 네이버 통합검색을 실제로 열어 확인</li>
                 <li>• 결과는 DB + 구글시트에 함께 기록</li>
+              </ul>
+            </div>
+
+            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
+              <h3 className={cn('font-semibold text-(--ink) mb-3')}>글 재작성</h3>
+              <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
+                <li>• 카페 다중 선택 + 날짜 범위 지정</li>
+                <li>• 기존 글을 새 원고+이미지 3장으로 교체</li>
+                <li>• 카페별 진행률을 폴링으로 확인</li>
               </ul>
             </div>
           </div>

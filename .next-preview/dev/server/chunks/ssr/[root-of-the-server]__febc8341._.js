@@ -451,7 +451,8 @@ const BatchJobLogSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$
         type: String,
         enum: [
             'publish',
-            'modify'
+            'modify',
+            'rewrite'
         ],
         required: true
     },
