@@ -67,6 +67,7 @@ const main = async (): Promise<void> => {
 
     const page = await getPageForAccount(accountId);
     page.on("dialog", async (dialog) => {
+      console.log(`[DEBUG] 다이얼로그 감지: type=${dialog.type()} message="${dialog.message()}"`);
       try {
         await dialog.accept();
       } catch {}
@@ -227,8 +228,17 @@ const main = async (): Promise<void> => {
 
     const submitButton = await page.$("a.BaseButton--skinGreen, a.BaseButton");
     if (submitButton) {
+      const btnText = await submitButton.textContent();
+      console.log(`[DEBUG] 제출 버튼 텍스트: "${btnText?.trim()}"`);
       await submitButton.click();
-      console.log("[DEBUG] 제출 버튼 클릭함");
+      console.log("[DEBUG] 제출 버튼 클릭함, 직후 URL:", page.url());
+      await page.waitForTimeout(1000);
+      await page.screenshot({ path: `${SCRATCH}/debug-immediately-after-click.png`, fullPage: true });
+      console.log("[DEBUG] 클릭 1초 후 스크린샷 저장, URL:", page.url());
+      const errorToast = await page.$(".error, .toast, [class*='error'], [class*='alert']");
+      if (errorToast) {
+        console.log("[DEBUG] 에러/토스트 요소 발견:", await errorToast.textContent());
+      }
       try {
         await page.waitForURL(/articles\/\d+/, { timeout: 10000 });
         console.log("[DEBUG] URL 변화 감지됨:", page.url());

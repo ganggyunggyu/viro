@@ -13,7 +13,7 @@ import type { Page } from 'playwright';
 import type { PostOptions, PostResult } from '@/shared/types';
 import { DEFAULT_POST_OPTIONS } from '@/shared/types';
 import { incrementActivity } from '@/shared/models/daily-activity';
-import { uploadImages } from './image-uploader';
+import { uploadImages, clickParagraphAfterToolbarClears } from './image-uploader';
 import type { ElementHandle } from 'playwright';
 
 // 팝업 닫고 클릭 재시도 헬퍼
@@ -541,13 +541,11 @@ export const writePostWithAccount = async (
       }
       await page.waitForTimeout(500);
       // 마지막 이미지가 선택된 채로 뜬 플로팅 툴바가 클릭을 가로막을 수 있어
-      // Escape로 선택 해제 후, 실제 마지막 문단 끝으로 명시적으로 이동한다.
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(200);
+      // 툴바가 실제로 사라질 때까지 기다린 뒤 마지막 문단 끝으로 이동한다.
       const paragraphsAfterImages = await page.$$('p.se-text-paragraph');
       const lastParagraphAfterImages = paragraphsAfterImages[paragraphsAfterImages.length - 1];
       if (lastParagraphAfterImages) {
-        await lastParagraphAfterImages.click({ timeout: 5000, force: true }).catch(() => {});
+        await clickParagraphAfterToolbarClears(page, lastParagraphAfterImages);
         await page.keyboard.press('End');
       }
       await page.keyboard.press('Enter');

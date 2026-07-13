@@ -24,27 +24,61 @@ const CAFES: CafeInfo[] = [
 const cleanWord = (word: string): string => word.replace(/[,.!?]/g, "");
 
 const extractKeywordFromSubject = (subject: string): string => {
-  // 제목에서 첫 어절 2~4개 정도를 키워드로 근사 사용
+  // 제목에서 첫 어절 2~4개 정도를 키워드로 근사 사용 (풀 소진 시 폴백)
   return subject.split(/\s+/).slice(0, 3).map(cleanWord).join(" ");
 };
 
-// 같은 루트 키워드(제목 첫 어절, 예: "수원웨딩홀")가 여러 카페에 걸쳐 중복되는 경우
-// (원래 시딩 때 마스터 키워드가 카페 5개에 라운드로빈 배정된 결과) 그대로 재작성하면
-// 서로 다른 카페에서 거의 같은 주제·같은 짧은 키워드로 이미지/원고를 생성하게 된다.
-// 전체 대상 목록을 한 번에 훑어서, 루트가 먼저 등장한 카페 이후로는 제목에서 더 많은
-// 어절을 가져와 키워드를 구체화해 검색·생성 결과가 갈라지게 만든다.
-const assignDiverseKeywords = (tasks: ArticleTask[]): void => {
-  const usedRoots = new Set<string>();
-  for (const task of tasks) {
-    const words = task.subject.split(/\s+/).filter(Boolean);
-    const root = cleanWord(words[0] || task.subject);
+// 실제 캠페인 스케줄에서 쓰는 키워드 풀 (260709 스케줄, 중복 제거)
+const KEYWORD_POOL: string[] = [
+  "웨딩밴드브랜드", "결혼반지브랜드", "커플반지", "명품커플링", "프로포즈링",
+  "랩다이아가격", "강아지 눈 영양제", "강아지 영양제", "강아지 관절 영양제", "선풍기",
+  "인천웨딩홀", "쿼드쎄라 펜타", "에어컨청소업체", "시스템에어컨청소업체", "먹는 위고비",
+  "위고비 알약", "베르가못", "마운자로 요요", "파운다요", "알파cd",
+  "LDM 디바이스", "무지외반증 교정기", "거북목교정기", "족저근막염깔창", "올리브오일",
+  "조문 답례품", "음식물처리기", "음식물분쇄기", "sat학원", "아치깔창",
+  "족저근막염 신발", "신발깔창", "깔창", "평발깔창", "푸룬주스",
+  "장에좋은음식", "군대깔창", "군화깔창", "답례품", "랩다이아가드링",
+  "다이아몬드시세", "다이아시세", "회사 답례품", "결혼 답례품", "삼척카페",
+  "대구 가족사진", "두유제조기", "부평웨딩홀", "대구사진관", "천안내성발톱",
+  "아산웨딩홀", "천안웨딩홀", "수원웨딩홀", "인천예식장", "광주웨딩홀",
+  "부천웨딩홀", "일산웨딩홀", "아산카페", "신정호카페", "광주예식장",
+  "의정부웨딩홀", "인천웨딩홀추천", "청소업체추천", "방역업체", "인천방역업체",
+  "해충방역업체", "접이식카트", "장바구니캐리어", "울산위고비", "울산마운자로처방",
+  "밀크씨슬", "부천pt", "드라이기", "헤어드라이기", "드라이기 추천",
+  "미용실드라이기", "날개없는 선풍기", "다이아몬드가격", "다이아몬드1캐럿가격", "다이아1캐럿가격",
+  "헤어에센스추천", "여성청바지", "헤어드라이어", "효성쥬얼리시티", "종로효성주얼리시티",
+  "종로웨딩밴드", "종로반지", "종로금은장",
+];
 
-    let sliceLen = 3;
-    if (usedRoots.has(root)) {
-      sliceLen = Math.min(words.length, 6);
-    }
-    task.keyword = words.slice(0, sliceLen).map(cleanWord).join(" ") || task.subject;
-    usedRoots.add(root);
+const shuffle = <T,>(arr: T[]): T[] => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+// 이전엔 기존 제목에서 키워드를 근사 추출했는데, 그 제목 자체가 카페 5개에
+// 마스터 키워드를 라운드로빈으로 뿌린 결과라 카페마다 같은 주제가 반복됐다.
+// 실제 캠페인 키워드 풀(88개)을 셔플해서 대상 전체(카페 무관)에 한 번씩 나눠주고,
+// 풀이 모자라면 다시 셔플해서 이어붙인다 — 완전히 못 피하는 극소수 인접 중복만
+// 남기고 나머지는 실제로 서로 다른 키워드로 생성되게 만든다.
+const assignDiverseKeywords = (tasks: ArticleTask[]): void => {
+  let pool: string[] = [];
+  const refill = (): void => {
+    pool = shuffle(KEYWORD_POOL);
+  };
+  refill();
+
+  let lastUsed = "";
+  for (const task of tasks) {
+    if (pool.length === 0) refill();
+    let idx = 0;
+    if (pool[0] === lastUsed && pool.length > 1) idx = 1;
+    const keyword = pool.splice(idx, 1)[0];
+    task.keyword = keyword || extractKeywordFromSubject(task.subject);
+    lastUsed = task.keyword;
   }
 };
 
