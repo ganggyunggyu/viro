@@ -189,10 +189,35 @@ export const uploadSingleImage = async (page: Page, image: string): Promise<bool
   return uploadImages(page, [image]);
 };
 
-// 단일 이미지 업로드 (내부용)
-const uploadSingleImageFile = async (page: Page, filePath: string, index: number): Promise<boolean> => {
+// 이미지 업로드 (URL 또는 base64 지원) - 파일선택창 한 번에 전부 선택해서 업로드.
+// 예전엔 한 장씩 순차로 올리면서 매번 "마지막 문단을 다시 찾아 클릭"으로 커서를
+// 복구했는데, 플로팅 툴바가 남아있는 상태에서의 클릭은 (force든 아니든) 문단이
+// 아니라 툴바를 때릴 수 있어 커서가 전혀 이동하지 않는 문제가 있었다. 파일선택창
+// 자체를 한 번만 띄워 여러 파일을 동시에 넘기면 이 중간 클릭 단계가 통째로
+// 사라지고, SmartEditor가 업로드 순서대로 이미지를 알아서 붙여준다.
+export const uploadImages = async (page: Page, images: string[]): Promise<boolean> => {
+  if (!images || images.length === 0) return true;
+
+  console.log(`[IMAGE] 이미지 ${images.length}장 업로드 시작 (파일선택창 일괄)`);
+  const tempFiles: string[] = [];
+  let successCount = 0;
+
   try {
-    // 이미지 버튼 찾기
+    // 이미지를 임시 파일로 저장 (URL이면 다운로드, base64면 변환)
+    const downloaded = await Promise.all(
+      images.map((img, i) =>
+        img.startsWith('http') ? downloadImageToTempFile(img, i) : Promise.resolve(saveBase64ToTempFile(img, i))
+      )
+    );
+    for (const tempPath of downloaded) {
+      if (tempPath) tempFiles.push(tempPath);
+    }
+
+    if (tempFiles.length === 0) {
+      console.error('[IMAGE] 처리된 이미지 없음');
+      return false;
+    }
+
     let imageButton = null;
     for (const selector of IMAGE_BUTTON_SELECTORS) {
       imageButton = await page.$(selector);
@@ -207,123 +232,33 @@ const uploadSingleImageFile = async (page: Page, filePath: string, index: number
       return false;
     }
 
-    // filechooser 이벤트로 파일 선택
-    console.log(`[IMAGE] ${index + 1}번째 이미지 filechooser 대기 중...`);
     const [fileChooser] = await Promise.all([
       page.waitForEvent('filechooser', { timeout: 10000 }),
       imageButton.click(),
     ]);
+    await fileChooser.setFiles(tempFiles);
+    console.log(`[IMAGE] ${tempFiles.length}장 파일 설정 완료 (일괄)`);
 
-    await fileChooser.setFiles([filePath]);
-    console.log(`[IMAGE] ${index + 1}번째 파일 설정 완료`);
-
-    // 업로드 완료 대기
-    await page.waitForTimeout(3000);
-
-    // 업로드 진행 상태 확인 (최대 10초)
-    for (let retry = 0; retry < 10; retry++) {
-      const uploadProgress = await page.$('.se-upload-progress, .upload-progress, .se-loading');
-      if (!uploadProgress) break;
-      console.log(`[IMAGE] ${index + 1}번째 업로드 진행 중... (${retry + 1}/10)`);
-      await page.waitForTimeout(1000);
+    // 이미지 컴포넌트가 전부 삽입될 때까지 대기 (최대 20초)
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const count = await page.$$('.se-component.se-image').then((items) => items.length);
+      if (count >= tempFiles.length) break;
+      await page.waitForTimeout(500);
     }
 
-    // 팝업 닫기
     await closeImagePopup(page);
     await waitForPopupClose(page);
 
-    // 이미지 업로드 후 다른 팝업(지도 등)이 열릴 수 있으므로 추가로 닫기
     const anyPopupClose = await page.$('.se-popup-close-button');
     if (anyPopupClose) {
       console.log('[IMAGE] 추가 팝업 발견 - 닫기');
       await anyPopupClose.click();
       await page.waitForTimeout(500);
     }
-
-    // ESC로 혹시 남은 팝업 닫기
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
-    // 팝업이 닫히면 contenteditable은 커서 위치를 그대로 유지하므로 별도로 클릭해
-    // 포커스를 복귀시키지 않는다. (예전엔 여기서 '.se-component-content, .se-content'를
-    // page.$()로 다시 찾아 클릭했는데, 이는 항상 문서의 첫 번째 매치를 잡아버려 이미지를
-    // 여러 장 연속 업로드할 때마다 커서가 맨 위로 튀는 버그였다 — 뒤 이미지·본문이
-    // 엉뚱한 위치에 들어가는 원인)
-
-    return true;
-  } catch (error) {
-    console.error(`[IMAGE] ${index + 1}번째 이미지 업로드 오류:`, error);
-    return false;
-  }
-};
-
-// 이미지 업로드 (URL 또는 base64 지원) - 한 장씩 순차 업로드
-export const uploadImages = async (page: Page, images: string[]): Promise<boolean> => {
-  if (!images || images.length === 0) return true;
-
-  console.log(`[IMAGE] 이미지 ${images.length}장 업로드 시작 (순차 업로드)`);
-  const tempFiles: string[] = [];
-  let successCount = 0;
-
-  try {
-    // 이미지를 임시 파일로 저장 (URL이면 다운로드, base64면 변환)
-    for (let i = 0; i < images.length; i++) {
-      const img = images[i];
-      let tempPath: string | null = null;
-
-      if (img.startsWith('http')) {
-        tempPath = await downloadImageToTempFile(img, i);
-      } else {
-        tempPath = saveBase64ToTempFile(img, i);
-        console.log(`[IMAGE] 임시 파일 생성 (base64): ${tempPath}`);
-      }
-
-      if (tempPath) {
-        tempFiles.push(tempPath);
-      } else {
-        console.warn(`[IMAGE] 이미지 ${i + 1} 처리 실패`);
-      }
-    }
-
-    if (tempFiles.length === 0) {
-      console.error('[IMAGE] 처리된 이미지 없음');
-      return false;
-    }
-
-    // 각 이미지를 순차적으로 업로드
-    for (let i = 0; i < tempFiles.length; i++) {
-      console.log(`[IMAGE] ${i + 1}/${tempFiles.length}번째 이미지 업로드 시작`);
-      const success = await uploadSingleImageFile(page, tempFiles[i], i);
-      if (success) {
-        successCount++;
-        console.log(`[IMAGE] ${i + 1}/${tempFiles.length}번째 이미지 업로드 성공`);
-      } else {
-        console.warn(`[IMAGE] ${i + 1}/${tempFiles.length}번째 이미지 업로드 실패`);
-      }
-
-      // 다음 이미지 업로드 전 잠시 대기
-      if (i < tempFiles.length - 1) {
-        await page.waitForTimeout(1000);
-
-        // 이미지를 여러 장 연속으로 올릴 때, 파일 선택창(OS 네이티브 다이얼로그)이
-        // 뜨고 닫히는 과정에서 에디터의 커서/선택 상태가 풀리는 경우가 있다.
-        // 그 상태에서 다음 이미지를 올리면 엉뚱한 위치(문서 맨 끝 등)에 붙는 문제가
-        // 있어, 매번 실제 "마지막" 문단을 다시 찾아 그 끝으로 커서를 명시적으로 옮긴다.
-        // (첫 번째 매치를 쓰는 page.$()가 아니라 마지막 요소를 써야 한다 — 안 그러면
-        // 문서 맨 위 첫 문단을 잡아버리는 별개의 버그가 생긴다)
-        // 방금 올린 이미지가 선택된 채로 떠 있는 플로팅 툴바가 문단 클릭을 가로막을 수
-        // 있어, 툴바가 실제로 사라질 때까지 기다린 뒤 클릭한다(force 클릭은 클릭
-        // 자체는 "성공"하지만 실제로는 여전히 툴바를 클릭해버려 커서가 전혀
-        // 이동하지 않고 이후 타이핑이 전부 유실되는 원인이었다).
-        const paragraphs = await page.$$('p.se-text-paragraph');
-        const lastParagraph = paragraphs[paragraphs.length - 1];
-        if (lastParagraph) {
-          await clickParagraphAfterToolbarClears(page, lastParagraph);
-          await page.keyboard.press('End');
-          await page.waitForTimeout(200);
-        }
-      }
-    }
+    successCount = await page.$$('.se-component.se-image').then((items) => Math.min(items.length, tempFiles.length));
 
     // 최종 이미지 컴포넌트 확인
     let totalImageCount = 0;
