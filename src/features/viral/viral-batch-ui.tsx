@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { useAtom } from 'jotai';
+import { Check } from 'lucide-react';
 import { cn } from '@/shared';
-import { Button, Checkbox, ExecuteConfirmModal, HelpAccordion, Select, type SettingItem } from '@/shared';
+import { Button, Checkbox, ExecuteConfirmModal, HelpAccordion, Input, Select, type SettingItem } from '@/shared';
 import { toast } from '@/shared/lib/toast';
 import { PostOptionsUI } from '@/entities/post-options';
 import { cafesAtom, cafesInitializedAtom, postOptionsAtom } from '@/entities';
@@ -128,7 +129,7 @@ export const ViralBatchUI = () => {
     'focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10'
   );
   const sectionClassName = cn(
-    'overflow-hidden rounded-[16px] border border-border-light bg-surface shadow-sm'
+    'overflow-hidden rounded-2xl border border-border-light bg-surface shadow-sm'
   );
   const sectionHeadingClassName = cn('text-xl font-semibold tracking-tight text-ink');
   const labelClassName = cn('text-sm font-medium text-ink');
@@ -494,7 +495,7 @@ export const ViralBatchUI = () => {
   return (
     <div className={cn('space-y-8')}>
       <section
-        className={cn('overflow-hidden rounded-[16px] border border-border-light bg-surface shadow-sm')}
+        className={cn('overflow-hidden rounded-2xl border border-border-light bg-surface shadow-sm')}
       >
         <div className={cn('grid gap-6 px-6 py-6 xl:grid-cols-[minmax(0,1fr)_280px] xl:px-7 xl:py-7')}>
           <div>
@@ -542,7 +543,7 @@ export const ViralBatchUI = () => {
             </div>
           </div>
 
-          <div className={cn('rounded-[16px] border border-border-light bg-surface/90 px-5 py-5')}>
+          <div className={cn('rounded-2xl border border-border-light bg-surface/90 px-5 py-5')}>
             <div className={cn('flex items-start justify-between gap-4')}>
               <div>
                 <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>준비 상태</p>
@@ -563,7 +564,7 @@ export const ViralBatchUI = () => {
 
             <div className={cn('mt-5 space-y-3')}>
               {readinessItems.map(({ detail, label, ready }) => (
-                <div key={label} className={cn('rounded-[12px] bg-surface-muted px-4 py-3')}>
+                <div key={label} className={cn('rounded-xl bg-surface-muted px-4 py-3')}>
                   <div className={cn('flex items-center justify-between gap-3')}>
                     <div className={cn('flex items-center gap-3')}>
                       <span
@@ -584,22 +585,22 @@ export const ViralBatchUI = () => {
       </section>
 
       <div className={cn('grid gap-3 sm:grid-cols-2 xl:grid-cols-4')}>
-        <div className={cn('rounded-[14px] border border-border-light bg-surface px-5 py-4 shadow-sm')}>
+        <div className={cn('rounded-xl border border-border-light bg-surface px-5 py-4 shadow-sm')}>
           <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>키워드 큐</p>
           <p className={cn('mt-2 text-2xl font-semibold tracking-tight text-ink')}>{keywordCount}개</p>
           <p className={cn('mt-1 text-sm text-ink-muted')}>실행 대상 줄 수 기준.</p>
         </div>
-        <div className={cn('rounded-[14px] border border-border-light bg-surface px-5 py-4 shadow-sm')}>
+        <div className={cn('rounded-xl border border-border-light bg-surface px-5 py-4 shadow-sm')}>
           <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>선택 카페</p>
           <p className={cn('mt-2 text-2xl font-semibold tracking-tight text-ink')}>{selectedCafeIds.length}개</p>
           <p className={cn('mt-1 text-sm text-ink-muted')}>카테고리 {categories.length}개 연결.</p>
         </div>
-        <div className={cn('rounded-[14px] border border-border-light bg-surface px-5 py-4 shadow-sm')}>
+        <div className={cn('rounded-xl border border-border-light bg-surface px-5 py-4 shadow-sm')}>
           <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>활성 계정</p>
           <p className={cn('mt-2 text-2xl font-semibold tracking-tight text-ink')}>{activeCount}개</p>
           <p className={cn('mt-1 text-sm text-ink-muted')}>글 {writerCount}개 / 댓글 {commenterCount}개.</p>
         </div>
-        <div className={cn('rounded-[14px] border border-border-light bg-surface px-5 py-4 shadow-sm')}>
+        <div className={cn('rounded-xl border border-border-light bg-surface px-5 py-4 shadow-sm')}>
           <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>모델 / 이미지</p>
           <p className={cn('mt-2 text-lg font-semibold tracking-tight text-ink')}>{modelLabel}</p>
           <p className={cn('mt-1 text-sm text-ink-muted')}>{imageSummary}</p>
@@ -664,7 +665,7 @@ export const ViralBatchUI = () => {
                   )}
                 >
                   <div className={cn('overflow-hidden')}>
-                    <div className={cn('rounded-[14px] border border-info/20 bg-info-soft p-5')}>
+                    <div className={cn('rounded-xl border border-info/20 bg-info-soft p-5')}>
                       <div className={cn('flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between')}>
                         <div>
                           <p className={cn('text-sm font-semibold text-info')}>AI 키워드 생성</p>
@@ -679,25 +680,23 @@ export const ViralBatchUI = () => {
 
                       <div className={cn('mt-5 grid gap-4 lg:grid-cols-[180px_1fr]')}>
                         <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-1')}>
-                          <div className={cn('space-y-1.5')}>
-                            <label className={cn('text-xs font-medium text-ink-muted')}>개수</label>
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              value={genCount}
-                              onFocus={(event) => event.target.select()}
-                              onChange={(event) => {
-                                const cleaned = event.target.value.replace(/\D/g, '');
+                          <Input
+                            label="개수"
+                            type="text"
+                            inputMode="numeric"
+                            value={genCount}
+                            onFocus={(event) => event.target.select()}
+                            onChange={(event) => {
+                              const cleaned = event.target.value.replace(/\D/g, '');
 
-                                if (cleaned === '') {
-                                  return;
-                                }
+                              if (cleaned === '') {
+                                return;
+                              }
 
-                                setGenCount(Math.max(1, Math.min(200, Number(cleaned))));
-                              }}
-                              className={cn(inputClassName, 'py-2 text-center')}
-                            />
-                          </div>
+                              setGenCount(Math.max(1, Math.min(200, Number(cleaned))));
+                            }}
+                            className="text-center"
+                          />
                           <div className={cn('flex items-end')}>
                             <Checkbox
                               size="sm"
@@ -709,16 +708,13 @@ export const ViralBatchUI = () => {
                         </div>
 
                         <div className={cn('space-y-4')}>
-                          <div className={cn('space-y-1.5')}>
-                            <label className={cn('text-xs font-medium text-ink-muted')}>추가 요청</label>
-                            <input
-                              type="text"
-                              value={genNote}
-                              onChange={(event) => setGenNote(event.target.value)}
-                              placeholder="예: 초보자 톤, 계절성 강조, 후기 중심..."
-                              className={cn(inputClassName, 'py-2')}
-                            />
-                          </div>
+                          <Input
+                            label="추가 요청"
+                            type="text"
+                            value={genNote}
+                            onChange={(event) => setGenNote(event.target.value)}
+                            placeholder="예: 초보자 톤, 계절성 강조, 후기 중심..."
+                          />
                           <Button
                             onClick={handleGenerateKeywords}
                             disabled={categories.length === 0}
@@ -748,7 +744,7 @@ export const ViralBatchUI = () => {
                   className={cn(inputClassName, 'min-h-72 resize-y font-mono text-xs leading-6')}
                 />
 
-                <div className={cn('rounded-[12px] border border-border-light bg-surface px-4 py-4')}>
+                <div className={cn('rounded-xl border border-border-light bg-surface px-4 py-4')}>
                   <p className={cn('text-sm font-semibold text-ink')}>스타일 빠른 참고</p>
                   <div className={cn('mt-3 grid gap-3 md:grid-cols-3')}>
                     <div className={cn('rounded-2xl bg-surface-muted px-4 py-3')}>
@@ -768,7 +764,7 @@ export const ViralBatchUI = () => {
               </div>
 
               <div className={cn('space-y-4')}>
-                <div className={cn('rounded-[14px] border border-border-light bg-surface px-5 py-5')}>
+                <div className={cn('rounded-xl border border-border-light bg-surface px-5 py-5')}>
                   <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>입력 정보</p>
                   <h4 className={cn('mt-3 text-lg font-semibold text-ink')}>현재 입력 컨텍스트</h4>
                   <div className={cn('mt-4 space-y-3')}>
@@ -789,7 +785,7 @@ export const ViralBatchUI = () => {
                   </div>
                 </div>
 
-                <div className={cn('rounded-[14px] border border-border-light bg-surface px-5 py-5')}>
+                <div className={cn('rounded-xl border border-border-light bg-surface px-5 py-5')}>
                   <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>키워드 미리보기</p>
                   <h4 className={cn('mt-3 text-lg font-semibold text-ink')}>최근 입력 미리보기</h4>
                   <div className={cn('mt-4 space-y-2')}>
@@ -860,7 +856,7 @@ export const ViralBatchUI = () => {
                         {presets.map((preset) => (
                           <div
                             key={preset.name}
-                            className={cn('rounded-[14px] border border-border-light bg-surface px-4 py-4')}
+                            className={cn('rounded-xl border border-border-light bg-surface px-4 py-4')}
                           >
                             <div className={cn('flex items-start justify-between gap-3')}>
                               <div className={cn('min-w-0')}>
@@ -897,13 +893,15 @@ export const ViralBatchUI = () => {
                     )}
 
                     <div className={cn('flex flex-col gap-2 sm:flex-row')}>
-                      <input
+                      <Input
+                        label="프리셋 이름"
+                        hideLabel
                         type="text"
                         value={newPresetName}
                         onChange={(event) => setNewPresetName(event.target.value)}
                         placeholder="프리셋 이름"
-                        className={cn(inputClassName, 'flex-1 py-2')}
                         onKeyDown={(event) => event.key === 'Enter' && handleSavePreset()}
+                        containerClassName="flex-1"
                       />
                       <Button
                         variant="secondary"
@@ -945,7 +943,7 @@ export const ViralBatchUI = () => {
             </div>
 
             <div className={cn('space-y-6 px-6 py-6')}>
-              <div className={cn('space-y-3 rounded-[14px] border border-border-light bg-surface p-5')}>
+              <div className={cn('space-y-3 rounded-xl border border-border-light bg-surface p-5')}>
                 <div className={cn('flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between')}>
                   <div>
                     <span className={labelClassName}>카페 선택</span>
@@ -992,7 +990,7 @@ export const ViralBatchUI = () => {
                             isSelected ? 'border-accent bg-accent text-background' : 'border-border'
                           )}
                         >
-                          {isSelected ? '✓' : ''}
+                          {isSelected && <Check className="h-3 w-3" strokeWidth={3} />}
                         </span>
                         <span className={cn('min-w-0 flex-1 truncate text-sm font-medium text-ink')}>
                           {cafe.name}
@@ -1011,7 +1009,7 @@ export const ViralBatchUI = () => {
               </div>
 
               <div className={cn('grid gap-6 lg:grid-cols-2')}>
-                <div className={cn('space-y-4 rounded-[14px] border border-border-light bg-surface p-5')}>
+                <div className={cn('space-y-4 rounded-xl border border-border-light bg-surface p-5')}>
                   <Select
                     label="AI 모델"
                     value={model}
@@ -1021,7 +1019,7 @@ export const ViralBatchUI = () => {
                   <p className={cn('text-sm text-ink-muted')}>현재 선택: {modelLabel}</p>
                 </div>
 
-                <div className={cn('space-y-4 rounded-[14px] border border-border-light bg-surface p-5')}>
+                <div className={cn('space-y-4 rounded-xl border border-border-light bg-surface p-5')}>
                   <Checkbox
                     label="이미지 첨부"
                     checked={enableImage}
@@ -1075,7 +1073,7 @@ export const ViralBatchUI = () => {
               </div>
 
               {accounts.length > 0 && (
-                <div className={cn('space-y-4 rounded-[14px] border border-border-light bg-surface p-5')}>
+                <div className={cn('space-y-4 rounded-xl border border-border-light bg-surface p-5')}>
                   <button
                     type="button"
                     onClick={handleToggleAccountRoles}
@@ -1195,9 +1193,9 @@ export const ViralBatchUI = () => {
                 </div>
               )}
 
-              <div className={cn('space-y-3 rounded-[14px] border border-border-light bg-surface p-5')}>
+              <div className={cn('space-y-3 rounded-xl border border-border-light bg-surface p-5')}>
                 <span className={labelClassName}>게시 옵션</span>
-                <div className={cn('rounded-[12px] border border-border-light bg-surface-muted p-4')}>
+                <div className={cn('rounded-xl border border-border-light bg-surface-muted p-4')}>
                   <PostOptionsUI options={postOptions} onChange={setPostOptions} />
                 </div>
               </div>
@@ -1210,19 +1208,19 @@ export const ViralBatchUI = () => {
                 실행 전에 흐름과 태그 규칙을 빠르게 다시 보는 용도. 작업대와 결과 영역을 같은 기준으로 해석 가능.
               </p>
               <div className={cn('grid gap-4 lg:grid-cols-3')}>
-                <div className={cn('rounded-[12px] bg-surface px-4 py-4')}>
+                <div className={cn('rounded-xl bg-surface px-4 py-4')}>
                   <p className={cn('text-sm font-semibold text-ink')}>키워드 자동 분류</p>
                   <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
                     자사는 직접 홍보 흐름, 타사는 질문형 비교 흐름으로 구성.
                   </p>
                 </div>
-                <div className={cn('rounded-[12px] bg-surface px-4 py-4')}>
+                <div className={cn('rounded-xl bg-surface px-4 py-4')}>
                   <p className={cn('text-sm font-semibold text-ink')}>댓글 태그 규칙</p>
                   <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
                     `[댓글N]`, `[작성자-N]`, `[댓글러-N]`, `[제3자-N]` 형식 유지.
                   </p>
                 </div>
-                <div className={cn('rounded-[12px] bg-surface px-4 py-4')}>
+                <div className={cn('rounded-xl bg-surface px-4 py-4')}>
                   <p className={cn('text-sm font-semibold text-ink')}>생성 구조</p>
                   <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
                     AI 1회 호출로 제목, 본문, 댓글, 대댓글까지 한 번에 생성.

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { FileText, MessageSquare } from 'lucide-react';
 import { cn } from '@/shared';
 import { PageLayout } from '@/widgets';
 
@@ -227,7 +228,7 @@ export default function CommentTestPage() {
                 'px-2 py-1 rounded text-xs transition-colors mr-2',
                 contentPersonaId === null
                   ? 'bg-accent text-background'
-                  : 'bg-surface-muted hover:bg-(--bg-subtle-hover)'
+                  : 'bg-surface-muted hover:bg-(--surface-elevated)'
               )}
             >
               랜덤
@@ -243,7 +244,7 @@ export default function CommentTestPage() {
                       'px-2 py-0.5 rounded text-xs transition-colors',
                       contentPersonaId === p.id
                         ? 'bg-accent text-background'
-                        : 'bg-surface-muted hover:bg-(--bg-subtle-hover)'
+                        : 'bg-surface-muted hover:bg-(--surface-elevated)'
                     )}
                   >
                     {p.label}
@@ -270,7 +271,10 @@ export default function CommentTestPage() {
       {/* 원고 표시 */}
       {postContent && (
         <div className={cn('bg-surface rounded-xl p-4 mb-6')}>
-          <h2 className={cn('font-bold mb-2')}>📝 생성된 원고</h2>
+          <h2 className={cn('font-bold mb-2 flex items-center gap-1.5')}>
+            <FileText className="h-4 w-4" strokeWidth={2} />
+            생성된 원고
+          </h2>
           <div className={cn('text-sm text-ink-muted whitespace-pre-wrap max-h-48 overflow-y-auto')}>
             {postContent}
           </div>
@@ -280,7 +284,10 @@ export default function CommentTestPage() {
       {/* 댓글 생성 */}
       {postContent && (
         <div className={cn('bg-surface rounded-xl p-4 mb-6')}>
-          <h2 className={cn('font-bold mb-3')}>💬 새 댓글 추가</h2>
+          <h2 className={cn('font-bold mb-3 flex items-center gap-1.5')}>
+            <MessageSquare className="h-4 w-4" strokeWidth={2} />
+            새 댓글 추가
+          </h2>
           <div className={cn('space-y-2 mb-3')}>
             {categories.map(cat => (
               <div key={cat} className={cn('flex flex-wrap gap-1 items-center')}>
@@ -293,7 +300,7 @@ export default function CommentTestPage() {
                       'px-2 py-0.5 rounded text-xs transition-colors',
                       commentPersonaId === p.id
                         ? 'bg-accent text-background'
-                        : 'bg-surface-muted hover:bg-(--bg-subtle-hover)'
+                        : 'bg-surface-muted hover:bg-(--surface-elevated)'
                     )}
                   >
                     {p.label}
@@ -308,7 +315,7 @@ export default function CommentTestPage() {
               disabled={isLoading !== null}
               className={cn(
                 'px-4 py-2 rounded-lg font-medium transition-colors',
-                'bg-green-600 text-background hover:bg-green-700',
+                'bg-success text-background hover:brightness-95',
                 'disabled:opacity-50 disabled:cursor-not-allowed'
               )}
             >
@@ -356,7 +363,7 @@ export default function CommentTestPage() {
                                 'px-1.5 py-0.5 rounded text-xs transition-colors',
                                 getReplyPersonaId(idx) === p.id
                                   ? 'bg-accent text-background'
-                                  : 'bg-surface hover:bg-(--bg-component-hover)'
+                                  : 'bg-surface hover:bg-(--surface-muted)'
                               )}
                             >
                               {p.label}
@@ -371,7 +378,7 @@ export default function CommentTestPage() {
                         disabled={isLoading !== null}
                         className={cn(
                           'px-3 py-1.5 rounded text-xs font-medium transition-colors',
-                          'bg-blue-600 text-background hover:bg-blue-700',
+                          'bg-info text-background hover:brightness-95',
                           'disabled:opacity-50 disabled:cursor-not-allowed'
                         )}
                       >

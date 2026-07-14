@@ -20,7 +20,7 @@ interface StatusMetricProps {
 
 const StatusMetric = ({ label, tone = 'neutral', value }: StatusMetricProps) => {
   return (
-    <div className={cn('rounded-[12px] border border-border-light bg-surface px-4 py-4')}>
+    <div className={cn('rounded-xl border border-border-light bg-surface px-4 py-4')}>
       <p className={cn('text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>
         {label}
       </p>
@@ -53,7 +53,7 @@ export const ViralBatchStatusPanel = ({
   const isIdle = !isPending && !result && partialResults.length === 0;
 
   return (
-    <section className={cn('overflow-hidden rounded-[16px] border border-border-light bg-surface shadow-sm')}>
+    <section className={cn('overflow-hidden rounded-2xl border border-border-light bg-surface shadow-sm')}>
       <div className={cn('border-b border-border-light px-6 py-5')}>
         <div className={cn('flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between')}>
           <div>
@@ -66,7 +66,7 @@ export const ViralBatchStatusPanel = ({
             </p>
           </div>
 
-          <div className={cn('min-w-[240px] rounded-[14px] border border-border-light bg-surface-muted px-4 py-4')}>
+          <div className={cn('min-w-[240px] rounded-xl border border-border-light bg-surface-muted px-4 py-4')}>
             <div className={cn('flex items-center justify-between gap-3')}>
               <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>진행률</p>
               <span className={cn('text-sm font-medium text-ink')}>
@@ -105,19 +105,19 @@ export const ViralBatchStatusPanel = ({
 
         {isIdle && (
           <div className={cn('grid gap-4 lg:grid-cols-3')}>
-            <div className={cn('rounded-[14px] border border-border-light bg-surface-muted px-5 py-5')}>
+            <div className={cn('rounded-xl border border-border-light bg-surface-muted px-5 py-5')}>
               <p className={cn('text-sm font-semibold text-ink')}>실행 전</p>
               <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
                 우측 요약 패널에서 준비 상태와 필수 입력을 먼저 확인.
               </p>
             </div>
-            <div className={cn('rounded-[14px] border border-border-light bg-surface-muted px-5 py-5')}>
+            <div className={cn('rounded-xl border border-border-light bg-surface-muted px-5 py-5')}>
               <p className={cn('text-sm font-semibold text-ink')}>실행 중</p>
               <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
                 스트림 로그가 순서대로 누적되며 성공과 실패가 즉시 표시.
               </p>
             </div>
-            <div className={cn('rounded-[14px] border border-border-light bg-surface-muted px-5 py-5')}>
+            <div className={cn('rounded-xl border border-border-light bg-surface-muted px-5 py-5')}>
               <p className={cn('text-sm font-semibold text-ink')}>실행 후</p>
               <p className={cn('mt-2 text-sm leading-6 text-ink-muted')}>
                 제목, 댓글 수, 실패 원인을 결과 목록에서 바로 검수.
@@ -133,7 +133,7 @@ export const ViralBatchStatusPanel = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               className={cn(
-                'overflow-hidden rounded-[16px] border border-border-light bg-surface'
+                'overflow-hidden rounded-2xl border border-border-light bg-surface'
               )}
             >
               <div className={cn('flex flex-col gap-3 border-b border-border-light px-6 py-5 sm:flex-row sm:items-end sm:justify-between')}>
@@ -148,7 +148,7 @@ export const ViralBatchStatusPanel = ({
 
               <div className={cn('space-y-2 px-6 py-6')}>
                 {partialResults.length === 0 && (
-                  <div className={cn('rounded-[12px] border border-border-light bg-surface px-4 py-4 text-sm text-ink-muted')}>
+                  <div className={cn('rounded-xl border border-border-light bg-surface px-4 py-4 text-sm text-ink-muted')}>
                     스트림 연결 완료. 첫 번째 결과를 기다리는 중.
                   </div>
                 )}
@@ -159,7 +159,7 @@ export const ViralBatchStatusPanel = ({
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     className={cn(
-                      'flex flex-col gap-2 rounded-[12px] border px-4 py-4 text-sm sm:flex-row sm:items-center sm:gap-3',
+                      'flex flex-col gap-2 rounded-xl border px-4 py-4 text-sm sm:flex-row sm:items-center sm:gap-3',
                       item.success
                         ? 'border-success/20 bg-success-soft'
                         : 'border-danger/20 bg-danger-soft'
@@ -194,7 +194,7 @@ export const ViralBatchStatusPanel = ({
                 initial={{ scale: 0.96 }}
                 animate={{ scale: 1 }}
                 className={cn(
-                  'rounded-[16px] border px-6 py-5',
+                  'rounded-2xl border px-6 py-5',
                   result.success
                     ? 'border-success/30 bg-success-soft'
                     : 'border-warning/30 bg-warning-soft'
@@ -236,7 +236,7 @@ export const ViralBatchStatusPanel = ({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.04 }}
                     className={cn(
-                      'rounded-[14px] border px-5 py-4',
+                      'rounded-xl border px-5 py-4',
                       item.success
                         ? 'border-success/20 bg-success-soft'
                         : 'border-danger/20 bg-danger-soft'

@@ -32,7 +32,7 @@ interface SummaryMetricProps {
 
 const SummaryMetric = ({ detail, label, value }: SummaryMetricProps) => {
   return (
-    <div className={cn('rounded-[12px] border border-border-light bg-surface px-4 py-4')}>
+    <div className={cn('rounded-xl border border-border-light bg-surface px-4 py-4')}>
       <p className={cn('text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>
         {label}
       </p>
@@ -78,7 +78,7 @@ export const ViralBatchSummaryCard = ({
       className={cn('space-y-5 xl:sticky xl:top-24')}
     >
       <section
-        className={cn('overflow-hidden rounded-[16px] border border-border-light bg-surface shadow-sm')}
+        className={cn('overflow-hidden rounded-2xl border border-border-light bg-surface shadow-sm')}
       >
         <div className={cn('border-b border-border-light px-6 py-5')}>
           <div className={cn('flex items-start justify-between gap-4')}>
@@ -118,38 +118,38 @@ export const ViralBatchSummaryCard = ({
             <SummaryMetric detail="연결된 카테고리 범위" label="카테고리" value={`${categoryCount}개`} />
           </div>
 
-          <div className={cn('rounded-[14px] border border-border-light bg-surface px-4 py-4')}>
+          <div className={cn('rounded-xl border border-border-light bg-surface px-4 py-4')}>
             <p className={cn('text-sm font-semibold text-ink')}>실행 조건</p>
             {blockers.length > 0 ? (
               <div className={cn('mt-3 space-y-2')}>
                 {blockers.map((blocker) => (
                   <div
                     key={blocker}
-                    className={cn('rounded-[10px] border border-warning/20 bg-warning-soft px-4 py-3 text-sm text-warning')}
+                    className={cn('rounded-lg border border-warning/20 bg-warning-soft px-4 py-3 text-sm text-warning')}
                   >
                     {blocker}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className={cn('mt-3 rounded-[10px] border border-success/20 bg-success-soft px-4 py-3 text-sm text-success')}>
+              <div className={cn('mt-3 rounded-lg border border-success/20 bg-success-soft px-4 py-3 text-sm text-success')}>
                 필수 조건이 모두 채워졌습니다. 바로 실행 가능합니다.
               </div>
             )}
           </div>
 
-          <div className={cn('rounded-[14px] border border-border-light bg-surface px-4 py-4')}>
+          <div className={cn('rounded-xl border border-border-light bg-surface px-4 py-4')}>
             <p className={cn('text-sm font-semibold text-ink')}>실시간 텔레메트리</p>
             <div className={cn('mt-3 grid gap-3 sm:grid-cols-3 xl:grid-cols-1')}>
-              <div className={cn('rounded-[10px] bg-surface-muted px-4 py-3')}>
+              <div className={cn('rounded-lg bg-surface-muted px-4 py-3')}>
                 <p className={cn('text-xs font-semibold uppercase tracking-[0.16em] text-ink-tertiary')}>성공</p>
                 <p className={cn('mt-1 text-lg font-semibold text-success')}>{completionMetrics.successCount}개</p>
               </div>
-              <div className={cn('rounded-[10px] bg-surface-muted px-4 py-3')}>
+              <div className={cn('rounded-lg bg-surface-muted px-4 py-3')}>
                 <p className={cn('text-xs font-semibold uppercase tracking-[0.16em] text-ink-tertiary')}>실패</p>
                 <p className={cn('mt-1 text-lg font-semibold text-danger')}>{completionMetrics.failureCount}개</p>
               </div>
-              <div className={cn('rounded-[10px] bg-surface-muted px-4 py-3')}>
+              <div className={cn('rounded-lg bg-surface-muted px-4 py-3')}>
                 <p className={cn('text-xs font-semibold uppercase tracking-[0.16em] text-ink-tertiary')}>대기</p>
                 <p className={cn('mt-1 text-lg font-semibold text-ink')}>{completionMetrics.pendingCount}개</p>
               </div>
@@ -159,7 +159,7 @@ export const ViralBatchSummaryCard = ({
             </p>
           </div>
 
-          <div className={cn('space-y-3 rounded-[14px] border border-border-light bg-surface px-4 py-4')}>
+          <div className={cn('space-y-3 rounded-xl border border-border-light bg-surface px-4 py-4')}>
             <div>
               <p className={cn('text-xs font-semibold uppercase tracking-[0.18em] text-ink-tertiary')}>선택 카페</p>
               <p className={cn('mt-2 text-sm leading-6 text-ink')}>{selectedCafeSummary}</p>
@@ -175,11 +175,11 @@ export const ViralBatchSummaryCard = ({
               </div>
             </div>
             <div className={cn('grid gap-3 sm:grid-cols-2')}>
-              <div className={cn('rounded-[10px] bg-surface-muted px-4 py-3')}>
+              <div className={cn('rounded-lg bg-surface-muted px-4 py-3')}>
                 <p className={cn('text-xs font-semibold uppercase tracking-[0.16em] text-ink-tertiary')}>글 계정</p>
                 <p className={cn('mt-1 text-lg font-semibold text-ink')}>{writerCount}개</p>
               </div>
-              <div className={cn('rounded-[10px] bg-surface-muted px-4 py-3')}>
+              <div className={cn('rounded-lg bg-surface-muted px-4 py-3')}>
                 <p className={cn('text-xs font-semibold uppercase tracking-[0.16em] text-ink-tertiary')}>댓글 계정</p>
                 <p className={cn('mt-1 text-lg font-semibold text-ink')}>{commenterCount}개</p>
               </div>

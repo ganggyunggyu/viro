@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { useAtom } from 'jotai';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/shared';
 import { Select, Checkbox, Button } from '@/shared';
 import { runTestAction, runTestBatchAction, type TestType, type ModelType, type TestResult, type TestBatchResult } from './actions';
@@ -443,7 +444,11 @@ const BatchResultUI = ({ result }: { result: TestBatchResult }) => {
         {result.results.map((r, i) => (
           <div key={i} className={cn('rounded-xl border border-(--border-light) bg-(--surface) px-4 py-3')}>
             <div className={cn('flex items-center gap-2 mb-2')}>
-              <span>{r.success ? '✅' : '❌'}</span>
+              {r.success ? (
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-(--success)" strokeWidth={2} />
+              ) : (
+                <XCircle className="h-4 w-4 shrink-0 text-(--danger)" strokeWidth={2} />
+              )}
               <span className={cn('text-xs text-(--ink-muted)')}>{r.model} | {r.elapsed.toFixed(2)}s</span>
             </div>
             {r.success ? (

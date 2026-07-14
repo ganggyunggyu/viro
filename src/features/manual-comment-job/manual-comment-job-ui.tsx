@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition, type ClipboardEvent } from 'react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { cn, Button } from '@/shared';
 import {
   createManualCommentJobAction,
@@ -339,12 +340,14 @@ export const ManualCommentJobUI = () => {
                         <ul className={cn('space-y-1.5 rounded-lg bg-(--surface-muted) p-3')}>
                           {job.results.map((r) => (
                             <li key={r.index} className={cn('text-xs flex items-start gap-2')}>
-                              <span className={cn('shrink-0', r.success ? 'text-(--success)' : 'text-(--danger)')}>
-                                {r.success ? '✓' : '✗'}
-                              </span>
+                              {r.success ? (
+                                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-(--success)" strokeWidth={2} />
+                              ) : (
+                                <XCircle className="h-3.5 w-3.5 shrink-0 text-(--danger)" strokeWidth={2} />
+                              )}
                               <span className={cn('text-(--ink-muted)')}>
                                 {r.accountId && <span className={cn('text-(--ink)')}>{r.accountId}</span>}
-                                {r.accountId ? ' — ' : ''}
+                                {r.accountId ? ' - ' : ''}
                                 {r.content}
                                 {r.error ? ` (${r.error})` : ''}
                               </span>

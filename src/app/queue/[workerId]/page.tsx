@@ -1,9 +1,31 @@
 'use client';
 
 import { useState, useEffect, useCallback, use } from 'react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  FileText,
+  MessageSquare,
+  Reply,
+  type LucideIcon,
+} from 'lucide-react';
 import { cn } from '@/shared';
 import { PageLayout } from '@/widgets';
-import { Select, Button } from '@/shared';
+import {
+  Badge,
+  type BadgeVariant,
+  Button,
+  Card,
+  EmptyState,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@/shared';
 import Link from 'next/link';
 import {
   getDetailedJobs,
@@ -27,18 +49,18 @@ const TYPE_LABELS: Record<string, string> = {
   reply: '대댓글',
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  delayed: 'bg-info-soft text-info',
-  waiting: 'bg-surface-muted text-ink-muted',
-  active: 'bg-warning-soft text-warning',
-  completed: 'bg-success-soft text-success',
-  failed: 'bg-danger-soft text-danger',
+const STATUS_BADGE_VARIANT: Record<string, BadgeVariant> = {
+  delayed: 'info',
+  waiting: 'neutral',
+  active: 'warning',
+  completed: 'success',
+  failed: 'danger',
 };
 
-const TYPE_COLORS: Record<string, string> = {
-  post: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-  comment: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
-  reply: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
+const TYPE_ICONS: Record<string, LucideIcon> = {
+  post: FileText,
+  comment: MessageSquare,
+  reply: Reply,
 };
 
 const formatDelay = (ms: number): string => {
@@ -126,18 +148,19 @@ export default function WorkerQueuePage({ params }: Props) {
           href="/queue"
           className={cn('inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink')}
         >
-          ← 전체 큐 대시보드
+          <ChevronLeft className="h-4 w-4" strokeWidth={2} />
+          전체 큐 대시보드
         </Link>
 
         {/* 계정 정보 카드 */}
         {accountInfo && (
-          <div className={cn('rounded-2xl border border-border-light bg-surface p-6')}>
+          <Card padding="lg">
             <div className={cn('flex items-start justify-between')}>
               <div>
                 <h2 className={cn('text-xl font-bold text-ink')}>
                   {accountInfo.nickname || accountId}
                 </h2>
-                <p className={cn('text-sm text-ink-muted mt-1')}>
+                <p className={cn('text-sm text-ink-muted mt-1 font-mono')}>
                   계정 ID: {accountId}
                 </p>
               </div>
@@ -180,30 +203,23 @@ export default function WorkerQueuePage({ params }: Props) {
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         )}
 
         {/* 작업 현황 요약 */}
-        <div className={cn('rounded-2xl border border-border-light bg-surface p-6')}>
+        <Card padding="lg">
           <h3 className={cn('text-sm font-medium text-ink-muted mb-4')}>작업 현황</h3>
-          <div className={cn('flex flex-wrap gap-3')}>
+          <div className={cn('flex flex-wrap gap-2')}>
             {(['delayed', 'waiting', 'active', 'completed', 'failed'] as const).map((status) => (
-              <div
-                key={status}
-                className={cn(
-                  'px-4 py-2 rounded-xl',
-                  STATUS_COLORS[status]
-                )}
-              >
-                <span className={cn('font-semibold')}>{statusCounts[status] || 0}</span>
-                <span className={cn('ml-1.5 text-sm opacity-80')}>{STATUS_LABELS[status]}</span>
-              </div>
+              <Badge key={status} variant={STATUS_BADGE_VARIANT[status]} mono>
+                {statusCounts[status] || 0} {STATUS_LABELS[status]}
+              </Badge>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* 필터 */}
-        <div className={cn('rounded-2xl border border-border-light bg-surface p-4 flex flex-wrap gap-4 items-center')}>
+        <Card padding="md" className={cn('flex flex-wrap gap-4 items-center')}>
           <Select
             label="상태"
             value={filter.status || 'all'}
@@ -235,103 +251,105 @@ export default function WorkerQueuePage({ params }: Props) {
           />
 
           {jobsData && (
-            <div className={cn('ml-auto text-sm text-ink-muted')}>
+            <div className={cn('ml-auto font-mono text-sm text-ink-muted')}>
               총 {jobsData.total}건
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Jobs 테이블 */}
-        <div className={cn('rounded-2xl border border-border-light bg-surface overflow-hidden')}>
-          <div className={cn('overflow-x-auto')}>
-            <table className={cn('w-full text-sm')}>
-              <thead>
-                <tr className={cn('border-b border-border-light bg-surface-muted')}>
-                  <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>상태</th>
-                  <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>타입</th>
-                  <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>카페</th>
-                  <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>내용</th>
-                  <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>예정/시간</th>
-                </tr>
-              </thead>
-              <tbody>
-                {jobsData?.jobs.map((job) => (
-                  <JobRow key={job.id} job={job} />
-                ))}
-                {(!jobsData || jobsData.jobs.length === 0) && (
-                  <tr>
-                    <td colSpan={5} className={cn('px-5 py-12 text-center text-ink-muted')}>
-                      {!jobsData ? '로딩 중...' : '작업이 없습니다'}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        <Table>
+          <TableHead>
+            <tr>
+              <TableCell header density="dense">상태</TableCell>
+              <TableCell header density="dense">타입</TableCell>
+              <TableCell header density="dense">카페</TableCell>
+              <TableCell header density="dense">내용</TableCell>
+              <TableCell header density="dense">예정/시간</TableCell>
+            </tr>
+          </TableHead>
+          <TableBody>
+            {jobsData?.jobs.map((job) => (
+              <JobRow key={job.id} job={job} />
+            ))}
+            {(!jobsData || jobsData.jobs.length === 0) && (
+              <tr>
+                <td colSpan={5}>
+                  <EmptyState title={!jobsData ? '로딩 중...' : '작업이 없습니다'} />
+                </td>
+              </tr>
+            )}
+          </TableBody>
+        </Table>
 
-          {/* 페이지네이션 */}
-          {jobsData && jobsData.totalPages > 1 && (
-            <div className={cn('flex items-center justify-between border-t border-border-light px-5 py-4')}>
-              <div className={cn('text-sm text-ink-muted')}>
-                {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, jobsData.total)} / {jobsData.total}
-              </div>
-              <div className={cn('flex gap-1')}>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => setPage(1)}
-                  disabled={page === 1}
-                >
-                  ««
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  «
-                </Button>
-                {Array.from({ length: Math.min(5, jobsData.totalPages) }, (_, i) => {
-                  const pageNum = Math.max(1, Math.min(page - 2, jobsData.totalPages - 4)) + i;
-                  if (pageNum > jobsData.totalPages) return null;
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={page === pageNum ? 'primary' : 'ghost'}
-                      size="xs"
-                      onClick={() => setPage(pageNum)}
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => setPage((p) => Math.min(jobsData.totalPages, p + 1))}
-                  disabled={page === jobsData.totalPages}
-                >
-                  »
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => setPage(jobsData.totalPages)}
-                  disabled={page === jobsData.totalPages}
-                >
-                  »»
-                </Button>
-              </div>
+        {/* 페이지네이션 */}
+        {jobsData && jobsData.totalPages > 1 && (
+          <div className={cn('flex items-center justify-between')}>
+            <div className={cn('font-mono text-sm text-ink-muted')}>
+              {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, jobsData.total)} / {jobsData.total}
             </div>
-          )}
-        </div>
+            <div className={cn('flex gap-1')}>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => setPage(1)}
+                disabled={page === 1}
+                aria-label="첫 페이지"
+              >
+                <ChevronsLeft className="h-3.5 w-3.5" strokeWidth={2} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                aria-label="이전 페이지"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} />
+              </Button>
+              {Array.from({ length: Math.min(5, jobsData.totalPages) }, (_, i) => {
+                const pageNum = Math.max(1, Math.min(page - 2, jobsData.totalPages - 4)) + i;
+                if (pageNum > jobsData.totalPages) return null;
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={page === pageNum ? 'primary' : 'ghost'}
+                    size="xs"
+                    onClick={() => setPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => setPage((p) => Math.min(jobsData.totalPages, p + 1))}
+                disabled={page === jobsData.totalPages}
+                aria-label="다음 페이지"
+              >
+                <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => setPage(jobsData.totalPages)}
+                disabled={page === jobsData.totalPages}
+                aria-label="마지막 페이지"
+              >
+                <ChevronsRight className="h-3.5 w-3.5" strokeWidth={2} />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </PageLayout>
   );
 }
 
 const JobRow = ({ job }: { job: JobDetail }) => {
+  const TypeIcon = TYPE_ICONS[job.type];
+
   const getContentDisplay = () => {
     if (job.type === 'post') {
       return (
@@ -350,7 +368,7 @@ const JobRow = ({ job }: { job: JobDetail }) => {
         <div className={cn('text-ink truncate max-w-[200px]')} title={job.content}>
           {job.content || '-'}
         </div>
-        <div className={cn('text-xs text-ink-muted')}>
+        <div className={cn('font-mono text-xs text-ink-muted')}>
           #{job.articleId}
           {job.type === 'reply' && ` (댓글 ${job.commentIndex})`}
         </div>
@@ -361,7 +379,7 @@ const JobRow = ({ job }: { job: JobDetail }) => {
   const getTimeDisplay = () => {
     if (job.status === 'delayed' && job.delay) {
       return (
-        <div className={cn('text-info font-medium')}>
+        <div className={cn('font-mono text-info font-medium')}>
           {formatDelay(job.delay)} 후
         </div>
       );
@@ -370,30 +388,29 @@ const JobRow = ({ job }: { job: JobDetail }) => {
       return <div className={cn('text-warning')}>처리중...</div>;
     }
     if (job.finishedOn) {
-      return <div className={cn('text-ink-muted')}>{formatTime(job.finishedOn)}</div>;
+      return <div className={cn('font-mono text-ink-muted')}>{formatTime(job.finishedOn)}</div>;
     }
-    return <div className={cn('text-ink-muted')}>{formatTime(job.createdAt)}</div>;
+    return <div className={cn('font-mono text-ink-muted')}>{formatTime(job.createdAt)}</div>;
   };
 
   return (
-    <tr className={cn('border-b border-border-light hover:bg-surface-muted transition-all')}>
-      <td className={cn('px-5 py-4')}>
-        <span className={cn('px-2.5 py-1 rounded-lg text-xs font-medium', STATUS_COLORS[job.status])}>
-          {STATUS_LABELS[job.status]}
-        </span>
-      </td>
-      <td className={cn('px-5 py-4')}>
-        <span className={cn('px-2.5 py-1 rounded-lg text-xs font-medium', TYPE_COLORS[job.type])}>
+    <TableRow>
+      <TableCell density="dense">
+        <Badge variant={STATUS_BADGE_VARIANT[job.status]}>{STATUS_LABELS[job.status]}</Badge>
+      </TableCell>
+      <TableCell density="dense">
+        <Badge variant="neutral">
+          <TypeIcon className="h-3 w-3" strokeWidth={2} />
           {TYPE_LABELS[job.type]}
-        </span>
-      </td>
-      <td className={cn('px-5 py-4 text-ink')}>
-        <span className={cn('truncate max-w-[120px] block')} title={job.cafeName}>
+        </Badge>
+      </TableCell>
+      <TableCell density="dense">
+        <span className={cn('truncate max-w-[120px] block text-ink')} title={job.cafeName}>
           {job.cafeName || job.cafeId}
         </span>
-      </td>
-      <td className={cn('px-5 py-4')}>{getContentDisplay()}</td>
-      <td className={cn('px-5 py-4')}>{getTimeDisplay()}</td>
-    </tr>
+      </TableCell>
+      <TableCell density="dense">{getContentDisplay()}</TableCell>
+      <TableCell density="dense">{getTimeDisplay()}</TableCell>
+    </TableRow>
   );
 };

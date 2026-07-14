@@ -3,49 +3,37 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark';
+
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') {
+    return 'dark';
+  }
+
+  const stored = window.localStorage.getItem('theme');
+  return stored === 'light' || stored === 'dark' ? stored : 'dark';
+};
 
 export const ThemeToggle = () => {
-  const [theme, setTheme] = useState<Theme>('system');
-  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true);
-      const stored = localStorage.getItem('theme') as Theme | null;
-      if (stored) setTheme(stored);
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
     const root = document.documentElement;
 
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else if (theme === 'light') {
+    if (theme === 'light') {
       root.classList.add('light');
       root.classList.remove('dark');
     } else {
-      root.classList.remove('light', 'dark');
+      root.classList.add('dark');
+      root.classList.remove('light');
     }
 
     localStorage.setItem('theme', theme);
-  }, [theme, mounted]);
+  }, [theme]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
-
-  if (!mounted) {
-    return (
-      <div className={cn('h-10 w-10 rounded-lg bg-(--surface-muted)')} />
-    );
-  }
 
   const isDarkMode = theme === 'dark';
 

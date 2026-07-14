@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { cn } from '@/shared';
-import { Button } from '@/shared';
+import {
+  BatchResultList,
+  Button,
+  cn,
+  type BatchResultRow,
+  type BatchResultSummaryItem,
+} from '@/shared';
 import { runCafeJoinBatchAction } from '@/features/auto-comment/batch/batch-actions';
 import { getAccountsAction, getCafesAction } from '@/features/accounts/actions';
 import type { BatchJoinResult } from '@/features/auto-comment/batch/cafe-join';
@@ -43,6 +48,24 @@ export const CafeJoinUI = () => {
       setResult(res);
     });
   };
+
+  const resultSummary: BatchResultSummaryItem[] = result
+    ? [
+        { label: '가입', value: result.joined, variant: 'success' },
+        { label: '이미 회원', value: result.alreadyMember, variant: 'neutral' },
+        { label: '실패', value: result.failed, variant: result.failed > 0 ? 'danger' : 'neutral' },
+      ]
+    : [];
+
+  const resultRows: BatchResultRow[] = result
+    ? result.results.map((row) => ({
+        status: row.success ? (row.alreadyMember ? 'neutral' : 'success') : 'failure',
+        primaryLabel: row.accountId,
+        secondaryLabel: row.cafeName,
+        detail: row.alreadyMember ? '이미 가입된 계정' : undefined,
+        error: row.error,
+      }))
+    : [];
 
   return (
     <div className={cn('space-y-6')}>
@@ -106,66 +129,13 @@ export const CafeJoinUI = () => {
 
       {/* 결과 */}
       {result && (
-        <div
-          className={cn(
-            'rounded-2xl border px-4 py-4',
-            result.success
-              ? 'border-(--success) bg-(--success-soft)'
-              : 'border-(--warning) bg-(--warning-soft)'
-          )}
-        >
-          <div className={cn('flex items-center justify-between mb-3')}>
-            <h3
-              className={cn(
-                'font-semibold',
-                result.success ? 'text-(--success)' : 'text-(--warning)'
-              )}
-            >
-              {result.success ? '가입 완료!' : '일부 실패'}
-            </h3>
-            <div className={cn('text-sm text-(--ink-muted) space-x-2')}>
-              <span className={cn('text-(--success)')}>가입 {result.joined}</span>
-              <span>이미 {result.alreadyMember}</span>
-              {result.failed > 0 && (
-                <span className={cn('text-(--danger)')}>실패 {result.failed}</span>
-              )}
-            </div>
-          </div>
-
-          <div className={cn('space-y-2 max-h-[300px] overflow-y-auto')}>
-            {result.results.map((r, i) => (
-              <div
-                key={i}
-                className={cn(
-                  'rounded-xl border border-(--border) bg-(--surface-muted) px-3 py-2'
-                )}
-              >
-                <div className={cn('flex items-center gap-2')}>
-                  <span>
-                    {r.success
-                      ? r.alreadyMember
-                        ? '⚪'
-                        : '✅'
-                      : '❌'}
-                  </span>
-                  <span className={cn('font-medium text-sm text-(--ink)')}>
-                    {r.accountId}
-                  </span>
-                  <span className={cn('text-(--ink-muted)')}>→</span>
-                  <span className={cn('text-sm text-(--ink)')}>
-                    {r.cafeName}
-                  </span>
-                </div>
-                {r.error && (
-                  <p className={cn('text-xs text-(--danger) mt-1')}>
-                    {r.error}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <BatchResultList
+          success={result.success}
+          title="가입 완료"
+          summary={resultSummary}
+          rows={resultRows}
+        />
       )}
     </div>
   );
-}
+};

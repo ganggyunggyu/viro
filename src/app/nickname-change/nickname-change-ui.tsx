@@ -2,7 +2,14 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { cn } from '@/shared';
-import { Select, Button, ExecuteConfirmModal } from '@/shared';
+import {
+  BatchResultList,
+  Select,
+  Button,
+  ExecuteConfirmModal,
+  type BatchResultRow,
+  type BatchResultSummaryItem,
+} from '@/shared';
 import {
   changeNicknameByCafeAction,
   changeNicknameByAccountAction,
@@ -106,6 +113,26 @@ export const NicknameChangeUI = ({ mode }: NicknameChangeUIProps) => {
     }
   };
 
+  const resultSummary: BatchResultSummaryItem[] = result
+    ? [
+        { label: '성공', value: result.changed, variant: 'success' },
+        { label: '실패', value: result.failed, variant: result.failed > 0 ? 'danger' : 'neutral' },
+      ]
+    : [];
+
+  const resultRows: BatchResultRow[] = result
+    ? result.results.map((row) => ({
+        status: row.success ? 'success' : 'failure',
+        primaryLabel: row.accountId,
+        secondaryLabel: row.cafeName,
+        detail:
+          row.success && row.oldNickname && row.newNickname
+            ? `${row.oldNickname} → ${row.newNickname}`
+            : undefined,
+        error: row.error,
+      }))
+    : [];
+
   return (
     <div className={cn('space-y-6')}>
       {/* 선택 옵션 */}
@@ -190,60 +217,13 @@ export const NicknameChangeUI = ({ mode }: NicknameChangeUIProps) => {
 
       {/* 결과 */}
       {result && (
-        <div
-          className={cn(
-            'rounded-2xl border px-4 py-4',
-            result.success
-              ? 'border-success bg-success-soft'
-              : 'border-warning bg-warning-soft'
-          )}
-        >
-          <div className={cn('flex items-center justify-between mb-3')}>
-            <h3
-              className={cn(
-                'font-semibold',
-                result.success ? 'text-success' : 'text-warning'
-              )}
-            >
-              {result.success ? '변경 완료!' : '일부 실패'}
-            </h3>
-            <div className={cn('text-sm text-ink-muted space-x-2')}>
-              <span className={cn('text-success')}>성공 {result.changed}</span>
-              {result.failed > 0 && (
-                <span className={cn('text-danger')}>실패 {result.failed}</span>
-              )}
-            </div>
-          </div>
-
-          <div className={cn('space-y-2 max-h-75 overflow-y-auto')}>
-            {result.results.map((r, i) => (
-              <div
-                key={i}
-                className={cn(
-                  'rounded-xl border border-border bg-surface-muted px-3 py-2'
-                )}
-              >
-                <div className={cn('flex items-center gap-2')}>
-                  <span>{r.success ? '✅' : '❌'}</span>
-                  <span className={cn('font-medium text-sm text-ink')}>
-                    {r.accountId}
-                  </span>
-                  <span className={cn('text-ink-muted')}>→</span>
-                  <span className={cn('text-sm text-ink')}>{r.cafeName}</span>
-                </div>
-                {r.success && r.oldNickname && r.newNickname && (
-                  <p className={cn('text-xs text-ink-muted mt-1')}>
-                    {r.oldNickname} → {r.newNickname}
-                  </p>
-                )}
-                {r.error && (
-                  <p className={cn('text-xs text-danger mt-1')}>{r.error}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <BatchResultList
+          success={result.success}
+          title="변경 완료"
+          summary={resultSummary}
+          rows={resultRows}
+        />
       )}
     </div>
   );
-}
+};

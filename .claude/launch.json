@@ -12,6 +12,13 @@
       "runtimeExecutable": "env",
       "runtimeArgs": ["NEXT_DIST_DIR=.next-preview", "npx", "next", "dev", "--port", "3097"],
       "port": 3097
+    },
+    {
+      "name": "cafe-bot-dev-preview-redesign",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["NEXT_DIST_DIR=.next-preview-redesign", "npx", "next", "dev"],
+      "port": 3097,
+      "autoPort": true
     }
   ]
 }

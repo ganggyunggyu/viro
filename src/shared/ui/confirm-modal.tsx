@@ -1,18 +1,10 @@
 'use client';
 
-import React, { useEffect, useId, useRef, type ReactNode } from 'react';
+import React, { useId, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
+import { useFocusTrap } from '@/shared/hooks/use-focus-trap';
 import { Button } from './button';
-
-const FOCUSABLE_SELECTOR = [
-  'a[href]',
-  'button:not([disabled])',
-  'textarea:not([disabled])',
-  'input:not([disabled])',
-  'select:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
 
 export interface ConfirmModalProps {
   isOpen: boolean;
@@ -39,72 +31,9 @@ export const ConfirmModal = ({
   isLoading = false,
   children,
 }: ConfirmModalProps) => {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const isLoadingRef = useRef(isLoading);
   const titleId = useId();
   const descriptionId = useId();
-
-  useEffect(() => {
-    isLoadingRef.current = isLoading;
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const previousActiveElement =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const previousBodyOverflow = document.body.style.overflow;
-
-    const getFocusableElements = () => {
-      if (!dialogRef.current) return [];
-
-      return Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
-        .filter((element) => element.offsetParent !== null || element === document.activeElement);
-    };
-
-    const animationFrame = window.requestAnimationFrame(() => {
-      const [firstFocusableElement] = getFocusableElements();
-      (firstFocusableElement ?? dialogRef.current)?.focus();
-    });
-
-    const handleDocumentKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !isLoadingRef.current) {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-
-      if (event.key !== 'Tab') return;
-
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length === 0) {
-        event.preventDefault();
-        dialogRef.current?.focus();
-        return;
-      }
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      } else if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleDocumentKeyDown);
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      window.cancelAnimationFrame(animationFrame);
-      document.removeEventListener('keydown', handleDocumentKeyDown);
-      document.body.style.overflow = previousBodyOverflow;
-      previousActiveElement?.focus();
-    };
-  }, [isOpen, onClose]);
+  const dialogRef = useFocusTrap<HTMLDivElement>({ isOpen, onClose, isLocked: isLoading });
 
   const iconByVariant = {
     danger: (
