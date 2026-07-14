@@ -7,7 +7,7 @@ export { runBatchJob } from './batch-job';
 export { runModifyBatchJob } from './modify-batch-job';
 export { addBatchToQueue, getBatchQueueStatus, stopBatchQueue } from './batch-queue';
 export { modifyArticleWithAccount, writePostWithAccount } from '@/shared/lib/naver-cafe-writing';
-export { joinCafeWithAccount, joinCafeWithAccounts } from './cafe-join';
+export { joinCafeWithAccount, joinCafeWithAccounts, joinCafeWithNicknameRetry } from './cafe-join';
 export type {
   BatchJobInput,
   BatchJobResult,
