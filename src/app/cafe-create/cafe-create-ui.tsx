@@ -224,7 +224,7 @@ export const CafeCreateUI = () => {
         disabled={!canSubmit}
         onClick={handleSubmit}
       >
-        카페 개설 실행 (실제로 생성됨)
+        카페 개설하기
       </Button>
 
       {result && (

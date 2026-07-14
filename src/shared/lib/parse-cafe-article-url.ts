@@ -10,6 +10,8 @@ const DESKTOP_PATTERN = /cafe\.naver\.com\/ca-fe\/cafes\/(\d+)\/articles\/(\d+)/
 const MOBILE_PATTERN = /cafe\.naver\.com\/ca-fe\/web\/cafes\/([a-zA-Z0-9_-]+)\/articles\/(\d+)/;
 // naver.me 단축링크가 리다이렉트되는 실제 형태: m.cafe.naver.com/{slug}/{articleId}?art=... (/ca-fe/, articles/ 접두어 없음)
 const M_CAFE_PATTERN = /m\.cafe\.naver\.com\/([a-zA-Z0-9_-]+)\/(\d+)(?:[/?]|$)/;
+// PC 카페 대문에서 흔한 축약형: cafe.naver.com/{slug}/{articleId} (ca-fe, articles/ 접두어 없음)
+const CAFE_ARTICLE_PATH_PATTERN = /cafe\.naver\.com\/(?!ca-fe\/)([a-zA-Z0-9_-]+)\/(\d+)(?:[/?]|$)/;
 const LEGACY_SLUG_PATTERN = /cafe\.naver\.com\/([a-zA-Z0-9_-]+)(?:[/?]|$)/;
 const NAVER_ME_PATTERN = /naver\.me\/[a-zA-Z0-9]+/i;
 
@@ -47,6 +49,11 @@ export const parseCafeArticleUrlShape = (rawUrl: string): { cafeSlug?: string; c
   const mCafeMatch = url.match(M_CAFE_PATTERN);
   if (mCafeMatch) {
     return { cafeSlug: mCafeMatch[1], articleId: Number(mCafeMatch[2]) };
+  }
+
+  const cafeArticlePathMatch = url.match(CAFE_ARTICLE_PATH_PATTERN);
+  if (cafeArticlePathMatch) {
+    return { cafeSlug: cafeArticlePathMatch[1], articleId: Number(cafeArticlePathMatch[2]) };
   }
 
   const legacySlugMatch = url.match(LEGACY_SLUG_PATTERN);
