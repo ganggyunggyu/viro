@@ -3,14 +3,8 @@
 import Link from 'next/link';
 import { cn } from '@/shared';
 import { PageLayout } from '@/widgets';
-import { AnimatedCard, AnimatedTabs, HelpAccordion, SlideUp } from '@/shared';
-import { ManualPostUI } from '@/features/manual-post';
+import { AnimatedCard, HelpAccordion, SlideUp } from '@/shared';
 import { ViralBatchUI } from '@/features/viral/viral-batch-ui';
-
-const TABS = [
-  { id: 'viral', label: '바이럴 배치' },
-  { id: 'manual', label: '수동 발행' },
-];
 
 const WORKFLOW_STEPS = [
   {
@@ -51,18 +45,7 @@ const GUIDE_CARDS = [
   },
 ];
 
-const TAB_META = {
-  manual: {
-    description: '폴더 기반으로 준비된 원고를 선택해 수동 발행 흐름을 정리.',
-    label: '수동 발행',
-    pills: ['원고 업로드', '수동 검수'],
-  },
-  viral: {
-    description: '키워드 작성부터 결과 확인까지 같은 화면에서 이어지는 배치 작업대.',
-    label: '바이럴 배치',
-    pills: ['실시간 로그', '프리셋 복원', '큐 전달'],
-  },
-} as const;
+const PILLS = ['실시간 로그', '프리셋 복원', '큐 전달'];
 
 export default function ViralPage() {
   return (
@@ -71,48 +54,38 @@ export default function ViralPage() {
       subtitle="키워드 설계, 실행 설정, 결과 검수를 한 화면에서 운영."
     >
       <SlideUp>
-        <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface)/80 p-3 shadow-sm backdrop-blur-sm sm:p-4')}>
-          <AnimatedTabs tabs={TABS} defaultTab="viral">
-            {(activeTab) => {
-              const meta = TAB_META[activeTab as keyof typeof TAB_META];
+        <AnimatedCard className={cn('p-3 sm:p-4')} hoverScale={1}>
+          <div className={cn('space-y-6')}>
+            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) px-5 py-5 sm:px-6')}>
+              <div className={cn('flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between')}>
+                <div>
+                  <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-(--info)')}>
+                    바이럴 배치
+                  </p>
+                  <h2 className={cn('mt-2 text-xl font-semibold tracking-tight text-(--ink)')}>
+                    바이럴 배치 실행
+                  </h2>
+                  <p className={cn('mt-2 text-sm leading-6 text-(--ink-muted)')}>
+                    키워드 작성부터 결과 확인까지 같은 화면에서 이어지는 배치 작업대.
+                  </p>
+                </div>
 
-              return (
-                <AnimatedCard className={cn('border-none bg-transparent p-0 shadow-none')} hoverScale={1}>
-                  <div className={cn('space-y-6')}>
-                    <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) px-5 py-5 sm:px-6')}>
-                      <div className={cn('flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between')}>
-                        <div>
-                          <p className={cn('text-xs font-semibold uppercase tracking-[0.24em] text-(--info)')}>
-                            {meta.label}
-                          </p>
-                          <h2 className={cn('mt-2 text-xl font-semibold tracking-tight text-(--ink)')}>
-                            {activeTab === 'viral' ? '바이럴 배치 실행' : '수동 원고 발행'}
-                          </h2>
-                          <p className={cn('mt-2 text-sm leading-6 text-(--ink-muted)')}>
-                            {meta.description}
-                          </p>
-                        </div>
+                <div className={cn('flex flex-wrap gap-2')}>
+                  {PILLS.map((pill) => (
+                    <span
+                      key={pill}
+                      className={cn('rounded-full border border-(--border-light) bg-(--surface) px-3 py-1 text-xs font-medium text-(--ink)')}
+                    >
+                      {pill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-                        <div className={cn('flex flex-wrap gap-2')}>
-                          {meta.pills.map((pill) => (
-                            <span
-                              key={pill}
-                              className={cn('rounded-full border border-(--border-light) bg-(--surface) px-3 py-1 text-xs font-medium text-(--ink)')}
-                            >
-                              {pill}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {activeTab === 'viral' ? <ViralBatchUI /> : <ManualPostUI />}
-                  </div>
-                </AnimatedCard>
-              );
-            }}
-          </AnimatedTabs>
-        </div>
+            <ViralBatchUI />
+          </div>
+        </AnimatedCard>
       </SlideUp>
 
       <SlideUp delay={0.08}>
