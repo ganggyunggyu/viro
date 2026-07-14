@@ -6,10 +6,13 @@ import { cn, Button } from '@/shared';
 import {
   createManualCommentJobAction,
   getManualCommentJobsAction,
+  queueCommentReplacementJobsAction,
   scanLowCommentArticlesAction,
+  scanCommentReplacementCandidatesAction,
   type ManualCommentJobView,
 } from './actions';
 import type { ScanLowCommentArticlesResult } from './low-comment-scan';
+import type { CommentReplacementCandidate, ScanCommentReplacementResult } from './comment-replacement-scan';
 
 interface FormState {
   articleUrl: string;
@@ -55,6 +58,7 @@ const STATUS_STYLE: Record<ManualCommentJobView['status'], string> = {
 
 const CAFE_URL_PATTERN = /https?:\/\/[^\s]*(?:cafe\.naver\.com|naver\.me)[^\s]*/i;
 const NUMBERED_LINE_PATTERN = /^\s*\d+[.)번]\s*(.+)$/;
+const NEW_CAFE_IDS_DEFAULT = '31754837, 31754869, 31754875, 31754939, 31755069';
 
 const parseSmartPaste = (raw: string): { url: string | null; comments: string[] } => {
   const urlMatch = raw.match(CAFE_URL_PATTERN);
@@ -84,6 +88,11 @@ export const ManualCommentJobUI = () => {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [isScanPending, startScanTransition] = useTransition();
   const [scanResult, setScanResult] = useState<ScanLowCommentArticlesResult | null>(null);
+  const [replacementCafeIds, setReplacementCafeIds] = useState(NEW_CAFE_IDS_DEFAULT);
+  const [replacementScanResult, setReplacementScanResult] = useState<ScanCommentReplacementResult | null>(null);
+  const [selectedReplacementKeys, setSelectedReplacementKeys] = useState<Set<string>>(new Set());
+  const [isReplacementScanPending, startReplacementScanTransition] = useTransition();
+  const [isReplacementQueuePending, startReplacementQueueTransition] = useTransition();
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const inputClassName = cn(
@@ -143,6 +152,59 @@ export const ManualCommentJobUI = () => {
       const result = await scanLowCommentArticlesAction();
       setScanResult(result);
       loadJobs();
+    });
+  };
+
+  const getReplacementKey = ({ cafeId, articleId }: CommentReplacementCandidate) => `${cafeId}:${articleId}`;
+
+  const handleReplacementScan = () => {
+    const cafeIds = replacementCafeIds
+      .split(/[\s,]+/)
+      .map((value) => value.trim())
+      .filter(Boolean);
+    if (cafeIds.length === 0) {
+      setMessage({ type: 'error', text: '대상 카페 ID를 하나 이상 입력해주세요' });
+      return;
+    }
+
+    setReplacementScanResult(null);
+    setSelectedReplacementKeys(new Set());
+    startReplacementScanTransition(async () => {
+      const result = await scanCommentReplacementCandidatesAction({ cafeIds });
+      setReplacementScanResult(result);
+      setSelectedReplacementKeys(new Set(result.candidates.map(getReplacementKey)));
+    });
+  };
+
+  const handleReplacementSelection = (candidate: CommentReplacementCandidate, checked: boolean) => {
+    const key = getReplacementKey(candidate);
+    setSelectedReplacementKeys((previous) => {
+      const next = new Set(previous);
+      if (checked) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  };
+
+  const handleReplacementQueue = () => {
+    if (!replacementScanResult) return;
+    const selectedCandidates = replacementScanResult.candidates.filter((candidate) =>
+      selectedReplacementKeys.has(getReplacementKey(candidate)),
+    );
+    if (selectedCandidates.length === 0) {
+      setMessage({ type: 'error', text: '댓글 교체 작업으로 등록할 글을 선택해주세요' });
+      return;
+    }
+
+    startReplacementQueueTransition(async () => {
+      const result = await queueCommentReplacementJobsAction(selectedCandidates);
+      if (result.queuedJobs.length > 0) {
+        setMessage({ type: 'success', text: `댓글 교체 작업 ${result.queuedJobs.length}건을 등록했습니다` });
+        loadJobs();
+      }
+      if (result.skipped.length > 0) {
+        setMessage({ type: 'error', text: `등록 ${result.queuedJobs.length}건 · 스킵 ${result.skipped.length}건` });
+      }
     });
   };
 
@@ -296,6 +358,65 @@ export const ManualCommentJobUI = () => {
         <Button onClick={handleSubmit} disabled={isPending} fullWidth>
           작업 등록
         </Button>
+      </div>
+
+      <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-5 space-y-3')}>
+        <div>
+          <h2 className={cn('text-base font-semibold text-(--ink)')}>댓글 맥락 불일치 교체</h2>
+          <p className={cn('text-xs text-(--ink-muted)')}>
+            링크를 먼저 수집하고, 제목과 무관한 댓글 비율이 높은 글만 골라 기존 댓글 삭제·DeepSeek 5~13개 재생성 작업으로 등록합니다.
+          </p>
+        </div>
+        <input
+          type="text"
+          value={replacementCafeIds}
+          onChange={(event) => setReplacementCafeIds(event.target.value)}
+          placeholder="대상 카페 ID를 쉼표 또는 공백으로 구분"
+          className={inputClassName}
+        />
+        <Button onClick={handleReplacementScan} disabled={isReplacementScanPending}>
+          {isReplacementScanPending ? '링크 수집·판별 중...' : '불일치 글 수집'}
+        </Button>
+
+        {replacementScanResult && (
+          <div className={cn('space-y-2 rounded-lg bg-(--surface-muted) p-3')}>
+            <p className={cn('text-xs text-(--ink-muted)')}>
+              카페 {replacementScanResult.scannedCafes}개 · 교체 후보 {replacementScanResult.candidates.length}건
+            </p>
+            {replacementScanResult.candidates.map((candidate) => {
+              const key = getReplacementKey(candidate);
+              const isSelected = selectedReplacementKeys.has(key);
+              return (
+                <label key={key} className={cn('flex items-start gap-2 rounded-md bg-(--surface) p-2 text-xs text-(--ink)')}>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={(event) => handleReplacementSelection(candidate, event.target.checked)}
+                    className={cn('mt-0.5 h-4 w-4 rounded border-(--border) accent-(--accent)')}
+                  />
+                  <span className={cn('min-w-0 flex-1')}>
+                    <a href={candidate.articleUrl} target="_blank" rel="noreferrer" className={cn('font-medium hover:underline')}>
+                      {candidate.cafeSlug}/{candidate.articleId} · {candidate.title}
+                    </a>
+                    <span className={cn('mt-0.5 block text-(--ink-muted)')}>
+                      댓글 {candidate.commentCount}개 중 불일치 {candidate.mismatchCount}개 ({Math.round(candidate.mismatchRate * 100)}%)
+                    </span>
+                  </span>
+                </label>
+              );
+            })}
+            {replacementScanResult.candidates.length > 0 && (
+              <Button onClick={handleReplacementQueue} disabled={isReplacementQueuePending} fullWidth>
+                {isReplacementQueuePending ? '댓글 교체 작업 등록 중...' : `선택 ${selectedReplacementKeys.size}건 교체 작업 등록`}
+              </Button>
+            )}
+            {replacementScanResult.errors.length > 0 && (
+              <p className={cn('text-xs text-(--danger)')}>
+                에러: {replacementScanResult.errors.map(({ cafeSlug, error }) => `${cafeSlug}(${error})`).join(', ')}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 댓글 부족 글 자동 스캔 */}

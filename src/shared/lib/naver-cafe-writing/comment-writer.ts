@@ -24,6 +24,7 @@ export interface WriteCommentOptions {
   forceFreshLogin?: boolean;
   loginWaitMs?: number;
   navigationTimeoutMs?: number;
+  navigationWaitUntil?: 'commit' | 'domcontentloaded';
 }
 
 const normalizeText = (value: string | null | undefined): string => {
@@ -39,8 +40,9 @@ export const navigateToArticle = async (
   options?: WriteCommentOptions,
 ): Promise<{ success: true } | { success: false; error: string }> => {
   const navigationTimeoutMs = options?.navigationTimeoutMs ?? 0;
+  const navigationWaitUntil = options?.navigationWaitUntil ?? 'domcontentloaded';
 
-  await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: navigationTimeoutMs });
+  await page.goto(articleUrl, { waitUntil: navigationWaitUntil, timeout: navigationTimeoutMs });
   await page.waitForTimeout(1500);
 
   const currentUrl = page.url();
@@ -58,7 +60,7 @@ export const navigateToArticle = async (
     return { success: false, error: `세션 만료 후 재로그인 실패: ${reloginResult.error}` };
   }
 
-  await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: navigationTimeoutMs });
+  await page.goto(articleUrl, { waitUntil: navigationWaitUntil, timeout: navigationTimeoutMs });
   await page.waitForTimeout(1500);
   if (isLoginRedirect(page.url())) {
     return { success: false, error: '재로그인 후에도 로그인 페이지로 리다이렉트됨' };

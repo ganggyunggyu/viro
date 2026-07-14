@@ -1,12 +1,13 @@
 import mongoose from 'mongoose';
 import { Account, ManualCommentJob, PublishedArticle, type IManualCommentJob } from '../src/shared/models';
-import { hasCommented, getArticleComments, removeCommentFromArticle } from '../src/shared/models/published-article';
+import { hasCommented, removeCommentFromArticle } from '../src/shared/models/published-article';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { listLiveComments, deleteCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-deleter';
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
 import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
 import { runDeepSeekAgentCommentJob, type DeepSeekAgentEvent } from '../src/shared/lib/deepseek-agent-comment';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
+import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
 
 const WORKER_ID = `worker-${process.pid}-${Date.now()}`;
 const POLL_INTERVAL_MS = 20_000;
@@ -142,67 +143,47 @@ const deleteExistingComments = async (
     return;
   }
 
-  const dbComments = await getArticleComments(job.cafeId, job.articleId);
+  // 댓글 DB 기록은 실제 네이버 상태와 어긋날 수 있으므로 삭제 계정 판정에 사용하지 않는다.
+  // 현재 사용자의 활성 계정으로 차례로 시도하고, 실제 작성 계정에서만 네이버가 삭제 메뉴를 노출한다.
+  const deleteAccounts = await Account.find({ userId: job.userId, isActive: true })
+    .select('accountId password nickname')
+    .lean<Array<{ accountId: string; password: string; nickname?: string }>>();
 
   let resultIndex = 0;
   for (const live of liveComments) {
-    const dbMatch = dbComments.find((c) => c.commentId === live.commentId);
-    const accountId = dbMatch?.accountId;
+    let deletedBy: { accountId: string; password: string; nickname?: string } | undefined;
+    let deleteError = '삭제 가능한 내 계정을 찾지 못함';
 
-    if (!accountId) {
-      await appendDeleteResult(job._id as mongoose.Types.ObjectId, {
-        index: resultIndex,
-        commentId: live.commentId,
-        nickname: live.nickname,
-        content: live.content,
-        success: false,
-        error: '매칭 실패 (외부 계정 - 우리 DB에 기록 없음)',
-      });
-      resultIndex += 1;
-      continue;
+    for (const account of deleteAccounts) {
+      const deleteResult = await deleteCommentWithAccount(
+        { id: account.accountId, password: account.password, nickname: account.nickname || account.accountId },
+        job.cafeId,
+        job.articleId,
+        live.commentId,
+      );
+      if (deleteResult.success) {
+        deletedBy = account;
+        break;
+      }
+      deleteError = deleteResult.error || deleteError;
     }
-
-    const acc = await Account.findOne({ accountId, userId: job.userId })
-      .select('accountId password nickname')
-      .lean<{ accountId: string; password: string; nickname?: string } | null>();
-
-    if (!acc) {
-      await appendDeleteResult(job._id as mongoose.Types.ObjectId, {
-        index: resultIndex,
-        commentId: live.commentId,
-        accountId,
-        nickname: live.nickname,
-        content: live.content,
-        success: false,
-        error: '계정을 찾을 수 없음 (현재 사용자 소유 아님)',
-      });
-      resultIndex += 1;
-      continue;
-    }
-
-    const deleteResult = await deleteCommentWithAccount(
-      { id: acc.accountId, password: acc.password, nickname: acc.nickname || acc.accountId },
-      job.cafeId,
-      job.articleId,
-      live.commentId,
-    );
 
     await appendDeleteResult(job._id as mongoose.Types.ObjectId, {
       index: resultIndex,
       commentId: live.commentId,
-      accountId,
+      accountId: deletedBy?.accountId,
       nickname: live.nickname,
       content: live.content,
-      success: deleteResult.success,
-      error: deleteResult.error,
+      success: Boolean(deletedBy),
+      error: deletedBy ? undefined : deleteError,
     });
     resultIndex += 1;
 
-    if (deleteResult.success) {
+    if (deletedBy) {
       await removeCommentFromArticle(job.cafeId, job.articleId, live.commentId);
-      console.log(`[JOB ${job._id}] 삭제 성공: ${accountId} / ${live.commentId}`);
+      console.log(`[JOB ${job._id}] 삭제 성공: ${deletedBy.accountId} / ${live.commentId}`);
     } else {
-      console.log(`[JOB ${job._id}] 삭제 실패: ${accountId} / ${live.commentId} - ${deleteResult.error}`);
+      console.log(`[JOB ${job._id}] 삭제 실패: ${live.commentId} - ${deleteError}`);
     }
   }
 
@@ -358,8 +339,33 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
       const already = await hasCommented(job.cafeId, job.articleId, account.accountId, 'comment');
       if (already) continue;
 
-      const result = await writeCommentWithAccount(
+      const joinResult = await joinCafeWithNicknameRetry(
         { id: account.accountId, password: account.password, nickname: account.nickname || account.accountId },
+        job.cafeId,
+        {
+          cafeUrl: job.cafeSlug,
+          updateDbNickname: async (nickname) => {
+            await Account.updateOne({ userId: job.userId, accountId: account.accountId }, { $set: { nickname } });
+          },
+        },
+      );
+      if (!joinResult.success) {
+        console.error(`[JOB ${job._id}] JOIN FAIL ${account.accountId}: ${joinResult.error}`);
+        await appendResult(job._id as mongoose.Types.ObjectId, {
+          index: commentIdx,
+          accountId: account.accountId,
+          nickname: account.nickname,
+          content,
+          success: false,
+          error: `카페 가입 확인 실패: ${joinResult.error}`,
+        });
+        continue;
+      }
+
+      const nickname = joinResult.finalNickname || account.nickname || account.accountId;
+
+      const result = await writeCommentWithAccount(
+        { id: account.accountId, password: account.password, nickname },
         job.cafeId,
         job.articleId,
         content,
@@ -370,7 +376,7 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
         await appendResult(job._id as mongoose.Types.ObjectId, {
           index: commentIdx,
           accountId: account.accountId,
-          nickname: account.nickname,
+          nickname,
           content,
           success: false,
           error: result.error,
@@ -382,7 +388,7 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
       const { addCommentToArticle } = await import('../src/shared/models');
       await addCommentToArticle(job.cafeId, job.articleId, {
         accountId: account.accountId,
-        nickname: account.nickname || account.accountId,
+        nickname,
         content,
         type: 'comment',
         commentId: result.commentId,
@@ -390,7 +396,7 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
       await appendResult(job._id as mongoose.Types.ObjectId, {
         index: commentIdx,
         accountId: account.accountId,
-        nickname: account.nickname,
+        nickname,
         content,
         success: true,
         commentId: result.commentId,

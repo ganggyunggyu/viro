@@ -10,6 +10,12 @@ import {
   type ScanLowCommentArticlesOptions,
   type ScanLowCommentArticlesResult,
 } from './low-comment-scan';
+import {
+  queueCommentReplacementJobs,
+  scanCommentReplacementCandidates,
+  type CommentReplacementCandidate,
+  type ScanCommentReplacementOptions,
+} from './comment-replacement-scan';
 
 export interface CreateManualCommentJobInput {
   articleUrl: string;
@@ -218,5 +224,21 @@ export const scanLowCommentArticlesAction = async (
   if (result.queuedJobs.length > 0) {
     revalidatePath('/comment-jobs');
   }
+  return result;
+};
+
+export const scanCommentReplacementCandidatesAction = async (
+  options: ScanCommentReplacementOptions,
+) => {
+  const userId = await getCurrentUserId();
+  return scanCommentReplacementCandidates(userId, options);
+};
+
+export const queueCommentReplacementJobsAction = async (
+  candidates: CommentReplacementCandidate[],
+) => {
+  const userId = await getCurrentUserId();
+  const result = await queueCommentReplacementJobs(userId, candidates);
+  if (result.queuedJobs.length > 0) revalidatePath('/comment-jobs');
   return result;
 };
