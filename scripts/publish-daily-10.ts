@@ -130,7 +130,16 @@ const publishOne = async (task: PostTask): Promise<boolean> => {
   try {
     logLine(`[${task.cafeName}] 이미지 3장 검색 + 테테 생성 시작: ${task.keyword}`);
     const [images, rawContent] = await Promise.all([fetchImages(task.keyword, 3), generateTete(task.keyword, task.service)]);
-    const { title, htmlContent } = buildCafePostContent(rawContent, task.keyword);
+    const parsed = buildCafePostContent(rawContent, task.keyword);
+    // 일부 원고(특히 일상 서비스)가 첫 줄에 짧은 제목 대신 긴 인트로 문단을 내놓는 경우가 있어
+    // buildCafePostContent가 그 문단 전체를 제목으로 잡아버림 — 40자 넘으면 문장부호 기준으로
+    // 자르고, 그래도 안 되면 키워드로 폴백한다.
+    let title = parsed.title;
+    const htmlContent = parsed.htmlContent;
+    if (title.length > 40) {
+      const cut = title.slice(0, 40).match(/^.*[.,!?~까지지요]/);
+      title = cut ? cut[0].trim() : task.keyword;
+    }
     if (!title || !htmlContent) {
       logLine(`[${task.cafeName}] 제목/본문 파싱 실패, 스킵`);
       return false;
@@ -145,7 +154,7 @@ const publishOne = async (task: PostTask): Promise<boolean> => {
     });
 
     if (result.success) {
-      logLine(`[OK][${task.cafeName}] 발행 완료: "${title}"`);
+      logLine(`[OK][${task.cafeName}][articleId=${result.articleId}] 발행 완료: "${title}"`);
       return true;
     }
     logLine(`[FAIL][${task.cafeName}] "${task.keyword}": ${result.error}`);
