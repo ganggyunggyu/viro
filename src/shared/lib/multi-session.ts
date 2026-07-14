@@ -380,6 +380,11 @@ export const closeAllContexts = async (): Promise<void> => {
     await g.__pwBrowser.close();
     g.__pwBrowser = null;
   }
+
+  if (g.__pwIdleTimer) {
+    clearInterval(g.__pwIdleTimer);
+    g.__pwIdleTimer = null;
+  }
 }
 
 const waitForLoginCompletion = async (

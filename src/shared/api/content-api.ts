@@ -1,6 +1,8 @@
 import type {
   GenerateContentRequest,
   GenerateContentResponse,
+  TeteContentRequest,
+  TeteContentResponse,
 } from '@/shared/types';
 
 const CONTENT_API_URL = process.env.CONTENT_API_URL || 'http://localhost:8000';
@@ -33,6 +35,78 @@ export const generateContent = async (
   }
 
   return response.json();
+};
+
+/**
+ * 테테 — 범용 naver-blog-writing 스킬 원고 생성 (대표님 업로드 지침, 브랜드 고정 없음).
+ * hanryeo-skill과 달리 특정 제품을 강제하지 않아 임의 키워드에 씀. STEP0(정보성/후기성)은
+ * contentType을 안 넘기면 서버가 키워드로 자동 판정한다.
+ */
+export const generateTeteContent = async (
+  request: TeteContentRequest
+): Promise<TeteContentResponse> => {
+  const response = await fetch(`${CONTENT_API_URL}/generate/tete`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      service: 'tete',
+      keyword: request.keyword,
+      ref: request.ref || '',
+      content_type: request.contentType || '',
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error('[TETE API] 에러 응답:', response.status, errorBody);
+    throw new Error(`테테 원고 생성 실패: ${response.status} - ${errorBody}`);
+  }
+
+  const data = await response.json();
+  return { ...data, contentType: data.contentType };
+};
+
+interface TeteContentByServiceRequest {
+  service: string;
+  keyword: string;
+  ref?: string;
+}
+
+interface TeteContentByServiceResponse {
+  content: string;
+  contentType?: string;
+}
+
+/**
+ * 카페 실제 카테고리(service)를 그대로 백엔드에 전달하는 테테 생성 — generateTeteContent와 달리
+ * service를 'tete'로 고정하지 않고 호출부에서 지정한 카페 카테고리(육아/건강/생활/일상 등)를 그대로
+ * 보낸다. scripts/rewrite-with-tete.ts의 generateTete()와 동일한 계약(카페 글 재작성 기능 전용).
+ */
+export const generateTeteContentByService = async (
+  request: TeteContentByServiceRequest
+): Promise<TeteContentByServiceResponse> => {
+  const response = await fetch(`${CONTENT_API_URL}/generate/tete`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      service: request.service,
+      keyword: request.keyword,
+      ref: request.ref || '',
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error('[TETE API] 에러 응답:', response.status, errorBody);
+    throw new Error(`테테 원고 생성 실패(service=${request.service}): ${response.status} - ${errorBody}`);
+  }
+
+  const data = await response.json();
+  return { content: data.content, contentType: data.contentType };
 };
 
 interface GenerateContentWithPromptRequest {

@@ -103,6 +103,7 @@ export const browseCafePosts = async (
         const res = await fetch(url, {
           credentials: 'include',
           headers: { Accept: 'application/json' },
+          signal: AbortSignal.timeout(10000),
         });
         if (!res.ok) return { error: `HTTP ${res.status}` };
         return await res.json();
@@ -282,6 +283,7 @@ export const fetchCafeMenuList = async (
           const res = await fetch(url, {
             credentials: 'include',
             headers: { Accept: 'application/json' },
+            signal: AbortSignal.timeout(10000),
           });
           if (!res.ok) return { error: `HTTP ${res.status}` };
           return await res.json();

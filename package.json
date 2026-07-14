@@ -16,6 +16,7 @@
     "accounts:check": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/account-roster-harness.ts --check",
     "accounts:sheet:check": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/sync-cafe-accounts-from-sheet.ts --check",
     "accounts:sync": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/sync-cafe-accounts-from-sheet.ts --apply --check",
+    "scan:low-comments": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/scan-low-comment-articles.ts",
     "verify:task": "node scripts/run-with-project-root.mjs tsx scripts/harness-verify.ts",
     "verify:ci": "npm run lint:strict && npm run test:harness && npm run test:tooling && npm run build"
   },
@@ -25,6 +26,7 @@
     "@bull-board/express": "^6.16.2",
     "@google/genai": "^1.42.0",
     "bullmq": "^5.66.5",
+    "cheerio": "^1.2.0",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",

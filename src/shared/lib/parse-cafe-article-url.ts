@@ -8,7 +8,30 @@ export interface ParsedCafeArticleUrl {
 
 const DESKTOP_PATTERN = /cafe\.naver\.com\/ca-fe\/cafes\/(\d+)\/articles\/(\d+)/;
 const MOBILE_PATTERN = /cafe\.naver\.com\/ca-fe\/web\/cafes\/([a-zA-Z0-9_-]+)\/articles\/(\d+)/;
+// naver.me 단축링크가 리다이렉트되는 실제 형태: m.cafe.naver.com/{slug}/{articleId}?art=... (/ca-fe/, articles/ 접두어 없음)
+const M_CAFE_PATTERN = /m\.cafe\.naver\.com\/([a-zA-Z0-9_-]+)\/(\d+)(?:[/?]|$)/;
+// PC 카페 대문에서 흔한 축약형: cafe.naver.com/{slug}/{articleId} (ca-fe, articles/ 접두어 없음)
+const CAFE_ARTICLE_PATH_PATTERN = /cafe\.naver\.com\/(?!ca-fe\/)([a-zA-Z0-9_-]+)\/(\d+)(?:[/?]|$)/;
 const LEGACY_SLUG_PATTERN = /cafe\.naver\.com\/([a-zA-Z0-9_-]+)(?:[/?]|$)/;
+const NAVER_ME_PATTERN = /naver\.me\/[a-zA-Z0-9]+/i;
+
+// naver.me 단축링크를 실제 카페 글 URL로 해석한다. Node fetch는 redirect:'manual'일 때
+// Location 헤더를 읽을 수 없으므로(WHATWG spec, opaqueredirect) redirect:'follow' + response.url을 사용해야 한다.
+const resolveShortLink = async (rawUrl: string): Promise<string> => {
+  if (!NAVER_ME_PATTERN.test(rawUrl)) return rawUrl;
+
+  try {
+    const res = await fetch(rawUrl, { method: 'HEAD', redirect: 'follow' });
+    if (res.url) return res.url;
+  } catch {}
+
+  try {
+    const res = await fetch(rawUrl, { method: 'GET', redirect: 'follow' });
+    if (res.url) return res.url;
+  } catch {}
+
+  return rawUrl;
+};
 
 export const parseCafeArticleUrlShape = (rawUrl: string): { cafeSlug?: string; cafeId?: string; articleId: number } | null => {
   const url = rawUrl.trim();
@@ -21,6 +44,16 @@ export const parseCafeArticleUrlShape = (rawUrl: string): { cafeSlug?: string; c
   const mobileMatch = url.match(MOBILE_PATTERN);
   if (mobileMatch) {
     return { cafeSlug: mobileMatch[1], articleId: Number(mobileMatch[2]) };
+  }
+
+  const mCafeMatch = url.match(M_CAFE_PATTERN);
+  if (mCafeMatch) {
+    return { cafeSlug: mCafeMatch[1], articleId: Number(mCafeMatch[2]) };
+  }
+
+  const cafeArticlePathMatch = url.match(CAFE_ARTICLE_PATH_PATTERN);
+  if (cafeArticlePathMatch) {
+    return { cafeSlug: cafeArticlePathMatch[1], articleId: Number(cafeArticlePathMatch[2]) };
   }
 
   const legacySlugMatch = url.match(LEGACY_SLUG_PATTERN);
@@ -50,7 +83,8 @@ export const parseCafeArticleUrl = async (
   userId: string,
   rawUrl: string,
 ): Promise<{ success: true; result: ParsedCafeArticleUrl } | { success: false; error: string }> => {
-  const shape = parseCafeArticleUrlShape(rawUrl);
+  const resolvedUrl = await resolveShortLink(rawUrl.trim());
+  const shape = parseCafeArticleUrlShape(resolvedUrl);
   if (!shape) {
     return { success: false, error: '카페 글 URL 형식을 인식하지 못했습니다 (cafe.naver.com 링크인지 확인해주세요)' };
   }

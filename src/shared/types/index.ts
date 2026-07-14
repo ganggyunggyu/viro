@@ -71,6 +71,24 @@ export interface GenerateContentResponse {
   ref: string;
 }
 
+export interface TeteContentRequest {
+  keyword: string;
+  ref?: string;
+  /** '정보성' | '후기성'. 비우면 서버가 키워드로 자동 판정 */
+  contentType?: '정보성' | '후기성' | '';
+}
+
+export interface TeteContentResponse {
+  _id: string;
+  content: string;
+  createdAt: string;
+  engine: string;
+  service: string;
+  category: string;
+  keyword: string;
+  contentType: '정보성' | '후기성';
+}
+
 export interface PostArticleInput {
   service: string;
   keyword: string;

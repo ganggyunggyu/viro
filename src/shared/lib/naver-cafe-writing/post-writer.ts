@@ -13,7 +13,7 @@ import type { Page } from 'playwright';
 import type { PostOptions, PostResult } from '@/shared/types';
 import { DEFAULT_POST_OPTIONS } from '@/shared/types';
 import { incrementActivity } from '@/shared/models/daily-activity';
-import { uploadSingleImage } from './image-uploader';
+import { uploadImages, placeCursorAtEndOfParagraph } from './image-uploader';
 import type { ElementHandle } from 'playwright';
 
 // 팝업 닫고 클릭 재시도 헬퍼
@@ -322,7 +322,7 @@ export const writePostWithAccount = async (
       const apiUrl = `https://apis.naver.com/cafe-web/cafe2/ArticleListV2dot1.json?search.clubid=${cafeId}&search.page=1&search.perPage=10&search.queryType=lastArticle&search.boardtype=L`;
       const articleIds = await page.evaluate(async (url: string) => {
         try {
-          const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' } });
+          const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
           if (!res.ok) return [];
           const data = await res.json();
           return (data?.message?.result?.articleList ?? []).map((a: { articleId: number }) => a.articleId);
@@ -380,6 +380,21 @@ export const writePostWithAccount = async (
       }
     }
 
+    // 새로 만든 카페 등에서 SPA 라우팅이 글쓰기 페이지 대신 기존 글로 되돌아가는 경우가 있어
+    // 실제 URL이 write 페이지인지 확인하고 아니면 재시도
+    for (let bounceRetry = 0; bounceRetry < 2 && !page.url().includes('/articles/write'); bounceRetry++) {
+      console.log(`[POST] ${id} 글쓰기 페이지 이탈 감지 (현재: ${page.url()}) - 재시도 ${bounceRetry + 1}/2`);
+      await page.waitForTimeout(2000);
+      await navigateToWritePage();
+    }
+    if (!page.url().includes('/articles/write')) {
+      return {
+        success: false,
+        writerAccountId: id,
+        error: `글쓰기 페이지 진입 실패 - 현재 URL: ${page.url()}`,
+      };
+    }
+
     // 스마트 에디터 팝업 닫기 (지도/장소 등)
     const popupCloseButton = await page.$('.se-popup-close-button');
     if (popupCloseButton) {
@@ -391,7 +406,10 @@ export const writePostWithAccount = async (
     console.log(`[POST] ${id} 카테고리 지정: "${category || '없음'}"`);
 
     // 게시판 선택 (드롭다운 클릭 → 카테고리 선택)
-    const boardSelectButton = await page.$('.FormSelectButton button.button');
+    // 동시 다중 계정 실행 시 에디터 렌더링이 늦어질 수 있어 즉시 조회 대신 대기 후 조회
+    const boardSelectButton = await page
+      .waitForSelector('.FormSelectButton button.button', { timeout: 8000 })
+      .catch(() => null);
     if (boardSelectButton) {
       await boardSelectButton.click();
       await page.waitForTimeout(500);
@@ -494,34 +512,56 @@ export const writePostWithAccount = async (
       .replace(/<[^>]*>/g, '')         // 나머지 태그 제거
       .trim();
 
+    // 원고가 문장마다 빈 줄로 끊겨 오는 경우가 많아 2~4문장씩 묶어 단락화
+    // (단락 사이에만 빈 줄을 두어 너무 좁게 보이는 것을 방지)
+    const groupLinesIntoParagraphs = (rawLines: string[]): string[] => {
+      const sentences = rawLines.map((l) => l.trim()).filter(Boolean);
+      const grouped: string[] = [];
+      let i = 0;
+      while (i < sentences.length) {
+        const groupSize = 2 + Math.floor(Math.random() * 3); // 2~4문장
+        grouped.push(...sentences.slice(i, i + groupSize));
+        i += groupSize;
+        if (i < sentences.length) grouped.push('');
+      }
+      return grouped;
+    };
+
     // SmartEditor는 contenteditable이므로 줄바꿈은 Enter 키로 처리
-    const lines = plainContent.split('\n');
+    const lines = groupLinesIntoParagraphs(plainContent.split('\n'));
 
-    // 이미지 삽입 위치 계산 (단락 구분점 = 빈 줄)
-    const paragraphBreaks: number[] = [];
-    for (let i = 0; i < lines.length; i++) {
-      if (!lines[i].trim()) {
-        paragraphBreaks.push(i);
+    // 이미지는 맨 위에 전부 몰아서 넣고, 그 다음에 본문을 이어서 작성한다
+    if (images && images.length > 0) {
+      console.log(`[POST] ${id} 이미지 ${images.length}장 상단에 먼저 삽입`);
+      let uploadSuccess = await uploadImages(page, images);
+      if (!uploadSuccess) {
+        console.warn(`[POST] ${id} 이미지 업로드 실패 - 1회 재시도`);
+        await page.waitForTimeout(1500);
+        uploadSuccess = await uploadImages(page, images);
       }
+      if (uploadSuccess) {
+        console.log(`[POST] ${id} 이미지 업로드 완료`);
+      } else {
+        return {
+          success: false,
+          writerAccountId: id,
+          error: '이미지 업로드 실패 (재시도 후에도 0장) - 제출 중단',
+        };
+      }
+      await page.waitForTimeout(500);
+      // 클릭 기반 커서 이동은 남아있는 플로팅 툴바를 대신 때릴 수 있어(포커스는
+      // 전혀 이동하지 않고 이후 타이핑이 통째로 유실됨), Selection API로 마지막
+      // 문단 끝에 커서를 직접 꽂는다.
+      const paragraphsAfterImages = await page.$$('p.se-text-paragraph');
+      const lastParagraphAfterImages = paragraphsAfterImages[paragraphsAfterImages.length - 1];
+      if (lastParagraphAfterImages) {
+        await placeCursorAtEndOfParagraph(page, lastParagraphAfterImages);
+        await page.keyboard.press('End');
+      }
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(300);
     }
 
-    // 이미지 삽입 위치 결정 (N장일 때: 중간에 N-1장, 끝에 1장)
-    const imageInsertPoints: Map<number, string> = new Map();
-    if (images && images.length > 1 && paragraphBreaks.length > 0) {
-      const imgCount = images.length;
-      const breakCount = paragraphBreaks.length;
-      // 이미지 N-1개를 단락 구분점에 균등 분배
-      const interval = Math.max(1, Math.floor(breakCount / (imgCount - 1 || 1)));
-      for (let j = 0; j < imgCount - 1; j++) {
-        const breakIdx = Math.min(j * interval, breakCount - 1);
-        const lineIdx = paragraphBreaks[breakIdx];
-        imageInsertPoints.set(lineIdx, images[j]);
-        console.log(`[POST] 이미지 ${j + 1} 삽입 위치: line ${lineIdx}`);
-      }
-    }
-
-    // 글 작성 + 이미지 삽입
-    let insertedImageCount = 0;
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].trim()) {
         await page.keyboard.type(lines[i], { delay: 100 }); // 600타/분 속도
@@ -529,35 +569,9 @@ export const writePostWithAccount = async (
       if (i < lines.length - 1) {
         await page.keyboard.press('Enter');
       }
-
-      // 단락 구분점에서 이미지 삽입
-      if (imageInsertPoints.has(i)) {
-        const img = imageInsertPoints.get(i)!;
-        console.log(`[POST] ${id} 이미지 ${insertedImageCount + 1} 삽입 중 (line ${i})`);
-        await page.waitForTimeout(500);
-        const success = await uploadSingleImage(page, img);
-        if (success) {
-          insertedImageCount++;
-          console.log(`[POST] ${id} 이미지 ${insertedImageCount} 삽입 완료`);
-        }
-        await page.waitForTimeout(500);
-      }
     }
 
     await page.waitForTimeout(500);
-
-    // 마지막 이미지는 본문 끝에 삽입
-    if (images && images.length > 0) {
-      const lastImage = images[images.length - 1];
-      console.log(`[POST] ${id} 마지막 이미지 (${images.length}번째) 삽입 중`);
-      const success = await uploadSingleImage(page, lastImage);
-      if (success) {
-        console.log(`[POST] ${id} 마지막 이미지 삽입 완료`);
-      } else {
-        console.warn(`[POST] ${id} 마지막 이미지 삽입 실패`);
-      }
-      await page.waitForTimeout(1000);
-    }
 
     // 게시 옵션 설정 (체크박스 조작)
     await applyPostOptions(page, postOptions);
@@ -627,7 +641,7 @@ export const writePostWithAccount = async (
         const apiUrl = `https://apis.naver.com/cafe-web/cafe2/ArticleListV2dot1.json?search.clubid=${cafeId}&search.page=1&search.perPage=10&search.queryType=lastArticle&search.boardtype=L`;
         const browseIds = await page.evaluate(async (url: string) => {
           try {
-            const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' } });
+            const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
             if (!res.ok) return [];
             const data = await res.json();
             return (data?.message?.result?.articleList ?? []).map((a: { articleId: number }) => a.articleId);

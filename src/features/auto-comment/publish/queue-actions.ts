@@ -14,7 +14,7 @@ export type QueueStatusResult = Record<string, { waiting: number; active: number
 export const runPostOnlyAction = async (
   input: PostOnlyInput
 ): Promise<QueueBatchResult> => {
-  const { keywords, ref, cafeId, postOptions } = input;
+  const { keywords, ref, cafeId, postOptions, attachImages, postsPerDay } = input;
 
   console.log('[POST-ONLY] 큐 추가 시작:', keywords.length, '개 키워드');
 
@@ -27,6 +27,8 @@ export const runPostOnlyAction = async (
       cafeId,
       postOptions,
       skipComments: true, // 글만 발행 (댓글/대댓글 스킵)
+      attachImages,
+      postsPerDay,
     });
   } catch (error) {
     console.error('[POST-ONLY] Redis 연결 실패:', error);

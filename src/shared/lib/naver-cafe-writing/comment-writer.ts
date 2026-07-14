@@ -30,7 +30,7 @@ const normalizeText = (value: string | null | undefined): string => {
   return (value ?? '').replace(/\s+/g, ' ').trim();
 };
 
-const navigateToArticle = async (
+export const navigateToArticle = async (
   page: Page,
   articleUrl: string,
   id: string,
@@ -66,7 +66,7 @@ const navigateToArticle = async (
   return { success: true };
 };
 
-const checkErrorPopup = async (page: Page): Promise<string | null> => {
+export const checkErrorPopup = async (page: Page): Promise<string | null> => {
   const errorPopup = await page.$('.LayerPopup, .popup_layer, [role="alertdialog"]');
   if (!errorPopup) return null;
 
@@ -87,7 +87,7 @@ const waitForCommentItem = async (
   }
 };
 
-const getCommentRoot = async (page: Page): Promise<Page | Frame> => {
+export const getCommentRoot = async (page: Page): Promise<Page | Frame> => {
   try {
     await page.waitForSelector('iframe#cafe_main', { timeout: 20000 });
   } catch {
@@ -105,7 +105,24 @@ const getCommentRoot = async (page: Page): Promise<Page | Frame> => {
   return frame;
 };
 
-const getClosestCommentItem = async (
+const ARTICLE_WRITER_SELECTORS = [
+  '.nick_box .nick',
+  '.writer .nick',
+  '.profile_info .nick',
+  '.nickname',
+];
+
+export const getArticleWriterNickname = async (root: Page | Frame): Promise<string> => {
+  for (const selector of ARTICLE_WRITER_SELECTORS) {
+    const el = await root.$(selector);
+    if (!el) continue;
+    const text = normalizeText(await el.evaluate((node) => node.textContent));
+    if (text) return text;
+  }
+  return '';
+};
+
+export const getClosestCommentItem = async (
   node: ElementHandle<Element>
 ): Promise<ElementHandle<HTMLElement> | null> => {
   const handle = await node.evaluateHandle((el) => el.closest('.CommentItem'));
@@ -113,7 +130,7 @@ const getClosestCommentItem = async (
   return element ? (element as ElementHandle<HTMLElement>) : null;
 };
 
-const findCommentItemById = async (
+export const findCommentItemById = async (
   root: Page | Frame,
   commentId: string
 ): Promise<ElementHandle<HTMLElement> | null> => {
@@ -139,6 +156,13 @@ const findCommentItemById = async (
     if (closest) return closest;
   }
 
+  // 댓글 닉네임 앵커의 id 속성이 "cih" + commentId 형태인 케이스 (라이브 검증됨)
+  const cihAnchor = await root.$(`a[id="cih${safeId}"]`);
+  if (cihAnchor) {
+    const closest = await getClosestCommentItem(cihAnchor);
+    if (closest) return closest;
+  }
+
   return null;
 };
 
@@ -153,7 +177,7 @@ const getItemText = async (
   }
 };
 
-const getCommentIdFromItem = async (
+export const getCommentIdFromItem = async (
   item: ElementHandle<HTMLElement>
 ): Promise<string | undefined> => {
   const idAttr = await item.getAttribute('id');
@@ -173,6 +197,11 @@ const getCommentIdFromItem = async (
       const parts = cid.split('-');
       return parts[parts.length - 1] || cid;
     }
+  } catch {}
+
+  try {
+    const cihId = await item.$eval('a[id^="cih"]', (el) => el.id);
+    if (cihId) return cihId.replace(/^cih/, '');
   } catch {}
 
   return undefined;
@@ -243,6 +272,17 @@ export const writeCommentWithAccount = async (
 
     const root = await getCommentRoot(page);
 
+    // 글쓴이 본인 계정으로는 댓글 작성 금지 (자작극처럼 보이는 것 방지)
+    const writerNickname = await getArticleWriterNickname(root);
+    const commenterNickname = normalizeText(account.nickname || account.id);
+    if (writerNickname && isNicknameEquivalent(writerNickname, commenterNickname)) {
+      return {
+        accountId: id,
+        success: false,
+        error: `글쓴이 본인 계정으로는 댓글 작성 불가 (작성자 닉네임: ${writerNickname})`,
+      };
+    }
+
     // 대댓글 입력창이 열려있으면 닫기 (취소 버튼 클릭)
     const openReplyCancel = await root.$('.CommentWriter:has(.btn_cancel) a.btn_cancel');
     if (openReplyCancel) {
@@ -289,7 +329,6 @@ export const writeCommentWithAccount = async (
     }
 
     const contentPreview = normalizeText(sanitizedContent).slice(0, 30);
-    const commenterNickname = normalizeText(account.nickname || account.id);
     let found = false;
     let commentId: string | undefined;
 
@@ -393,6 +432,18 @@ export const writeReplyWithAccount = async (
     };
 
     const root = await getCommentRoot(page);
+
+    // 글쓴이 본인 계정으로는 대댓글 작성도 금지
+    const writerNickname = await getArticleWriterNickname(root);
+    const commenterNickname = normalizeText(account.nickname || account.id);
+    if (writerNickname && isNicknameEquivalent(writerNickname, commenterNickname)) {
+      return {
+        accountId: id,
+        success: false,
+        error: `글쓴이 본인 계정으로는 댓글 작성 불가 (작성자 닉네임: ${writerNickname})`,
+      };
+    }
+
     let targetItem: ElementHandle<HTMLElement> | null = null;
     let targetIndex = -1;
 

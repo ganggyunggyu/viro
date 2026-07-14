@@ -12,6 +12,8 @@ export interface IArticleComment {
   createdAt: Date;
 }
 
+export type ExposureStatus = '노출' | '미노출' | '확인실패';
+
 export interface IPublishedArticle extends Document {
   articleId: number;
   cafeId: string;
@@ -27,6 +29,10 @@ export interface IPublishedArticle extends Document {
   commentCount: number;
   replyCount: number;
   comments: IArticleComment[]; // 댓글/대댓글 목록
+  exposureStatus?: ExposureStatus; // 네이버 카페 검색 노출체크 결과
+  exposureRank?: number; // 노출 시 카페 검색결과 내 순위 (1부터)
+  exposureFoundLink?: string; // 노출 시 검색결과에서 확인된 실제 링크
+  exposureCheckedAt?: Date; // 마지막 노출체크 시각
 }
 
 const ArticleCommentSchema = new Schema<IArticleComment>(
@@ -60,6 +66,10 @@ const PublishedArticleSchema = new Schema<IPublishedArticle>(
     commentCount: { type: Number, default: 0 },
     replyCount: { type: Number, default: 0 },
     comments: { type: [ArticleCommentSchema], default: [] },
+    exposureStatus: { type: String, enum: ['노출', '미노출', '확인실패'] },
+    exposureRank: { type: Number },
+    exposureFoundLink: { type: String },
+    exposureCheckedAt: { type: Date },
   },
   { timestamps: true }
 );
@@ -120,6 +130,19 @@ export const addCommentToArticle = async (
   }
 
   return !!result;
+};
+
+export const removeCommentFromArticle = async (
+  cafeId: string,
+  articleId: number,
+  commentId: string
+): Promise<boolean> => {
+  const result = await PublishedArticle.updateOne(
+    { cafeId, articleId, 'comments.commentId': commentId },
+    { $pull: { comments: { commentId } }, $inc: { commentCount: -1 } }
+  );
+
+  return result.modifiedCount > 0;
 };
 
 export const getArticleComments = async (
@@ -184,4 +207,33 @@ export const getRecentWriters = async (
     .lean();
 
   return articles.map((a) => a.writerAccountId);
+};
+
+export const updateArticleExposure = async (
+  cafeId: string,
+  articleId: number,
+  result: { status: ExposureStatus; rank?: number; foundLink?: string }
+): Promise<boolean> => {
+  const updated = await PublishedArticle.findOneAndUpdate(
+    { cafeId, articleId },
+    {
+      $set: {
+        exposureStatus: result.status,
+        exposureRank: result.rank,
+        exposureFoundLink: result.foundLink,
+        exposureCheckedAt: new Date(),
+      },
+    }
+  );
+
+  return !!updated;
+};
+
+export const getRecentPublishedArticles = async (
+  cafeId: string,
+  limit: number = 30
+): Promise<IPublishedArticle[]> => {
+  return PublishedArticle.find({ cafeId, status: { $in: ['published', 'modified'] } })
+    .sort({ publishedAt: -1 })
+    .limit(limit);
 };
