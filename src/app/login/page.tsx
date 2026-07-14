@@ -4,7 +4,7 @@ import { useId, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSetAtom } from 'jotai';
 import { login, register } from '@/features';
-import { Button, cn, userAtom } from '@/shared';
+import { Button, cn, Logo, userAtom } from '@/shared';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,16 +49,9 @@ export default function LoginPage() {
   return (
     <div className={cn('min-h-screen bg-background flex items-center justify-center p-6')}>
       <div className={cn('w-full max-w-sm space-y-8')}>
-        <div className={cn('text-center space-y-2')}>
-          <div
-            className={cn(
-              'mx-auto h-14 w-14 rounded-2xl bg-accent text-background flex items-center justify-center text-xl font-bold'
-            )}
-          >
-            V
-          </div>
-          <h1 className={cn('text-2xl font-semibold text-ink mt-4')}>Viro</h1>
-          <p className={cn('text-sm text-ink-muted')}>네이버 카페 운영 콘솔</p>
+        <div className={cn('flex flex-col items-center gap-3')}>
+          <Logo variant="mark" size={56} className="rounded-2xl" />
+          <h1 className={cn('text-2xl font-semibold text-ink')}>Viro</h1>
         </div>
 
         <div className={cn('rounded-2xl border border-border-light bg-surface p-6 space-y-6')}>

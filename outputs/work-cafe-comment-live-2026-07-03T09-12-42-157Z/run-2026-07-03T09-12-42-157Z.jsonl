@@ -1,2 +1,0 @@
-{"event":"run-started","runId":"2026-07-03T09-12-42-157Z","schedulePath":"outputs/work-cafe-comment-schedule-2026-07-03T06-59-52-593Z.json","originalTasks":914,"skippedAlreadyCommented":61,"warmupWarmedAccountIds":[],"warmupFailedAccounts":[],"canarySuccessTarget":0,"at":"2026-07-03T09:12:45.738Z"}
-{"event":"main-schedule-started","runId":"2026-07-03T09-12-42-157Z","totalTasks":853,"mainTasks":853,"articleCount":156,"accountCount":15,"firstDueAtKst":"2026-07-03 18:12:45","lastDueAtKst":"2026-07-03 18:28:46","at":"2026-07-03T09:12:45.744Z"}

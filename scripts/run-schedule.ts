@@ -221,7 +221,7 @@ const main = async (): Promise<void> => {
   }).lean();
   const accountMap = new Map(accounts.map((a) => [a.accountId, a]));
   const writerAccountIds = accounts
-    .filter((a) => a.role === "writer")
+    .filter((a) => a.role === "writer" && !a.excludeFromAutoComment)
     .map((a) => a.accountId);
   const policyAccounts: NaverAccount[] = accounts.map((a) => ({
     id: a.accountId,
@@ -233,6 +233,7 @@ const main = async (): Promise<void> => {
     dailyPostLimit: a.dailyPostLimit,
     personaId: a.personaId,
     role: a.role,
+    excludeFromAutoComment: a.excludeFromAutoComment,
   }));
   const writerAccountIdsByCafeId = new Map(
     cafes.map((cafe) => [
@@ -241,7 +242,7 @@ const main = async (): Promise<void> => {
     ]),
   );
   const commenterIds = accounts
-    .filter((a) => a.role === "commenter")
+    .filter((a) => a.role === "commenter" && !a.excludeFromAutoComment)
     .map((a) => a.accountId);
 
   if (writerAccountIds.length === 0) throw new Error("writer 계정 없음");

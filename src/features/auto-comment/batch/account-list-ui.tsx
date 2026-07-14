@@ -7,7 +7,6 @@ import { loginAccountAction } from '../actions';
 
 interface AccountInfo {
   id: string;
-  password: string;
   nickname?: string;
   isMain?: boolean;
 }
@@ -27,12 +26,12 @@ export const AccountListUI = () => {
   const [loginStatus, setLoginStatus] = useState<Record<string, 'idle' | 'loading' | 'success' | 'error'>>({});
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handleLogin = (id: string, password: string) => {
+  const handleLogin = (id: string) => {
     setLoginStatus((prev) => ({ ...prev, [id]: 'loading' }));
     setMessage({ type: 'success', text: `${id} 로그인 중...` });
 
     startTransition(async () => {
-      const result = await loginAccountAction(id, password);
+      const result = await loginAccountAction(id);
 
       if (result.success) {
         setLoginStatus((prev) => ({ ...prev, [id]: 'success' }));
@@ -50,7 +49,7 @@ export const AccountListUI = () => {
     startTransition(async () => {
       for (const account of accounts) {
         setLoginStatus((prev) => ({ ...prev, [account.id]: 'loading' }));
-        const result = await loginAccountAction(account.id, account.password);
+        const result = await loginAccountAction(account.id);
         setLoginStatus((prev) => ({
           ...prev,
           [account.id]: result.success ? 'success' : 'error',
@@ -138,7 +137,7 @@ export const AccountListUI = () => {
               </div>
             </div>
             <button
-              onClick={() => handleLogin(account.id, account.password)}
+              onClick={() => handleLogin(account.id)}
               disabled={isPending || loginStatus[account.id] === 'loading'}
               className={cn(
                 'rounded-lg px-3 py-1.5 text-xs font-medium transition-all',

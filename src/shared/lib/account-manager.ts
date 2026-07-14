@@ -15,6 +15,8 @@ export interface NaverAccount {
   dailyPostLimit?: number;
   personaId?: string;
   role?: AccountRole;
+  campaignTag?: string;
+  excludeFromAutoComment?: boolean;
 }
 
 export interface AccountList {

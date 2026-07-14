@@ -8,7 +8,6 @@ import {
   addAccountAction,
   updateAccountAction,
   deleteAccountAction,
-  migrateFromConfigAction,
   type AccountData,
   type AccountInput,
 } from './actions';
@@ -125,6 +124,8 @@ interface AccountFormData {
   restDays: number[];
   dailyPostLimit: string;
   personaId: string;
+  campaignTag: string;
+  excludeFromAutoComment: boolean;
 }
 
 const defaultFormData: AccountFormData = {
@@ -137,6 +138,8 @@ const defaultFormData: AccountFormData = {
   restDays: [],
   dailyPostLimit: '5',
   personaId: '',
+  campaignTag: '',
+  excludeFromAutoComment: false,
 };
 
 export const AccountManagerUI = () => {
@@ -168,16 +171,6 @@ export const AccountManagerUI = () => {
     loadAccounts();
   }, []);
 
-  const handleMigrate = () => {
-    startTransition(async () => {
-      const result = await migrateFromConfigAction();
-      if (result.success) {
-        setMessage({ type: 'success', text: `마이그레이션 완료: 계정 ${result.accountsAdded}개, 카페 ${result.cafesAdded}개 추가` });
-        loadAccounts();
-      }
-    });
-  };
-
   const openAddForm = () => {
     setFormData(defaultFormData);
     setEditingId(null);
@@ -187,7 +180,7 @@ export const AccountManagerUI = () => {
   const openEditForm = (account: AccountData) => {
     setFormData({
       id: account.id,
-      password: account.password,
+      password: '',
       nickname: account.nickname || '',
       isMain: account.isMain || false,
       activityStart: account.activityHours?.start?.toString() || '9',
@@ -195,20 +188,22 @@ export const AccountManagerUI = () => {
       restDays: account.restDays || [],
       dailyPostLimit: account.dailyPostLimit?.toString() || '5',
       personaId: account.personaId || '',
+      campaignTag: account.campaignTag || '',
+      excludeFromAutoComment: account.excludeFromAutoComment || false,
     });
     setEditingId(account.id);
     setShowForm(true);
   };
 
   const handleSubmit = () => {
-    if (!formData.id || !formData.password) {
+    if (!formData.id || (!editingId && !formData.password)) {
       setMessage({ type: 'error', text: '아이디와 비밀번호를 입력해주세요' });
       return;
     }
 
-    const input: AccountInput = {
+    const input: Partial<AccountInput> = {
       accountId: formData.id,
-      password: formData.password,
+      ...(formData.password ? { password: formData.password } : {}),
       nickname: formData.nickname || undefined,
       isMain: formData.isMain,
       activityHours: {
@@ -218,6 +213,8 @@ export const AccountManagerUI = () => {
       restDays: formData.restDays,
       dailyPostLimit: parseInt(formData.dailyPostLimit) || undefined,
       personaId: formData.personaId,
+      campaignTag: formData.campaignTag || undefined,
+      excludeFromAutoComment: formData.excludeFromAutoComment,
     };
 
     startTransition(async () => {
@@ -225,7 +222,7 @@ export const AccountManagerUI = () => {
         await updateAccountAction(editingId, input);
         setMessage({ type: 'success', text: '계정 수정 완료' });
       } else {
-        const result = await addAccountAction(input);
+        const result = await addAccountAction(input as AccountInput);
         if (result.success) {
           setMessage({ type: 'success', text: '계정 추가 완료' });
         } else {
@@ -259,11 +256,11 @@ export const AccountManagerUI = () => {
     });
   };
 
-  const handleLogin = (id: string, password: string) => {
+  const handleLogin = (id: string) => {
     setLoginStatus((prev) => ({ ...prev, [id]: 'loading' }));
 
     startTransition(async () => {
-      const result = await loginAccountAction(id, password);
+      const result = await loginAccountAction(id);
       setLoginStatus((prev) => ({
         ...prev,
         [id]: result.success ? 'success' : 'error',
@@ -318,13 +315,6 @@ export const AccountManagerUI = () => {
           <p className={cn('text-sm text-(--ink-muted) mt-1')}>{accounts.length}개 계정</p>
         </div>
         <div className={cn('flex gap-2')}>
-          <Button
-            variant="secondary"
-            onClick={handleMigrate}
-            disabled={isPending}
-          >
-            설정 가져오기
-          </Button>
           <Button onClick={openAddForm}>
             계정 추가
           </Button>
@@ -378,7 +368,7 @@ export const AccountManagerUI = () => {
               <label className={labelClassName}>비밀번호</label>
               <input
                 type="password"
-                placeholder="비밀번호"
+                placeholder={editingId ? '비워두면 기존 비밀번호 유지' : '비밀번호'}
                 value={formData.password}
                 onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
                 className={inputClassName}
@@ -461,6 +451,23 @@ export const AccountManagerUI = () => {
             />
           </div>
 
+          {/* 캠페인 태그 & 자동 댓글 제외 */}
+          <div className={cn('space-y-2')}>
+            <label className={labelClassName}>캠페인 태그 (다른 업체/용도로 쓰는 계정이면 표시)</label>
+            <input
+              type="text"
+              placeholder="예: 안과의원 노출용"
+              value={formData.campaignTag}
+              onChange={(e) => setFormData((p) => ({ ...p, campaignTag: e.target.value }))}
+              className={inputClassName}
+            />
+          </div>
+          <Checkbox
+            label="자동 댓글 작업 풀에서 제외 (다른 업체 전용 계정 등)"
+            checked={formData.excludeFromAutoComment}
+            onChange={(e) => setFormData((p) => ({ ...p, excludeFromAutoComment: e.target.checked }))}
+          />
+
           {/* 메인 계정 */}
           <Checkbox
             label="메인 계정으로 설정"
@@ -483,7 +490,7 @@ export const AccountManagerUI = () => {
       {accounts.length === 0 ? (
         <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-8 text-center')}>
           <p className={cn('text-sm text-(--ink-muted)')}>
-            등록된 계정이 없습니다. &quot;설정 가져오기&quot; 또는 &quot;계정 추가&quot; 버튼을 눌러주세요.
+            등록된 계정이 없습니다. &quot;계정 추가&quot; 버튼을 눌러 네이버 계정을 등록하세요.
           </p>
         </div>
       ) : (
@@ -521,6 +528,11 @@ export const AccountManagerUI = () => {
                           {PERSONA_OPTIONS.find((opt) => opt.id === account.personaId)?.label || account.personaId}
                         </span>
                       )}
+                      {account.excludeFromAutoComment && (
+                        <span className={cn('text-xs bg-(--danger-soft) text-(--danger) px-2 py-0.5 rounded-md font-medium')}>
+                          자동댓글 제외{account.campaignTag ? ` · ${account.campaignTag}` : ''}
+                        </span>
+                      )}
                     </div>
                     <div className={cn('flex items-center gap-2 mt-1')}>
                       {getStatusBadge(account.id)}
@@ -541,7 +553,7 @@ export const AccountManagerUI = () => {
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => handleLogin(account.id, account.password)}
+                    onClick={() => handleLogin(account.id)}
                     disabled={isPending || loginStatus[account.id] === 'loading'}
                   >
                     테스트

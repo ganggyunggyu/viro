@@ -19,6 +19,8 @@
 # next.js
 /.next/
 /.next-build-verify/
+/.next-preview/
+/.next-preview-redesign/
 /out/
 
 # production
@@ -68,7 +70,8 @@ scripts/*-temp.ts
 scripts/insert-accounts.mjs
 scripts/update-accounts.ts
 
-# generated reports
+# generated reports (may contain real account IDs)
+/outputs/
 batch-test-results.md
 batch-test-results.tsv
 batch-test-sheet.tsv

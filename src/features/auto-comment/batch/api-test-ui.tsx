@@ -194,7 +194,7 @@ export const ApiTestUI = () => {
   return (
     <div className={cn('space-y-4')}>
       <div className={cn('space-y-1')}>
-        <p className={cn('text-xs uppercase tracking-[0.3em] text-(--ink-muted)')}>API Test</p>
+        <p className={cn('text-xs uppercase tracking-[0.3em] text-(--ink-muted)')}>API 테스트</p>
         <h2 className={cn('font-(--font-display) text-xl text-(--ink)')}>콘텐츠 생성 테스트</h2>
       </div>
 
@@ -268,7 +268,7 @@ export const ApiTestUI = () => {
       {/* 실제 배치 발행 */}
       <div className={cn('rounded-2xl border border-(--border) bg-(--surface-muted) p-4 shadow-sm space-y-3')}>
         <div className={cn('space-y-1')}>
-          <p className={cn('text-xs uppercase tracking-[0.2em] text-(--ink-muted)')}>Batch Publish</p>
+          <p className={cn('text-xs uppercase tracking-[0.2em] text-(--ink-muted)')}>배치 발행</p>
           <h3 className={cn('text-sm font-semibold text-(--ink)')}>커스텀 프롬프트로 배치 발행</h3>
           <p className={cn('text-xs text-(--ink-muted)')}>
             원고 프롬프트(원고 탭)와 키워드 그대로 큐에 추가합니다.

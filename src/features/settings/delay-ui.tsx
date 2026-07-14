@@ -1,69 +1,107 @@
 'use client';
 
 import { cn } from '@/shared';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, ConfirmModal } from '@/shared';
 import { useDelaySettings, type DelaySettings } from '@/shared/hooks/use-delay-settings';
 
-const msToMinSec = (ms: number): string => {
-  const totalSec = Math.floor(ms / 1000);
-  const min = Math.floor(totalSec / 60);
-  const sec = totalSec % 60;
-  if (min === 0) return `${sec}초`;
-  if (sec === 0) return `${min}분`;
-  return `${min}분 ${sec}초`;
+const rangeInputClassName = cn(
+  'w-16 rounded-lg border border-(--border) bg-(--surface) px-2 py-2 text-sm text-center text-(--ink)',
+  'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
+);
+
+const formatUnitValue = (ms: number, factor: number, allowDecimal: boolean): string => {
+  const val = ms / factor;
+  return allowDecimal ? String(Number(val.toFixed(2))) : String(Math.round(val));
 };
 
-interface RangeSliderProps {
+interface RangeInputRowProps {
   label: string;
   min: number;
   max: number;
+  step: number;
   minValue: number;
   maxValue: number;
-  step: number;
+  unit: string;
+  factor: number;
+  allowDecimal?: boolean;
   onChange: (min: number, max: number) => void;
 }
 
-const RangeSlider = ({ label, min, max, minValue, maxValue, step, onChange }: RangeSliderProps) => {
+const RangeInputRow = ({
+  label,
+  min,
+  max,
+  step,
+  minValue,
+  maxValue,
+  unit,
+  factor,
+  allowDecimal = false,
+  onChange,
+}: RangeInputRowProps) => {
+  const [minText, setMinText] = useState(() => formatUnitValue(minValue, factor, allowDecimal));
+  const [maxText, setMaxText] = useState(() => formatUnitValue(maxValue, factor, allowDecimal));
+
+  useEffect(() => {
+    setMinText(formatUnitValue(minValue, factor, allowDecimal));
+  }, [minValue, factor, allowDecimal]);
+
+  useEffect(() => {
+    setMaxText(formatUnitValue(maxValue, factor, allowDecimal));
+  }, [maxValue, factor, allowDecimal]);
+
+  const handleTextChange = (raw: string, setText: (value: string) => void) => {
+    const filtered = allowDecimal ? raw.replace(/[^0-9.]/g, '') : raw.replace(/\D/g, '');
+    setText(filtered);
+  };
+
+  const commitMin = () => {
+    const num = Number(minText);
+    if (Number.isNaN(num)) {
+      setMinText(formatUnitValue(minValue, factor, allowDecimal));
+      return;
+    }
+    const newMs = Math.round(num * factor);
+    const clamped = Math.max(min, Math.min(newMs, maxValue - step));
+    onChange(clamped, maxValue);
+  };
+
+  const commitMax = () => {
+    const num = Number(maxText);
+    if (Number.isNaN(num)) {
+      setMaxText(formatUnitValue(maxValue, factor, allowDecimal));
+      return;
+    }
+    const newMs = Math.round(num * factor);
+    const clamped = Math.min(max, Math.max(newMs, minValue + step));
+    onChange(minValue, clamped);
+  };
+
   return (
-    <div className={cn('space-y-3')}>
-      <div className={cn('flex justify-between items-center')}>
-        <span className={cn('text-sm font-medium text-(--ink)')}>{label}</span>
-        <span className={cn('text-sm text-(--ink-muted)')}>
-          {msToMinSec(minValue)} ~ {msToMinSec(maxValue)}
-        </span>
-      </div>
-      <div className={cn('space-y-2')}>
-        <div className={cn('flex gap-3 items-center')}>
-          <span className={cn('text-xs text-(--ink-muted) w-10')}>최소</span>
-          <input
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={minValue}
-            onChange={(e) => {
-              const newMin = Number(e.target.value);
-              onChange(Math.min(newMin, maxValue - step), maxValue);
-            }}
-            className={cn('flex-1 h-2 rounded-full appearance-none bg-(--border-light) accent-(--accent)')}
-          />
-        </div>
-        <div className={cn('flex gap-3 items-center')}>
-          <span className={cn('text-xs text-(--ink-muted) w-10')}>최대</span>
-          <input
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={maxValue}
-            onChange={(e) => {
-              const newMax = Number(e.target.value);
-              onChange(minValue, Math.max(newMax, minValue + step));
-            }}
-            className={cn('flex-1 h-2 rounded-full appearance-none bg-(--border-light) accent-(--accent)')}
-          />
-        </div>
+    <div className={cn('flex items-center justify-between gap-4')}>
+      <span className={cn('text-sm font-medium text-(--ink)')}>{label}</span>
+      <div className={cn('flex items-center gap-2')}>
+        <input
+          type="text"
+          inputMode={allowDecimal ? 'decimal' : 'numeric'}
+          value={minText}
+          onFocus={(e) => e.target.select()}
+          onChange={(e) => handleTextChange(e.target.value, setMinText)}
+          onBlur={commitMin}
+          className={rangeInputClassName}
+        />
+        <span className={cn('text-sm text-(--ink-tertiary)')}>~</span>
+        <input
+          type="text"
+          inputMode={allowDecimal ? 'decimal' : 'numeric'}
+          value={maxText}
+          onFocus={(e) => e.target.select()}
+          onChange={(e) => handleTextChange(e.target.value, setMaxText)}
+          onBlur={commitMax}
+          className={rangeInputClassName}
+        />
+        <span className={cn('text-sm text-(--ink-tertiary)')}>{unit}</span>
       </div>
     </div>
   );
@@ -117,32 +155,39 @@ export const DelaySettingsUI = () => {
           </span>
         </div>
 
-        <div className={cn('space-y-6')}>
-          <RangeSlider
+        <div className={cn('space-y-4')}>
+          <RangeInputRow
             label="글 사이 딜레이"
             min={10 * 1000}
             max={30 * 60 * 1000}
             step={5 * 1000}
+            unit="초"
+            factor={1000}
             minValue={settings.delays.betweenPosts.min}
             maxValue={settings.delays.betweenPosts.max}
             onChange={(min, max) => handleDelayChange('betweenPosts', min, max)}
           />
 
-          <RangeSlider
+          <RangeInputRow
             label="댓글 사이 딜레이"
             min={1 * 60 * 1000}
             max={15 * 60 * 1000}
             step={30 * 1000}
+            unit="분"
+            factor={60 * 1000}
+            allowDecimal
             minValue={settings.delays.betweenComments.min}
             maxValue={settings.delays.betweenComments.max}
             onChange={(min, max) => handleDelayChange('betweenComments', min, max)}
           />
 
-          <RangeSlider
+          <RangeInputRow
             label="글 작성 후 딜레이"
             min={1 * 1000}
             max={60 * 1000}
             step={1 * 1000}
+            unit="초"
+            factor={1000}
             minValue={settings.delays.afterPost.min}
             maxValue={settings.delays.afterPost.max}
             onChange={(min, max) => handleDelayChange('afterPost', min, max)}

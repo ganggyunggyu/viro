@@ -122,8 +122,15 @@ const main = async (): Promise<void> => {
   if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI missing');
 
   const sourcePath = getArgValue('--source', findLatestCollectionArtifact());
+  const targetMin = getArgValue('--target-min', '');
+  const targetMax = getArgValue('--target-max', '');
+  const useRange = targetMin !== '' && targetMax !== '';
+  const rangeMin = Number(targetMin || 0);
+  const rangeMax = Number(targetMax || 0);
   const targetCommentCount = Number(getArgValue('--target-comment-count', String(DEFAULT_TARGET_COMMENT_COUNT)));
   const model = getArgValue('--model', DEFAULT_MODEL);
+  const randomTarget = (): number =>
+    useRange ? Math.floor(rangeMin + Math.random() * Math.max(0, rangeMax - rangeMin + 1)) : targetCommentCount;
   const artifact = readCollectionArtifact(sourcePath);
   const collectionId = artifact.generatedAt.replace(/[:.]/g, '-');
   const collectedAt = new Date(artifact.generatedAt);
@@ -139,7 +146,8 @@ const main = async (): Promise<void> => {
     for (const article of cafe.articles || []) {
       totalArticles += 1;
       const commentCount = Number(article.commentCount || 0);
-      const needsCommentWork = commentCount < targetCommentCount;
+      const articleTarget = randomTarget();
+      const needsCommentWork = commentCount < articleTarget;
       const commentWorkStatus = needsCommentWork ? 'pending' : 'skipped';
 
       await WorkCafeArticle.findOneAndUpdate(
@@ -164,7 +172,7 @@ const main = async (): Promise<void> => {
             collectedAt,
             latestCollectionId: collectionId,
             needsCommentWork,
-            targetCommentCount,
+            targetCommentCount: articleTarget,
             commentWorkStatus,
           },
         },
@@ -184,8 +192,8 @@ const main = async (): Promise<void> => {
           nickname: article.nickname || '',
           menuName: article.menuName || '',
           commentCount,
-          targetCommentCount,
-          shortage: Math.max(0, targetCommentCount - commentCount),
+          targetCommentCount: articleTarget,
+          shortage: Math.max(0, articleTarget - commentCount),
           status: 'pending',
         });
       }
@@ -197,7 +205,7 @@ const main = async (): Promise<void> => {
     body: '{LIVE_NAVER_ARTICLE_BODY}',
     keyword: '{ARTICLE_TITLE_OR_KEYWORD}',
     category: '{CAFE_CATEGORY}',
-    exactCount: targetCommentCount,
+    exactCount: useRange ? rangeMax : targetCommentCount,
     model,
   });
 
@@ -206,7 +214,7 @@ const main = async (): Promise<void> => {
     generatedAt,
     sourcePath,
     model,
-    targetCommentCount,
+    targetCommentCount: useRange ? rangeMax : targetCommentCount,
     totalArticles,
     pendingTargets,
     promptTemplate,
@@ -219,6 +227,7 @@ const main = async (): Promise<void> => {
   });
 
   console.log('persist work cafe comment targets complete');
+  console.log(`targetRange: ${useRange ? `${rangeMin}~${rangeMax} (per-article random)` : targetCommentCount}`);
   console.log(`source: ${sourcePath}`);
   console.log(`collectionId: ${collectionId}`);
   console.log(`upserted: ${upserted}`);

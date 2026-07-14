@@ -13,3 +13,8 @@ export {
   selectedCafeAtom,
   resetCafesAtom,
 } from './cafe-atom';
+
+export {
+  postKeywordsTextAtom,
+  postRefAtom,
+} from './post-draft-atom';

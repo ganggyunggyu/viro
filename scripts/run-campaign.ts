@@ -281,6 +281,7 @@ const main = async (): Promise<void> => {
     userId: user.userId,
     isActive: true,
     role: 'commenter',
+    excludeFromAutoComment: { $ne: true },
   }).lean();
 
   if (writerAccounts.length === 0) throw new Error('writer 계정 없음');

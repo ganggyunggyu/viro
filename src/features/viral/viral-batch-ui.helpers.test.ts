@@ -19,10 +19,10 @@ test('parseKeywordLines trims whitespace and removes empty rows', () => {
 test('getRoleCounts derives writer, commenter, and active counts from account roles', () => {
   const counts = getRoleCounts(
     [
-      { id: 'writer-only', password: 'x' },
-      { id: 'comment-only', password: 'x' },
-      { id: 'both', password: 'x' },
-      { id: 'disabled', password: 'x' },
+      { id: 'writer-only', hasPassword: true },
+      { id: 'comment-only', hasPassword: true },
+      { id: 'both', hasPassword: true },
+      { id: 'disabled', hasPassword: true },
     ],
     new Map([
       ['writer-only', 'writer'],

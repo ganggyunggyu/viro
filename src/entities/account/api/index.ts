@@ -16,13 +16,15 @@ export const getAccountsAction = async (): Promise<AccountData[]> => {
 
   return dbAccounts.map((a) => ({
     id: a.accountId,
-    password: a.password,
+    hasPassword: !!a.password,
     nickname: a.nickname,
     isMain: a.isMain,
     activityHours: a.activityHours,
     restDays: a.restDays,
     dailyPostLimit: a.dailyPostLimit,
     personaId: a.personaId,
+    campaignTag: a.campaignTag,
+    excludeFromAutoComment: a.excludeFromAutoComment,
     fromConfig: false,
   }));
 };
@@ -46,6 +48,8 @@ export const addAccountAction = async (input: AccountInput) => {
     restDays: input.restDays,
     dailyPostLimit: input.dailyPostLimit,
     personaId: input.personaId,
+    campaignTag: input.campaignTag,
+    excludeFromAutoComment: input.excludeFromAutoComment ?? false,
   });
 
   revalidatePath('/accounts');

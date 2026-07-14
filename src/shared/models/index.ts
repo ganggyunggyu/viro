@@ -16,6 +16,13 @@ export { User, type IUser } from './user';
 export { Cafe, type ICafe } from './cafe';
 export { WorkCafeArticle, type IWorkCafeArticle } from './work-cafe-article';
 export {
+  ManualCommentJob,
+  type IManualCommentJob,
+  type IManualCommentResult,
+  type ManualCommentJobStatus,
+  type ManualCommentJobMode,
+} from './manual-comment-job';
+export {
   DailyPostCount,
   type IDailyPostCount,
   getTodayPostCount,

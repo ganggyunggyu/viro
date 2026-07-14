@@ -30,22 +30,6 @@ const normalizeText = (value: string | null | undefined): string => {
   return (value ?? '').replace(/\s+/g, ' ').trim();
 };
 
-const ensureLoggedIn = async (
-  id: string,
-  password: string,
-  options?: WriteCommentOptions,
-): Promise<{ success: true } | { success: false; error: string }> => {
-  const loginResult = await loginAccount(id, password, {
-    forceFreshLogin: options?.forceFreshLogin ?? true,
-    waitForLoginMs: options?.loginWaitMs,
-    reason: `comment_write:${id}`,
-  });
-  if (!loginResult.success) {
-    return { success: false, error: loginResult.error || '로그인 실패' };
-  }
-  return { success: true };
-};
-
 const navigateToArticle = async (
   page: Page,
   articleUrl: string,
@@ -105,16 +89,16 @@ const waitForCommentItem = async (
 
 const getCommentRoot = async (page: Page): Promise<Page | Frame> => {
   try {
-    await page.waitForSelector('iframe#cafe_main', { timeout: 10000 });
+    await page.waitForSelector('iframe#cafe_main', { timeout: 20000 });
   } catch {
-    await waitForCommentItem(page, 3000);
+    await waitForCommentItem(page, 5000);
     return page;
   }
 
   const frameHandle = await page.$('iframe#cafe_main');
   const frame = await frameHandle?.contentFrame();
   if (!frame) {
-    await waitForCommentItem(page, 3000);
+    await waitForCommentItem(page, 5000);
     return page;
   }
 
@@ -242,11 +226,6 @@ export const writeCommentWithAccount = async (
   await acquireAccountLock(id);
 
   try {
-    const loginCheck = await ensureLoggedIn(id, password, options);
-    if (!loginCheck.success) {
-      return { accountId: id, success: false, error: loginCheck.error };
-    }
-
     const page = await getPageForAccount(id);
     touchAccount(id);
     const articleUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
@@ -278,7 +257,7 @@ export const writeCommentWithAccount = async (
 
     if (!commentInput) {
       try {
-        commentInput = await root.waitForSelector(commentInputSelector, { timeout: 5000 });
+        commentInput = await root.waitForSelector(commentInputSelector, { timeout: 12000 });
       } catch {}
     }
 
@@ -389,11 +368,6 @@ export const writeReplyWithAccount = async (
   await acquireAccountLock(id);
 
   try {
-    const loginCheck = await ensureLoggedIn(id, password);
-    if (!loginCheck.success) {
-      return { accountId: id, success: false, error: loginCheck.error };
-    }
-
     const page = await getPageForAccount(id);
     touchAccount(id);
     const articleUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;

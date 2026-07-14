@@ -1,8 +1,34 @@
 'use client';
 
 import { useCallback, useState, useEffect, useTransition } from 'react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  FileText,
+  Link2,
+  MessageSquare,
+  Reply,
+  Trash2,
+  type LucideIcon,
+} from 'lucide-react';
 import { cn } from '@/shared';
-import { Select, Button, ConfirmModal } from '@/shared';
+import {
+  Badge,
+  type BadgeVariant,
+  Button,
+  Card,
+  ConfirmModal,
+  Drawer,
+  EmptyState,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@/shared';
 import {
   getDetailedJobs,
   getQueueSummary,
@@ -30,18 +56,20 @@ const TYPE_LABELS: Record<string, string> = {
   reply: '대댓글',
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  delayed: 'bg-info-soft text-info',
-  waiting: 'bg-surface-muted text-ink-muted',
-  active: 'bg-warning-soft text-warning',
-  completed: 'bg-success-soft text-success',
-  failed: 'bg-danger-soft text-danger',
+const STATUS_BADGE_VARIANT: Record<string, BadgeVariant> = {
+  delayed: 'info',
+  waiting: 'neutral',
+  active: 'warning',
+  completed: 'success',
+  failed: 'danger',
 };
 
-const TYPE_COLORS: Record<string, string> = {
-  post: 'bg-purple-100 text-purple-700',
-  comment: 'bg-cyan-100 text-cyan-700',
-  reply: 'bg-pink-100 text-pink-700',
+const STATUS_ORDER = ['delayed', 'waiting', 'active', 'completed', 'failed'] as const;
+
+const TYPE_ICONS: Record<string, LucideIcon> = {
+  post: FileText,
+  comment: MessageSquare,
+  reply: Reply,
 };
 
 const formatDelay = (ms: number): string => {
@@ -87,6 +115,7 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState<{ accountId: string; jobId: string; content: string } | null>(null);
   const [relatedJobs, setRelatedJobs] = useState<{ articleId: number; jobs: JobDetail[] } | null>(null);
   const [isLoadingRelated, setIsLoadingRelated] = useState(false);
+  const [detailJob, setDetailJob] = useState<JobDetail | null>(null);
 
   const loadData = useCallback(async () => {
     const [jobsResult, summaryResult, accountsData, cafesData] = await Promise.all([
@@ -193,51 +222,92 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
         isLoading={isPending}
       />
 
-      {/* 연관 작업 모달 */}
-      {relatedJobs && (
-        <div
-          className={cn('fixed inset-0 z-50 flex items-center justify-center bg-black/50')}
-          onClick={() => setRelatedJobs(null)}
-        >
-          <div
-            className={cn('bg-surface rounded-2xl border border-border-light w-full max-w-2xl max-h-[80vh] overflow-hidden')}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={cn('flex items-center justify-between p-4 border-b border-border-light')}>
-              <div>
-                <h3 className={cn('font-semibold text-ink')}>연관 작업</h3>
-                <p className={cn('text-sm text-ink-muted')}>글 #{relatedJobs.articleId}의 댓글/대댓글</p>
+      {/* 연관 작업 드로어 */}
+      <Drawer
+        isOpen={!!relatedJobs}
+        onClose={() => setRelatedJobs(null)}
+        title="연관 작업"
+        description={relatedJobs ? `글 #${relatedJobs.articleId}의 댓글/대댓글` : undefined}
+      >
+        {relatedJobs && relatedJobs.jobs.length === 0 ? (
+          <EmptyState title="연관된 댓글/대댓글이 없습니다" />
+        ) : (
+          <div className={cn('space-y-2')}>
+            {relatedJobs?.jobs.map((job) => (
+              <div key={job.id} className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-3')}>
+                <div className={cn('mb-2 flex items-center gap-2')}>
+                  <Badge variant={STATUS_BADGE_VARIANT[job.status]}>{STATUS_LABELS[job.status]}</Badge>
+                  <Badge variant="neutral">{TYPE_LABELS[job.type]}</Badge>
+                  <span className={cn('font-mono text-xs text-(--ink-muted)')}>{job.accountId}</span>
+                </div>
+                <p className={cn('truncate text-sm text-(--ink)')}>{job.content || '-'}</p>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setRelatedJobs(null)}>닫기</Button>
+            ))}
+          </div>
+        )}
+      </Drawer>
+
+      {/* 작업 상세 드로어 */}
+      <Drawer
+        isOpen={!!detailJob}
+        onClose={() => setDetailJob(null)}
+        title="작업 상세"
+        description={detailJob ? `#${detailJob.id}` : undefined}
+      >
+        {detailJob && (
+          <div className={cn('space-y-4 text-sm')}>
+            <div className={cn('flex items-center gap-2')}>
+              <Badge variant={STATUS_BADGE_VARIANT[detailJob.status]}>{STATUS_LABELS[detailJob.status]}</Badge>
+              <Badge variant="neutral">{TYPE_LABELS[detailJob.type]}</Badge>
             </div>
-            <div className={cn('p-4 overflow-y-auto max-h-96')}>
-              {relatedJobs.jobs.length === 0 ? (
-                <p className={cn('text-center text-ink-muted py-8')}>연관된 댓글/대댓글이 없습니다</p>
-              ) : (
-                <div className={cn('space-y-2')}>
-                  {relatedJobs.jobs.map((job) => (
-                    <div
-                      key={job.id}
-                      className={cn('p-3 rounded-lg border border-border-light bg-surface-muted')}
-                    >
-                      <div className={cn('flex items-center gap-2 mb-2')}>
-                        <span className={cn('px-2 py-0.5 rounded text-xs font-medium', STATUS_COLORS[job.status])}>
-                          {STATUS_LABELS[job.status]}
-                        </span>
-                        <span className={cn('px-2 py-0.5 rounded text-xs font-medium', TYPE_COLORS[job.type])}>
-                          {TYPE_LABELS[job.type]}
-                        </span>
-                        <span className={cn('text-xs text-ink-muted')}>{job.accountId}</span>
-                      </div>
-                      <p className={cn('text-sm text-ink truncate')}>{job.content || '-'}</p>
-                    </div>
-                  ))}
+
+            <dl className={cn('space-y-3')}>
+              <div>
+                <dt className={cn('text-xs font-medium text-(--ink-muted)')}>계정</dt>
+                <dd className={cn('font-mono text-(--ink)')}>{detailJob.accountId}</dd>
+              </div>
+              <div>
+                <dt className={cn('text-xs font-medium text-(--ink-muted)')}>카페</dt>
+                <dd className={cn('text-(--ink)')}>{detailJob.cafeName || detailJob.cafeId}</dd>
+              </div>
+              {(detailJob.subject || detailJob.keyword) && (
+                <div>
+                  <dt className={cn('text-xs font-medium text-(--ink-muted)')}>제목/키워드</dt>
+                  <dd className={cn('text-(--ink)')}>{detailJob.subject || detailJob.keyword}</dd>
                 </div>
               )}
-            </div>
+              {detailJob.content && (
+                <div>
+                  <dt className={cn('text-xs font-medium text-(--ink-muted)')}>내용</dt>
+                  <dd className={cn('whitespace-pre-wrap text-(--ink)')}>{detailJob.content}</dd>
+                </div>
+              )}
+              <div>
+                <dt className={cn('text-xs font-medium text-(--ink-muted)')}>생성 시각</dt>
+                <dd className={cn('font-mono text-(--ink)')}>{formatTime(detailJob.createdAt)}</dd>
+              </div>
+              {detailJob.finishedOn && (
+                <div>
+                  <dt className={cn('text-xs font-medium text-(--ink-muted)')}>완료 시각</dt>
+                  <dd className={cn('font-mono text-(--ink)')}>{formatTime(detailJob.finishedOn)}</dd>
+                </div>
+              )}
+              {detailJob.status === 'delayed' && detailJob.delay && (
+                <div>
+                  <dt className={cn('text-xs font-medium text-(--ink-muted)')}>예정</dt>
+                  <dd className={cn('text-(--info)')}>{formatDelay(detailJob.delay)} 후</dd>
+                </div>
+              )}
+              {detailJob.failedReason && (
+                <div>
+                  <dt className={cn('text-xs font-medium text-(--ink-muted)')}>실패 사유</dt>
+                  <dd className={cn('rounded-lg bg-(--danger-soft) p-3 text-(--danger)')}>{detailJob.failedReason}</dd>
+                </div>
+              )}
+            </dl>
           </div>
-        </div>
-      )}
+        )}
+      </Drawer>
 
       {/* 헤더 */}
       <div className={cn('flex items-center justify-between')}>
@@ -273,24 +343,34 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
         </div>
       </div>
 
+      {/* 상태 범례 */}
+      <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3')}>
+        <span className={cn('text-xs font-medium text-(--ink-muted)')}>상태 범례</span>
+        {STATUS_ORDER.map((status) => (
+          <Badge key={status} variant={STATUS_BADGE_VARIANT[status]} dot>
+            {STATUS_LABELS[status]}
+          </Badge>
+        ))}
+      </div>
+
       {/* 요약 카드 */}
       {summary && (
         <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-4')}>
-          <div className={cn('rounded-2xl border border-border-light bg-surface p-5')}>
+          <Card padding="md">
             <h3 className={cn('text-sm font-medium text-ink-muted mb-4')}>전체 상태</h3>
             <div className={cn('grid grid-cols-5 gap-2')}>
               {(['failed', 'active', 'delayed', 'waiting', 'completed'] as const).map((status) => (
                 <div key={status} className={cn('text-center')}>
-                  <div className={cn('text-xl font-bold text-ink')}>
+                  <div className={cn('font-mono text-xl font-bold text-ink')}>
                     {summary.total[status]}
                   </div>
                   <div className={cn('text-xs text-ink-muted')}>{STATUS_LABELS[status]}</div>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
-          <div className={cn('rounded-2xl border border-border-light bg-surface p-5')}>
+          <Card padding="md">
             <h3 className={cn('text-sm font-medium text-ink-muted mb-4')}>타입별 (대기중)</h3>
             <div className={cn('flex gap-4')}>
               {(['post', 'comment', 'reply'] as const).map((type) => {
@@ -300,15 +380,15 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
                   summary.byType[type].active;
                 return (
                   <div key={type} className={cn('flex-1 text-center')}>
-                    <div className={cn('text-xl font-bold text-ink')}>{pending}</div>
+                    <div className={cn('font-mono text-xl font-bold text-ink')}>{pending}</div>
                     <div className={cn('text-xs text-ink-muted')}>{TYPE_LABELS[type]}</div>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </Card>
 
-          <div className={cn('rounded-2xl border border-border-light bg-surface p-5')}>
+          <Card padding="md">
             <h3 className={cn('text-sm font-medium text-ink-muted mb-4')}>카페별 (대기중)</h3>
             <div className={cn('space-y-2')}>
               {summary.byCafe.slice(0, 3).map((cafe) => (
@@ -321,16 +401,16 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
                   >
                     {cafe.cafeName}
                   </a>
-                  <span className={cn('font-semibold text-ink')}>{cafe.count}</span>
+                  <span className={cn('font-mono font-semibold text-ink')}>{cafe.count}</span>
                 </div>
               ))}
               {summary.byCafe.length === 0 && (
                 <p className={cn('text-sm text-ink-muted')}>대기 중인 작업 없음</p>
               )}
             </div>
-          </div>
+          </Card>
 
-          <div className={cn('rounded-2xl border border-border-light bg-surface p-5')}>
+          <Card padding="md">
             <h3 className={cn('text-sm font-medium text-ink-muted mb-4')}>계정별 (대기중)</h3>
             <div className={cn('space-y-2')}>
               {summary.byAccount.slice(0, 3).map((acc) => (
@@ -341,20 +421,20 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
                   rel="noopener noreferrer"
                   className={cn('flex justify-between text-sm hover:bg-surface-muted rounded-lg px-2 py-1 -mx-2 transition-colors')}
                 >
-                  <span className={cn('text-ink truncate flex-1')}>{acc.accountId}</span>
-                  <span className={cn('font-semibold text-ink')}>{acc.count}</span>
+                  <span className={cn('text-ink truncate flex-1 font-mono')}>{acc.accountId}</span>
+                  <span className={cn('font-mono font-semibold text-ink')}>{acc.count}</span>
                 </a>
               ))}
               {summary.byAccount.length === 0 && (
                 <p className={cn('text-sm text-ink-muted')}>대기 중인 작업 없음</p>
               )}
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* 필터 */}
-      <div className={cn('rounded-2xl border border-border-light bg-surface p-4 space-y-3')}>
+      <Card padding="md" className={cn('space-y-3')}>
         <div className={cn('flex flex-wrap gap-4 items-center')}>
           <Select
             label="상태"
@@ -411,7 +491,7 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
           />
 
           {jobsData && (
-            <div className={cn('ml-auto text-sm text-ink-muted')}>
+            <div className={cn('ml-auto font-mono text-sm text-ink-muted')}>
               총 {jobsData.total}건
             </div>
           )}
@@ -438,101 +518,102 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
             </Button>
           )}
         </div>
-      </div>
+      </Card>
 
       {/* Jobs 테이블 */}
-      <div className={cn('rounded-2xl border border-border-light bg-surface overflow-hidden')}>
-        <div className={cn('overflow-x-auto')}>
-          <table className={cn('w-full text-sm')}>
-            <thead>
-              <tr className={cn('border-b border-border-light bg-surface-muted')}>
-                <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>상태</th>
-                <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>타입</th>
-                <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>계정</th>
-                <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>카페</th>
-                <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>내용</th>
-                <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>예정/시간</th>
-                <th className={cn('px-5 py-4 text-left font-medium text-ink-muted')}>작업</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredJobs.map((job) => (
-                <JobRow
-                  key={job.id}
-                  job={job}
-                  onDelete={(content) => setShowDeleteModal({ accountId: job.accountId, jobId: job.id, content })}
-                  onViewRelated={job.type === 'post' && job.articleId ? () => handleViewRelated(job.articleId!) : undefined}
-                  isLoadingRelated={isLoadingRelated}
-                />
-              ))}
-              {filteredJobs.length === 0 && (
-                <tr>
-                  <td colSpan={7} className={cn('px-5 py-12 text-center text-ink-muted')}>
-                    {isPending ? '로딩 중...' : '작업이 없습니다'}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      <Table>
+        <TableHead>
+          <tr>
+            <TableCell header density="dense">상태</TableCell>
+            <TableCell header density="dense">타입</TableCell>
+            <TableCell header density="dense">계정</TableCell>
+            <TableCell header density="dense">카페</TableCell>
+            <TableCell header density="dense">내용</TableCell>
+            <TableCell header density="dense">예정/시간</TableCell>
+            <TableCell header density="dense" align="right">작업</TableCell>
+          </tr>
+        </TableHead>
+        <TableBody>
+          {filteredJobs.map((job) => (
+            <JobRow
+              key={job.id}
+              job={job}
+              onDelete={(content) => setShowDeleteModal({ accountId: job.accountId, jobId: job.id, content })}
+              onViewRelated={job.type === 'post' && job.articleId ? () => handleViewRelated(job.articleId!) : undefined}
+              onViewDetail={() => setDetailJob(job)}
+              isLoadingRelated={isLoadingRelated}
+            />
+          ))}
+          {filteredJobs.length === 0 && (
+            <tr>
+              <td colSpan={7}>
+                <EmptyState title={isPending ? '로딩 중...' : '작업이 없습니다'} />
+              </td>
+            </tr>
+          )}
+        </TableBody>
+      </Table>
 
-        {/* 페이지네이션 */}
-        {jobsData && jobsData.totalPages > 1 && (
-          <div className={cn('flex items-center justify-between border-t border-border-light px-5 py-4')}>
-            <div className={cn('text-sm text-ink-muted')}>
-              {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, jobsData.total)} / {jobsData.total}
-            </div>
-            <div className={cn('flex gap-1')}>
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={() => setPage(1)}
-                disabled={page === 1}
-              >
-                ««
-              </Button>
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                «
-              </Button>
-              {Array.from({ length: Math.min(5, jobsData.totalPages) }, (_, i) => {
-                const pageNum = Math.max(1, Math.min(page - 2, jobsData.totalPages - 4)) + i;
-                if (pageNum > jobsData.totalPages) return null;
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={page === pageNum ? 'primary' : 'ghost'}
-                    size="xs"
-                    onClick={() => setPage(pageNum)}
-                  >
-                    {pageNum}
-                  </Button>
-                );
-              })}
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={() => setPage((p) => Math.min(jobsData.totalPages, p + 1))}
-                disabled={page === jobsData.totalPages}
-              >
-                »
-              </Button>
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={() => setPage(jobsData.totalPages)}
-                disabled={page === jobsData.totalPages}
-              >
-                »»
-              </Button>
-            </div>
+      {/* 페이지네이션 */}
+      {jobsData && jobsData.totalPages > 1 && (
+        <div className={cn('flex items-center justify-between')}>
+          <div className={cn('font-mono text-sm text-ink-muted')}>
+            {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, jobsData.total)} / {jobsData.total}
           </div>
-        )}
-      </div>
+          <div className={cn('flex gap-1')}>
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => setPage(1)}
+              disabled={page === 1}
+              aria-label="첫 페이지"
+            >
+              <ChevronsLeft className="h-3.5 w-3.5" strokeWidth={2} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              aria-label="이전 페이지"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} />
+            </Button>
+            {Array.from({ length: Math.min(5, jobsData.totalPages) }, (_, i) => {
+              const pageNum = Math.max(1, Math.min(page - 2, jobsData.totalPages - 4)) + i;
+              if (pageNum > jobsData.totalPages) return null;
+              return (
+                <Button
+                  key={pageNum}
+                  variant={page === pageNum ? 'primary' : 'ghost'}
+                  size="xs"
+                  onClick={() => setPage(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => setPage((p) => Math.min(jobsData.totalPages, p + 1))}
+              disabled={page === jobsData.totalPages}
+              aria-label="다음 페이지"
+            >
+              <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => setPage(jobsData.totalPages)}
+              disabled={page === jobsData.totalPages}
+              aria-label="마지막 페이지"
+            >
+              <ChevronsRight className="h-3.5 w-3.5" strokeWidth={2} />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -541,10 +622,13 @@ interface JobRowProps {
   job: JobDetail;
   onDelete: (content: string) => void;
   onViewRelated?: () => void;
+  onViewDetail: () => void;
   isLoadingRelated: boolean;
 }
 
-const JobRow = ({ job, onDelete, onViewRelated, isLoadingRelated }: JobRowProps) => {
+const JobRow = ({ job, onDelete, onViewRelated, onViewDetail, isLoadingRelated }: JobRowProps) => {
+  const TypeIcon = TYPE_ICONS[job.type];
+
   const getContentDisplay = () => {
     if (job.type === 'post') {
       return (
@@ -563,7 +647,7 @@ const JobRow = ({ job, onDelete, onViewRelated, isLoadingRelated }: JobRowProps)
         <div className={cn('text-ink truncate max-w-50')} title={job.content}>
           {job.content || '-'}
         </div>
-        <div className={cn('text-xs text-ink-muted')}>
+        <div className={cn('font-mono text-xs text-ink-muted')}>
           #{job.articleId}
           {job.type === 'reply' && ` (댓글 ${job.commentIndex})`}
         </div>
@@ -574,7 +658,7 @@ const JobRow = ({ job, onDelete, onViewRelated, isLoadingRelated }: JobRowProps)
   const getTimeDisplay = () => {
     if (job.status === 'delayed' && job.delay) {
       return (
-        <div className={cn('text-info font-medium')}>
+        <div className={cn('font-mono text-info font-medium')}>
           {formatDelay(job.delay)} 후
         </div>
       );
@@ -583,9 +667,9 @@ const JobRow = ({ job, onDelete, onViewRelated, isLoadingRelated }: JobRowProps)
       return <div className={cn('text-warning')}>처리중...</div>;
     }
     if (job.finishedOn) {
-      return <div className={cn('text-ink-muted')}>{formatTime(job.finishedOn)}</div>;
+      return <div className={cn('font-mono text-ink-muted')}>{formatTime(job.finishedOn)}</div>;
     }
-    return <div className={cn('text-ink-muted')}>{formatTime(job.createdAt)}</div>;
+    return <div className={cn('font-mono text-ink-muted')}>{formatTime(job.createdAt)}</div>;
   };
 
   const contentForDelete = job.type === 'post'
@@ -595,70 +679,71 @@ const JobRow = ({ job, onDelete, onViewRelated, isLoadingRelated }: JobRowProps)
   const canDelete = job.status !== 'active';
 
   return (
-    <tr className={cn('border-b border-border-light hover:bg-surface-muted transition-all')}>
-      <td className={cn('px-5 py-4')}>
-        <span className={cn('px-2.5 py-1 rounded-lg text-xs font-medium', STATUS_COLORS[job.status])}>
-          {STATUS_LABELS[job.status]}
-        </span>
-      </td>
-      <td className={cn('px-5 py-4')}>
-        <span className={cn('px-2.5 py-1 rounded-lg text-xs font-medium', TYPE_COLORS[job.type])}>
+    <TableRow onClick={onViewDetail} className="group">
+      <TableCell density="dense">
+        <Badge variant={STATUS_BADGE_VARIANT[job.status]}>{STATUS_LABELS[job.status]}</Badge>
+      </TableCell>
+      <TableCell density="dense">
+        <Badge variant="neutral">
+          <TypeIcon className="h-3 w-3" strokeWidth={2} />
           {TYPE_LABELS[job.type]}
-        </span>
-      </td>
-      <td className={cn('px-5 py-4')}>
+        </Badge>
+      </TableCell>
+      <TableCell density="dense">
         <a
           href={`http://localhost:3008/queue/task_${job.accountId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className={cn('text-ink hover:text-accent underline-offset-2 hover:underline transition-colors')}
+          onClick={(e) => e.stopPropagation()}
+          className={cn('font-mono text-ink hover:text-accent underline-offset-2 hover:underline transition-colors')}
         >
           {job.accountId}
         </a>
-      </td>
-      <td className={cn('px-5 py-4')}>
+      </TableCell>
+      <TableCell density="dense">
         <a
           href={`https://cafe.naver.com/f-e/cafes/${job.cafeId}/menus/0`}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           className={cn('text-ink truncate max-w-30 block hover:text-accent underline-offset-2 hover:underline transition-colors')}
           title={job.cafeName}
         >
           {job.cafeName || job.cafeId}
         </a>
-      </td>
-      <td className={cn('px-5 py-4')}>{getContentDisplay()}</td>
-      <td className={cn('px-5 py-4')}>{getTimeDisplay()}</td>
-      <td className={cn('px-5 py-4')}>
-        <div className={cn('flex gap-1')}>
+      </TableCell>
+      <TableCell density="dense">{getContentDisplay()}</TableCell>
+      <TableCell density="dense">{getTimeDisplay()}</TableCell>
+      <TableCell density="dense" align="right">
+        <div className={cn('flex justify-end gap-1')} onClick={(e) => e.stopPropagation()}>
           {onViewRelated && (
             <button
               onClick={onViewRelated}
               disabled={isLoadingRelated}
               className={cn(
-                'px-2 py-1 rounded text-xs font-medium transition-colors',
+                'flex h-7 w-7 items-center justify-center rounded-lg transition-colors',
                 'bg-accent/10 text-accent hover:bg-accent/20',
                 'disabled:opacity-50 disabled:cursor-not-allowed'
               )}
               title="연관 댓글/대댓글 보기"
             >
-              연관
+              <Link2 className="h-3.5 w-3.5" strokeWidth={2} />
             </button>
           )}
           <button
             onClick={() => onDelete(contentForDelete)}
             disabled={!canDelete}
             className={cn(
-              'px-2 py-1 rounded text-xs font-medium transition-colors',
+              'flex h-7 w-7 items-center justify-center rounded-lg transition-colors',
               'bg-danger-soft text-danger hover:bg-danger/20',
               'disabled:opacity-50 disabled:cursor-not-allowed'
             )}
             title={canDelete ? '삭제' : '진행 중인 작업은 삭제할 수 없습니다'}
           >
-            삭제
+            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
           </button>
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 };

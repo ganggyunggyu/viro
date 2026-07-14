@@ -35,11 +35,13 @@ const filterAccountsByIds = (
 };
 
 const isWriterAccount = ({ role }: NaverAccount): boolean => role === 'writer';
+const isEligibleForAutoComment = ({ excludeFromAutoComment }: NaverAccount): boolean =>
+  !excludeFromAutoComment;
 
 export const getCafeAccountPolicy = (
   accounts: NaverAccount[]
 ): CafeAccountPolicy => {
-  const uniqueAccounts = uniqueAccountsById(accounts);
+  const uniqueAccounts = uniqueAccountsById(accounts).filter(isEligibleForAutoComment);
   const writerRoleAccounts = uniqueAccounts.filter(isWriterAccount);
 
   return {
