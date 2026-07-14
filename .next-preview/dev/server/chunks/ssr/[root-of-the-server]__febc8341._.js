@@ -83,6 +83,8 @@ __turbopack_context__.s([
     ()=>getRecentWriters,
     "hasCommented",
     ()=>hasCommented,
+    "removeCommentFromArticle",
+    ()=>removeCommentFromArticle,
     "updateArticleExposure",
     ()=>updateArticleExposure
 ]);
@@ -267,6 +269,23 @@ const addCommentToArticle = async (cafeId, articleId, comment)=>{
         console.log(`[COMMENT-DB] 저장 성공: #${articleId} - ${comment.type} by ${comment.accountId}`);
     }
     return !!result;
+};
+const removeCommentFromArticle = async (cafeId, articleId, commentId)=>{
+    const result = await PublishedArticle.updateOne({
+        cafeId,
+        articleId,
+        'comments.commentId': commentId
+    }, {
+        $pull: {
+            comments: {
+                commentId
+            }
+        },
+        $inc: {
+            commentCount: -1
+        }
+    });
+    return result.modifiedCount > 0;
 };
 const getArticleComments = async (cafeId, articleId)=>{
     const article = await PublishedArticle.findOne({
@@ -863,6 +882,38 @@ const ManualCommentResultSchema = new __TURBOPACK__imported__module__$5b$externa
 }, {
     _id: false
 });
+const ManualCommentDeleteResultSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$2c$__$5b$project$5d2f$node_modules$2f$mongoose$29$__["Schema"]({
+    index: {
+        type: Number,
+        required: true
+    },
+    commentId: {
+        type: String,
+        required: true
+    },
+    accountId: {
+        type: String
+    },
+    nickname: {
+        type: String
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    success: {
+        type: Boolean,
+        required: true
+    },
+    error: {
+        type: String
+    },
+    deletedAt: {
+        type: Date
+    }
+}, {
+    _id: false
+});
 const ManualCommentJobSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$2c$__$5b$project$5d2f$node_modules$2f$mongoose$29$__["Schema"]({
     userId: {
         type: String,
@@ -914,6 +965,10 @@ const ManualCommentJobSchema = new __TURBOPACK__imported__module__$5b$externals$
         type: Number,
         required: true
     },
+    deleteExisting: {
+        type: Boolean,
+        default: false
+    },
     status: {
         type: String,
         enum: [
@@ -934,6 +989,12 @@ const ManualCommentJobSchema = new __TURBOPACK__imported__module__$5b$externals$
     results: {
         type: [
             ManualCommentResultSchema
+        ],
+        default: []
+    },
+    deleteResults: {
+        type: [
+            ManualCommentDeleteResultSchema
         ],
         default: []
     },

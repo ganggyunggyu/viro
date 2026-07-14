@@ -10,6 +10,10 @@ import {
   type CafeCreateActionResult,
   type CafeCreateFormData,
 } from '@/features/auto-comment/batch/cafe-create-actions';
+import {
+  generateCafeNameSuggestions,
+  type CafeNameSuggestion,
+} from '@/shared/lib/naver-cafe-creation/name-generator';
 
 export const CafeCreateUI = () => {
   const [isPending, startTransition] = useTransition();
@@ -22,6 +26,7 @@ export const CafeCreateUI = () => {
   const [description, setDescription] = useState('');
   const [keywordsText, setKeywordsText] = useState('');
   const [result, setResult] = useState<CafeCreateActionResult | null>(null);
+  const [nameSuggestions, setNameSuggestions] = useState<CafeNameSuggestion[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -40,6 +45,16 @@ export const CafeCreateUI = () => {
     name.trim() !== '' &&
     slug.trim() !== '' &&
     description.trim() !== '';
+
+  const handleSuggestNames = () => {
+    const preset = presets.find((p) => p.key === presetKey);
+    setNameSuggestions(generateCafeNameSuggestions(preset?.sheetCategory, 5));
+  };
+
+  const handlePickSuggestion = (suggestion: CafeNameSuggestion) => {
+    setName(suggestion.name);
+    setSlug(suggestion.slug);
+  };
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -118,9 +133,18 @@ export const CafeCreateUI = () => {
         </div>
 
         <div>
-          <label className={cn('text-xs font-medium text-(--ink-muted) mb-2 block')}>
-            카페이름
-          </label>
+          <div className={cn('flex items-center justify-between mb-2')}>
+            <label className={cn('text-xs font-medium text-(--ink-muted)')}>카페이름</label>
+            <button
+              type="button"
+              onClick={handleSuggestNames}
+              className={cn(
+                'text-xs font-medium text-(--teal) hover:underline'
+              )}
+            >
+              이름 자동 추천
+            </button>
+          </div>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -129,6 +153,23 @@ export const CafeCreateUI = () => {
               'w-full px-4 py-2 rounded-xl border border-(--border) bg-(--surface) text-sm text-(--ink)'
             )}
           />
+          {nameSuggestions.length > 0 && (
+            <div className={cn('flex flex-wrap gap-2 mt-2')}>
+              {nameSuggestions.map((suggestion) => (
+                <button
+                  key={suggestion.slug}
+                  type="button"
+                  onClick={() => handlePickSuggestion(suggestion)}
+                  className={cn(
+                    'text-xs px-3 py-1.5 rounded-full border border-(--border)',
+                    'bg-(--surface-muted) text-(--ink) hover:border-(--teal) hover:text-(--teal)'
+                  )}
+                >
+                  {suggestion.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>

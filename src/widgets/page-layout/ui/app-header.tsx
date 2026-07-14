@@ -22,6 +22,7 @@ const MAIN_NAV = [
 const SUB_NAV = [
   { href: '/nickname-change', label: '닉네임' },
   { href: '/accounts', label: '계정' },
+  { href: '/cafe-create', label: '카페개설' },
   { href: '/cafe-join', label: '카페가입' },
   { href: '/settings', label: '설정' },
 ];

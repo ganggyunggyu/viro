@@ -1,0 +1,65 @@
+{
+  "node": {
+    "00ab089168221bbcc44bae95d2a2913f08e616e2c2": {
+      "workers": {
+        "app/cafe-create/page": {
+          "moduleId": "[project]/.next-internal/server/app/cafe-create/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/auto-comment/batch/cafe-create-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getCurrentUser",
+          "filename": "src/features/auth/actions.ts"
+        }
+      },
+      "layer": {
+        "app/cafe-create/page": "action-browser"
+      },
+      "exportedName": "getCurrentUser",
+      "filename": "src/features/auth/actions.ts"
+    },
+    "00dfef021cb274a6ae09663ab7dae79dbbd902e226": {
+      "workers": {
+        "app/cafe-create/page": {
+          "moduleId": "[project]/.next-internal/server/app/cafe-create/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/auto-comment/batch/cafe-create-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getCafeCreateFormDataAction",
+          "filename": "src/features/auto-comment/batch/cafe-create-actions.ts"
+        }
+      },
+      "layer": {
+        "app/cafe-create/page": "action-browser"
+      },
+      "exportedName": "getCafeCreateFormDataAction",
+      "filename": "src/features/auto-comment/batch/cafe-create-actions.ts"
+    },
+    "40b390caaac13f98e5f76b988f3b7f4b43938c5f50": {
+      "workers": {
+        "app/cafe-create/page": {
+          "moduleId": "[project]/.next-internal/server/app/cafe-create/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/auto-comment/batch/cafe-create-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "createCafeAction",
+          "filename": "src/features/auto-comment/batch/cafe-create-actions.ts"
+        }
+      },
+      "layer": {
+        "app/cafe-create/page": "action-browser"
+      },
+      "exportedName": "createCafeAction",
+      "filename": "src/features/auto-comment/batch/cafe-create-actions.ts"
+    },
+    "00ba43b06b44b5ff61002c5831f0aac3fa1d4ed9c2": {
+      "workers": {
+        "app/cafe-create/page": {
+          "moduleId": "[project]/.next-internal/server/app/cafe-create/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/features/auth/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/features/auto-comment/batch/cafe-create-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "logout",
+          "filename": "src/features/auth/actions.ts"
+        }
+      },
+      "layer": {
+        "app/cafe-create/page": "action-browser"
+      },
+      "exportedName": "logout",
+      "filename": "src/features/auth/actions.ts"
+    }
+  },
+  "edge": {}
+}

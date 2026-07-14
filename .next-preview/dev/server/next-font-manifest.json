@@ -1,9 +1,9 @@
 {
   "app": {
-    "[project]/src/app/page": [
+    "[project]/src/app/cafe-create/page": [
       "static/media/051742360c26797e-s.p.102b7f24.woff2"
     ],
-    "[project]/src/app/publish/page": [
+    "[project]/src/app/page": [
       "static/media/051742360c26797e-s.p.102b7f24.woff2"
     ],
     "[project]/src/app/viral/page": [

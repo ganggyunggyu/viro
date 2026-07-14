@@ -1,5 +1,5 @@
 {
+  "/cafe-create/page": "app/cafe-create/page.js",
   "/page": "app/page.js",
-  "/publish/page": "app/publish/page.js",
   "/viral/page": "app/viral/page.js"
 }

@@ -42,6 +42,7 @@ lib/
 | **카페 개설(새로 만들기)** | `naver-cafe-creation/index.ts` | `createNaverCafe(accountId, password, input, { dryRun })` — 새 카페를 실제로 만들 땐 이거 재사용. 폼 셀렉터/캡차 새로 조사하지 말 것 |
 | 카페 개설 후 DB 등록 | `naver-cafe-creation/index.ts` | `registerCreatedCafeInDb(userId, cafe, options)` — upsert라 재실행해도 안전 |
 | 카페 개설 후 운영 시트 동기화 | `naver-cafe-creation/sheet-sync.ts` | `syncCafeToOperationsSheet(record)` — DB 등록만 하고 이거 빼먹지 말 것 (시트 드리프트 원인) |
+| 카페 이름/주소 자동 추천 | `naver-cafe-creation/name-generator.ts` | `generateCafeNameSuggestions(category?, count)` — 순수 로직(Playwright 의존 없음), client component에서 직접 import 가능 |
 | **카페 가입(기존 카페)** | `naver-cafe-membership/index.ts` | `joinCafeMembership()` — 그림문자 캡차 자동 풀이 포함. UI가 쓰는 `features/auto-comment/batch/cafe-join.ts` 는 캡차 처리가 없는 더 단순한 버전이라 서로 다름 — 헷갈리지 말 것 |
 
 ## CONVENTIONS

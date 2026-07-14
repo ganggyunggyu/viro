@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Account } from '../src/shared/models/account';
 import { Cafe } from '../src/shared/models/cafe';
 import { User } from '../src/shared/models/user';
-import { joinCafeWithAccount } from '../src/features/auto-comment/batch/cafe-join';
+import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
 import {
   closeAllContexts,
   closeContextForAccount,
@@ -256,7 +256,7 @@ const joinAccountsToCafes = async (
 
     for (const cafe of cafes) {
       console.log(`[JOIN] ${account.accountId} -> ${cafe.name} 시작`);
-      const result = await joinCafeWithAccount(
+      const result = await joinCafeWithNicknameRetry(
         {
           id: account.accountId,
           password: account.password,
@@ -264,7 +264,12 @@ const joinAccountsToCafes = async (
           role: account.role,
         },
         cafe.cafeId,
-        { cafeUrl: cafe.cafeUrl },
+        {
+          cafeUrl: cafe.cafeUrl,
+          updateDbNickname: async (newNickname) => {
+            await Account.updateOne({ accountId: account.accountId }, { $set: { nickname: newNickname } });
+          },
+        },
       );
 
       if (result.alreadyMember) {
