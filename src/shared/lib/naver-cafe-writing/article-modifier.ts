@@ -9,7 +9,13 @@ import {
   invalidateLoginCache,
 } from '@/shared/lib/multi-session';
 import type { NaverAccount } from '@/shared/lib/account-manager';
-import { uploadImages, uploadSingleImage } from './image-uploader';
+import { uploadImages, placeCursorAtEndOfParagraph } from './image-uploader';
+import {
+  isRealParagraphText,
+  isModifyRedirectComplete,
+  isTypedContentTooShort,
+  convertHtmlContentToPlainText,
+} from './article-modifier-utils';
 
 // 부제 패턴 (숫자. 형식)
 const SUBTITLE_PATTERN = /^\d+\.\s*/;
@@ -188,6 +194,16 @@ export const modifyArticleWithAccount = async (
       titleInput = await page.$(TITLE_INPUT_SELECTOR);
     }
 
+    // 세션이 이 시점에 만료되면 제목 입력창을 못 찾는 것으로만 나타나는데, 여기서
+    // 로그인 리다이렉트 여부를 확인하지 않고 바로 실패 처리해버리면 캐시된 로그인
+    // 상태가 갱신되지 않아 같은 계정으로 이어지는 다음 글들도 전부 같은 이유로
+    // 연쇄 실패한다 — 재로그인을 시도해 세션을 복구한다.
+    if (!titleInput && isLoginRedirect(page.url())) {
+      const recoverResult = await recoverModifyLoginRedirect('제목 입력창 대기 중 로그인 페이지 감지');
+      if (recoverResult) return recoverResult;
+      titleInput = await page.$(TITLE_INPUT_SELECTOR);
+    }
+
     if (!titleInput) {
       return {
         success: false,
@@ -223,28 +239,122 @@ export const modifyArticleWithAccount = async (
     await page.keyboard.press('Backspace');
     await page.waitForTimeout(300);
 
-    // 새 본문 입력 - HTML 태그를 plain text로 변환
-    const plainContent = newContent
-      .replace(/<\/p>\s*<p>/gi, '\n')  // </p><p> → 줄바꿈
-      .replace(/<br\s*\/?>/gi, '\n')   // <br> → 줄바꿈
-      .replace(/<[^>]*>/g, '')         // 나머지 태그 제거
-      .trim();
-
-    const lines = plainContent.split('\n');
-
-    // 부제 위치 찾기 (숫자. 형식)
-    const subtitleIndices: number[] = [];
-    for (let i = 0; i < lines.length; i++) {
-      if (SUBTITLE_PATTERN.test(lines[i].trim())) {
-        subtitleIndices.push(i);
-      }
+    // Meta+A로 선택된 텍스트만 지워지고 기존에 삽입된 이미지 컴포넌트는 남는 경우가 있어
+    // (재수정 시 이미지가 계속 누적되는 원인) 남은 이미지 컴포넌트를 하나씩 개별 삭제한다.
+    let remainingImageGuard = 0;
+    while (remainingImageGuard < 10) {
+      const staleImage = await page.$('.se-component.se-image');
+      if (!staleImage) break;
+      await staleImage.click();
+      await page.waitForTimeout(200);
+      await page.keyboard.press('Backspace');
+      await page.waitForTimeout(200);
+      remainingImageGuard++;
+    }
+    if (remainingImageGuard > 0) {
+      console.log(`[MODIFY] ${id} 기존 이미지 컴포넌트 ${remainingImageGuard}개 정리`);
+      await page.waitForTimeout(300);
     }
 
-    // 이미지 삽입 위치 결정
-    const imageQueue = images ? [...images] : [];
-    const hasSubtitles = subtitleIndices.length > 0;
+    // SmartEditor는 문단(component)마다 별도의 편집 영역이라 Meta+A는 포커스된
+    // 문단 하나만 지운다 — 이전 저장본에 문단이 여러 개였다면 첫 문단 이후 내용이
+    // 그대로 남아 새 이미지/본문 앞에 잔존 텍스트가 끼는 원인이 된다. 빈 문단
+    // 하나만 남을 때까지 남은 문단을 개별적으로 지운다.
+    // 빈 문단은 SmartEditor가 플레이스홀더 문구를 실제 textContent로 채워둔다
+    // ("내용을 입력하세요.") — 이걸 잔존 텍스트로 오인하면 지울 게 없는 문단을
+    // 60번 반복 시도하다 가드에 걸려 끝나고, 그 여파로 뒤이은 진짜 본문 타이핑이
+    // 커밋되지 않아 사진만 남고 글이 통째로 빈 상태로 저장되는 문제로 이어졌다.
+    let remainingTextGuard = 0;
+    while (remainingTextGuard < 60) {
+      const paragraphs = await page.$$('p.se-text-paragraph');
+      const nonEmpty: typeof paragraphs = [];
+      for (const p of paragraphs) {
+        const text = await p.textContent();
+        if (isRealParagraphText(text)) nonEmpty.push(p);
+      }
+      if (nonEmpty.length === 0) break;
+      await nonEmpty[0].click({ clickCount: 3, force: true }).catch(() => {});
+      await page.waitForTimeout(150);
+      await page.keyboard.press('Meta+A');
+      await page.waitForTimeout(100);
+      await page.keyboard.press('Backspace');
+      await page.waitForTimeout(150);
+      remainingTextGuard++;
+    }
+    if (remainingTextGuard > 0) {
+      console.log(`[MODIFY] ${id} 남은 텍스트 문단 ${remainingTextGuard}개 정리`);
+      await page.waitForTimeout(300);
+    }
 
-    console.log(`[MODIFY] 부제 ${subtitleIndices.length}개 발견, 이미지 ${imageQueue.length}장`);
+    // 새 본문 입력 - HTML 태그를 plain text로 변환
+    const plainContent = convertHtmlContentToPlainText(newContent);
+
+    // 원고가 문장마다 빈 줄로 끊겨 오는 경우가 많아 2~4문장씩 묶어 단락화
+    // (부제 줄은 항상 새 단락으로 분리해 이미지 삽입 위치 탐지에 영향 없게 유지)
+    const groupLinesIntoParagraphs = (rawLines: string[]): string[] => {
+      const items = rawLines.map((l) => l.trim()).filter(Boolean);
+      const grouped: string[] = [];
+      let i = 0;
+      while (i < items.length) {
+        if (SUBTITLE_PATTERN.test(items[i])) {
+          if (grouped.length > 0 && grouped[grouped.length - 1] !== '') grouped.push('');
+          grouped.push(items[i]);
+          grouped.push('');
+          i++;
+          continue;
+        }
+        const groupSize = 2 + Math.floor(Math.random() * 3); // 2~4문장
+        let taken = 0;
+        while (taken < groupSize && i < items.length && !SUBTITLE_PATTERN.test(items[i])) {
+          grouped.push(items[i]);
+          i++;
+          taken++;
+        }
+        if (i < items.length) grouped.push('');
+      }
+      return grouped;
+    };
+
+    const lines = groupLinesIntoParagraphs(plainContent.split('\n'));
+
+    // 이미지는 맨 위에 전부 몰아서 넣고, 그 다음에 본문을 이어서 작성한다
+    // (부제마다 중간에 끼워 넣는 방식은 이미지 삽입 도중 커서 위치가 틀어지며
+    // 이미지가 유실되는 문제가 있었음 — 상단 일괄 삽입이 더 안정적)
+    if (images && images.length > 0) {
+      // 방금 끝난 클리어(Meta+A/Backspace, 이미지·텍스트 정리 루프) 직후라 에디터
+      // 내부 상태가 아직 안정화되지 않은 채로 업로드 버튼을 누르면 파일선택창은
+      // 뜨지만 이미지가 하나도 삽입되지 않는(0/3) 경우가 있었다 — 짧게 안정화 시간을 둔다.
+      await page.waitForTimeout(1000);
+      console.log(`[MODIFY] ${id} 이미지 ${images.length}장 상단에 먼저 삽입`);
+      let uploadSuccess = await uploadImages(page, images);
+      if (!uploadSuccess) {
+        console.warn(`[MODIFY] ${id} 이미지 업로드 실패 - 1회 재시도`);
+        await page.waitForTimeout(1500);
+        uploadSuccess = await uploadImages(page, images);
+      }
+      if (uploadSuccess) {
+        console.log(`[MODIFY] ${id} 이미지 업로드 완료`);
+      } else {
+        return {
+          success: false,
+          articleId,
+          modifierAccountId: id,
+          error: '이미지 업로드 실패 (재시도 후에도 0장) - 제출 중단',
+        };
+      }
+      await page.waitForTimeout(500);
+      // 클릭 기반 커서 이동은 남아있는 플로팅 툴바를 대신 때릴 수 있어(포커스는
+      // 전혀 이동하지 않고 이후 타이핑이 통째로 유실됨), Selection API로 마지막
+      // 문단 끝에 커서를 직접 꽂는다.
+      const paragraphsAfterImages = await page.$$('p.se-text-paragraph');
+      const lastParagraphAfterImages = paragraphsAfterImages[paragraphsAfterImages.length - 1];
+      if (lastParagraphAfterImages) {
+        await placeCursorAtEndOfParagraph(page, lastParagraphAfterImages);
+        await page.keyboard.press('End');
+      }
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(300);
+    }
 
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].trim()) {
@@ -253,44 +363,23 @@ export const modifyArticleWithAccount = async (
       if (i < lines.length - 1) {
         await page.keyboard.press('Enter');
       }
-
-      // 부제 다음에 이미지 삽입 (이미지가 남아있고, 현재 줄이 부제인 경우)
-      if (hasSubtitles && imageQueue.length > 0 && subtitleIndices.includes(i)) {
-        await page.waitForTimeout(300);
-        await page.keyboard.press('Enter');
-        await page.waitForTimeout(500);
-
-        const imageToUpload = imageQueue.shift();
-        if (imageToUpload) {
-          console.log(`[MODIFY] 부제 ${i + 1} 아래에 이미지 삽입`);
-          await uploadSingleImage(page, imageToUpload);
-          await page.waitForTimeout(500);
-
-          // 이미지 삽입 후 본문 영역으로 돌아가기
-          const newContentArea = await page.$('p.se-text-paragraph');
-          if (newContentArea) {
-            await newContentArea.click();
-          }
-          await page.keyboard.press('End');
-          await page.keyboard.press('Enter');
-        }
-      }
     }
 
     await page.waitForTimeout(500);
 
-    // 남은 이미지는 마지막에 업로드
-    if (imageQueue.length > 0) {
-      console.log(`[MODIFY] ${id} 남은 이미지 ${imageQueue.length}장 마지막에 업로드`);
-      await page.keyboard.press('Enter');
-      await page.waitForTimeout(300);
-      const uploadSuccess = await uploadImages(page, imageQueue);
-      if (uploadSuccess) {
-        console.log(`[MODIFY] ${id} 이미지 업로드 완료`);
-      } else {
-        console.warn(`[MODIFY] ${id} 이미지 업로드 실패 - 글 수정은 계속 진행`);
-      }
-      await page.waitForTimeout(1000);
+    // 타이핑이 실제로 에디터에 반영됐는지 제출 전에 확인한다 — 커서가 엉뚱한 곳에
+    // 꽂혀 있었으면 여기서 걸러내지 않는 한 사진만 있고 본문은 빈 글이 그대로
+    // 저장되어 버린다(과거 실제로 발생했던 사고).
+    const editorText = await page.$$eval('p.se-text-paragraph', (nodes) =>
+      nodes.map((node) => node.textContent || '').join('\n')
+    );
+    if (isTypedContentTooShort(editorText, plainContent)) {
+      return {
+        success: false,
+        articleId,
+        modifierAccountId: id,
+        error: `타이핑된 본문이 비정상적으로 짧음 (제출 중단) — 에디터: ${editorText.length}자, 원본: ${plainContent.length}자`,
+      };
     }
 
     // 댓글 허용 토글
@@ -336,13 +425,21 @@ export const modifyArticleWithAccount = async (
     await submitButton.click();
 
     // 수정 완료 후 글 상세 페이지로 리다이렉트 대기
+    // 주의: 시작 URL 자체가 이미 articles/\d+/modify 형태라 /articles\/\d+/ 정규식은
+    // 리다이렉트 없이도 즉시 통과해버린다 — 실제로는 저장이 끝나기도 전에 성공
+    // 처리되어 다음 작업으로 넘어가며 저장이 중간에 끊기는 원인이었다. modify가
+    // 아닌 진짜 상세 페이지로 옮겨갔는지까지 확인해야 한다.
     try {
-      await page.waitForURL(/articles\/\d+/, { timeout: 10000 });
-      console.log('[DEBUG] 수정 완료, URL 변화 감지됨');
+      await page.waitForURL((url) => isModifyRedirectComplete(url.href), {
+        timeout: 15000,
+      });
+      console.log('[DEBUG] 수정 완료, URL 변화 감지됨:', page.url());
     } catch {
       console.log('[DEBUG] URL 변화 없음, 추가 대기...');
-      await page.waitForTimeout(3000);
+      await page.waitForTimeout(5000);
     }
+    // 리다이렉트 이후에도 서버 쪽 저장 처리가 이어질 수 있어 약간의 여유를 둔다
+    await page.waitForTimeout(1500);
 
     await saveCookiesForAccount(id);
 

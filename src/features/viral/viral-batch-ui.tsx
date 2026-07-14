@@ -639,7 +639,7 @@ export const ViralBatchUI = () => {
                   <div>
                     <label className={labelClassName}>키워드 목록</label>
                     <p className={cn('mt-1 text-sm text-ink-muted')}>
-                      한 줄에 하나씩 입력하고, 필요하면 `키워드:카테고리:스타일` 형식으로 확장.
+                      한 줄에 하나씩 입력. 형식은 아래 참고 카드 확인.
                     </p>
                   </div>
                   <div className={cn('flex items-center gap-2')}>
@@ -731,16 +731,12 @@ export const ViralBatchUI = () => {
                 <textarea
                   value={keywords}
                   onChange={(event) => setKeywords(event.target.value)}
-                  placeholder={`키워드 또는 키워드:카테고리:스타일 (한 줄에 하나씩)
-
-스타일: 자사키워드(광고, 기본값) | 일상 | 애니
+                  placeholder={`한 줄에 하나씩 입력 (스타일 표기는 아래 참고)
 
 예:
 기력보충
 수족냉증:건강
-수족냉증:건강:자사키워드
-기력보충:자사키워드
-흐염소진액 효과:후기`}
+수족냉증:건강:자사키워드`}
                   className={cn(inputClassName, 'min-h-72 resize-y font-mono text-xs leading-6')}
                 />
 

@@ -1,10 +1,29 @@
-import type { Page } from 'playwright';
+import type { ElementHandle, Page } from 'playwright';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
+// 클릭 기반 커서 이동은 결국 브라우저의 실제 히트테스트를 타기 때문에, 화면 어딘가에
+// 남아있는 오버레이(플로팅 툴바 등)가 있으면 문단이 아니라 그 오버레이를 클릭해버릴
+// 수 있다 — 클릭 자체는 에러 없이 "성공"하지만 커서는 전혀 이동하지 않고, 그 뒤에
+// 타이핑한 본문 전체가 저장되지 않는(사진만 남는) 문제로 이어졌다. document.createRange()
+// + Selection API로 문단 끝에 커서를 직접 꽂으면 화면에 뭐가 떠 있든 상관없이
+// 확실하게 그 문단으로 포커스가 이동한다.
+export const placeCursorAtEndOfParagraph = async (page: Page, paragraph: ElementHandle): Promise<void> => {
+  await page.keyboard.press('Escape');
+  await paragraph.evaluate((node) => {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    range.collapse(false);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    (node as HTMLElement).focus();
+  });
+};
+
 // URL에서 확장자 추출 (쿼리스트링 제거)
-const getExtensionFromUrl = (url: string): string => {
+export const getExtensionFromUrl = (url: string): string => {
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
@@ -22,7 +41,7 @@ export const downloadImageToTempFile = async (
 ): Promise<string | null> => {
   try {
     console.log(`[IMAGE] 이미지 다운로드 중: ${imageUrl}`);
-    const response = await fetch(imageUrl);
+    const response = await fetch(imageUrl, { signal: AbortSignal.timeout(20000) });
     if (!response.ok) {
       console.error(`[IMAGE] 다운로드 실패: ${response.status}`);
       return null;
@@ -89,171 +108,33 @@ const IMAGE_COMPONENT_SELECTORS = [
   'img.se-image-resource',
 ];
 
-// 팝업 닫기 셀렉터
-const POPUP_CLOSE_SELECTORS = [
-  '.se-popup-close-button',
-  '.se-popup-button-cancel',
-  'button.se-popup-close',
-  '.se-image-uploader-close',
-];
-
-// 이미지 업로드 팝업 닫기
-const closeImagePopup = async (page: Page): Promise<void> => {
-  // 방법 1: 닫기 버튼 클릭
-  for (const selector of POPUP_CLOSE_SELECTORS) {
-    const closeBtn = await page.$(selector);
-    if (closeBtn) {
-      try {
-        await closeBtn.click();
-        console.log(`[IMAGE] 팝업 닫기 버튼 클릭: ${selector}`);
-        await page.waitForTimeout(500);
-        return;
-      } catch {
-        // 클릭 실패 시 다음 방법 시도
-      }
-    }
-  }
-
-  // 방법 2: ESC 키로 팝업 닫기
-  const popupDim = await page.$('.se-popup-dim');
-  if (popupDim) {
-    console.log('[IMAGE] ESC 키로 팝업 닫기 시도');
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(500);
-  }
-
-  // 방법 3: 에디터 본문 영역 클릭 (팝업 외부 클릭)
-  const editorBody = await page.$('.se-component-content');
-  if (editorBody) {
-    try {
-      await editorBody.click({ force: true });
-      console.log('[IMAGE] 에디터 본문 클릭으로 팝업 닫기');
-      await page.waitForTimeout(500);
-    } catch {
-      // 클릭 실패 무시
-    }
-  }
-};
-
-// 팝업이 완전히 닫힐 때까지 대기
-const waitForPopupClose = async (page: Page, maxWait = 5000): Promise<void> => {
-  const startTime = Date.now();
-
-  while (Date.now() - startTime < maxWait) {
-    const popupDim = await page.$('.se-popup-dim');
-    if (!popupDim) {
-      console.log('[IMAGE] 팝업 닫힘 확인');
-      return;
-    }
-
-    // 팝업이 아직 있으면 ESC 다시 시도
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(500);
-  }
-
-  console.log('[IMAGE] 팝업 닫기 대기 타임아웃 - 강제 진행');
-};
-
 // 단일 이미지 업로드
 export const uploadSingleImage = async (page: Page, image: string): Promise<boolean> => {
   return uploadImages(page, [image]);
 };
 
-// 단일 이미지 업로드 (내부용)
-const uploadSingleImageFile = async (page: Page, filePath: string, index: number): Promise<boolean> => {
-  try {
-    // 이미지 버튼 찾기
-    let imageButton = null;
-    for (const selector of IMAGE_BUTTON_SELECTORS) {
-      imageButton = await page.$(selector);
-      if (imageButton) {
-        console.log(`[IMAGE] 이미지 버튼 발견: ${selector}`);
-        break;
-      }
-    }
-
-    if (!imageButton) {
-      console.log('[IMAGE] 이미지 버튼 찾을 수 없음');
-      return false;
-    }
-
-    // filechooser 이벤트로 파일 선택
-    console.log(`[IMAGE] ${index + 1}번째 이미지 filechooser 대기 중...`);
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser', { timeout: 10000 }),
-      imageButton.click(),
-    ]);
-
-    await fileChooser.setFiles([filePath]);
-    console.log(`[IMAGE] ${index + 1}번째 파일 설정 완료`);
-
-    // 업로드 완료 대기
-    await page.waitForTimeout(3000);
-
-    // 업로드 진행 상태 확인 (최대 10초)
-    for (let retry = 0; retry < 10; retry++) {
-      const uploadProgress = await page.$('.se-upload-progress, .upload-progress, .se-loading');
-      if (!uploadProgress) break;
-      console.log(`[IMAGE] ${index + 1}번째 업로드 진행 중... (${retry + 1}/10)`);
-      await page.waitForTimeout(1000);
-    }
-
-    // 팝업 닫기
-    await closeImagePopup(page);
-    await waitForPopupClose(page);
-
-    // 이미지 업로드 후 다른 팝업(지도 등)이 열릴 수 있으므로 추가로 닫기
-    const anyPopupClose = await page.$('.se-popup-close-button');
-    if (anyPopupClose) {
-      console.log('[IMAGE] 추가 팝업 발견 - 닫기');
-      await anyPopupClose.click();
-      await page.waitForTimeout(500);
-    }
-
-    // ESC로 혹시 남은 팝업 닫기
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(300);
-
-    // 에디터 본문 클릭하여 포커스 복귀 (force로 오버레이 무시)
-    const editorBody = await page.$('.se-component-content, .se-content');
-    if (editorBody) {
-      await editorBody.click({ force: true });
-      await page.waitForTimeout(500);
-    }
-
-    return true;
-  } catch (error) {
-    console.error(`[IMAGE] ${index + 1}번째 이미지 업로드 오류:`, error);
-    return false;
-  }
-};
-
-// 이미지 업로드 (URL 또는 base64 지원) - 한 장씩 순차 업로드
+// 이미지 업로드 (URL 또는 base64 지원) - 파일선택창 한 번에 전부 선택해서 업로드.
+// 예전엔 한 장씩 순차로 올리면서 매번 "마지막 문단을 다시 찾아 클릭"으로 커서를
+// 복구했는데, 플로팅 툴바가 남아있는 상태에서의 클릭은 (force든 아니든) 문단이
+// 아니라 툴바를 때릴 수 있어 커서가 전혀 이동하지 않는 문제가 있었다. 파일선택창
+// 자체를 한 번만 띄워 여러 파일을 동시에 넘기면 이 중간 클릭 단계가 통째로
+// 사라지고, SmartEditor가 업로드 순서대로 이미지를 알아서 붙여준다.
 export const uploadImages = async (page: Page, images: string[]): Promise<boolean> => {
   if (!images || images.length === 0) return true;
 
-  console.log(`[IMAGE] 이미지 ${images.length}장 업로드 시작 (순차 업로드)`);
+  console.log(`[IMAGE] 이미지 ${images.length}장 업로드 시작 (파일선택창 일괄)`);
   const tempFiles: string[] = [];
   let successCount = 0;
 
   try {
     // 이미지를 임시 파일로 저장 (URL이면 다운로드, base64면 변환)
-    for (let i = 0; i < images.length; i++) {
-      const img = images[i];
-      let tempPath: string | null = null;
-
-      if (img.startsWith('http')) {
-        tempPath = await downloadImageToTempFile(img, i);
-      } else {
-        tempPath = saveBase64ToTempFile(img, i);
-        console.log(`[IMAGE] 임시 파일 생성 (base64): ${tempPath}`);
-      }
-
-      if (tempPath) {
-        tempFiles.push(tempPath);
-      } else {
-        console.warn(`[IMAGE] 이미지 ${i + 1} 처리 실패`);
-      }
+    const downloaded = await Promise.all(
+      images.map((img, i) =>
+        img.startsWith('http') ? downloadImageToTempFile(img, i) : Promise.resolve(saveBase64ToTempFile(img, i))
+      )
+    );
+    for (const tempPath of downloaded) {
+      if (tempPath) tempFiles.push(tempPath);
     }
 
     if (tempFiles.length === 0) {
@@ -261,22 +142,88 @@ export const uploadImages = async (page: Page, images: string[]): Promise<boolea
       return false;
     }
 
-    // 각 이미지를 순차적으로 업로드
+    // 파일선택창 한 번에 전부 넘기는 일괄 업로드는(에디터를 방금 비우고 정리한
+    // 직후에는) 파일선택창까지는 뜨는데 이미지가 하나도 삽입되지 않는(0/3) 문제가
+    // 실제 운영 플로우에서 반복 재현됐다 — 원인은 명확히 못 찾았지만, 정리 직후가
+    // 아닌 상태에서 단독으로 테스트하면 잘 되는 걸 보면 방금 끝난 DOM 조작과의
+    // 상호작용 문제로 보인다. 한 장씩 순차로 올리는 예전 방식은 안정적으로
+    // 검증됐으므로, 이미지 사이 커서 복구만 Selection API로 교체해 유지한다.
+    //
+    // successCount는 "새로 올라간 개수"여야 하는데, 업로드 시작 시점에 이미
+    // DOM에 남아있던 이미지(정리 루프가 가드 상한에 걸려 다 못 지운 잔존 이미지 등)가
+    // 있으면 새 이미지가 0장이어도 카운트가 채워져 "성공"으로 오판할 수 있었다.
+    // 시작 시점의 개수를 기준선으로 잡고 델타로 계산한다.
+    // 실측 원인: 버튼 클릭 자체는 항상 "성공"하지만(에러 없음), 2~3번째 이미지에서
+    // 가끔 filechooser 이벤트가 아예 안 뜬다 — 클릭이 등록은 됐는데 SmartEditor가
+    // 파일선택창을 안 여는 상태(포커스/커서 위치 문제로 추정, 확실한 원인은 못 찾음).
+    // 이 타임아웃이 예외로 튀면 그전에 성공한 이미지 개수까지 통째로 버려지고
+    // "0/3"으로 보고되는 이중 버그가 있었다 — (1) 같은 이미지에 대해 버튼을
+    // 다시 찾아 재클릭하는 재시도를 걸고, (2) 그래도 실패하면 예외를 던지지 않고
+    // 그 이미지만 실패로 남긴 채 나머지 이미지 시도를 계속한다.
+    const baselineImageCount = await page.$$('.se-component.se-image').then((items) => items.length);
+    let uploadedSoFar = 0;
     for (let i = 0; i < tempFiles.length; i++) {
-      console.log(`[IMAGE] ${i + 1}/${tempFiles.length}번째 이미지 업로드 시작`);
-      const success = await uploadSingleImageFile(page, tempFiles[i], i);
-      if (success) {
-        successCount++;
-        console.log(`[IMAGE] ${i + 1}/${tempFiles.length}번째 이미지 업로드 성공`);
-      } else {
-        console.warn(`[IMAGE] ${i + 1}/${tempFiles.length}번째 이미지 업로드 실패`);
+      let fileChooser = null;
+      for (let clickAttempt = 0; clickAttempt < 3 && !fileChooser; clickAttempt++) {
+        let imageButton = null;
+        for (const selector of IMAGE_BUTTON_SELECTORS) {
+          imageButton = await page.$(selector);
+          if (imageButton) break;
+        }
+        if (!imageButton) {
+          console.log(`[IMAGE] ${i + 1}번째 이미지 버튼 찾을 수 없음 (시도 ${clickAttempt + 1}/3)`);
+          await page.waitForTimeout(500);
+          continue;
+        }
+        try {
+          const [chooser] = await Promise.all([
+            page.waitForEvent('filechooser', { timeout: 6000 }),
+            imageButton.click(),
+          ]);
+          fileChooser = chooser;
+        } catch {
+          console.log(`[IMAGE] ${i + 1}번째 filechooser 미발생, 재시도 ${clickAttempt + 1}/3`);
+          await page.keyboard.press('Escape');
+          await page.waitForTimeout(500);
+        }
       }
 
-      // 다음 이미지 업로드 전 잠시 대기
+      if (!fileChooser) {
+        console.log(`[IMAGE] ${i + 1}번째 이미지 업로드 포기 (3회 재시도 소진)`);
+        continue;
+      }
+
+      await fileChooser.setFiles([tempFiles[i]]);
+      console.log(`[IMAGE] ${i + 1}/${tempFiles.length}번째 파일 설정 완료`);
+      uploadedSoFar++;
+
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const count = await page.$$('.se-component.se-image').then((items) => items.length);
+        if (count >= baselineImageCount + uploadedSoFar) break;
+        await page.waitForTimeout(500);
+      }
+
+      for (let attempt = 0; attempt < 10; attempt++) {
+        const dim = await page.$('.se-popup-dim');
+        if (!dim) break;
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(300);
+      }
+
+      // 다음 이미지를 올리기 전, 방금 삽입된 이미지의 플로팅 툴바가 다음 버튼
+      // 클릭을 가로막지 않도록 Selection API로 마지막 문단에 커서를 놓아둔다.
       if (i < tempFiles.length - 1) {
-        await page.waitForTimeout(1000);
+        const paragraphs = await page.$$('p.se-text-paragraph');
+        const lastParagraph = paragraphs[paragraphs.length - 1];
+        if (lastParagraph) {
+          await placeCursorAtEndOfParagraph(page, lastParagraph);
+          await page.waitForTimeout(200);
+        }
       }
     }
+
+    const finalImageCount = await page.$$('.se-component.se-image').then((items) => items.length);
+    successCount = Math.min(Math.max(finalImageCount - baselineImageCount, 0), tempFiles.length);
 
     // 최종 이미지 컴포넌트 확인
     let totalImageCount = 0;

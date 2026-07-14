@@ -4,6 +4,7 @@ import { generateContent } from '@/shared/api/content-api';
 import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
 import { buildCafePostContent } from '@/shared/lib/cafe-content';
 import { PublishedArticle, type IPublishedArticle, incrementTodayPostCount } from '@/shared/models';
+import { logPublishToSheet } from '@/shared/lib/publish-log-sheet';
 import {
   writeCommentWithAccount,
   writePostWithAccount,
@@ -213,6 +214,17 @@ export const processKeyword = async ({
       });
 
       await incrementTodayPostCount(writerAccount.id, cafeId);
+
+      const sheetResult = await logPublishToSheet({
+        cafeId,
+        keyword,
+        articleId: postResult.articleId,
+        articleUrl,
+        writerAccountId: writerAccount.id,
+      });
+      if (!sheetResult.success) {
+        console.error(`[BATCH] 발행 시트 기록 실패: #${postResult.articleId} - ${sheetResult.error}`);
+      }
     }
 
     await sleep(delays.afterPost);

@@ -6,8 +6,10 @@ import { cn, Button } from '@/shared';
 import {
   createManualCommentJobAction,
   getManualCommentJobsAction,
+  scanLowCommentArticlesAction,
   type ManualCommentJobView,
 } from './actions';
+import type { ScanLowCommentArticlesResult } from './low-comment-scan';
 
 interface FormState {
   articleUrl: string;
@@ -17,6 +19,7 @@ interface FormState {
   generateMaxCount: string;
   delayMinMinutes: string;
   delayMaxMinutes: string;
+  deleteExisting: boolean;
 }
 
 const defaultFormState: FormState = {
@@ -27,6 +30,7 @@ const defaultFormState: FormState = {
   generateMaxCount: '13',
   delayMinMinutes: '3',
   delayMaxMinutes: '8',
+  deleteExisting: false,
 };
 
 const MODE_OPTIONS: Array<{ value: FormState['mode']; label: string }> = [
@@ -49,8 +53,8 @@ const STATUS_STYLE: Record<ManualCommentJobView['status'], string> = {
   failed: 'bg-(--danger-soft) text-(--danger)',
 };
 
-const CAFE_URL_PATTERN = /https?:\/\/[^\s]*cafe\.naver\.com[^\s]*/i;
-const NUMBERED_LINE_PATTERN = /^\s*\d+[.)]\s*(.+)$/;
+const CAFE_URL_PATTERN = /https?:\/\/[^\s]*(?:cafe\.naver\.com|naver\.me)[^\s]*/i;
+const NUMBERED_LINE_PATTERN = /^\s*\d+[.)번]\s*(.+)$/;
 
 const parseSmartPaste = (raw: string): { url: string | null; comments: string[] } => {
   const urlMatch = raw.match(CAFE_URL_PATTERN);
@@ -78,6 +82,8 @@ export const ManualCommentJobUI = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [jobs, setJobs] = useState<ManualCommentJobView[]>([]);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [isScanPending, startScanTransition] = useTransition();
+  const [scanResult, setScanResult] = useState<ScanLowCommentArticlesResult | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const inputClassName = cn(
@@ -131,6 +137,15 @@ export const ManualCommentJobUI = () => {
     });
   };
 
+  const handleScan = () => {
+    setScanResult(null);
+    startScanTransition(async () => {
+      const result = await scanLowCommentArticlesAction();
+      setScanResult(result);
+      loadJobs();
+    });
+  };
+
   const handleSubmit = () => {
     if (!formData.articleUrl.trim()) {
       setMessage({ type: 'error', text: '글 URL을 입력해주세요' });
@@ -139,7 +154,7 @@ export const ManualCommentJobUI = () => {
 
     const fixedComments = formData.fixedCommentsText
       .split('\n')
-      .map((line) => line.replace(/^\d+[.\s]*/, '').trim())
+      .map((line) => line.replace(/^\d+[.)번]?\s*/, '').trim())
       .filter(Boolean);
 
     if (formData.mode === 'fixed' && fixedComments.length === 0) {
@@ -156,6 +171,7 @@ export const ManualCommentJobUI = () => {
         generateMaxCount: formData.mode === 'generate' ? parseInt(formData.generateMaxCount) || 13 : undefined,
         delayMinMinutes: parseFloat(formData.delayMinMinutes) || 3,
         delayMaxMinutes: parseFloat(formData.delayMaxMinutes) || 8,
+        deleteExisting: formData.deleteExisting,
       });
 
       if (result.success) {
@@ -200,6 +216,16 @@ export const ManualCommentJobUI = () => {
             </button>
           ))}
         </div>
+
+        <label className={cn('flex items-center gap-2 text-sm text-(--ink)')}>
+          <input
+            type="checkbox"
+            checked={formData.deleteExisting}
+            onChange={(e) => setFormData((p) => ({ ...p, deleteExisting: e.target.checked }))}
+            className={cn('h-4 w-4 rounded border-(--border) accent-(--accent)')}
+          />
+          기존 댓글 전체 삭제 후 재작성
+        </label>
 
         {formData.mode === 'fixed' && (
           <textarea
@@ -272,6 +298,36 @@ export const ManualCommentJobUI = () => {
         </Button>
       </div>
 
+      {/* 댓글 부족 글 자동 스캔 */}
+      <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-5 space-y-3')}>
+        <div className={cn('flex items-center justify-between gap-3')}>
+          <div>
+            <h2 className={cn('text-base font-semibold text-(--ink)')}>댓글 부족 글 자동 스캔</h2>
+            <p className={cn('text-xs text-(--ink-muted)')}>
+              등록된 모든 카페에서 댓글 3개 이하인 글을 찾아 8~13개 댓글 작업을 큐에 등록함
+            </p>
+          </div>
+          <Button onClick={handleScan} disabled={isScanPending}>
+            {isScanPending ? '스캔 중...' : '지금 스캔'}
+          </Button>
+        </div>
+
+        {scanResult && (
+          <div className={cn('rounded-lg bg-(--surface-muted) p-3 text-xs text-(--ink-muted) space-y-1')}>
+            <p>
+              카페 {scanResult.scannedCafes}개 스캔 · 대상 글 {scanResult.foundArticles.length}개 · 신규 등록{' '}
+              {scanResult.queuedJobs.length}건
+            </p>
+            {scanResult.skipped.length > 0 && <p>스킵 {scanResult.skipped.length}건 (이미 진행/대기 중인 작업 있음)</p>}
+            {scanResult.errors.length > 0 && (
+              <p className={cn('text-(--danger)')}>
+                에러: {scanResult.errors.map((e) => `${e.cafeSlug}(${e.error})`).join(', ')}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* 작업 목록 */}
       <div className={cn('space-y-2')}>
         <h2 className={cn('text-base font-semibold text-(--ink)')}>최근 작업</h2>
@@ -290,6 +346,7 @@ export const ManualCommentJobUI = () => {
                     ? job.generateMaxCount || 0
                     : 0;
               const successCount = job.results.filter((r) => r.success).length;
+              const percent = job.mode !== 'agent' && total > 0 ? Math.round((successCount / total) * 100) : null;
               const isExpanded = expandedIds.has(job.id);
 
               return (
@@ -310,10 +367,27 @@ export const ManualCommentJobUI = () => {
                     {job.mode === 'agent' && (
                       <span className={cn('shrink-0 text-xs text-(--accent)')}>에이전트</span>
                     )}
-                    <span className={cn('text-xs text-(--ink-muted) truncate flex-1')}>
-                      {successCount}
-                      {job.mode !== 'agent' ? `/${total || '?'}` : ''}건 · {formatRelativeTime(job.createdAt)}
-                      {job.errorMessage ? ` · ${job.errorMessage}` : ''}
+                    <span className={cn('min-w-0 flex-1 space-y-1')}>
+                      <span className={cn('block text-xs text-(--ink-muted) truncate')}>
+                        {successCount}
+                        {job.mode !== 'agent' ? `/${total || '?'}` : ''}건
+                        {percent !== null ? ` · ${percent}%` : ''} · {formatRelativeTime(job.createdAt)}
+                        {job.deleteExisting
+                          ? ` · 삭제 ${job.deleteResults.filter((r) => r.success).length}/${job.deleteResults.length}건`
+                          : ''}
+                        {job.errorMessage ? ` · ${job.errorMessage}` : ''}
+                      </span>
+                      {percent !== null && (
+                        <span className={cn('block h-1 w-full max-w-40 overflow-hidden rounded-full bg-(--surface-muted)')}>
+                          <span
+                            className={cn(
+                              'block h-full rounded-full transition-all',
+                              job.status === 'failed' ? 'bg-(--danger)' : 'bg-(--accent)',
+                            )}
+                            style={{ width: `${percent}%` }}
+                          />
+                        </span>
+                      )}
                     </span>
                     <svg
                       className={cn('shrink-0 w-4 h-4 text-(--ink-tertiary) transition-transform', isExpanded && 'rotate-180')}
@@ -336,6 +410,28 @@ export const ManualCommentJobUI = () => {
                         {job.articleUrl}
                       </a>
                       {job.agentSummary && <p className={cn('text-xs text-(--ink-muted)')}>{job.agentSummary}</p>}
+                      {job.deleteResults.length > 0 && (
+                        <div className={cn('space-y-1.5')}>
+                          <p className={cn('text-xs font-medium text-(--ink-muted)')}>삭제된 기존 댓글</p>
+                          <ul className={cn('space-y-1.5 rounded-lg bg-(--surface-muted) p-3')}>
+                            {job.deleteResults.map((r) => (
+                              <li key={r.index} className={cn('text-xs flex items-start gap-2')}>
+                                {r.success ? (
+                                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-(--success)" strokeWidth={2} />
+                                ) : (
+                                  <XCircle className="h-3.5 w-3.5 shrink-0 text-(--danger)" strokeWidth={2} />
+                                )}
+                                <span className={cn('text-(--ink-muted)')}>
+                                  {r.accountId && <span className={cn('text-(--ink)')}>{r.accountId}</span>}
+                                  {r.accountId ? ' — ' : ''}
+                                  {r.content}
+                                  {r.error ? ` (${r.error})` : ''}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                       {job.results.length > 0 && (
                         <ul className={cn('space-y-1.5 rounded-lg bg-(--surface-muted) p-3')}>
                           {job.results.map((r) => (
@@ -347,7 +443,7 @@ export const ManualCommentJobUI = () => {
                               )}
                               <span className={cn('text-(--ink-muted)')}>
                                 {r.accountId && <span className={cn('text-(--ink)')}>{r.accountId}</span>}
-                                {r.accountId ? ' - ' : ''}
+                                {r.accountId ? ' — ' : ''}
                                 {r.content}
                                 {r.error ? ` (${r.error})` : ''}
                               </span>

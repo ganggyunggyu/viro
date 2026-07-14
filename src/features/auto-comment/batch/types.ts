@@ -15,6 +15,8 @@ export interface BatchJobInput {
   skipComments?: boolean;
   contentPrompt?: string;
   contentModel?: string;
+  attachImages?: boolean;
+  postsPerDay?: number;
 }
 
 export interface CommentResult {

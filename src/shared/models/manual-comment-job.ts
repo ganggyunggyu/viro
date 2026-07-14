@@ -14,6 +14,17 @@ export interface IManualCommentResult {
   postedAt?: Date;
 }
 
+export interface IManualCommentDeleteResult {
+  index: number;
+  commentId: string;
+  accountId?: string;
+  nickname?: string;
+  content: string;
+  success: boolean;
+  error?: string;
+  deletedAt?: Date;
+}
+
 export interface IManualCommentJob extends Document {
   userId: string;
   articleUrl: string;
@@ -26,10 +37,12 @@ export interface IManualCommentJob extends Document {
   generateMaxCount?: number;
   delayMinMs: number;
   delayMaxMs: number;
+  deleteExisting: boolean;
   status: ManualCommentJobStatus;
   errorMessage?: string;
   agentSummary?: string;
   results: IManualCommentResult[];
+  deleteResults: IManualCommentDeleteResult[];
   claimedAt?: Date;
   claimedBy?: string;
   createdAt: Date;
@@ -50,6 +63,20 @@ const ManualCommentResultSchema = new Schema<IManualCommentResult>(
   { _id: false },
 );
 
+const ManualCommentDeleteResultSchema = new Schema<IManualCommentDeleteResult>(
+  {
+    index: { type: Number, required: true },
+    commentId: { type: String, required: true },
+    accountId: { type: String },
+    nickname: { type: String },
+    content: { type: String, required: true },
+    success: { type: Boolean, required: true },
+    error: { type: String },
+    deletedAt: { type: Date },
+  },
+  { _id: false },
+);
+
 const ManualCommentJobSchema = new Schema<IManualCommentJob>(
   {
     userId: { type: String, required: true, index: true },
@@ -63,10 +90,12 @@ const ManualCommentJobSchema = new Schema<IManualCommentJob>(
     generateMaxCount: { type: Number },
     delayMinMs: { type: Number, required: true },
     delayMaxMs: { type: Number, required: true },
+    deleteExisting: { type: Boolean, default: false },
     status: { type: String, enum: ['pending', 'running', 'done', 'failed'], default: 'pending', index: true },
     errorMessage: { type: String },
     agentSummary: { type: String },
     results: { type: [ManualCommentResultSchema], default: [] },
+    deleteResults: { type: [ManualCommentDeleteResultSchema], default: [] },
     claimedAt: { type: Date },
     claimedBy: { type: String },
   },

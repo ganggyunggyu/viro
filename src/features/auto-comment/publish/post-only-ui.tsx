@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { cn } from '@/shared';
 import { Select, Button } from '@/shared';
-import { ChevronDown, Loader2 } from 'lucide-react';
+import { ChevronDown, Loader2, ImageIcon, CalendarClock } from 'lucide-react';
 import { getCafesAction } from '@/features/accounts/actions';
 import { PostOptionsUI } from '@/entities/post-options';
 import {
@@ -15,6 +15,8 @@ import {
   selectedCafeAtom,
   postKeywordsTextAtom,
   postRefAtom,
+  postAttachImagesAtom,
+  postsPerDayAtom,
 } from '@/entities';
 import { runPostOnlyAction, getPostQueueStatusAction, type QueueBatchResult, type QueueStatusResult } from './queue-actions';
 
@@ -37,6 +39,8 @@ export const PostOnlyUI = () => {
   const [keywordsText, setKeywordsText] = useAtom(postKeywordsTextAtom);
   const [ref, setRef] = useAtom(postRefAtom);
   const [postOptions, setPostOptions] = useAtom(postOptionsAtom);
+  const [attachImages, setAttachImages] = useAtom(postAttachImagesAtom);
+  const [postsPerDay, setPostsPerDay] = useAtom(postsPerDayAtom);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [result, setResult] = useState<QueueBatchResult | null>(null);
   const [queueStatus, setQueueStatus] = useState<QueueStatusResult | null>(null);
@@ -94,11 +98,14 @@ export const PostOnlyUI = () => {
 
     startTransition(async () => {
       setResult(null);
+      const parsedPostsPerDay = Number(postsPerDay);
       const res = await runPostOnlyAction({
         keywords,
         ref: ref || undefined,
         cafeId: selectedCafeId || undefined,
         postOptions,
+        attachImages,
+        postsPerDay: postsPerDay && parsedPostsPerDay > 0 ? parsedPostsPerDay : undefined,
       });
       setResult(res);
       if (res.success) {
@@ -152,6 +159,56 @@ export const PostOnlyUI = () => {
             onChange={(e) => setRef(e.target.value)}
             className={inputClassName}
           />
+        </div>
+
+        <div className={cn('grid grid-cols-1 gap-3 sm:grid-cols-2')}>
+          <button
+            type="button"
+            onClick={() => setAttachImages((prev) => !prev)}
+            className={cn(
+              'flex items-center gap-3 rounded-xl border p-3 text-left transition-all',
+              attachImages
+                ? 'border-(--accent) bg-(--accent)/5'
+                : 'border-(--border-light) bg-(--surface-muted) hover:bg-(--surface)'
+            )}
+          >
+            <div
+              className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                attachImages ? 'bg-(--accent) text-white' : 'bg-(--surface) text-(--ink-muted)'
+              )}
+            >
+              <ImageIcon className={cn('w-4 h-4')} />
+            </div>
+            <div>
+              <p className={cn('text-sm font-medium text-(--ink)')}>이미지 자동 첨부</p>
+              <p className={cn('text-xs text-(--ink-muted)')}>AI로 이미지 3장 생성해 본문에 삽입</p>
+            </div>
+          </button>
+
+          <div
+            className={cn(
+              'flex items-center gap-3 rounded-xl border border-(--border-light) bg-(--surface-muted) p-3'
+            )}
+          >
+            <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--surface) text-(--ink-muted)')}>
+              <CalendarClock className={cn('w-4 h-4')} />
+            </div>
+            <div className={cn('flex-1 min-w-0')}>
+              <p className={cn('text-sm font-medium text-(--ink)')}>하루에 N개씩 발행</p>
+              <input
+                type="number"
+                min={1}
+                placeholder="비우면 랜덤 간격"
+                value={postsPerDay}
+                onChange={(e) => setPostsPerDay(e.target.value)}
+                className={cn(
+                  'mt-1 w-full rounded-lg border border-(--border) bg-(--surface) px-2 py-1 text-sm text-(--ink)',
+                  'placeholder:text-(--ink-tertiary) focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
+                )}
+              />
+            </div>
+          </div>
         </div>
 
         <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) overflow-hidden')}>

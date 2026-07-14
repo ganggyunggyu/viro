@@ -25,3 +25,15 @@ export type {
 export { DEFAULT_POST_OPTIONS } from './types';
 export type { ModifyBatchInput, ModifyBatchResult, ModifyBatchOptions } from './modify-batch-job';
 export type { ModifyArticleInput, ModifyResult } from '@/shared/lib/naver-cafe-writing';
+export { REWRITE_KEYWORD_POOL, assignDiverseKeywords, extractKeywordFromSubject } from './rewrite-keyword-pool';
+export { inferCafeService } from './rewrite-cafe-service';
+export { runRewriteBatchJob } from './rewrite-batch-job';
+export { getRewriteBatchStatus } from './rewrite-status';
+export type {
+  RewriteKeywordSource,
+  RewriteTask,
+  RewriteBatchInput,
+  RewriteCafeJobRef,
+  RewriteBatchStartResult,
+} from './rewrite-types';
+export type { RewriteArticleResult, RewriteCafeStatus, RewriteBatchStatusResult } from './rewrite-status';

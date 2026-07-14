@@ -10,7 +10,7 @@ interface KeywordResultLog {
 }
 
 export interface IBatchJobLog extends Document {
-  jobType: 'publish' | 'modify';
+  jobType: 'publish' | 'modify' | 'rewrite';
   cafeId: string;
   keywords: string[];
   results: KeywordResultLog[];
@@ -36,7 +36,7 @@ const KeywordResultSchema = new Schema<KeywordResultLog>(
 
 const BatchJobLogSchema = new Schema<IBatchJobLog>(
   {
-    jobType: { type: String, enum: ['publish', 'modify'], required: true },
+    jobType: { type: String, enum: ['publish', 'modify', 'rewrite'], required: true },
     cafeId: { type: String, required: true },
     keywords: [{ type: String }],
     results: [KeywordResultSchema],
