@@ -10,6 +10,8 @@ export interface ICafe extends Document {
   categoryMenuIds?: Record<string, string>;
   categoryAliases?: Record<string, string>;
   commentableMenuIds?: number[];
+  /** 이 카페를 실제로 개설한(매니저) 네이버 계정 ID. naver-cafe-creation 으로 만든 카페만 채워짐 */
+  ownerAccountId?: string;
   isDefault?: boolean;
   isActive: boolean;
   createdAt: Date;
@@ -27,6 +29,7 @@ const CafeSchema = new Schema<ICafe>(
     categoryMenuIds: { type: Map, of: String },
     categoryAliases: { type: Map, of: String },
     commentableMenuIds: { type: [Number], default: [] },
+    ownerAccountId: { type: String },
     isDefault: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
   },

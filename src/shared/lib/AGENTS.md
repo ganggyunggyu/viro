@@ -8,19 +8,25 @@ DB, Redis, Playwright 브라우저, 계정 관리 등 핵심 인프라 유틸리
 
 ```
 lib/
-├── queue/              # → 별도 AGENTS.md (BullMQ 시스템)
-├── mongodb.ts          # Mongoose 캐시 연결 (global cache, bufferCommands: false)
-├── redis.ts            # ioredis 싱글톤 (DB index 1)
-├── multi-session.ts    # ★ per-account 브라우저 세션 관리 (291줄)
-├── playwright.ts       # ⚠️ DEPRECATED — multi-session.ts 사용
-├── account-manager.ts  # 계정 로드 + 활동시간 관리 (JSON 기반)
-├── auth.ts             # 인증 유틸리티
-├── cafe-content.ts     # 카페 콘텐츠 빌더
-├── cn.ts               # clsx + tailwind-merge 래퍼
-├── toast.ts            # Sonner 토스트 래퍼
-├── random.ts           # 랜덤 유틸리티
-├── adb-controller.ts   # ADB 컨트롤러 (모바일)
-└── ip-changer.ts       # IP 변경 유틸리티
+├── queue/                  # → 별도 AGENTS.md (BullMQ 시스템)
+├── mongodb.ts              # Mongoose 캐시 연결 (global cache, bufferCommands: false)
+├── redis.ts                # ioredis 싱글톤 (DB index 1)
+├── multi-session.ts        # ★ per-account 브라우저 세션 관리 (291줄)
+├── playwright.ts           # ⚠️ DEPRECATED — multi-session.ts 사용
+├── account-manager.ts      # 계정 로드 + 활동시간 관리 (JSON 기반)
+├── auth.ts                 # 인증 유틸리티
+├── captcha-solver.ts       # 로그인용 캡차 solver (영수증형 텍스트질문, Gemini)
+├── naver-cafe-creation/    # ★ 카페 "개설(생성)" 자동화 — createNaverCafe()
+├── naver-cafe-membership/  # ★ 카페 "가입" 자동화 — joinCafeMembership() (캡차 포함)
+├── cafe-content.ts         # 카페 콘텐츠 빌더
+├── cafe-article-reader.ts  # 카페 글 읽기
+├── cafe-browser.ts         # 카페 브라우징 유틸
+├── parse-cafe-article-url.ts
+├── cn.ts                   # clsx + tailwind-merge 래퍼
+├── toast.ts                # Sonner 토스트 래퍼
+├── random.ts                # 랜덤 유틸리티
+├── adb-controller.ts        # ADB 컨트롤러 (모바일)
+└── ip-changer.ts            # IP 변경 유틸리티
 ```
 
 ## WHERE TO LOOK
@@ -33,6 +39,11 @@ lib/
 | 계정 잠금 | `multi-session.ts` | `acquireAccountLock()` / `releaseAccountLock()` |
 | 로그인 확인 | `multi-session.ts` | `isAccountLoggedIn()` — 30분 TTL 캐시 |
 | 활동시간 체크 | `account-manager.ts` | `isAccountActive()` — 시간+요일 검사 |
+| **카페 개설(새로 만들기)** | `naver-cafe-creation/index.ts` | `createNaverCafe(accountId, password, input, { dryRun })` — 새 카페를 실제로 만들 땐 이거 재사용. 폼 셀렉터/캡차 새로 조사하지 말 것 |
+| 카페 개설 후 DB 등록 | `naver-cafe-creation/index.ts` | `registerCreatedCafeInDb(userId, cafe, options)` — upsert라 재실행해도 안전 |
+| 카페 개설 후 운영 시트 동기화 | `naver-cafe-creation/sheet-sync.ts` | `syncCafeToOperationsSheet(record)` — DB 등록만 하고 이거 빼먹지 말 것 (시트 드리프트 원인) |
+| 카페 이름/주소 자동 추천 | `naver-cafe-creation/name-generator.ts` | `generateCafeNameSuggestions(category?, count)` — 순수 로직(Playwright 의존 없음), client component에서 직접 import 가능 |
+| **카페 가입(기존 카페)** | `naver-cafe-membership/index.ts` | `joinCafeMembership()` — 그림문자 캡차 자동 풀이 포함. UI가 쓰는 `features/auto-comment/batch/cafe-join.ts` 는 캡차 처리가 없는 더 단순한 버전이라 서로 다름 — 헷갈리지 말 것 |
 
 ## CONVENTIONS
 

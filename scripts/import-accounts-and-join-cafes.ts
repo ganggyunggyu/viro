@@ -416,7 +416,7 @@ const joinImportedAccounts = async (
   accounts: NormalizedAccount[],
   cafes: CafeTarget[]
 ): Promise<JoinSummary> => {
-  const { joinCafeWithAccount } = await import('@/features/auto-comment/batch');
+  const { joinCafeWithNicknameRetry } = await import('@/features/auto-comment/batch');
   const { closeAllContexts } = await import('@/shared/lib/multi-session');
 
   closeAllContextsForCleanup = closeAllContexts;
@@ -435,7 +435,7 @@ const joinImportedAccounts = async (
       for (let cafeIndex = 0; cafeIndex < cafes.length; cafeIndex++) {
         const cafe = cafes[cafeIndex];
         console.log(`[JOIN] ${account.accountId} -> ${cafe.name} 시작`);
-        const result = await joinCafeWithAccount(
+        const result = await joinCafeWithNicknameRetry(
           {
             id: account.accountId,
             password: account.password,
@@ -444,7 +444,12 @@ const joinImportedAccounts = async (
             role: account.role,
           },
           cafe.cafeId,
-          { cafeUrl: cafe.cafeUrl }
+          {
+            cafeUrl: cafe.cafeUrl,
+            updateDbNickname: async (newNickname) => {
+              await Account.updateOne({ accountId: account.accountId }, { $set: { nickname: newNickname } });
+            },
+          }
         );
 
         if (result.alreadyMember) {

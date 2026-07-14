@@ -374,6 +374,7 @@ export const runBatchCafeJoin = async (
   const { getAllAccounts } = await import('@/shared/config/accounts');
   const { getAllCafes } = await import('@/shared/config/cafes');
   const { closeAllContexts } = await import('@/shared/lib/multi-session');
+  const { updateAccountAction } = await import('@/entities/account');
 
   const accounts = await getAllAccounts();
   const cafes = await getAllCafes();
@@ -393,8 +394,11 @@ export const runBatchCafeJoin = async (
       for (const cafe of cafes) {
         onProgress?.(`${account.id} → ${cafe.name} 가입 시도...`);
 
-        const result = await joinCafeWithAccount(account, cafe.cafeId, {
+        const result = await joinCafeWithNicknameRetry(account, cafe.cafeId, {
           cafeUrl: cafe.cafeUrl,
+          updateDbNickname: async (newNickname) => {
+            await updateAccountAction(account.id, { nickname: newNickname });
+          },
         });
 
         results.push({
