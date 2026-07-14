@@ -12,6 +12,7 @@ import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/ca
 const WORKER_ID = `worker-${process.pid}-${Date.now()}`;
 const POLL_INTERVAL_MS = 20_000;
 const STALE_CLAIM_MS = 30 * 60_000;
+const TARGET_JOB_IDS = (process.env.MANUAL_COMMENT_JOB_IDS || '').split(',').filter(Boolean);
 
 const normalizeName = (v: string): string => (v || '').replace(/\([^)]*\)/g, '').replace(/\s+/g, '').trim();
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
@@ -22,6 +23,7 @@ const claimNextJob = async (): Promise<IManualCommentJob | null> => {
   const staleThreshold = new Date(Date.now() - STALE_CLAIM_MS);
   const job = await ManualCommentJob.findOneAndUpdate(
     {
+      ...(TARGET_JOB_IDS.length > 0 ? { _id: { $in: TARGET_JOB_IDS } } : {}),
       $or: [
         { status: 'pending' },
         { status: 'running', claimedAt: { $lt: staleThreshold } },
@@ -434,6 +436,7 @@ const runWorkerSlot = async (slotId: number): Promise<void> => {
         await processJob(job);
         continue;
       }
+      if (TARGET_JOB_IDS.length > 0) return;
     } catch (error) {
       console.error(`[WORKER-${slotId}] 처리 중 오류:`, error instanceof Error ? error.message : error);
     }

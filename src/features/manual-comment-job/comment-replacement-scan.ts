@@ -1,9 +1,9 @@
 import { getAllAccounts } from '@/shared/config/accounts';
 import { getAllCafes } from '@/shared/config/cafes';
-import { readCafeArticleContent } from '@/shared/lib/cafe-article-reader';
 import { browseCafePosts } from '@/shared/lib/cafe-browser';
 import { listLiveComments } from '@/shared/lib/naver-cafe-writing';
 import type { NaverAccount } from '@/shared/lib/account-manager';
+import { ManualCommentJob } from '@/shared/models';
 import { createManualCommentJobRecord } from './actions';
 
 export interface CommentReplacementCandidate {
@@ -112,15 +112,7 @@ export const scanCommentReplacementCandidates = async (
 
     for (const article of articles.values()) {
       const { articleId } = article;
-      const contentResult = await readCafeArticleContent(reader, cafeId, articleId, {
-        reason: `comment_replacement_scan:${reader.id}`,
-      });
-      if (!contentResult.success) {
-        result.skipped.push({ cafeSlug, articleId, reason: contentResult.error || '원고 조회 실패' });
-        continue;
-      }
-
-      const title = contentResult.title || article.subject;
+      const title = article.subject;
       const commentsResult = await listLiveComments(reader, cafeId, articleId);
       if (!commentsResult.success) {
         result.skipped.push({ cafeSlug, articleId, reason: commentsResult.error || '댓글 조회 실패' });
@@ -158,6 +150,16 @@ export const queueCommentReplacementJobs = async (
 
   for (const candidate of candidates) {
     const { cafeId, cafeSlug, articleId, articleUrl } = candidate;
+    const active = await ManualCommentJob.exists({
+      userId,
+      cafeId,
+      articleId,
+      status: { $in: ['pending', 'running'] },
+    });
+    if (active) {
+      result.skipped.push({ cafeSlug, articleId, reason: '이미 대기/진행 중인 작업 있음' });
+      continue;
+    }
     const created = await createManualCommentJobRecord(
       userId,
       { cafeId, cafeSlug, articleId, articleUrl },
