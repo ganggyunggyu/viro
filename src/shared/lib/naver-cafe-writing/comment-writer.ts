@@ -105,6 +105,23 @@ export const getCommentRoot = async (page: Page): Promise<Page | Frame> => {
   return frame;
 };
 
+const ARTICLE_WRITER_SELECTORS = [
+  '.nick_box .nick',
+  '.writer .nick',
+  '.profile_info .nick',
+  '.nickname',
+];
+
+export const getArticleWriterNickname = async (root: Page | Frame): Promise<string> => {
+  for (const selector of ARTICLE_WRITER_SELECTORS) {
+    const el = await root.$(selector);
+    if (!el) continue;
+    const text = normalizeText(await el.evaluate((node) => node.textContent));
+    if (text) return text;
+  }
+  return '';
+};
+
 export const getClosestCommentItem = async (
   node: ElementHandle<Element>
 ): Promise<ElementHandle<HTMLElement> | null> => {
@@ -255,6 +272,17 @@ export const writeCommentWithAccount = async (
 
     const root = await getCommentRoot(page);
 
+    // 글쓴이 본인 계정으로는 댓글 작성 금지 (자작극처럼 보이는 것 방지)
+    const writerNickname = await getArticleWriterNickname(root);
+    const commenterNickname = normalizeText(account.nickname || account.id);
+    if (writerNickname && isNicknameEquivalent(writerNickname, commenterNickname)) {
+      return {
+        accountId: id,
+        success: false,
+        error: `글쓴이 본인 계정으로는 댓글 작성 불가 (작성자 닉네임: ${writerNickname})`,
+      };
+    }
+
     // 대댓글 입력창이 열려있으면 닫기 (취소 버튼 클릭)
     const openReplyCancel = await root.$('.CommentWriter:has(.btn_cancel) a.btn_cancel');
     if (openReplyCancel) {
@@ -301,7 +329,6 @@ export const writeCommentWithAccount = async (
     }
 
     const contentPreview = normalizeText(sanitizedContent).slice(0, 30);
-    const commenterNickname = normalizeText(account.nickname || account.id);
     let found = false;
     let commentId: string | undefined;
 
@@ -405,6 +432,18 @@ export const writeReplyWithAccount = async (
     };
 
     const root = await getCommentRoot(page);
+
+    // 글쓴이 본인 계정으로는 대댓글 작성도 금지
+    const writerNickname = await getArticleWriterNickname(root);
+    const commenterNickname = normalizeText(account.nickname || account.id);
+    if (writerNickname && isNicknameEquivalent(writerNickname, commenterNickname)) {
+      return {
+        accountId: id,
+        success: false,
+        error: `글쓴이 본인 계정으로는 댓글 작성 불가 (작성자 닉네임: ${writerNickname})`,
+      };
+    }
+
     let targetItem: ElementHandle<HTMLElement> | null = null;
     let targetIndex = -1;
 
