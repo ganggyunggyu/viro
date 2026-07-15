@@ -312,7 +312,8 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
       batch = candidate;
       if (candidate.comments.length >= exactCount) break;
     }
-    texts = (batch?.comments || []).map((c) => c.content);
+    // AI가 exactCount보다 많이 생성해도 목표치(min~max)를 넘겨 올리지 않도록 자른다.
+    texts = (batch?.comments || []).map((c) => c.content).slice(0, exactCount);
   }
 
   if (texts.length === 0) {
