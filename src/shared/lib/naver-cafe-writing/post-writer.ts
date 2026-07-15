@@ -14,6 +14,7 @@ import type { PostOptions, PostResult } from '@/shared/types';
 import { DEFAULT_POST_OPTIONS } from '@/shared/types';
 import { incrementActivity } from '@/shared/models/daily-activity';
 import { uploadImages, placeCursorAtEndOfParagraph } from './image-uploader';
+import { isTypedContentTooShort } from './article-modifier-utils';
 import type { ElementHandle } from 'playwright';
 
 // 팝업 닫고 클릭 재시도 헬퍼
@@ -572,6 +573,20 @@ export const writePostWithAccount = async (
     }
 
     await page.waitForTimeout(500);
+
+    // 타이핑이 실제로 에디터에 반영됐는지 제출 전에 확인한다 — 커서가 엉뚱한 곳에
+    // 꽂혀 있었으면 여기서 걸러내지 않는 한 사진만 있고 본문은 빈 글이 그대로
+    // 저장되어 버린다(과거 실제로 발생했던 사고).
+    const editorText = await page.$$eval('p.se-text-paragraph', (nodes) =>
+      nodes.map((node) => node.textContent || '').join('\n')
+    );
+    if (isTypedContentTooShort(editorText, plainContent)) {
+      return {
+        success: false,
+        writerAccountId: id,
+        error: `타이핑된 본문이 비정상적으로 짧음 (제출 중단) — 에디터: ${editorText.length}자, 원본: ${plainContent.length}자`,
+      };
+    }
 
     // 게시 옵션 설정 (체크박스 조작)
     await applyPostOptions(page, postOptions);

@@ -426,7 +426,25 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
 // pm2 프로세스를 여러 개 띄우는 방식은 acquireAccountLock이 프로세스 메모리 기반이라
 // 서로 다른 프로세스 간에는 같은 네이버 계정 동시 조작을 막지 못해 위험함.
 // 슬롯을 여러 개 두되 전부 한 프로세스 안에서 돌리면 락이 정상적으로 동작한다.
-const WORKER_CONCURRENCY = Number(process.env.WORKER_CONCURRENCY || 3);
+// 슬롯 하나가 한 번에 계정 하나를 점유(acquireAccountLock)하므로, 슬롯 수가 실제 사용 가능한
+// 계정 수보다 많아지면 초과 슬롯은 락을 기다리기만 할 뿐 처리량에 기여하지 못한다.
+// 그래서 동시 슬롯 수는 고정값이 아니라 실제 활성 commenter 계정 수를 기준으로 정한다.
+const MAX_WORKER_CONCURRENCY = 30;
+
+const resolveWorkerConcurrency = async (): Promise<number> => {
+  const accountCount = await Account.countDocuments({
+    isActive: true,
+    role: 'commenter',
+    excludeFromAutoComment: { $ne: true },
+  });
+  const accountBound = Math.min(Math.max(accountCount, 1), MAX_WORKER_CONCURRENCY);
+
+  const envValue = process.env.WORKER_CONCURRENCY ? Number(process.env.WORKER_CONCURRENCY) : null;
+  if (envValue && Number.isFinite(envValue) && envValue > 0) {
+    return Math.min(envValue, accountBound);
+  }
+  return accountBound;
+};
 
 const runWorkerSlot = async (slotId: number): Promise<void> => {
   while (true) {
@@ -444,13 +462,13 @@ const runWorkerSlot = async (slotId: number): Promise<void> => {
   }
 };
 
-const runLoop = async (): Promise<void> => {
+const runLoop = async (concurrency: number): Promise<void> => {
   console.log(
-    `[WORKER] 시작 (${WORKER_ID}), 동시 슬롯 ${WORKER_CONCURRENCY}개, ${POLL_INTERVAL_MS / 1000}초마다 폴링`,
+    `[WORKER] 시작 (${WORKER_ID}), 동시 슬롯 ${concurrency}개(활성 commenter 계정 수 기준), ${POLL_INTERVAL_MS / 1000}초마다 폴링`,
   );
 
   await Promise.all(
-    Array.from({ length: WORKER_CONCURRENCY }, (_, i) => runWorkerSlot(i + 1)),
+    Array.from({ length: concurrency }, (_, i) => runWorkerSlot(i + 1)),
   );
 };
 
@@ -465,7 +483,8 @@ const main = async (): Promise<void> => {
     process.exit(0);
   });
 
-  await runLoop();
+  const concurrency = await resolveWorkerConcurrency();
+  await runLoop(concurrency);
 };
 
 main().catch((error) => {
