@@ -8,6 +8,7 @@ import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-a
 import { runDeepSeekAgentCommentJob, type DeepSeekAgentEvent } from '../src/shared/lib/deepseek-agent-comment';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
 import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
+import { isNicknameEquivalent } from '../src/shared/lib/naver-cafe-writing/comment-writer-utils';
 
 const WORKER_ID = `worker-${process.pid}-${Date.now()}`;
 const POLL_INTERVAL_MS = 20_000;
@@ -56,7 +57,12 @@ const buildAccountPool = async (
   } | null>();
   const alreadyCommented = new Set((existing?.comments || []).map((c) => c.accountId).filter(Boolean) as string[]);
 
-  const allDocs = await PublishedArticle.find({}, { comments: 1 }).lean<Array<{ comments?: Array<{ accountId?: string; createdAt?: Date }> }>>();
+  // 전체 발행 이력을 모두 역직렬화하면 댓글 하나를 재작성하는 작업도 수 분간
+  // 멈출 수 있다. 최근 이력만으로도 계정 분산에는 충분하므로 범위를 제한한다.
+  const allDocs = await PublishedArticle.find({}, { comments: 1 })
+    .sort({ updatedAt: -1 })
+    .limit(500)
+    .lean<Array<{ comments?: Array<{ accountId?: string; createdAt?: Date }> }>>();
   const lastUsedAt = new Map<string, number>();
   for (const doc of allDocs) {
     for (const c of doc.comments || []) {
@@ -165,8 +171,8 @@ const deleteExistingComments = async (
 
     // 실제 UI에 보이는 닉네임과 활성 계정을 먼저 매칭한다. 기존처럼 모든 계정으로
     // 삭제 권한을 순회하면 한 댓글당 수십 번의 페이지 이동이 발생해 전체 작업이 멈춘다.
-    const matchingAccounts = deleteAccounts.filter(
-      (account) => normalizeName(account.nickname || account.accountId) === normalizeName(live.nickname),
+    const matchingAccounts = deleteAccounts.filter((account) =>
+      isNicknameEquivalent(live.nickname, account.nickname || account.accountId),
     );
     const candidates = matchingAccounts;
 

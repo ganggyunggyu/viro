@@ -574,6 +574,15 @@ export const loginAccount = async (
             error: `캡차 풀이 실패 (${captchaResult.attempts}회 시도): ${captchaResult.error}`,
           };
         }
+
+        // 캡차가 통과되면 네이버가 로그인 폼을 새로 렌더링하며 기존 ID/PW 값을
+        // 비우는 경우가 있다. 이때 다시 제출하지 않으면 로그인 대기만 하다 타임아웃된다.
+        if (isLoginRedirect(page.url())) {
+          await fillLoginInput(page, 'input#id', accountId);
+          await fillLoginInput(page, 'input#pw', password);
+          await submitLoginForm(page);
+          await page.waitForTimeout(3000);
+        }
       }
     }
 
