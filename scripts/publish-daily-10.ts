@@ -132,13 +132,16 @@ const publishOne = async (task: PostTask): Promise<boolean> => {
     const [images, rawContent] = await Promise.all([fetchImages(task.keyword, 3), generateTete(task.keyword, task.service)]);
     const parsed = buildCafePostContent(rawContent, task.keyword);
     // 일부 원고(특히 일상 서비스)가 첫 줄에 짧은 제목 대신 긴 인트로 문단을 내놓는 경우가 있어
-    // buildCafePostContent가 그 문단 전체를 제목으로 잡아버림 — 40자 넘으면 문장부호 기준으로
-    // 자르고, 그래도 안 되면 키워드로 폴백한다.
+    // buildCafePostContent가 그 문단 전체를 제목으로 잡아버림 — 40자 넘으면 마지막 문장부호
+    // 기준으로 자르되, 그 결과가 15자 미만(너무 이른 지점에서 끊김, 예: "마운자로 요요,")이면
+    // 40자 그대로 자른다. 문자 클래스([...])는 "까지"/"지요" 같은 단어를 매칭 못 하고 개별
+    // 글자로만 매칭돼 의도와 다르게 동작했던 걸 고쳤다.
     let title = parsed.title;
     const htmlContent = parsed.htmlContent;
     if (title.length > 40) {
-      const cut = title.slice(0, 40).match(/^.*[.,!?~까지지요]/);
-      title = cut ? cut[0].trim() : task.keyword;
+      const window = title.slice(0, 40);
+      const lastBreak = window.match(/^.*[.,!?~]/);
+      title = lastBreak && lastBreak[0].trim().length >= 15 ? lastBreak[0].trim() : window.trim();
     }
     if (!title || !htmlContent) {
       logLine(`[${task.cafeName}] 제목/본문 파싱 실패, 스킵`);
