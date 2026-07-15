@@ -55,8 +55,8 @@ export const scanLowCommentArticles = async (
   const perPage = options?.perPage ?? 20;
   const generateMinCount = options?.generateMinCount ?? 8;
   const generateMaxCount = options?.generateMaxCount ?? 13;
-  const delayMinMinutes = options?.delayMinMinutes ?? 3;
-  const delayMaxMinutes = options?.delayMaxMinutes ?? 8;
+  const delayMinMinutes = options?.delayMinMinutes ?? 0.5;
+  const delayMaxMinutes = options?.delayMaxMinutes ?? 3;
 
   const result: ScanLowCommentArticlesResult = {
     scannedCafes: 0,

@@ -17,7 +17,7 @@
 
 - **글 URL**: `cafe.naver.com/...` 또는 `naver.me/...` 단축링크 모두 지원 (`parseCafeArticleUrl`이 자동 해석).
 - **새 댓글 내용**: 사용자가 번호매긴 텍스트를 통째로 붙여넣는 경우가 많음 ("1.", "1)", "1번" 형식 전부 인식). 없으면(그냥 "다시 달아"만 요청) 기존 댓글 내용을 그대로 재사용.
-- **딜레이**: 기본 3~8분 (기존 컨벤션과 동일).
+- **딜레이**: 기본 30초~3분(0.5~3분).
 
 ### 2단계: 잡 등록
 
@@ -31,8 +31,8 @@ await createManualCommentJobForUser('user-1768955529317', {
   mode: 'fixed',
   fixedComments: ['댓글1', '댓글2', '...'],
   deleteExisting: true,
-  delayMinMinutes: 3,
-  delayMaxMinutes: 8,
+  delayMinMinutes: 0.5,
+  delayMaxMinutes: 3,
 });
 ```
 

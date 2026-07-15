@@ -32,8 +32,8 @@ const defaultFormState: FormState = {
   fixedCommentsText: '',
   generateMinCount: '8',
   generateMaxCount: '13',
-  delayMinMinutes: '3',
-  delayMaxMinutes: '8',
+  delayMinMinutes: '0.5',
+  delayMaxMinutes: '3',
   deleteExisting: false,
 };
 
@@ -207,8 +207,8 @@ export const ManualCommentJobUI = () => {
         fixedComments: formData.mode === 'fixed' ? fixedComments : undefined,
         generateMinCount: formData.mode === 'generate' ? parseInt(formData.generateMinCount) || 8 : undefined,
         generateMaxCount: formData.mode === 'generate' ? parseInt(formData.generateMaxCount) || 13 : undefined,
-        delayMinMinutes: parseFloat(formData.delayMinMinutes) || 3,
-        delayMaxMinutes: parseFloat(formData.delayMaxMinutes) || 8,
+        delayMinMinutes: parseFloat(formData.delayMinMinutes) || 0.5,
+        delayMaxMinutes: parseFloat(formData.delayMaxMinutes) || 3,
         deleteExisting: formData.deleteExisting,
       });
 
