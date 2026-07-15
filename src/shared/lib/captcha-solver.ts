@@ -1,5 +1,6 @@
 import { Page } from 'playwright';
 import { GoogleGenAI } from '@google/genai';
+import { captureFailureShot } from './debug-capture';
 
 const CAPTCHA_PROVIDER = process.env.CAPTCHA_PROVIDER || 'gemini';
 const CAPTCHA_MODEL = process.env.GEMINI_CAPTCHA_MODEL || 'gemini-3.5-flash';
@@ -159,6 +160,21 @@ export const solveCaptchaOnPage = async (
         await page.waitForTimeout(PW_INPUT_DELAY_MS);
       }
 
+      // 캡차 정답률이 질문 난이도와 무관하게 일정하다면 실패 원인은 답이 아니라 제출 폼 상태다.
+      // 클릭 직전에 실제로 무엇이 들어있는지 남겨 둘 중 어느 쪽인지 가른다.
+      const formState = await safeEvaluate(
+        page,
+        () => ({
+          captcha: (document.getElementById('captcha') as HTMLInputElement)?.value ?? null,
+          pwLength: (document.getElementById('pw') as HTMLInputElement)?.value?.length ?? null,
+          id: (document.getElementById('id') as HTMLInputElement)?.value ?? null,
+        }),
+        null as { captcha: string | null; pwLength: number | null; id: string | null } | null,
+      );
+      console.log(
+        `[CAPTCHA] ${accountId} 제출 직전 — captcha="${formState?.captcha}", pw길이=${formState?.pwLength}, id="${formState?.id}"`,
+      );
+
       await page.click(SELECTORS.loginButton);
       await page.waitForTimeout(LOGIN_CLICK_WAIT_MS);
 
@@ -169,10 +185,20 @@ export const solveCaptchaOnPage = async (
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[CAPTCHA] ${accountId} 풀이 에러 (시도 ${attempt}): ${msg}`);
+      await captureFailureShot(page, {
+        tag: 'captcha-error',
+        accountId,
+        note: `시도 ${attempt}/${MAX_CAPTCHA_ATTEMPTS} 에러: ${msg} / 질문: ${captcha.question}`,
+      });
       continue;
     }
   }
 
   console.log(`[CAPTCHA] ${accountId} ${MAX_CAPTCHA_ATTEMPTS}회 시도 실패`);
+  await captureFailureShot(page, {
+    tag: 'captcha-error',
+    accountId,
+    note: `${MAX_CAPTCHA_ATTEMPTS}회 시도 실패 (최종)`,
+  });
   return { solved: false, attempts: MAX_CAPTCHA_ATTEMPTS, error: '캡차 풀이 최대 시도 초과' };
 };

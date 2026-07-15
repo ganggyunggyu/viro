@@ -77,7 +77,14 @@ const buildAccountPool = async (
     (a, b) => (lastUsedAt.get(a.accountId) || 0) - (lastUsedAt.get(b.accountId) || 0),
   );
 
-  return sorted.slice(0, Math.max(needed * 3, needed + 5));
+  // LRU 정렬은 전역 결정적 순서라 모든 슬롯이 같은 pool[0]을 첫 타겟으로 잡는다.
+  // lastUsedAt은 댓글이 성공해야 갱신되므로 대기 중에는 순서도 바뀌지 않아,
+  // 슬롯 하나를 뺀 나머지가 전부 acquireAccountLock 타임아웃까지 묶인다(락 convoy).
+  // 잡마다 시작 오프셋을 달리해 슬롯들이 서로 다른 계정부터 집도록 분산한다.
+  const offset = sorted.length > 0 ? articleId % sorted.length : 0;
+  const rotated = [...sorted.slice(offset), ...sorted.slice(0, offset)];
+
+  return rotated.slice(0, Math.max(needed * 3, needed + 5));
 };
 
 const appendResult = async (
@@ -246,15 +253,23 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
 
   console.log(`[JOB ${job._id}] 시작: ${job.cafeSlug}/${job.articleId}`);
 
-  const accountsForRead = await Account.find({
+  const readerCandidates = await Account.find({
     userId: job.userId,
     isActive: true,
     role: 'commenter',
     excludeFromAutoComment: { $ne: true },
   })
     .select('accountId password nickname')
-    .limit(3)
     .lean<Array<{ accountId: string; password: string; nickname?: string }>>();
+
+  // 정렬 없는 limit(3)은 모든 잡에 같은 계정 3개를 같은 순서로 주므로, 슬롯 전체가
+  // 본문 읽기 단계에서 같은 계정 락을 두고 경합한다. 잡마다 시작 오프셋을 달리해
+  // 슬롯들이 서로 다른 계정으로 본문을 읽도록 분산한다.
+  const readOffset = readerCandidates.length > 0 ? job.articleId % readerCandidates.length : 0;
+  const accountsForRead = [
+    ...readerCandidates.slice(readOffset),
+    ...readerCandidates.slice(0, readOffset),
+  ].slice(0, 3);
 
   let articleTitle = '';
   let articleBody = '';
@@ -452,7 +467,19 @@ const runWorkerSlot = async (slotId: number): Promise<void> => {
     try {
       const job = await claimNextJob();
       if (job) {
-        await processJob(job);
+        // processJob 중간에서 던진 예외(락 타임아웃 등)를 여기서만 잡으면 잡은 status가
+        // running인 채로 남아 stale 재활용(30분) 전까지 아무도 손대지 못한다.
+        // 실패를 잡에 기록해야 큐 상태가 실제와 맞는다.
+        try {
+          await processJob(job);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : '알 수 없는 오류';
+          await ManualCommentJob.updateOne(
+            { _id: job._id },
+            { $set: { status: 'failed', errorMessage: message } },
+          );
+          console.error(`[JOB ${job._id}] 실패: ${message}`);
+        }
         continue;
       }
       if (TARGET_JOB_IDS.length > 0) return;

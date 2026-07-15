@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import type { NaverAccount } from './account-manager';
 import { detectCaptcha, solveCaptchaOnPage } from './captcha-solver';
+import { captureFailureShot } from './debug-capture';
 
 const SESSION_DIR = join(process.cwd(), '.playwright-session');
 const LOGIN_POLL_INTERVAL_MS = 1000;
@@ -580,6 +581,7 @@ export const loginAccount = async (
     if (isLoginRedirect(page.url())) {
       const loginCompleted = await waitForLoginCompletion(page, accountId, options);
       if (!loginCompleted) {
+        await captureFailureShot(page, { tag: 'login-timeout', accountId, note: '로그인 대기 시간 초과' });
         return {
           success: false,
           error: '로그인 대기 시간 초과. 추가 인증 여부를 확인해주세요.',

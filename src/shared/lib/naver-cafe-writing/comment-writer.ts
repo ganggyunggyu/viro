@@ -10,6 +10,7 @@ import {
   touchAccount,
 } from '@/shared/lib/multi-session';
 import type { NaverAccount } from '@/shared/lib/account-manager';
+import { captureFailureShot } from '@/shared/lib/debug-capture';
 import { incrementActivity } from '@/shared/models/daily-activity';
 import { isNicknameEquivalent } from './comment-writer-utils';
 
@@ -305,6 +306,11 @@ export const writeCommentWithAccount = async (
 
     if (!commentInput) {
       console.log(`[COMMENT] ${id} 댓글 입력창 없음 - URL: ${page.url()}`);
+      await captureFailureShot(page, {
+        tag: 'article-not-ready',
+        accountId: id,
+        note: `댓글 입력창 없음 (cafeId=${cafeId}, articleId=${articleId})`,
+      });
       return { accountId: id, success: false, error: 'ARTICLE_NOT_READY:댓글 입력창을 찾을 수 없습니다. 글이 아직 처리 중일 수 있습니다.' };
     }
 
