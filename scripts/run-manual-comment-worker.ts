@@ -163,7 +163,14 @@ const deleteExistingComments = async (
     let deletedBy: { accountId: string; password: string; nickname?: string } | undefined;
     let deleteError = '삭제 가능한 내 계정을 찾지 못함';
 
-    for (const account of deleteAccounts) {
+    // 실제 UI에 보이는 닉네임과 활성 계정을 먼저 매칭한다. 기존처럼 모든 계정으로
+    // 삭제 권한을 순회하면 한 댓글당 수십 번의 페이지 이동이 발생해 전체 작업이 멈춘다.
+    const matchingAccounts = deleteAccounts.filter(
+      (account) => normalizeName(account.nickname || account.accountId) === normalizeName(live.nickname),
+    );
+    const candidates = matchingAccounts;
+
+    for (const account of candidates) {
       const deleteResult = await deleteCommentWithAccount(
         { id: account.accountId, password: account.password, nickname: account.nickname || account.accountId },
         job.cafeId,
