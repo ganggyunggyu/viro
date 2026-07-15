@@ -1,5 +1,6 @@
 import { Page } from 'playwright';
 import { GoogleGenAI } from '@google/genai';
+import { createHash } from 'crypto';
 import { captureFailureShot } from './debug-capture';
 
 const CAPTCHA_PROVIDER = process.env.CAPTCHA_PROVIDER || 'gemini';
@@ -135,8 +136,12 @@ export const solveCaptchaOnPage = async (
       return { solved: true, attempts: attempt - 1 };
     }
 
+    // 클릭 후 고정 3초만 기다리므로, 네이버 응답이 느리면 아직 갱신되지 않은 이전 캡차를
+    // 그대로 다시 읽을 수 있다. 그 경우 답이 맞아도 서버는 새 캡차의 답을 기대하므로 거절된다.
+    // 회차 간 이미지 해시가 같으면 그 stale read가 실제로 일어나고 있다는 뜻이다.
+    const imgHash = createHash('md5').update(captcha.base64 || '').digest('hex').slice(0, 8);
     console.log(
-      `[CAPTCHA] ${accountId} 캡차 감지 (시도 ${attempt}/${MAX_CAPTCHA_ATTEMPTS}) — 타입: ${captcha.captchaType}, 질문: ${captcha.question}`
+      `[CAPTCHA] ${accountId} 캡차 감지 (시도 ${attempt}/${MAX_CAPTCHA_ATTEMPTS}) — img=${imgHash}, 타입: ${captcha.captchaType}, 질문: ${captcha.question}`
     );
 
     try {
