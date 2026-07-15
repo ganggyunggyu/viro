@@ -1,0 +1,12 @@
+node_modules
+work
+outputs
+logs
+reports
+tmp
+manuscripts
+adoy-covers
+.playwright-session
+.cafe-bot-data
+.claude_backup
+.viral-debug

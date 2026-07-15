@@ -13,6 +13,7 @@ import {
 } from './actions';
 import type { ScanLowCommentArticlesResult } from './low-comment-scan';
 import type { CommentReplacementCandidate, ScanCommentReplacementResult } from './comment-replacement-scan';
+import { NUMBERED_LINE_PATTERN, parseSmartPaste, parseFixedComments, formatRelativeTime } from './manual-comment-job-ui-utils';
 
 interface FormState {
   articleUrl: string;
@@ -56,29 +57,7 @@ const STATUS_STYLE: Record<ManualCommentJobView['status'], string> = {
   failed: 'bg-(--danger-soft) text-(--danger)',
 };
 
-const CAFE_URL_PATTERN = /https?:\/\/[^\s]*(?:cafe\.naver\.com|naver\.me)[^\s]*/i;
-const NUMBERED_LINE_PATTERN = /^\s*\d+[.)번]\s*(.+)$/;
 const NEW_CAFE_IDS_DEFAULT = '31754837, 31754869, 31754875, 31754939, 31755069';
-
-const parseSmartPaste = (raw: string): { url: string | null; comments: string[] } => {
-  const urlMatch = raw.match(CAFE_URL_PATTERN);
-  const comments = raw
-    .split('\n')
-    .map((line) => line.match(NUMBERED_LINE_PATTERN)?.[1]?.trim())
-    .filter((line): line is string => Boolean(line));
-
-  return { url: urlMatch?.[0] ?? null, comments };
-};
-
-const formatRelativeTime = (iso: string): string => {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const minutes = Math.floor(diffMs / 60_000);
-  if (minutes < 1) return '방금';
-  if (minutes < 60) return `${minutes}분 전`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}시간 전`;
-  return `${Math.floor(hours / 24)}일 전`;
-};
 
 export const ManualCommentJobUI = () => {
   const [isPending, startTransition] = useTransition();
@@ -214,10 +193,7 @@ export const ManualCommentJobUI = () => {
       return;
     }
 
-    const fixedComments = formData.fixedCommentsText
-      .split('\n')
-      .map((line) => line.replace(/^\d+[.)번]?\s*/, '').trim())
-      .filter(Boolean);
+    const fixedComments = parseFixedComments(formData.fixedCommentsText);
 
     if (formData.mode === 'fixed' && fixedComments.length === 0) {
       setMessage({ type: 'error', text: '댓글 내용을 한 줄에 하나씩 입력해주세요' });
