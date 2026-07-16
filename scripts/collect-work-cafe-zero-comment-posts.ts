@@ -234,7 +234,7 @@ const fetchArticlePage = async (
 const collectCafe = async (
   page: Awaited<ReturnType<typeof getPageForAccount>>,
   cafe: WorkCafeInput,
-  options: { perPage: number; maxPages: number },
+  options: { perPage: number; maxPages: number; commentThreshold: number },
 ): Promise<CafeCollectResult> => {
   const cafeSlug = getCafeSlug(cafe.cafeUrl);
 
@@ -254,7 +254,9 @@ const collectCafe = async (
     const deduped = Array.from(
       new Map(articles.map((article) => [article.articleId, article])).values(),
     ).sort((a, b) => b.articleId - a.articleId);
-    const zeroCommentArticles = deduped.filter((article) => article.commentCount === 0);
+    const zeroCommentArticles = deduped.filter(
+      (article) => article.commentCount <= options.commentThreshold,
+    );
 
     return {
       ownerName: cafe.ownerName,
@@ -396,6 +398,14 @@ const main = async (): Promise<void> => {
   const maxPages = Number(getArgValue('--max-pages', String(DEFAULT_MAX_PAGES)));
   const loginId = getArgValue('--login-id', LOGIN_ID);
   const requestedViewerId = getArgValue('--account-id', VIEWER_ACCOUNT_ID);
+  const commentThreshold = Number(getArgValue('--comment-threshold', '0'));
+  const cafeUrlFilter = getArgValue('--cafe-urls', '')
+    .split(',')
+    .map((slug) => slug.trim())
+    .filter(Boolean);
+  const targetCafes = cafeUrlFilter.length
+    ? WORK_CAFES.filter((cafe) => cafeUrlFilter.some((slug) => cafe.cafeUrl.includes(slug)))
+    : WORK_CAFES;
 
   await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10_000 });
 
@@ -413,9 +423,9 @@ const main = async (): Promise<void> => {
     await ensureLoggedIn(viewerAccount);
     const page = await getPageForAccount(viewerAccount.id);
 
-    for (const cafe of WORK_CAFES) {
+    for (const cafe of targetCafes) {
       console.log(`[CAFE] ${cafe.ownerName} ${cafe.cafeUrl}`);
-      const result = await collectCafe(page, cafe, { perPage, maxPages });
+      const result = await collectCafe(page, cafe, { perPage, maxPages, commentThreshold });
       cafes.push(result);
       console.log(
         `  -> ${result.status} cafeId=${result.cafeId || '-'} articles=${result.articleCount} zero=${result.zeroCommentCount}${result.error ? ` error=${result.error}` : ''}`,

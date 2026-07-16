@@ -213,7 +213,7 @@ export const getManualCommentJobsAction = async (): Promise<ManualCommentJobView
 };
 
 /**
- * 등록된 모든 카페를 스캔해 댓글수 <= 3인 글을 찾아 댓글 작업(8~13개, generate 모드)을 큐에 등록한다.
+ * 등록된 모든 카페를 스캔해 댓글수 <= 3인 글을 찾아 댓글 작업(5~7개, generate 모드)을 큐에 등록한다.
  * UI(ManualCommentJobUI)의 "댓글 부족 글 스캔" 버튼에서 호출.
  */
 export const scanLowCommentArticlesAction = async (

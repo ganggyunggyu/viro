@@ -401,7 +401,7 @@ export const ManualCommentJobUI = () => {
           <div>
             <h2 className={cn('text-base font-semibold text-(--ink)')}>댓글 부족 글 자동 스캔</h2>
             <p className={cn('text-xs text-(--ink-muted)')}>
-              등록된 모든 카페에서 댓글 3개 이하인 글을 찾아 8~13개 댓글 작업을 큐에 등록함
+              등록된 모든 카페에서 댓글 3개 이하인 글을 찾아 5~7개 댓글 작업을 큐에 등록함
             </p>
           </div>
           <Button onClick={handleScan} disabled={isScanPending}>
