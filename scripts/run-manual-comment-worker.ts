@@ -93,6 +93,16 @@ const buildAccountPool = async (
   return rotated.slice(0, Math.max(needed * 3, needed + 5));
 };
 
+/**
+ * 잡이 살아서 진행 중임을 표시하는 하트비트. claimNextJob의 stale 재claim(30분) 기준이
+ * claimedAt 하나뿐이라, 계정 락 대기·재시도가 겹쳐 한 잡이 30분을 넘기면 다른 슬롯이
+ * 아직 살아있는 잡을 죽은 걸로 오판해 처음부터 재처리 → 댓글 중복 게시로 이어졌던 사고가 있었음.
+ * 결과를 남길 때마다 claimedAt을 현재 시각으로 갱신해 "진행 중"임을 계속 증명한다.
+ */
+const touchClaim = async (jobId: mongoose.Types.ObjectId): Promise<void> => {
+  await ManualCommentJob.updateOne({ _id: jobId }, { $set: { claimedAt: new Date() } });
+};
+
 const appendResult = async (
   jobId: mongoose.Types.ObjectId,
   result: {
@@ -107,7 +117,7 @@ const appendResult = async (
 ): Promise<void> => {
   await ManualCommentJob.updateOne(
     { _id: jobId },
-    { $push: { results: { ...result, postedAt: new Date() } } },
+    { $push: { results: { ...result, postedAt: new Date() } }, $set: { claimedAt: new Date() } },
   );
 };
 
@@ -125,7 +135,7 @@ const appendDeleteResult = async (
 ): Promise<void> => {
   await ManualCommentJob.updateOne(
     { _id: jobId },
-    { $push: { deleteResults: { ...result, deletedAt: new Date() } } },
+    { $push: { deleteResults: { ...result, deletedAt: new Date() } }, $set: { claimedAt: new Date() } },
   );
 };
 
@@ -359,7 +369,19 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
   let accountIdx = 0;
   let successCount = 0;
 
+  // 재claim(하트비트 갭, 프로세스 재시작 등)으로 같은 잡이 다시 처리될 때 이미 성공한
+  // 인덱스를 또 게시하지 않도록 건너뛴다. job은 claim 시점 스냅샷이라 이전 시도의 results가 남아있다.
+  const alreadySucceededIndices = new Set(
+    (job.results || []).filter((r) => r.success).map((r) => r.index),
+  );
+
   for (let commentIdx = 0; commentIdx < texts.length; commentIdx += 1) {
+    if (alreadySucceededIndices.has(commentIdx)) {
+      successCount += 1;
+      console.log(`[JOB ${job._id}] 인덱스 ${commentIdx} 이미 성공 처리됨 - 건너뜀`);
+      continue;
+    }
+
     const content = texts[commentIdx];
     let posted = false;
 
