@@ -60,6 +60,9 @@ export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): strin
   const body = normalizeText(input.body).slice(0, MAX_BODY_CHARS);
   const keyword = normalizeText(input.keyword || '');
   const category = normalizeText(input.category || '');
+  const keywordRule = keyword
+    ? `- 댓글 중 3개 정도는 "${keyword}"를 문장에 자연스럽게 그대로 포함시킨다. 전체 개수가 3개보다 적으면 가능한 만큼만 포함한다.`
+    : '';
 
   return `너는 네이버 카페 댓글 작성자 여러 명을 시뮬레이션한다.
 
@@ -90,6 +93,7 @@ ${getCountRule(input)}
 - 모든 문장은 존댓말로 쓴다.
 - 원고의 구체 요소를 받아서 말한다. 제목만 보고 쓴 듯한 포괄 댓글 금지.
 - 원고에 없는 상호, 가격, 지역, 효능, 후기, 병원명, 제품명을 새로 만들지 않는다.
+${keywordRule}
 - 원고에 없는 방문 경험, 품절 경험, 대기 시간, 메뉴명, 좌석 수, 주차 상황을 실제로 겪은 것처럼 꾸며내지 않는다.
 - 개인 경험형 댓글도 "이런 경우가 있더라고요" 수준으로 일반화한다. "지난번에 갔을 때", "제가 갔던 곳은"처럼 실방문을 단정하지 않는다.
 - 닉네임, 아이디, 해시태그, 이모지, URL, 마크다운, 따옴표 과다 사용 금지.

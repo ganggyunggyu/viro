@@ -111,7 +111,10 @@ const startIdleCleanup = () => {
 
 startIdleCleanup();
 
-const ACCOUNT_LOCK_TIMEOUT_MS = 5 * 60 * 1000;
+// 댓글 등록 확인 재시도(최대 6회) + 재로딩 재확인(최대 4회)까지 겹치면 계정 하나를
+// 5분 가까이 붙잡는 경우가 실제로 있어서, 그 정상 지연 때문에 대기하던 다른 잡이
+// 타임아웃으로 실패 처리되는 사고가 있었음. 여유를 두어 오탈락을 줄인다.
+const ACCOUNT_LOCK_TIMEOUT_MS = 8 * 60 * 1000;
 
 export const acquireAccountLock = async (accountId: string): Promise<void> => {
   const deadline = Date.now() + ACCOUNT_LOCK_TIMEOUT_MS;
