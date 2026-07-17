@@ -592,8 +592,12 @@ export const writePostWithAccount = async (
     await applyPostOptions(page, postOptions);
     touchAccount(id);
 
-    // 등록 버튼 클릭 (a.BaseButton--skinGreen)
-    const submitButton = await page.$('a.BaseButton--skinGreen, a.BaseButton');
+    // 등록 버튼 클릭. 'a.BaseButton--skinGreen, a.BaseButton'처럼 셀렉터 목록으로 한 번에 찾으면
+    // querySelector가 DOM 순서상 먼저 나오는 엉뚱한 a.BaseButton(취소 등)을 집을 수 있어
+    // 클릭은 성공했지만 실제로는 등록이 안 되고 URL도 안 바뀌는 문제가 있었다.
+    // 구체적인 클래스(skinGreen)를 먼저 찾고, 없을 때만 일반 클래스로 폴백한다.
+    const submitButton =
+      (await page.$('a.BaseButton--skinGreen')) ?? (await page.$('a.BaseButton'));
 
     if (!submitButton) {
       return {

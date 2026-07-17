@@ -69,6 +69,8 @@ interface ArticleListApiResponse {
   error?: string;
 }
 
+// 출처: "카페정보 및 링크" 구글시트(1JMNXyIaTR55aX4SRcD4Kp09W-WNjqMwMi0Xt2TV7ZYw) 전체 행(기타/신규등록 포함, 멤버 0 표시도 신뢰 안 함)
+// + 시트에는 없지만 실제 운영 중인 것으로 확인된 mealtalkdht/petinfo183/dogwalk2m4 3곳 (2026-07-17 교차검증) = 총 32개
 const WORK_CAFES: WorkCafeInput[] = [
   { ownerName: '가중건다', cafeUrl: 'https://cafe.naver.com/healthhhh' },
   { ownerName: '운연정', cafeUrl: 'https://cafe.naver.com/driveee' },
@@ -85,6 +87,23 @@ const WORK_CAFES: WorkCafeInput[] = [
   { ownerName: '강아지강하지 1', cafeUrl: 'https://cafe.naver.com/walknote702' },
   { ownerName: '티니피쉬 1', cafeUrl: 'https://cafe.naver.com/petnote702' },
   { ownerName: '빨간모자앤  1', cafeUrl: 'https://cafe.naver.com/babsangnote702' },
+  { ownerName: '바삭바삭해 1', cafeUrl: 'https://cafe.naver.com/babycare702' },
+  { ownerName: '긍정이백퍼  1', cafeUrl: 'https://cafe.naver.com/healthcheck702' },
+  { ownerName: '쉽고간단하게', cafeUrl: 'https://cafe.naver.com/healthinfo702' },
+  { ownerName: '렙용', cafeUrl: 'https://cafe.naver.com/livingnote702' },
+  { ownerName: '건강박사석사 1', cafeUrl: 'https://cafe.naver.com/dailychat702' },
+  { ownerName: '햄부기', cafeUrl: 'https://cafe.naver.com/purple6d2dy' },
+  { ownerName: '가중건다', cafeUrl: 'https://cafe.naver.com/orangezmmlx' },
+  { ownerName: '운연정', cafeUrl: 'https://cafe.naver.com/purplevhkwm' },
+  { ownerName: '소원 1', cafeUrl: 'https://cafe.naver.com/skybluefsxvm' },
+  { ownerName: '똑똑한건희씨', cafeUrl: 'https://cafe.naver.com/redsgucu' },
+  { ownerName: '고래낚시 1', cafeUrl: 'https://cafe.naver.com/skybluefhcei' },
+  { ownerName: '티니피쉬 1', cafeUrl: 'https://cafe.naver.com/bluegraywcwss' },
+  { ownerName: '강아지강하지 1', cafeUrl: 'https://cafe.naver.com/orangeli9xk' },
+  { ownerName: '고구마스틱2 (10개) 1', cafeUrl: 'https://cafe.naver.com/brownlfkjk' },
+  { ownerName: '룰루랄라 2 (12개) 1', cafeUrl: 'https://cafe.naver.com/graykrurp' },
+  { ownerName: '실눈캐', cafeUrl: 'https://cafe.naver.com/bluennvf0' },
+  { ownerName: '바삭바삭해 1', cafeUrl: 'https://cafe.naver.com/ahffkdlek12' },
 ];
 
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';

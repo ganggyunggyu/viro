@@ -410,8 +410,11 @@ export const modifyArticleWithAccount = async (
       }
     }
 
-    // 수정 완료 버튼 클릭
-    const submitButton = await page.$('a.BaseButton--skinGreen, a.BaseButton');
+    // 수정 완료 버튼 클릭. 셀렉터 목록으로 한 번에 찾으면 DOM 순서상 먼저 나오는 엉뚱한
+    // a.BaseButton(취소 등)을 집을 수 있어 클릭은 성공했지만 실제로는 반영이 안 되는 문제가
+    // 있었다. 구체적인 클래스(skinGreen)를 먼저 찾고, 없을 때만 일반 클래스로 폴백한다.
+    const submitButton =
+      (await page.$('a.BaseButton--skinGreen')) ?? (await page.$('a.BaseButton'));
 
     if (!submitButton) {
       return {
