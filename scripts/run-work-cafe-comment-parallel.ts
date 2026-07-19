@@ -715,7 +715,8 @@ const createArticleGenerator = (params: {
           const hasCriticalWarning = candidate.warnings.some((warning) =>
             warning.startsWith('count-out-of-range') ||
             warning.startsWith('duplicate-start') ||
-            warning.startsWith('repeated-opening'),
+            warning.startsWith('repeated-opening') ||
+            warning.startsWith('contains-wongo'),
           );
           result = candidate;
 
@@ -738,7 +739,8 @@ const createArticleGenerator = (params: {
         bodyLength: article.content.length,
         comments: result.comments.slice(0, rows.length).map((comment) => ({
           index: comment.index,
-          content: comment.content,
+          // 최종 방어: 재생성 후에도 남은 "원고" 표현을 자연스러운 지칭으로 치환해 게시
+          content: comment.content.replace(/원고에서/g, '글에서').replace(/원고에/g, '글에').replace(/원고/g, '글'),
           persona: comment.persona,
           intent: comment.intent,
         })),

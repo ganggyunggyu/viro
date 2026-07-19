@@ -66,7 +66,7 @@ export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): strin
 
   return `너는 네이버 카페 댓글 작성자 여러 명을 시뮬레이션한다.
 
-아래 카페 원고를 읽고, 원고 내용과 직접 연결되는 일반 댓글만 만든다.
+아래 카페 글을 읽고, 글 내용과 직접 연결되는 일반 댓글만 만든다.
 
 ## 출력 형식
 반드시 JSON만 출력한다. 마크다운 코드블록, 설명문, 머리말, 꼬리말 금지.
@@ -91,10 +91,12 @@ ${getCountRule(input)}
 - content는 실제 카페 댓글처럼 한 줄로 작성한다.
 - content는 35~120자 사이로 쓴다.
 - 모든 문장은 존댓말로 쓴다.
-- 원고의 구체 요소를 받아서 말한다. 제목만 보고 쓴 듯한 포괄 댓글 금지.
-- 원고에 없는 상호, 가격, 지역, 효능, 후기, 병원명, 제품명을 새로 만들지 않는다.
+- 글의 구체 요소를 받아서 말한다. 제목만 보고 쓴 듯한 포괄 댓글 금지.
+- 글에 없는 상호, 가격, 지역, 효능, 후기, 병원명, 제품명을 새로 만들지 않는다.
 ${keywordRule}
-- 원고에 없는 방문 경험, 품절 경험, 대기 시간, 메뉴명, 좌석 수, 주차 상황을 실제로 겪은 것처럼 꾸며내지 않는다.
+- 글에 없는 방문 경험, 품절 경험, 대기 시간, 메뉴명, 좌석 수, 주차 상황을 실제로 겪은 것처럼 꾸며내지 않는다.
+- content에 "원고"라는 단어를 절대 쓰지 않는다. 실제 카페 회원은 "원고"라고 말하지 않는다. 글을 가리킬 때는 "글", "내용", "정보", "여기"라고 쓰거나 아예 지칭을 생략한다.
+- 글 제목이나 카페 이름이 영문/숫자 코드(예: livingnote702)로만 되어 있으면, 그 코드를 댓글에 그대로 옮기지 않는다. 본문 내용을 근거로 자연스럽게 쓴다.
 - 개인 경험형 댓글도 "이런 경우가 있더라고요" 수준으로 일반화한다. "지난번에 갔을 때", "제가 갔던 곳은"처럼 실방문을 단정하지 않는다.
 - 닉네임, 아이디, 해시태그, 이모지, URL, 마크다운, 따옴표 과다 사용 금지.
 - 광고처럼 보이는 추천, 구매 유도, 문의 유도 금지.
@@ -112,15 +114,15 @@ ${keywordRule}
 - 가족/친구/반려동물 동행을 생각하는 사람
 - 주말 혼잡이나 대기 시간을 걱정하는 사람
 - 저장해두고 나중에 보려는 사람
-- 원고의 특정 문장을 보고 추가 질문하는 사람
+- 글의 특정 문장을 보고 추가 질문하는 사람
 - 살짝 조심스럽게 다른 기준을 덧붙이는 사람
 
-## 원고 정보
+## 글 정보
 제목: ${title}
 키워드: ${keyword || '(없음)'}
 카테고리: ${category || '(없음)'}
 
-## 원고 본문
+## 글 본문
 ${body}
 
 JSON만 출력한다.`;
@@ -169,6 +171,7 @@ const validateComments = (
   for (const comment of comments) {
     if (comment.content.length < 20) warnings.push(`short:${comment.index}`);
     if (comment.content.length > 140) warnings.push(`long:${comment.index}`);
+    if (comment.content.includes('원고')) warnings.push(`contains-wongo:${comment.index}`);
 
     const start = comment.content.slice(0, START_CHECK_LENGTH);
     starts.set(start, (starts.get(start) || 0) + 1);

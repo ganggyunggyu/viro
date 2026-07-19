@@ -42,7 +42,7 @@ const TOOLS: ToolDef[] = [
         type: 'object',
         properties: {
           accountId: { type: 'string', description: 'list_accounts로 받은 계정 ID' },
-          content: { type: 'string', description: '등록할 댓글 내용 (존댓말, 35~120자, 원고의 구체적인 내용을 언급할 것)' },
+          content: { type: 'string', description: '등록할 댓글 내용 (존댓말, 35~120자, 글의 구체적인 내용을 언급할 것. "원고"라는 단어는 쓰지 말 것)' },
         },
         required: ['accountId', 'content'],
       },
