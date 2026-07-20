@@ -95,11 +95,12 @@ export const AgentSetupUI = () => {
             <Monitor className={cn('h-6 w-6')} />
           </span>
           <div>
-            <h2 className={cn('text-lg font-semibold text-(--ink)')}>내 PC에서 도는 에이전트</h2>
+            <h2 className={cn('text-lg font-semibold text-(--ink)')}>내 PC에서 켜두는 Viro 프로그램</h2>
             <p className={cn('mt-1 text-sm leading-6 text-(--ink-muted)')}>
-              실제 카페 작업은 이용자 PC의 브라우저(가정용 IP)에서 실행됩니다. 웹에서 토큰을
-              발급받아 에이전트에 넣으면, 웹에서 넣은 작업을 내 PC가 알아서 처리합니다. PC가 켜져
-              있는 동안에만 처리되며, 계정/작업 데이터는 서버가 관리하고 에이전트는 토큰만 갖습니다.
+              프로그램을 내려받아 켜두면, 실제 카페 작업이 내 PC의 브라우저(가정용 IP)에서
+              실행됩니다. 웹에서 발급한 연결 토큰을 넣으면 웹에서 넣은 작업을 내 PC가 알아서
+              처리합니다. PC가 켜져 있는 동안에만 처리되며, 계정/작업 데이터는 서버가 관리하고
+              프로그램은 토큰만 갖습니다.
             </p>
           </div>
         </div>
@@ -122,7 +123,7 @@ export const AgentSetupUI = () => {
           <li className={cn('flex gap-4')}>
             <span className={cn('flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--accent) text-sm font-semibold text-(--background))')}>2</span>
             <div className={cn('min-w-0 flex-1')}>
-              <p className={cn('font-medium text-(--ink)')}>에이전트 내려받기</p>
+              <p className={cn('font-medium text-(--ink)')}>프로그램 내려받기</p>
               <div className={cn('mt-3 grid gap-2 sm:grid-cols-2')}>
                 <a href={RELEASES_URL} target="_blank" rel="noreferrer" className={cn(DOWNLOAD_BUTTON_CLASS)}>
                   <Download className={cn('h-4 w-4')} />
@@ -154,9 +155,9 @@ ${runCommand}`}
           <li className={cn('flex gap-4')}>
             <span className={cn('flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--accent) text-sm font-semibold text-(--background))')}>3</span>
             <div>
-              <p className={cn('font-medium text-(--ink)')}>실행해 두면 자동 처리</p>
+              <p className={cn('font-medium text-(--ink)')}>켜두면 자동 처리</p>
               <p className={cn('mt-1 text-sm text-(--ink-muted)')}>
-                에이전트가 켜져 있으면 웹에서 넣은 작업을 내 PC가 순서대로 처리합니다. 종료는
+                프로그램이 켜져 있으면 웹에서 넣은 작업을 내 PC가 순서대로 처리합니다. 종료는
                 터미널에서 Ctrl+C.
               </p>
             </div>
@@ -165,8 +166,8 @@ ${runCommand}`}
       </section>
 
       <section className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-6 lg:p-8')}>
-        <h2 className={cn('text-lg font-semibold text-(--ink)')}>에이전트 토큰</h2>
-        <p className={cn('mt-1 text-sm text-(--ink-muted)')}>PC 한 대당 토큰 하나를 발급해 사용하세요.</p>
+        <h2 className={cn('text-lg font-semibold text-(--ink)')}>연결 토큰</h2>
+        <p className={cn('mt-1 text-sm text-(--ink-muted)')}>PC 한 대당 토큰 하나를 발급해 프로그램에 넣으세요.</p>
 
         <div className={cn('mt-5 flex flex-col gap-3 sm:flex-row')}>
           <Input

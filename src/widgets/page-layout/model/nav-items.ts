@@ -43,7 +43,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/accounts', label: '계정', icon: Users },
       { href: '/cafe-join', label: '카페 가입', icon: Building2 },
       { href: '/cafe-create', label: '카페개설', icon: PlusSquare },
-      { href: '/agent', label: '에이전트', icon: MonitorSmartphone },
+      { href: '/agent', label: '프로그램', icon: MonitorSmartphone },
       { href: '/settings', label: '설정', icon: Settings },
     ],
   },
