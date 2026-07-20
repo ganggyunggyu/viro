@@ -20,6 +20,11 @@ import {
   type PublishedArticleRecord,
   resolvePostOutcome,
 } from './post-outcome-harness';
+import {
+  assignMainComments,
+  selectCommenterAccounts,
+  selectNormalReplyAccount,
+} from './comment-assignment-harness';
 
 const log = createLogger('POST-HANDLER');
 
@@ -218,9 +223,11 @@ const addViralCommentJobs = async (
   const comments = limitViralCommentItems(viralComments.comments);
 
   // commenterAccountIds가 undefined면 전체 사용, 빈 배열이면 댓글 스킵
-  const commenterAccounts = commenterAccountIds === undefined
-    ? accounts.filter((a) => a.id !== writerAccountId)
-    : accounts.filter((a) => commenterAccountIds.includes(a.id) && a.id !== writerAccountId);
+  const commenterAccounts = selectCommenterAccounts(
+    accounts,
+    writerAccountId,
+    commenterAccountIds,
+  );
 
   if (commenterAccounts.length === 0) {
     console.log('[WORKER] 댓글 계정 없음 - viral 댓글 스킵');
@@ -231,16 +238,15 @@ const addViralCommentJobs = async (
     accounts.map((account) => [account.id, account.nickname || account.id])
   );
 
-  const mainComments = comments.filter((c) => c.type === 'comment');
   const commentIndexMap: Map<number, number> = new Map();
   const commentAuthorMap: Map<number, string> = new Map();
   const commentContentMap: Map<number, string> = new Map();
 
-  mainComments.forEach((comment, i) => {
-    const commenter = commenterAccounts[i % commenterAccounts.length];
-    commentIndexMap.set(comment.index, i);
-    commentAuthorMap.set(comment.index, commenter.id);
-    commentContentMap.set(comment.index, comment.content);
+  assignMainComments(comments, commenterAccounts).forEach((assignment) => {
+    const { sourceIndex, commentIndex, accountId, content } = assignment;
+    commentIndexMap.set(sourceIndex, commentIndex);
+    commentAuthorMap.set(sourceIndex, accountId);
+    commentContentMap.set(sourceIndex, content);
   });
 
   const sequenceId = `viral_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -370,9 +376,11 @@ const handlePostSuccess = async (
   console.log(`[WORKER] 글 발행 성공: #${articleId} - 체인 작업 시작`);
 
   // commenterAccountIds가 undefined면 전체 사용, 빈 배열이면 댓글 스킵
-  const commenterAccounts = postData.commenterAccountIds === undefined
-    ? accounts.filter((a) => a.id !== writerAccountId)
-    : accounts.filter((a) => postData.commenterAccountIds!.includes(a.id) && a.id !== writerAccountId);
+  const commenterAccounts = selectCommenterAccounts(
+    accounts,
+    writerAccountId,
+    postData.commenterAccountIds,
+  );
 
   if (commenterAccounts.length === 0) {
     console.log('[WORKER] 댓글 계정 없음 - 스킵');
@@ -555,13 +563,11 @@ const handlePostSuccess = async (
     console.log(
       `[WORKER] 대댓글 계정 선택: 댓글[${targetCommentIndex}] 작성자=${targetCommentAuthor.id}, 후보=${commenterAccounts.map((a) => a.id).join(',')}`
     );
-    const availableReplyers = commenterAccounts.filter((a) => a.id !== targetCommentAuthor.id);
-    if (availableReplyers.length === 0) {
+    const replyer = selectNormalReplyAccount(commenterAccounts, targetCommentAuthor.id, i);
+    if (!replyer) {
       console.log(`[WORKER] 일반 대댓글 ${i} - 사용 가능한 계정 없어서 스킵 (댓글 작성자: ${targetCommentAuthor.id})`);
       continue;
     }
-
-    const replyer = availableReplyers[i % availableReplyers.length];
     const parentCommentContent = commentContents[targetCommentIndex] || '좋은 정보네요';
     let replyText: string;
     try {

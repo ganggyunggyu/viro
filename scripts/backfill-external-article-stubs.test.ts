@@ -13,6 +13,6 @@ test('selectExternalArticleStubs finds legacy stub signatures without touching p
 
   assert.deepEqual(
     selectExternalArticleStubs(records).map(({ _id }) => _id),
-    ['empty-writer', 'full-stub'],
+    ['full-stub'],
   );
 });

@@ -14,9 +14,9 @@ import {
   registerCreatedCafeInDb,
   getAvailableOwnerAccounts,
   CAFE_TOPIC_PRESETS,
-  type CreateCafeInput,
 } from '@/shared/lib/naver-cafe-creation';
 import { syncCafeToOperationsSheet } from '@/shared/lib/naver-cafe-creation/sheet-sync';
+import { resolveCafeCreateForm } from '@/shared/lib/naver-cafe-creation/form-harness';
 
 export interface CafeCreateOwnerOption {
   accountId: string;
@@ -57,24 +57,16 @@ export interface CafeCreateActionResult {
 export const createCafeAction = async (input: CafeCreateInput): Promise<CafeCreateActionResult> => {
   await connectDB();
 
-  const preset = CAFE_TOPIC_PRESETS.find((p) => p.key === input.presetKey);
-  if (!preset) {
+  const createInput = resolveCafeCreateForm(input, CAFE_TOPIC_PRESETS);
+  if (!createInput) {
     return { success: false, error: '알 수 없는 카테고리 프리셋: ' + input.presetKey };
   }
+  const preset = CAFE_TOPIC_PRESETS.find(({ key }) => key === input.presetKey)!;
 
   const account = await Account.findOne({ accountId: input.ownerAccountId }).lean();
   if (!account) {
     return { success: false, error: '계정을 찾을 수 없음: ' + input.ownerAccountId };
   }
-
-  const createInput: CreateCafeInput = {
-    name: input.name,
-    slug: input.slug,
-    categoryMajor: preset.categoryMajor,
-    categoryMinor: preset.categoryMinor,
-    description: input.description,
-    keywords: input.keywords,
-  };
 
   const result = await createNaverCafe(input.ownerAccountId, account.password, createInput, {
     dryRun: false,

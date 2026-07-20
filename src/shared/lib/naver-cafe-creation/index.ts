@@ -19,6 +19,7 @@ import { getPageForAccount, isAccountLoggedIn, loginAccount } from '../multi-ses
 import { toCafeSlug } from '../naver-cafe-membership';
 import { Cafe } from '../../models/cafe';
 import { Account } from '../../models/account';
+import { buildCafeRegistrationUpdate } from '../cafe-registration-harness';
 
 export interface CreateCafeInput {
   name: string;
@@ -418,8 +419,7 @@ export interface RegisterCreatedCafeOptions {
 /**
  * createNaverCafe() 로 실제로 만든 카페를 플랫폼 CafeConfig(DB)에 등록해서
  * getAllCafes()/카페 가입 UI 등 나머지 기능에서 바로 잡히게 한다.
- * upsert 방식이라 같은 카페를 다시 등록해도 에러 없이 그대로 반영된다
- * (entities/cafe/api 의 addCafeAction 은 soft-delete 후 재등록이 막히는 버그가 있어 그 방식은 따르지 않았다).
+ * upsert 방식이라 같은 카페를 다시 등록해도 에러 없이 그대로 반영된다.
  */
 export const registerCreatedCafeInDb = async (
   userId: string,
@@ -431,22 +431,22 @@ export const registerCreatedCafeInDb = async (
   const cafeId = cafe.cafeId.trim();
   const cafeUrl = toCafeSlug(cafe.cafeUrl) || cafe.cafeUrl.trim();
 
+  const update = buildCafeRegistrationUpdate({
+    userId,
+    cafeId,
+    cafeUrl,
+    name: cafe.name,
+    menuId,
+    categories,
+    categoryMenuIds: options.categoryMenuIds ?? { [categories[0]]: menuId },
+    categoryAliases: options.categoryAliases,
+    commentableMenuIds: options.commentableMenuIds ?? [Number(menuId)],
+    ownerAccountId: options.ownerAccountId,
+  }, { preserveExistingDefault: true });
+
   await Cafe.findOneAndUpdate(
     { userId, cafeId },
-    {
-      $set: {
-        cafeUrl,
-        name: cafe.name,
-        menuId,
-        categories,
-        categoryMenuIds: options.categoryMenuIds ?? { [categories[0]]: menuId },
-        categoryAliases: options.categoryAliases,
-        commentableMenuIds: options.commentableMenuIds ?? [Number(menuId)],
-        ownerAccountId: options.ownerAccountId,
-        isActive: true,
-      },
-      $setOnInsert: { isDefault: false },
-    },
+    update,
     { upsert: true },
   );
 };

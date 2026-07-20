@@ -28,6 +28,13 @@ test('parseCafeArticleUrlShape parses legacy slug + ArticleId query param', () =
   assert.deepEqual(result, { cafeSlug: 'babycare702', articleId: 18 });
 });
 
+test('parseCafeArticleUrlShape parses legacy ArticleRead clubid URL returned after publishing', () => {
+  const result = parseCafeArticleUrlShape(
+    'https://cafe.naver.com/ArticleRead.nhn?clubid=31750114&articleid=19&menuid=1&boardtype=L',
+  );
+  assert.deepEqual(result, { cafeId: '31750114', articleId: 19 });
+});
+
 test('parseCafeArticleUrlShape returns null for unrecognized URL', () => {
   const result = parseCafeArticleUrlShape('https://example.com/not-a-cafe-url');
   assert.equal(result, null);

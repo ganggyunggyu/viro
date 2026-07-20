@@ -28,7 +28,6 @@ export interface ExternalArticleStubCollection {
 export type ExternalArticleStubBackfillMode = 'dry-run' | 'apply';
 
 export const isExternalArticleStub = ({
-  writerAccountId,
   title,
   menuId,
   keyword,
@@ -39,12 +38,10 @@ export const isExternalArticleStub = ({
     return false;
   }
 
-  return writerAccountId === '' || (
-    title === '외부 글'
+  return title === '외부 글'
     && menuId === ''
     && keyword === ''
-    && content === ''
-  );
+    && content === '';
 };
 
 export const selectExternalArticleStubs = (

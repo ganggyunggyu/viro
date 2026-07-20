@@ -8,6 +8,7 @@ import { addTaskJob } from '@/shared/lib/queue';
 import { getRandomDelay } from '@/shared/models/queue-settings';
 import { getRemainingPostsToday, PublishedArticle, ModifiedArticle } from '@/shared/models';
 import { buildCafePostContentFromManuscript } from '@/shared/lib/cafe-content';
+import { toCafeSlug } from '@/shared/lib/naver-cafe-membership';
 import { isAccountActive } from '@/shared/lib/account-manager';
 import { PostJobData } from '@/shared/lib/queue/types';
 import { modifyArticleWithAccount } from '@/shared/lib/naver-cafe-writing';
@@ -34,7 +35,11 @@ export const runManuscriptUploadAction = async (
   }
 
   const { accounts, cafe, settings } = ctx;
-  const writerAccounts = getCafeWriterAccounts(accounts, cafe.cafeId);
+  const writerAccounts = getCafeWriterAccounts(
+    accounts,
+    cafe.cafeId,
+    toCafeSlug(cafe.cafeUrl),
+  );
 
   if (writerAccounts.length === 0) {
     return {

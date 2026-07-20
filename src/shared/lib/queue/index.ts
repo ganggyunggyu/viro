@@ -15,6 +15,11 @@ import {
   resolveTaskJobAttempts,
   resolveTaskJobDelay,
 } from './task-job-harness';
+import {
+  aggregateQueueEntries,
+  createEmptyQueueCounts,
+  DEFAULT_QUEUE_RETENTION_LIMITS,
+} from './status-harness';
 
 let taskQueue: Queue<TaskJobData, JobResult> | null = null;
 let generateQueue: Queue<GenerateJobData, JobResult> | null = null;
@@ -29,8 +34,8 @@ export const getTaskQueue = (accountId: string): Queue<TaskJobData, JobResult> =
       defaultJobOptions: {
         attempts: 5,
         backoff: { type: 'exponential', delay: 5000 },
-        removeOnComplete: 100,
-        removeOnFail: 50,
+        removeOnComplete: DEFAULT_QUEUE_RETENTION_LIMITS.completed,
+        removeOnFail: DEFAULT_QUEUE_RETENTION_LIMITS.failed,
       },
     });
 
@@ -103,15 +108,22 @@ export const getQueueStatus = async (accountId: string) => {
     queue.getDelayed(0, 10000),
   ]);
 
-  const countByAccount = (jobs: Array<Job<TaskJobData, JobResult>>) =>
-    jobs.filter((job) => job.data.accountId === accountId).length;
+  const entries = [
+    ...waitingJobs.map(({ data }) => ({ accountId: data.accountId, status: 'waiting' as const })),
+    ...activeJobs.map(({ data }) => ({ accountId: data.accountId, status: 'active' as const })),
+    ...completedJobs.map(({ data, returnvalue }) => ({
+      accountId: data.accountId,
+      status: 'completed' as const,
+      result: returnvalue,
+    })),
+    ...failedJobs.map(({ data }) => ({ accountId: data.accountId, status: 'failed' as const })),
+    ...delayedJobs.map(({ data }) => ({ accountId: data.accountId, status: 'delayed' as const })),
+  ];
+  const { byAccount, retention } = aggregateQueueEntries({ accountIds: [accountId], entries });
 
   return {
-    waiting: countByAccount(waitingJobs),
-    active: countByAccount(activeJobs),
-    completed: countByAccount(completedJobs),
-    failed: countByAccount(failedJobs),
-    delayed: countByAccount(delayedJobs),
+    ...(byAccount.get(accountId) ?? createEmptyQueueCounts()),
+    retention,
   };
 };
 

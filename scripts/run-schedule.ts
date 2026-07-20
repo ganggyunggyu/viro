@@ -20,6 +20,7 @@ import { buildHanryeoCafePrompt } from "../src/features/viral/prompts/build-hanr
 import { buildShortDailyPrompt } from "../src/features/viral/prompts/build-short-daily-prompt";
 import { getViralContentStyleForLoginId } from "../src/shared/config/user-profile";
 import { getCafeWriterAccounts } from "../src/shared/config/cafe-account-policy";
+import { toCafeSlug } from "../src/shared/lib/naver-cafe-membership";
 import { parseViralResponse } from "../src/features/viral/viral-parser";
 import { assertScheduleKeywordDiversity } from "./cafe-unexposed-keyword-selector";
 import type {
@@ -234,11 +235,16 @@ const main = async (): Promise<void> => {
     personaId: a.personaId,
     role: a.role,
     excludeFromAutoComment: a.excludeFromAutoComment,
+    targetCafeIds: a.targetCafeIds,
   }));
   const writerAccountIdsByCafeId = new Map(
     cafes.map((cafe) => [
       cafe.cafeId,
-      getCafeWriterAccounts(policyAccounts, cafe.cafeId).map(({ id }) => id),
+      getCafeWriterAccounts(
+        policyAccounts,
+        cafe.cafeId,
+        toCafeSlug(cafe.cafeUrl),
+      ).map(({ id }) => id),
     ]),
   );
   const commenterIds = accounts

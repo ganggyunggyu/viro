@@ -3,6 +3,7 @@ export {
   type IPublishedArticle,
   type IArticleComment,
   hasCommented,
+  hasReplied,
   addCommentToArticle,
   removeCommentFromArticle,
   getArticleComments,

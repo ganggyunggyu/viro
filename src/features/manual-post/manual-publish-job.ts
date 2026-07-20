@@ -3,6 +3,7 @@
 import { getAllAccounts } from '@/shared/config/accounts';
 import { getCafeWriterAccounts } from '@/shared/config/cafe-account-policy';
 import { getDefaultCafe, getCafeById } from '@/shared/config/cafes';
+import { toCafeSlug } from '@/shared/lib/naver-cafe-membership';
 import { connectDB } from '@/shared/lib/mongodb';
 import { getQueueSettings, getRandomDelay } from '@/shared/models/queue-settings';
 import { isAccountActive, getNextActiveTime, type NaverAccount } from '@/shared/lib/account-manager';
@@ -60,7 +61,11 @@ export const runManualPublish = async (
   const settings = await getQueueSettings();
   await startAllTaskWorkers();
 
-  const writerAccounts = getCafeWriterAccounts(accounts, cafe.cafeId);
+  const writerAccounts = getCafeWriterAccounts(
+    accounts,
+    cafe.cafeId,
+    toCafeSlug(cafe.cafeUrl),
+  );
   if (writerAccounts.length === 0) {
     return {
       success: false,

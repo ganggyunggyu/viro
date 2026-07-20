@@ -97,6 +97,8 @@ export interface DisableCommentJobData {
 
 export type TaskJobData = PostJobData | CommentJobData | ReplyJobData | LikeJobData | DisableCommentJobData;
 
+export type JobOutcome = 'completed' | 'requeued' | 'soft-failed' | 'skipped';
+
 export interface JobResult {
   success: boolean;
   error?: string;
@@ -104,6 +106,9 @@ export interface JobResult {
   articleUrl?: string;
   skipped?: boolean;
   willRetry?: boolean;
+  outcome?: JobOutcome;
+  requeued?: boolean;
+  softFailed?: boolean;
 }
 
 export const TASK_QUEUE_NAME = 'task_global';

@@ -64,7 +64,12 @@ test('writer policy applies explicit allowed account IDs after DB role filtering
   ];
 
   assert.deepEqual(
-    accountIds(getCafeWriterAccounts(accounts, CHANEL_CAFE_ID, ['compare14310', 'dhtksk1p'])),
+    accountIds(getCafeWriterAccounts(
+      accounts,
+      CHANEL_CAFE_ID,
+      undefined,
+      ['compare14310', 'dhtksk1p'],
+    )),
     ['compare14310'],
   );
 });
@@ -93,6 +98,7 @@ test('commenter policy can exclude the writer and apply allowed account IDs', ()
       getCafeCommenterAccounts(
         accounts,
         HEALTH_CAFE_ID,
+        undefined,
         'regular14631',
         ['regular14631', 'orangeswan630'],
       ),
@@ -117,5 +123,21 @@ test('cafe policy excludes explicitly mapped accounts from other cafes and keeps
   assert.deepEqual(
     accountIds(getCafeCommenterAccounts(accounts, 'B')),
     ['global-writer', 'legacy-writer', 'global-commenter'],
+  );
+});
+
+test('cafe policy matches stored cafe slugs independently from numeric cafe IDs', () => {
+  const accounts = [
+    createAccount('meal-writer', 'writer', ['mealtalkdht']),
+    createAccount('global-writer'),
+  ];
+
+  assert.deepEqual(
+    accountIds(getCafeWriterAccounts(accounts, '31750114', 'mealtalkdht')),
+    ['meal-writer', 'global-writer'],
+  );
+  assert.deepEqual(
+    accountIds(getCafeWriterAccounts(accounts, '99999999', 'other')),
+    ['global-writer'],
   );
 });

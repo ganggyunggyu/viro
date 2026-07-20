@@ -9,6 +9,7 @@ import {
   releaseAccountLock,
 } from '@/shared/lib/multi-session';
 import type { NaverAccount } from '@/shared/lib/account-manager';
+import { toCafeSlug } from '@/shared/lib/naver-cafe-membership';
 import {
   getCafeWriterAccounts,
   LUXURY_CAFE_WRITER_ACCOUNT_IDS,
@@ -28,6 +29,7 @@ interface AccountRow {
   activityHours?: NaverAccount['activityHours'];
   restDays?: number[];
   personaId?: string;
+  targetCafeIds?: string[];
 }
 
 interface CafeRow {
@@ -105,6 +107,7 @@ const toPolicyAccount = (account: AccountRow): NaverAccount => ({
   dailyPostLimit: account.dailyPostLimit,
   personaId: account.personaId,
   role: account.role,
+  targetCafeIds: account.targetCafeIds,
 });
 
 const getBodyText = async (
@@ -254,7 +257,7 @@ const loadTargets = async (): Promise<{
 
   const [accounts, cafes] = await Promise.all([
     Account.find({ userId: user.userId })
-      .select('accountId password nickname role isActive isMain dailyPostLimit activityHours restDays personaId')
+      .select('accountId password nickname role isActive isMain dailyPostLimit activityHours restDays personaId targetCafeIds')
       .lean<AccountRow[]>(),
     Cafe.find({
       userId: user.userId,
@@ -295,7 +298,11 @@ const main = async (): Promise<void> => {
   const expectedLuxuryIds = new Set<string>([...LUXURY_CAFE_WRITER_ACCOUNT_IDS]);
 
   for (const cafe of cafes) {
-    const writerIds = getCafeWriterAccounts(activePolicyAccounts, cafe.cafeId)
+    const writerIds = getCafeWriterAccounts(
+      activePolicyAccounts,
+      cafe.cafeId,
+      toCafeSlug(cafe.cafeUrl),
+    )
       .map(({ id }) => id);
     const requiredIds = new Set<string>(writerIds);
 
@@ -391,7 +398,11 @@ const main = async (): Promise<void> => {
         policyWriterIdsByCafe: Object.fromEntries(
           cafes.map((cafe) => [
             cafe.name,
-            getCafeWriterAccounts(activePolicyAccounts, cafe.cafeId).map(({ id }) => id),
+            getCafeWriterAccounts(
+              activePolicyAccounts,
+              cafe.cafeId,
+              toCafeSlug(cafe.cafeUrl),
+            ).map(({ id }) => id),
           ]),
         ),
         expectedLuxuryWriterIds: [...LUXURY_CAFE_WRITER_ACCOUNT_IDS],

@@ -71,7 +71,7 @@ const HELP_TEXT = `
 비고
   --default-targets를 주면 기본 운영 카페 목표치(쇼핑15 / 샤넬10 / 건강노후12 / 건강관리12)를 자동 적용합니다.
   단일 카페만 선택했고 목표치를 안 주면, 최근 글쓴 writer들의 dailyPostLimit 합으로 추정 목표치를 잡습니다.
-  최종 판정은 리포트에서 이상으로 잡힌 글을 네이버 UI에서 한 번 더 확인하는 흐름을 권장합니다.
+  카운트 판정은 DB, 카페발행노출로그 시트, 네이버 카페 live 글 목록을 대조합니다.
 `.trim();
 
 const PROHIBITED_PATTERNS = [
@@ -1007,10 +1007,19 @@ export const reconcileVerificationReportCounts = async (
   report: VerificationReport,
   { collectSheetCounts, collectLiveCounts }: CafePostCountCollectors,
 ): Promise<VerificationReport> => {
-  const [sheetRecords, liveRecords] = await Promise.all([
+  const [sheetResult, liveResult] = await Promise.allSettled([
     collectSheetCounts(buildPostCountRequests(report, 'sheet')),
     collectLiveCounts(buildPostCountRequests(report, 'live')),
   ]);
+  if (sheetResult.status === 'rejected') {
+    throw sheetResult.reason;
+  }
+  if (liveResult.status === 'rejected') {
+    throw liveResult.reason;
+  }
+
+  const sheetRecords = sheetResult.value;
+  const liveRecords = liveResult.value;
   const sheetCounts = mapPostCountRecords(sheetRecords);
   const liveCounts = mapPostCountRecords(liveRecords);
 

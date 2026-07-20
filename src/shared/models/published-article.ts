@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IArticleComment {
@@ -9,6 +10,7 @@ export interface IArticleComment {
   commentId?: string;
   commentIndex?: number;
   sequenceId?: string;
+  replyKey?: string;
   createdAt: Date;
 }
 
@@ -57,6 +59,10 @@ interface PublishedArticleFindQuery<TArticle> {
   };
 }
 
+interface PublishedArticleFindOneQuery {
+  lean: () => PromiseLike<{ comments?: IArticleComment[] } | null>;
+}
+
 export interface PublishedArticleModelLike<TArticle> {
   findOneAndUpdate: (
     filter: Record<string, unknown>,
@@ -64,6 +70,10 @@ export interface PublishedArticleModelLike<TArticle> {
     options: { new: true; upsert: true },
   ) => PromiseLike<TArticle | null>;
   find: (filter: Record<string, unknown>) => PublishedArticleFindQuery<TArticle>;
+  findOne: (
+    filter: Record<string, unknown>,
+    projection: Record<string, 1>,
+  ) => PublishedArticleFindOneQuery;
 }
 
 export interface PublishedArticleOperationsDeps<TArticle> {
@@ -82,6 +92,7 @@ const ArticleCommentSchema = new Schema<IArticleComment>(
     commentId: { type: String },
     commentIndex: { type: Number },
     sequenceId: { type: String },
+    replyKey: { type: String },
     createdAt: { type: Date, default: Date.now },
   },
   { _id: false }
@@ -128,6 +139,19 @@ export const PublishedArticle: Model<IPublishedArticle> =
   mongoose.models.PublishedArticle ||
   mongoose.model<IPublishedArticle>('PublishedArticle', PublishedArticleSchema);
 
+const normalizeReplyContent = (content: string): string => content.replace(/\s+/g, ' ').trim();
+
+export const createReplyIdentity = (
+  accountId: string,
+  parentIndex: number,
+  content: string,
+): string => {
+  const contentHash = createHash('sha256')
+    .update(normalizeReplyContent(content))
+    .digest('hex');
+  return `${accountId}:${parentIndex}:${contentHash}`;
+};
+
 export const createPublishedArticleOperations = <TArticle>({
   model,
   now = () => new Date(),
@@ -139,6 +163,16 @@ export const createPublishedArticleOperations = <TArticle>({
     comment: Omit<IArticleComment, 'createdAt'>,
   ): Promise<boolean> => {
     const updateField = comment.type === 'comment' ? 'commentCount' : 'replyCount';
+    const storedComment = comment.type === 'reply'
+      ? {
+          ...comment,
+          replyKey: comment.replyKey ?? createReplyIdentity(
+            comment.accountId,
+            comment.parentIndex ?? -1,
+            comment.content,
+          ),
+        }
+      : comment;
 
     log(
       `[COMMENT-DB] 저장 시도: cafeId=${cafeId}, articleId=${articleId}, accountId=${comment.accountId}, type=${comment.type}`,
@@ -147,7 +181,7 @@ export const createPublishedArticleOperations = <TArticle>({
     const result = await model.findOneAndUpdate(
       { cafeId, articleId },
       {
-        $push: { comments: { ...comment, createdAt: now() } },
+        $push: { comments: { ...storedComment, createdAt: now() } },
         $inc: { [updateField]: 1 },
         $setOnInsert: {
           menuId: '',
@@ -181,9 +215,36 @@ export const createPublishedArticleOperations = <TArticle>({
     .sort({ publishedAt: -1 })
     .limit(limit);
 
+  const hasRepliedWithModel = async (
+    cafeId: string,
+    articleId: number,
+    accountId: string,
+    parentIndex: number,
+    content: string,
+  ): Promise<boolean> => {
+    const article = await model.findOne({ cafeId, articleId }, { comments: 1 }).lean();
+    if (!article) return false;
+
+    const replyKey = createReplyIdentity(accountId, parentIndex, content);
+    const normalizedContent = normalizeReplyContent(content);
+
+    return (article.comments ?? []).some((comment) =>
+      comment.type === 'reply'
+      && comment.accountId === accountId
+      && (
+        comment.replyKey === replyKey
+        || (
+          comment.parentIndex === parentIndex
+          && normalizeReplyContent(comment.content) === normalizedContent
+        )
+      ),
+    );
+  };
+
   return {
     addCommentToArticle: addCommentToArticleWithModel,
     getRecentPublishedArticles: getRecentPublishedArticlesWithModel,
+    hasReplied: hasRepliedWithModel,
   };
 };
 
@@ -208,6 +269,20 @@ export const hasCommented = async (
     (c) => c.accountId === accountId && c.type === type
   );
 };
+
+export const hasReplied = async (
+  cafeId: string,
+  articleId: number,
+  accountId: string,
+  parentIndex: number,
+  content: string,
+): Promise<boolean> => publishedArticleOperations.hasReplied(
+  cafeId,
+  articleId,
+  accountId,
+  parentIndex,
+  content,
+);
 
 export const addCommentToArticle = async (
   cafeId: string,

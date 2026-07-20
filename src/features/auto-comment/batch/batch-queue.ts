@@ -1,5 +1,6 @@
 import { getAllAccounts } from '@/shared/config/accounts';
 import { getCafeCommenterAccounts, getCafeWriterAccounts } from '@/shared/config/cafe-account-policy';
+import { toCafeSlug } from '@/shared/lib/naver-cafe-membership';
 import { addTaskJob, getQueueStatus, closeAllQueues } from '@/shared/lib/queue';
 import { closeAllWorkers } from '@/shared/lib/queue/workers';
 import { getRandomDelay } from '@/shared/models/queue-settings';
@@ -130,8 +131,9 @@ export const addBatchToQueue = async (
   }
 
   const { accounts, cafe, settings } = ctx;
-  const writerAccounts = getCafeWriterAccounts(accounts, cafe.cafeId);
-  const commenterAccounts = getCafeCommenterAccounts(accounts, cafe.cafeId);
+  const cafeSlug = toCafeSlug(cafe.cafeUrl);
+  const writerAccounts = getCafeWriterAccounts(accounts, cafe.cafeId, cafeSlug);
+  const commenterAccounts = getCafeCommenterAccounts(accounts, cafe.cafeId, cafeSlug);
 
   if (writerAccounts.length === 0) {
     return {
@@ -181,7 +183,12 @@ export const addBatchToQueue = async (
     const writerAccount = writerAccounts[i % writerAccounts.length];
     const commenterAccountIds = skipComments
       ? undefined
-      : getCafeCommenterAccounts(accounts, cafe.cafeId, writerAccount.id).map(({ id }) => id);
+      : getCafeCommenterAccounts(
+          accounts,
+          cafe.cafeId,
+          cafeSlug,
+          writerAccount.id,
+        ).map(({ id }) => id);
 
     try {
       const personaId = getPersonaId(writerAccount);

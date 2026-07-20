@@ -14,6 +14,7 @@ import {
   saveCookiesForAccount,
 } from '@/shared/lib/multi-session';
 import { connectDB } from '@/shared/lib/mongodb';
+import { toCafeSlug } from '@/shared/lib/naver-cafe-membership';
 import { User } from '@/shared/models/user';
 
 import {
@@ -760,7 +761,10 @@ const loadReport = async (args: LiveVerifyArgs): Promise<LiveVerificationReport>
 
   const previousDateKey = shiftKstDateKey(args.baseDateKey, -1);
   const selectedCafes = cafes
-    .filter((cafe) => getDefaultTargetForCafe({ cafeId: cafe.cafeId, name: cafe.name }) !== null)
+    .filter((cafe) =>
+      args.cafes.length > 0
+      || getDefaultTargetForCafe({ cafeId: cafe.cafeId, name: cafe.name }) !== null,
+    )
     .filter((cafe) => args.cafes.length === 0 || args.cafes.some((token) => matchesCafeToken(cafe, token)));
 
   if (selectedCafes.length === 0) {
@@ -770,7 +774,11 @@ const loadReport = async (args: LiveVerifyArgs): Promise<LiveVerificationReport>
   const cafeSummaries: LiveCafeSummary[] = [];
 
   for (const cafe of selectedCafes) {
-    const writerAccounts = getCafeWriterAccounts(accounts, cafe.cafeId);
+    const writerAccounts = getCafeWriterAccounts(
+      accounts,
+      cafe.cafeId,
+      toCafeSlug(cafe.cafeUrl),
+    );
     const eligibleNicknames = [...new Set(
       writerAccounts
         .map(({ nickname }) => nickname?.trim())

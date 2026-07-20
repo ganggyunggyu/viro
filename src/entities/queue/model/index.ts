@@ -1,16 +1,19 @@
+import type { QueueCounts, QueueRetentionReport } from '@/shared/lib/queue/status-harness';
+
 export interface QueueState {
   waiting: number;
   active: number;
   completed: number;
   failed: number;
   delayed?: number;
+  requeued?: number;
+  softFailed?: number;
+  skipped?: number;
 }
 
 export type QueueStatusMap = Record<string, QueueState>;
 
-export interface QueueTotals extends QueueState {
-  delayed: number;
-}
+export type QueueTotals = QueueCounts;
 
 export interface AccountQueueStatus extends QueueTotals {
   accountId: string;
@@ -20,6 +23,7 @@ export interface AccountQueueStatus extends QueueTotals {
 export interface QueueOverview {
   queues: AccountQueueStatus[];
   total: QueueTotals;
+  retention: QueueRetentionReport;
 }
 
 export type QueueStatusResult = QueueStatusMap;
