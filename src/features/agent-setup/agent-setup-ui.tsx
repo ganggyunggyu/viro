@@ -25,8 +25,7 @@ import {
   type AgentTokenView,
 } from './actions';
 
-const MAC_DOWNLOAD_URL =
-  'https://github.com/ganggyunggyu/viro/releases/download/v0.2.0/Viro-0.2.0-arm64.dmg';
+const MAC_DOWNLOAD_URL = '/api/download/viro/mac';
 
 const formatDate = (iso: string | null): string => {
   if (!iso) return '접속 기록 없음';
@@ -144,6 +143,7 @@ export const AgentSetupUI = () => {
               <div className={cn('mt-7 flex flex-col gap-3 sm:flex-row sm:items-center')}>
                 <a
                   href={MAC_DOWNLOAD_URL}
+                  download="Viro-0.2.0-arm64.dmg"
                   className={cn(
                     'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3',
                     'text-sm font-semibold text-slate-900 shadow-lg shadow-black/10 transition-all',
