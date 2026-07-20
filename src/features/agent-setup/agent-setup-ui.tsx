@@ -12,7 +12,11 @@ import {
   type AgentTokenView,
 } from './actions';
 
-const DOWNLOAD_BUTTON_CLASS =
+const MAC_DOWNLOAD_URL =
+  'https://github.com/ganggyunggyu/viro/releases/download/v0.1.0/Viro-0.1.0-arm64.dmg';
+const DOWNLOAD_ACTIVE_CLASS =
+  'flex items-center justify-center gap-2 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3 text-sm font-medium text-(--ink) transition-colors hover:border-(--accent) hover:text-(--accent)';
+const DOWNLOAD_DISABLED_CLASS =
   'flex items-center justify-center gap-2 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3 text-sm font-medium text-(--ink-muted) cursor-not-allowed opacity-60';
 
 const formatDate = (iso: string | null): string => {
@@ -119,30 +123,18 @@ export const AgentSetupUI = () => {
             <div className={cn('min-w-0 flex-1')}>
               <p className={cn('font-medium text-(--ink)')}>프로그램 내려받기</p>
               <div className={cn('mt-3 grid gap-2 sm:grid-cols-2')}>
-                <button type="button" disabled className={cn(DOWNLOAD_BUTTON_CLASS)}>
+                <a href={MAC_DOWNLOAD_URL} className={cn(DOWNLOAD_ACTIVE_CLASS)}>
                   <Download className={cn('h-4 w-4')} />
-                  macOS (준비중)
-                </button>
-                <button type="button" disabled className={cn(DOWNLOAD_BUTTON_CLASS)}>
+                  macOS 다운로드
+                </a>
+                <button type="button" disabled className={cn(DOWNLOAD_DISABLED_CLASS)}>
                   <Download className={cn('h-4 w-4')} />
                   Windows (준비중)
                 </button>
               </div>
               <p className={cn('mt-2 text-xs text-(--ink-muted)')}>
-                설치본을 준비 중입니다. 지금은 아래 방법으로 프로그램을 바로 실행할 수 있습니다.
-              </p>
-              <p className={cn('mt-3 text-sm text-(--ink-muted)')}>
-                프로젝트 폴더에서:
-              </p>
-              <pre className={cn('mt-2 overflow-x-auto rounded-lg bg-(--surface-muted) p-3 font-mono text-xs text-(--ink)')}>
-{`# 1) 한 번만: 의존성 설치
-npm install
-
-# 2) 프로그램 창 실행 (창에서 서버주소·연결 토큰 입력)
-npm run agent:app`}
-              </pre>
-              <p className={cn('mt-2 text-xs text-(--ink-muted)')}>
-                첫 시작 시 브라우저 구성요소를 자동으로 내려받은 뒤 작업을 시작합니다.
+                macOS(Apple Silicon)용입니다. 미서명 앱이라 처음엔 우클릭 → 열기로 실행하세요.
+                첫 시작 시 브라우저 구성요소를 자동으로 내려받습니다.
               </p>
             </div>
           </li>
