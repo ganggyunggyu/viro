@@ -17,6 +17,7 @@ export interface NaverAccount {
   role?: AccountRole;
   campaignTag?: string;
   excludeFromAutoComment?: boolean;
+  targetCafeIds?: string[];
 }
 
 export interface AccountList {

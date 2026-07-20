@@ -102,6 +102,7 @@ export interface JobResult {
   error?: string;
   articleId?: number;
   articleUrl?: string;
+  skipped?: boolean;
   willRetry?: boolean;
 }
 

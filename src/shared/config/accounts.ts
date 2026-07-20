@@ -27,6 +27,7 @@ export const getAllAccounts = async (userId?: string): Promise<NaverAccount[]> =
       role: a.role as AccountRole,
       campaignTag: a.campaignTag,
       excludeFromAutoComment: a.excludeFromAutoComment,
+      targetCafeIds: a.targetCafeIds,
     }));
   } catch (error) {
     console.error('[ACCOUNTS] MongoDB 조회 실패:', error);
@@ -67,6 +68,7 @@ export const getAllAccountsForMonitoring = async (): Promise<NaverAccount[]> => 
       role: a.role as AccountRole,
       campaignTag: a.campaignTag,
       excludeFromAutoComment: a.excludeFromAutoComment,
+      targetCafeIds: a.targetCafeIds,
     }));
   } catch (error) {
     console.error('[ACCOUNTS] 모니터링용 조회 실패:', error);
@@ -96,6 +98,7 @@ export const getAccountById = async (accountId: string): Promise<NaverAccount | 
       role: dbAccount.role as AccountRole,
       campaignTag: dbAccount.campaignTag,
       excludeFromAutoComment: dbAccount.excludeFromAutoComment,
+      targetCafeIds: dbAccount.targetCafeIds,
     };
   } catch (error) {
     console.error('[ACCOUNTS] accountId 조회 실패:', error);
@@ -138,6 +141,7 @@ export const addAccount = async (
       role: account.role,
       campaignTag: account.campaignTag,
       excludeFromAutoComment: account.excludeFromAutoComment ?? false,
+      targetCafeIds: account.targetCafeIds,
       isActive: true,
     },
     { upsert: true, new: true, setDefaultsOnInsert: true },

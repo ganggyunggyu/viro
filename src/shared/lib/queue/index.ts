@@ -12,6 +12,7 @@ import {
   createAddTaskJob,
   createRescheduleToken,
   generateTaskJobId,
+  resolveTaskJobAttempts,
   resolveTaskJobDelay,
 } from './task-job-harness';
 
@@ -61,6 +62,7 @@ export const addTaskJob = createAddTaskJob<Job<TaskJobData, JobResult>>({
   getQueueSettings,
   getRandomDelay,
   getTaskQueue,
+  getAttempts: resolveTaskJobAttempts,
   log: (message: string) => console.log(message),
 });
 

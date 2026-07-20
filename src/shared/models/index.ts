@@ -19,7 +19,12 @@ export { User, type IUser } from './user';
 export { AgentToken, type IAgentToken } from './agent-token';
 export { Cafe, type ICafe } from './cafe';
 export { WorkCafeArticle, type IWorkCafeArticle } from './work-cafe-article';
-export { PostAttempt, type IPostAttempt, claimPostAttempt } from './post-attempt';
+export {
+  PostAttempt,
+  type IPostAttempt,
+  claimPostAttempt,
+  releasePostAttempt,
+} from './post-attempt';
 export {
   ManualCommentJob,
   type IManualCommentJob,

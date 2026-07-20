@@ -1,4 +1,5 @@
 import type { AccountRole } from '../src/shared/models/account';
+import { toCafeSlug } from '../src/shared/lib/naver-cafe-membership';
 
 export const CAFE_ACCOUNT_SPREADSHEET_ID = '1dMilxTgiwt-XjZux5pSk9EpUnLngYj1XqSukO1088mU';
 export const ACCOUNT_MASTER_TAB = '21lab 블로그 계정LIST';
@@ -39,10 +40,19 @@ export interface SheetSyncAccount extends CafeSheetAccount {
   mvpn: string;
   owner: string;
   sourceRowNumber: number;
+  targetCafeIds: string[];
+  sheetMeta: {
+    masterRowNumber: number;
+    cafeRowNumber: number;
+    masterNote: string;
+    cafeNote: string;
+  };
 }
 
 export interface SheetAccountSyncPlan {
   accounts: SheetSyncAccount[];
+  deactivateAccountIds: string[];
+  driftAccountIds: string[];
   missingInMaster: string[];
   writerMismatchIds: string[];
 }
@@ -65,6 +75,22 @@ const parseRole = (value: string): AccountRole => {
 const parseDailyPostLimit = (value: string): number => {
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 5;
+};
+
+const parseTargetCafeIds = (value: string): string[] => {
+  const seen = new Set<string>();
+
+  return value
+    .split(/[\n,;|]+/)
+    .map((targetCafe) => toCafeSlug(targetCafe) || normalize(targetCafe))
+    .filter((targetCafe) => {
+      if (!targetCafe || seen.has(targetCafe)) {
+        return false;
+      }
+
+      seen.add(targetCafe);
+      return true;
+    });
 };
 
 export const parseMasterAccountRows = (
@@ -139,12 +165,21 @@ export const buildSheetAccountSyncPlan = (
   masterAccounts: SheetMasterAccount[],
   cafeAccounts: CafeSheetAccount[],
   writerAccountIds: string[],
+  existingDbAccountIds: string[] = [],
 ): SheetAccountSyncPlan => {
   const masterById = new Map(masterAccounts.map((account) => [account.accountId, account]));
   const writerIdSet = new Set(writerAccountIds);
+  const cafeAccountIdSet = new Set(cafeAccounts.map(({ accountId }) => accountId));
   const missingInMaster: string[] = [];
   const writerMismatchIds: string[] = [];
   const accounts: SheetSyncAccount[] = [];
+  const deactivateAccountIds = [...new Set(
+    cafeAccounts
+      .filter(({ isActive }) => !isActive)
+      .map(({ accountId }) => accountId),
+  )];
+  const driftAccountIds = [...new Set(existingDbAccountIds)]
+    .filter((accountId) => !cafeAccountIdSet.has(accountId));
 
   for (const cafeAccount of cafeAccounts) {
     const masterAccount = masterById.get(cafeAccount.accountId);
@@ -155,7 +190,7 @@ export const buildSheetAccountSyncPlan = (
     }
 
     const writerTabRole: AccountRole = writerIdSet.has(cafeAccount.accountId) ? 'writer' : 'commenter';
-    if (cafeAccount.role !== writerTabRole) {
+    if (cafeAccount.isActive && cafeAccount.role !== writerTabRole) {
       writerMismatchIds.push(cafeAccount.accountId);
       continue;
     }
@@ -169,11 +204,20 @@ export const buildSheetAccountSyncPlan = (
       mvpn: masterAccount.mvpn,
       owner: masterAccount.owner,
       sourceRowNumber: masterAccount.rowNumber,
+      targetCafeIds: parseTargetCafeIds(cafeAccount.targetCafes),
+      sheetMeta: {
+        masterRowNumber: masterAccount.rowNumber,
+        cafeRowNumber: cafeAccount.rowNumber,
+        masterNote: masterAccount.note,
+        cafeNote: cafeAccount.note,
+      },
     });
   }
 
   return {
     accounts,
+    deactivateAccountIds,
+    driftAccountIds,
     missingInMaster,
     writerMismatchIds,
   };

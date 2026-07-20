@@ -24,7 +24,7 @@ export interface IPublishedArticle extends Document {
   articleUrl: string;
   writerAccountId: string;
   publishedAt: Date;
-  status: 'published' | 'modified';
+  status: 'published' | 'published-unverified' | 'modified';
   postType?: 'ad' | 'daily' | 'daily-ad';
   commentCount: number;
   replyCount: number;
@@ -52,7 +52,7 @@ const ArticleCommentSchema = new Schema<IArticleComment>(
 
 const PublishedArticleSchema = new Schema<IPublishedArticle>(
   {
-    articleId: { type: Number, required: true, index: true },
+    articleId: { type: Number, index: true },
     cafeId: { type: String, required: true },
     menuId: { type: String, required: true },
     keyword: { type: String, required: true, index: true },
@@ -61,7 +61,11 @@ const PublishedArticleSchema = new Schema<IPublishedArticle>(
     articleUrl: { type: String, required: true },
     writerAccountId: { type: String, required: true },
     publishedAt: { type: Date, default: Date.now },
-    status: { type: String, enum: ['published', 'modified'], default: 'published' },
+    status: {
+      type: String,
+      enum: ['published', 'published-unverified', 'modified'],
+      default: 'published',
+    },
     postType: { type: String, enum: ['ad', 'daily', 'daily-ad'] },
     commentCount: { type: Number, default: 0 },
     replyCount: { type: Number, default: 0 },
@@ -74,7 +78,13 @@ const PublishedArticleSchema = new Schema<IPublishedArticle>(
   { timestamps: true }
 );
 
-PublishedArticleSchema.index({ cafeId: 1, articleId: 1 }, { unique: true });
+PublishedArticleSchema.index(
+  { cafeId: 1, articleId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { articleId: { $type: 'number' } },
+  },
+);
 
 export const PublishedArticle: Model<IPublishedArticle> =
   mongoose.models.PublishedArticle ||

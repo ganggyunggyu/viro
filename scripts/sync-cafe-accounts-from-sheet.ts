@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
-dotenv.config({ path: '.env' });
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+import dotenv from 'dotenv';
 import { google } from 'googleapis';
 import mongoose from 'mongoose';
 
@@ -17,21 +17,203 @@ import {
   parseCafeAccountRows,
   parseMasterAccountRows,
   parseWriterAccountIds,
-  type SheetSyncAccount,
+  type SheetAccountSyncPlan,
 } from './cafe-account-sheet-source';
 import { Account } from '../src/shared/models/account';
 import { User } from '../src/shared/models/user';
 
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';
-const SPREADSHEET_ID = process.env.CAFE_ACCOUNT_SPREADSHEET_ID || CAFE_ACCOUNT_SPREADSHEET_ID;
-const APPLY = process.argv.includes('--apply');
-const CHECK = process.argv.includes('--check') || !APPLY;
 
-interface UpsertSummary {
+interface UpdateOneResult {
+  matchedCount: number;
+  upsertedCount: number;
+}
+
+interface UpdateManyResult {
+  modifiedCount: number;
+}
+
+export interface AccountSyncModel {
+  findAccountIds: (userId: string) => Promise<string[]>;
+  updateOne: (
+    filter: Record<string, unknown>,
+    update: Record<string, unknown>,
+    options: { upsert: boolean; setDefaultsOnInsert: boolean },
+  ) => Promise<UpdateOneResult>;
+  updateMany: (
+    filter: Record<string, unknown>,
+    update: Record<string, unknown>,
+  ) => Promise<UpdateManyResult>;
+}
+
+export interface SheetValuesSource {
+  readValues: (tab: string, range: string) => Promise<unknown[][]>;
+}
+
+export interface SheetAccountSyncSummary {
   created: number;
   updated: number;
   skippedInactive: number;
+  deactivated: number;
+  pruned: number;
+  driftAccountIds: string[];
 }
+
+interface ApplySheetAccountSyncPlanInput {
+  userId: string;
+  plan: SheetAccountSyncPlan;
+  accountModel: AccountSyncModel;
+  prune?: boolean;
+}
+
+interface SyncCafeAccountsFromSheetInput {
+  userId: string;
+  sheetSource: SheetValuesSource;
+  accountModel: AccountSyncModel;
+  apply?: boolean;
+  prune?: boolean;
+}
+
+interface SyncCafeAccountsFromSheetResult {
+  plan: SheetAccountSyncPlan;
+  summary?: SheetAccountSyncSummary;
+}
+
+const assertSafeToApply = (plan: SheetAccountSyncPlan): void => {
+  const activeAccountCount = plan.accounts.filter(({ isActive }) => isActive).length;
+
+  if (activeAccountCount === 0) {
+    throw new Error('시트 파싱 결과 active 계정이 0개이므로 동기화를 중단합니다');
+  }
+
+  if (plan.missingInMaster.length > 0 || plan.writerMismatchIds.length > 0) {
+    throw new Error('카페 계정 시트 검증 실패');
+  }
+};
+
+export const applySheetAccountSyncPlan = async ({
+  userId,
+  plan,
+  accountModel,
+  prune = false,
+}: ApplySheetAccountSyncPlanInput): Promise<SheetAccountSyncSummary> => {
+  assertSafeToApply(plan);
+
+  const summary: SheetAccountSyncSummary = {
+    created: 0,
+    updated: 0,
+    skippedInactive: plan.accounts.filter(({ isActive }) => !isActive).length,
+    deactivated: 0,
+    pruned: 0,
+    driftAccountIds: plan.driftAccountIds,
+  };
+
+  for (const account of plan.accounts.filter(({ isActive }) => isActive)) {
+    const result = await accountModel.updateOne(
+      { userId, accountId: account.accountId },
+      {
+        $set: {
+          userId,
+          accountId: account.accountId,
+          password: account.password,
+          nickname: account.nickname,
+          role: account.role,
+          isActive: true,
+          isMain: false,
+          dailyPostLimit: account.dailyPostLimit,
+          activityHours: { start: 0, end: 24 },
+          restDays: [],
+          targetCafes: account.targetCafes,
+          targetCafeIds: account.targetCafeIds,
+          mvpn: account.mvpn,
+          sheetMeta: {
+            blogUrl: account.blogUrl,
+            category: account.category,
+            owner: account.owner,
+            ...account.sheetMeta,
+          },
+        },
+      },
+      { upsert: true, setDefaultsOnInsert: true },
+    );
+
+    if (result.upsertedCount > 0) {
+      summary.created += 1;
+    } else {
+      summary.updated += 1;
+    }
+  }
+
+  if (plan.deactivateAccountIds.length > 0) {
+    const result = await accountModel.updateMany(
+      {
+        userId,
+        accountId: { $in: plan.deactivateAccountIds },
+      },
+      { $set: { isActive: false } },
+    );
+    summary.deactivated = result.modifiedCount;
+  }
+
+  if (prune && plan.driftAccountIds.length > 0) {
+    const result = await accountModel.updateMany(
+      {
+        userId,
+        accountId: { $in: plan.driftAccountIds },
+      },
+      { $set: { isActive: false } },
+    );
+    summary.pruned = result.modifiedCount;
+  }
+
+  return summary;
+};
+
+export const upsertAccounts = applySheetAccountSyncPlan;
+
+export const syncCafeAccountsFromSheet = async ({
+  userId,
+  sheetSource,
+  accountModel,
+  apply = true,
+  prune = false,
+}: SyncCafeAccountsFromSheetInput): Promise<SyncCafeAccountsFromSheetResult> => {
+  const [masterRows, cafeRows, writerRows] = await Promise.all([
+    sheetSource.readValues(ACCOUNT_MASTER_TAB, ACCOUNT_MASTER_RANGE),
+    sheetSource.readValues(CAFE_ACCOUNT_TAB, CAFE_ACCOUNT_RANGE),
+    sheetSource.readValues(CAFE_WRITER_ACCOUNT_TAB, CAFE_WRITER_ACCOUNT_RANGE),
+  ]);
+  const masterAccounts = parseMasterAccountRows(masterRows);
+  const cafeAccounts = parseCafeAccountRows(cafeRows);
+  const writerAccountIds = parseWriterAccountIds(writerRows);
+  const preliminaryPlan = buildSheetAccountSyncPlan(
+    masterAccounts,
+    cafeAccounts,
+    writerAccountIds,
+  );
+
+  assertSafeToApply(preliminaryPlan);
+
+  const existingDbAccountIds = await accountModel.findAccountIds(userId);
+  const plan = buildSheetAccountSyncPlan(
+    masterAccounts,
+    cafeAccounts,
+    writerAccountIds,
+    existingDbAccountIds,
+  );
+
+  if (!apply) {
+    return { plan };
+  }
+
+  const summary = await applySheetAccountSyncPlan({
+    userId,
+    plan,
+    accountModel,
+    prune,
+  });
+  return { plan, summary };
+};
 
 const getSheetsClient = () => {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -50,19 +232,40 @@ const getSheetsClient = () => {
   return google.sheets({ version: 'v4', auth });
 };
 
-const readValues = async (
+const createSheetValuesSource = (
   sheets: ReturnType<typeof getSheetsClient>,
-  tab: string,
-  range: string,
-): Promise<string[][]> => {
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `'${tab}'!${range}`,
-    valueRenderOption: 'FORMATTED_VALUE',
-  });
+  spreadsheetId: string,
+): SheetValuesSource => ({
+  readValues: async (tab, range) => {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `'${tab}'!${range}`,
+      valueRenderOption: 'FORMATTED_VALUE',
+    });
 
-  return (response.data.values || []) as string[][];
-};
+    return response.data.values || [];
+  },
+});
+
+const createAccountSyncModel = (): AccountSyncModel => ({
+  findAccountIds: async (userId) => {
+    const accounts = await Account.find({ userId })
+      .select('accountId')
+      .lean<Array<{ accountId: string }>>();
+    return accounts.map(({ accountId }) => accountId);
+  },
+  updateOne: async (filter, update, options) => {
+    const result = await Account.updateOne(filter, update, options);
+    return {
+      matchedCount: result.matchedCount,
+      upsertedCount: result.upsertedCount,
+    };
+  },
+  updateMany: async (filter, update) => {
+    const result = await Account.updateMany(filter, update);
+    return { modifiedCount: result.modifiedCount };
+  },
+});
 
 const connect = async (): Promise<void> => {
   const uri = process.env.MONGODB_URI;
@@ -85,70 +288,38 @@ const getUserId = async (): Promise<string> => {
   return user.userId;
 };
 
-const upsertAccounts = async (
-  userId: string,
-  accounts: SheetSyncAccount[],
-): Promise<UpsertSummary> => {
-  const summary = {
-    created: 0,
-    updated: 0,
-    skippedInactive: accounts.filter(({ isActive }) => !isActive).length,
-  };
-
-  for (const account of accounts.filter(({ isActive }) => isActive)) {
-    const existing = await Account.findOne({ userId, accountId: account.accountId })
-      .select('_id')
-      .lean<{ _id: mongoose.Types.ObjectId } | null>();
-    const update = {
-      userId,
-      accountId: account.accountId,
-      password: account.password,
-      nickname: account.nickname,
-      role: account.role,
-      isActive: true,
-      isMain: false,
-      dailyPostLimit: account.dailyPostLimit,
-      activityHours: { start: 0, end: 24 },
-      restDays: [],
-    };
-
-    if (existing) {
-      await Account.updateOne({ _id: existing._id }, { $set: update });
-      summary.updated += 1;
-      continue;
-    }
-
-    await Account.create(update);
-    summary.created += 1;
-  }
-
-  return summary;
-};
-
 const main = async (): Promise<void> => {
-  const sheets = getSheetsClient();
-  const [masterRows, cafeRows, writerRows] = await Promise.all([
-    readValues(sheets, ACCOUNT_MASTER_TAB, ACCOUNT_MASTER_RANGE),
-    readValues(sheets, CAFE_ACCOUNT_TAB, CAFE_ACCOUNT_RANGE),
-    readValues(sheets, CAFE_WRITER_ACCOUNT_TAB, CAFE_WRITER_ACCOUNT_RANGE),
-  ]);
-  const plan = buildSheetAccountSyncPlan(
-    parseMasterAccountRows(masterRows),
-    parseCafeAccountRows(cafeRows),
-    parseWriterAccountIds(writerRows),
-  );
+  dotenv.config({ path: resolve(process.cwd(), '.env.local'), quiet: true });
+  dotenv.config({ path: resolve(process.cwd(), '.env'), quiet: true });
+
+  const apply = process.argv.includes('--apply');
+  const prune = process.argv.includes('--prune');
+  const spreadsheetId = process.env.CAFE_ACCOUNT_SPREADSHEET_ID || CAFE_ACCOUNT_SPREADSHEET_ID;
+
+  await connect();
+  const userId = await getUserId();
+  const { plan, summary } = await syncCafeAccountsFromSheet({
+    userId,
+    sheetSource: createSheetValuesSource(getSheetsClient(), spreadsheetId),
+    accountModel: createAccountSyncModel(),
+    apply,
+    prune,
+  });
 
   console.log(
     JSON.stringify(
       {
-        mode: APPLY ? 'apply' : 'check',
-        spreadsheetId: SPREADSHEET_ID,
+        mode: apply ? 'apply' : 'check',
+        prune,
+        spreadsheetId,
         masterTab: ACCOUNT_MASTER_TAB,
         cafeAccountTab: CAFE_ACCOUNT_TAB,
         writerAccountTab: CAFE_WRITER_ACCOUNT_TAB,
         accounts: plan.accounts.length,
         activeWriters: plan.accounts.filter(({ role, isActive }) => role === 'writer' && isActive).length,
         activeCommenters: plan.accounts.filter(({ role, isActive }) => role === 'commenter' && isActive).length,
+        deactivateAccountIds: plan.deactivateAccountIds,
+        driftAccountIds: plan.driftAccountIds,
         missingInMaster: plan.missingInMaster,
         writerMismatchIds: plan.writerMismatchIds,
       },
@@ -157,29 +328,21 @@ const main = async (): Promise<void> => {
     ),
   );
 
-  if (plan.missingInMaster.length > 0 || plan.writerMismatchIds.length > 0) {
-    throw new Error('카페 계정 시트 검증 실패');
+  if (summary) {
+    console.log(
+      `[SHEET_SYNC] 완료: 신규 ${summary.created}, 업데이트 ${summary.updated}, 비활성 ${summary.deactivated}, 정리 ${summary.pruned}, drift ${summary.driftAccountIds.length}`,
+    );
   }
-
-  if (CHECK && !APPLY) {
-    return;
-  }
-
-  await connect();
-  const userId = await getUserId();
-  const summary = await upsertAccounts(userId, plan.accounts);
-  console.log(
-    `[SHEET_SYNC] 완료: 신규 ${summary.created}, 업데이트 ${summary.updated}, 비활성스킵 ${summary.skippedInactive}`,
-  );
-  await mongoose.disconnect();
 };
 
-main()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch(async (error: unknown) => {
-    console.error('[SHEET_SYNC]', error instanceof Error ? error.message : error);
-    await mongoose.disconnect().catch(() => {});
-    process.exit(1);
-  });
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
+  main()
+    .catch((error: unknown) => {
+      console.error('[SHEET_SYNC]', error instanceof Error ? error.message : error);
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await mongoose.disconnect().catch(() => undefined);
+    });
+}

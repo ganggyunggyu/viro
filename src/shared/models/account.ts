@@ -7,6 +7,16 @@ export interface ActivityHours {
 
 export type AccountRole = 'writer' | 'commenter';
 
+export interface AccountSheetMeta {
+  blogUrl?: string;
+  category?: string;
+  owner?: string;
+  masterRowNumber?: number;
+  cafeRowNumber?: number;
+  masterNote?: string;
+  cafeNote?: string;
+}
+
 export interface IAccount extends Document {
   userId: string;
   accountId: string;
@@ -21,6 +31,10 @@ export interface IAccount extends Document {
   isActive: boolean;
   campaignTag?: string;
   excludeFromAutoComment?: boolean;
+  targetCafes?: string;
+  targetCafeIds?: string[];
+  mvpn?: string;
+  sheetMeta?: AccountSheetMeta;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,6 +45,19 @@ const ActivityHoursSchema = new Schema<ActivityHours>(
     end: { type: Number, min: 0, max: 24 },
   },
   { _id: false }
+);
+
+const AccountSheetMetaSchema = new Schema<AccountSheetMeta>(
+  {
+    blogUrl: { type: String },
+    category: { type: String },
+    owner: { type: String },
+    masterRowNumber: { type: Number },
+    cafeRowNumber: { type: Number },
+    masterNote: { type: String },
+    cafeNote: { type: String },
+  },
+  { _id: false },
 );
 
 const AccountSchema = new Schema<IAccount>(
@@ -48,6 +75,10 @@ const AccountSchema = new Schema<IAccount>(
     isActive: { type: Boolean, default: true },
     campaignTag: { type: String },
     excludeFromAutoComment: { type: Boolean, default: false },
+    targetCafes: { type: String },
+    targetCafeIds: { type: [String], default: [] },
+    mvpn: { type: String },
+    sheetMeta: { type: AccountSheetMetaSchema },
   },
   { timestamps: true }
 );

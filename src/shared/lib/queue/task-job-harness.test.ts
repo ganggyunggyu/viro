@@ -4,6 +4,7 @@ import { createFakeTaskQueue } from './testing/queue-test-harness';
 import {
   createAddTaskJob,
   generateTaskJobId,
+  resolveTaskJobAttempts,
   resolveTaskJobDelay,
   type QueueDelaySettings,
 } from './task-job-harness';
@@ -87,4 +88,23 @@ test('createAddTaskJob skips waiting duplicates and re-adds completed jobs', asy
   assert.equal(addedJobs.length, 1);
   assert.equal(addedJobs[0]?.options.jobId, duplicateJobId);
   assert.equal(addedJobs[0]?.options.delay, TEST_SETTINGS.delays.betweenComments.min);
+});
+
+test('createAddTaskJob limits post attempts without changing comment attempts', async () => {
+  const { addedJobs, queue } = createFakeTaskQueue();
+  const addTaskJob = createAddTaskJob({
+    getQueueSettings: async () => TEST_SETTINGS,
+    getRandomDelay: ({ min }: { min: number }) => min,
+    getTaskQueue: () => queue,
+    getAttempts: resolveTaskJobAttempts,
+  });
+
+  await addTaskJob('account-a', createPostJobData());
+  await addTaskJob('account-a', createCommentJobData());
+
+  const postOptions = addedJobs[0]?.options as { attempts?: number };
+  const commentOptions = addedJobs[1]?.options as { attempts?: number };
+  assert.equal(postOptions.attempts, 2);
+  assert.equal(Object.prototype.hasOwnProperty.call(postOptions, 'attempts'), true);
+  assert.equal('attempts' in commentOptions, false);
 });

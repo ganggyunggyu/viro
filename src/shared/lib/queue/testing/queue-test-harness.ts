@@ -8,6 +8,7 @@ export interface FakeAddedJob {
   options: {
     delay: number;
     jobId: string;
+    attempts?: number;
   };
 }
 

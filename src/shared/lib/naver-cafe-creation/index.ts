@@ -16,6 +16,7 @@
 import { GoogleGenAI } from '@google/genai';
 import type { Page } from 'playwright';
 import { getPageForAccount, isAccountLoggedIn, loginAccount } from '../multi-session';
+import { toCafeSlug } from '../naver-cafe-membership';
 import { Cafe } from '../../models/cafe';
 import { Account } from '../../models/account';
 
@@ -427,12 +428,14 @@ export const registerCreatedCafeInDb = async (
 ): Promise<void> => {
   const menuId = options.menuId ?? '1';
   const categories = options.categories ?? ['자유게시판'];
+  const cafeId = cafe.cafeId.trim();
+  const cafeUrl = toCafeSlug(cafe.cafeUrl) || cafe.cafeUrl.trim();
 
   await Cafe.findOneAndUpdate(
-    { userId, cafeId: cafe.cafeId },
+    { userId, cafeId },
     {
       $set: {
-        cafeUrl: cafe.cafeUrl,
+        cafeUrl,
         name: cafe.name,
         menuId,
         categories,

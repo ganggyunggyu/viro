@@ -5,11 +5,21 @@ import { generateComment, generateReply, generateAuthorReply } from '@/shared/ap
 import { getNextActiveTime, NaverAccount } from '@/shared/lib/account-manager';
 import { getRandomDelay } from '@/shared/models/queue-settings';
 import { connectDB } from '@/shared/lib/mongodb';
-import { PublishedArticle, incrementTodayPostCount } from '@/shared/models';
+import {
+  PublishedArticle,
+  claimPostAttempt,
+  incrementTodayPostCount,
+  releasePostAttempt,
+} from '@/shared/models';
 import { createLogger } from '@/shared/lib/logger';
 import { logPublishToSheet } from '@/shared/lib/publish-log-sheet';
 import { limitViralCommentItems } from '../viral-comment-limits';
 import mongoose from 'mongoose';
+import { findRecentArticleBySubject } from '@/shared/lib/naver-cafe-writing/post-writer-utils';
+import {
+  type PublishedArticleRecord,
+  resolvePostOutcome,
+} from './post-outcome-harness';
 
 const log = createLogger('POST-HANDLER');
 
@@ -28,6 +38,84 @@ export interface PostHandlerContext {
   };
 }
 
+interface RecentArticleApiItem {
+  articleId?: number | string;
+  subject?: string;
+  writeDateTimestamp?: number | string;
+  writeDate?: number | string;
+  menuId?: number | string;
+}
+
+const parseArticleTimestamp = (value?: number | string): number => {
+  if (typeof value === 'number') return value;
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const findRecentPublishedArticleBySubject = async ({
+  cafeId,
+  menuId,
+  subject,
+  publishStartedAt,
+}: {
+  cafeId: string;
+  menuId: string;
+  subject: string;
+  publishStartedAt: number;
+}): Promise<{ articleId: number; articleUrl: string } | undefined> => {
+  const apiUrl = new URL('https://apis.naver.com/cafe-web/cafe2/ArticleListV2dot1.json');
+  apiUrl.searchParams.set('search.clubid', cafeId);
+  apiUrl.searchParams.set('search.page', '1');
+  apiUrl.searchParams.set('search.perPage', '20');
+  apiUrl.searchParams.set('search.queryType', 'lastArticle');
+  apiUrl.searchParams.set('search.boardtype', 'L');
+
+  const response = await fetch(apiUrl, {
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) return undefined;
+
+  const payload = await response.json() as {
+    message?: { result?: { articleList?: RecentArticleApiItem[] } };
+  };
+  const articles = (payload.message?.result?.articleList ?? [])
+    .map((article) => ({
+      articleId: Number(article.articleId),
+      subject: article.subject ?? '',
+      writeDateTimestamp: parseArticleTimestamp(
+        article.writeDateTimestamp ?? article.writeDate,
+      ),
+      menuId: article.menuId === undefined ? undefined : Number(article.menuId),
+    }))
+    .filter(({ articleId, writeDateTimestamp }) => articleId > 0 && writeDateTimestamp > 0);
+  const match = findRecentArticleBySubject(articles, subject, {
+    publishStartedAt,
+    menuId: Number(menuId),
+  });
+
+  if (!match || match.writeDateTimestamp < publishStartedAt) return undefined;
+
+  return {
+    articleId: match.articleId,
+    articleUrl: `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${match.articleId}`,
+  };
+};
+
+const createPublishedArticle = async (record: PublishedArticleRecord): Promise<unknown> => {
+  await connectDB();
+  if (mongoose.connection.readyState !== 1) {
+    throw new Error('MongoDB 미연결');
+  }
+  return PublishedArticle.create(record);
+};
+
+const logPublishedArticleToSheet = async (record: PublishedArticleRecord) => {
+  const { cafeId, keyword, articleId, articleUrl, writerAccountId } = record;
+  return logPublishToSheet({ cafeId, keyword, articleId, articleUrl, writerAccountId });
+};
+
 export const handlePostJob = async (
   data: PostJobData,
   ctx: PostHandlerContext
@@ -38,114 +126,81 @@ export const handlePostJob = async (
   console.log(`[WORKER]   - 카테고리: ${data.category || '없음'}`);
   console.log(`[WORKER]   - 이미지: ${data.images?.length || 0}장`);
 
-  const result = await Promise.race([
-    writePostWithAccount(account, {
-      cafeId: data.cafeId,
-      menuId: data.menuId,
-      subject: data.subject,
-      content: data.content,
-      category: data.category,
-      postOptions: data.postOptions,
-      images: data.images,
-    }),
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('타임아웃')), settings.timeout)
-    ),
-  ]);
+  try {
+    const outcome = await resolvePostOutcome({
+      post: {
+        cafeId: data.cafeId,
+        menuId: data.menuId,
+        keyword: data.keyword,
+        subject: data.subject,
+        content: data.content,
+        writerAccountId: data.accountId,
+        postType: data.postType,
+      },
+      deps: {
+        claimPostAttempt,
+        releaseClaim: releasePostAttempt,
+        writer: async () => Promise.race([
+          writePostWithAccount(account, {
+            cafeId: data.cafeId,
+            menuId: data.menuId,
+            subject: data.subject,
+            content: data.content,
+            category: data.category,
+            postOptions: data.postOptions,
+            images: data.images,
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('타임아웃')), settings.timeout)
+          ),
+        ]),
+        findRecentArticleBySubject: findRecentPublishedArticleBySubject,
+        publishedArticle: { create: createPublishedArticle },
+        sheetLogger: logPublishedArticleToSheet,
+        incrementTodayPostCount,
+        enqueueCommentChain: async (articleId) => {
+          if (data.viralComments?.comments.length) {
+            await addViralCommentJobs(data, articleId, accounts);
+            log.info('viral 댓글 큐 생성 완료', { articleId, keyword: data.keyword });
+            return;
+          }
+          if (!data.skipComments) {
+            await handlePostSuccess(data, articleId, accounts, settings);
+          }
+        },
+        now: Date.now,
+        onNonFatalError: (stage, error) => {
+          const message = stage === 'published-article-unverified'
+            ? '미검증 발행 기록 저장 실패'
+            : '발행 후속 처리 오류';
+          log.error(message, {
+            stage,
+            keyword: data.keyword,
+            accountId: data.accountId,
+            cafeId: data.cafeId,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        },
+      },
+    });
 
-  if (!result.success) {
+    if (outcome.skipped) {
+      log.info('중복 발행 스킵', {
+        keyword: data.keyword || data.subject,
+        accountId: data.accountId,
+        cafeId: data.cafeId,
+      });
+    }
+
+    return outcome;
+  } catch (error) {
     log.error('글 작성 실패', {
       keyword: data.keyword,
       accountId: data.accountId,
       cafeId: data.cafeId,
-      error: result.error,
+      error: error instanceof Error ? error.message : String(error),
     });
-    throw new Error(result.error || '글 작성 실패');
-  }
-
-  if (!result.articleId) {
-    log.error('articleId 추출 실패 — 글 작성 실패 처리', {
-      keyword: data.keyword,
-      accountId: data.accountId,
-      cafeId: data.cafeId,
-      articleUrl: result.articleUrl,
-    });
-    throw new Error(`articleId 추출 실패 — URL: ${result.articleUrl || 'N/A'}`);
-  }
-
-  try {
-    if (result.articleId && data.viralComments?.comments.length) {
-      await saveArticleOnly(data, result.articleId);
-      await addViralCommentJobs(data, result.articleId, accounts);
-      log.info('viral 댓글 큐 생성 완료', { articleId: result.articleId, keyword: data.keyword });
-    } else if (result.articleId && !data.skipComments) {
-      await handlePostSuccess(data, result.articleId, accounts, settings);
-    } else if (result.articleId) {
-      await saveArticleOnly(data, result.articleId);
-    }
-  } catch (chainError) {
-    log.error('체인 작업 중 오류 (글 발행은 완료됨)', {
-      keyword: data.keyword,
-      articleId: result.articleId,
-      error: chainError instanceof Error ? chainError.message : String(chainError),
-    });
-  }
-
-  return {
-    success: true,
-    articleId: result.articleId,
-    articleUrl: result.articleUrl,
-  };
-};
-
-const saveArticleOnly = async (
-  postData: PostJobData,
-  articleId: number
-): Promise<void> => {
-  const { cafeId, menuId, keyword, subject, content, accountId: writerAccountId } = postData;
-
-  console.log(`[WORKER] 글만 발행 모드: #${articleId} - 원고 저장`);
-
-  try {
-    await connectDB();
-    if (mongoose.connection.readyState === 1) {
-      const articleUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
-      await PublishedArticle.create({
-        articleId,
-        cafeId,
-        menuId,
-        keyword: keyword || '',
-        title: subject,
-        content,
-        articleUrl,
-        writerAccountId,
-        status: 'published',
-        postType: postData.postType,
-        commentCount: 0,
-        replyCount: 0,
-      });
-
-      await incrementTodayPostCount(writerAccountId, cafeId);
-      console.log(`[WORKER] 원고 저장 완료 (글만 발행): #${articleId}`);
-
-      await logSheetNonFatal({ cafeId, keyword: keyword || '', articleId, articleUrl, writerAccountId });
-    }
-  } catch (dbError) {
-    console.error('[WORKER] 원고 저장 실패:', dbError);
-  }
-
-};
-
-const logSheetNonFatal = async (record: {
-  cafeId: string;
-  keyword: string;
-  articleId: number;
-  articleUrl: string;
-  writerAccountId: string;
-}): Promise<void> => {
-  const result = await logPublishToSheet(record);
-  if (!result.success) {
-    console.error(`[WORKER] 발행 시트 기록 실패: #${record.articleId} - ${result.error}`);
+    throw error;
   }
 };
 
@@ -309,43 +364,11 @@ const handlePostSuccess = async (
   settings: PostHandlerContext['settings']
 ): Promise<void> => {
   const { cafeId, menuId, keyword, subject, content, accountId: writerAccountId, userId } = postData;
+  void menuId;
+  void content;
 
   console.log(`[WORKER] 글 발행 성공: #${articleId} - 체인 작업 시작`);
 
-  // 1. 원고 MongoDB 저장 + 일일 포스트 카운트 증가
-  try {
-    await connectDB();
-    console.log(`[WORKER] MongoDB 연결 상태: ${mongoose.connection.readyState}`);
-    if (mongoose.connection.readyState === 1) {
-      const articleUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
-      const created = await PublishedArticle.create({
-        articleId,
-        cafeId,
-        menuId,
-        keyword: keyword || '',
-        title: subject,
-        content,
-        articleUrl,
-        writerAccountId,
-        status: 'published',
-        postType: postData.postType,
-        commentCount: 0,
-        replyCount: 0,
-        comments: [],
-      });
-
-      await incrementTodayPostCount(writerAccountId, cafeId);
-      console.log(`[WORKER] 원고 저장 완료: #${articleId}, _id=${created._id}`);
-
-      await logSheetNonFatal({ cafeId, keyword: keyword || '', articleId, articleUrl, writerAccountId });
-    } else {
-      console.log(`[WORKER] MongoDB 미연결 - 원고 저장 스킵: #${articleId}`);
-    }
-  } catch (dbError) {
-    console.error('[WORKER] 원고 저장 실패:', dbError);
-  }
-
-  // 2. 댓글 job 추가
   // commenterAccountIds가 undefined면 전체 사용, 빈 배열이면 댓글 스킵
   const commenterAccounts = postData.commenterAccountIds === undefined
     ? accounts.filter((a) => a.id !== writerAccountId)

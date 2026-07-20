@@ -116,3 +116,16 @@
 - 계정 경로: 시트→DB reconcile로 stale 제거, 대상카페 매핑 반영.
 - 검증 경로: 외부글 stub이 발행/노출 목록을 오염시키지 않음, live 대조 경로 존재.
 - 변경은 WP 단위로 커밋 가능하게 정리(커밋은 오케스트레이터 승인 후).
+
+## WP-1-HARDENING (적대 리뷰 발견 — 반드시 후속 수정)
+
+WP-1 구현 후 독립 리뷰(실제 Redis/BullMQ/mongod 재현)에서 발견. 우선순위대로:
+
+- **H1 (critical)**: `task-job-harness.ts` `createAddTaskJob`이 `attempts: getAttempts(data)`를 항상 옵션에 박아, post 아닌 타입은 `attempts: undefined`가 되어 큐 `defaultJobOptions.attempts:5`를 덮어씀 → comment/reply/like/disable 재시도 0회. **수정**: attempts가 정의됐을 때만 옵션에 포함(`...(attempts === undefined ? {} : { attempts })`). **테스트**: 옵션 객체에 attempts 키가 '존재하지 않음'(`'attempts' in opts === false`)을 검증하도록 기존 테스트 교정.
+- **H2 (critical)**: claim leak. `resolvePostOutcome`이 claim을 write 전에 잡고, `!observedPublish`로 throw할 때 claim을 안 푼다 → 재시도가 E11000으로 skip되어 completed로 무음 누락(KST-day 스코프라 하루 종일). **수정**: `releaseClaim(cafeId, account, keyword)` dep 추가(=PostAttempt attemptKey 문서 delete), `!observedPublish` throw 직전에 호출. writer가 throw한 경우(타임아웃 등, 발행 여부 불명)는 claim 유지(중복 방지). **테스트**: "claim 성공 → writer가 success:false&URL없음 → claim 해제되어 재시도 시 다시 write" 계약 추가.
+- **H3 (high)**: partial unique index 마이그레이션. 코드 스키마 변경만으로 기존 Atlas 인덱스 `cafeId_1_articleId_1`가 안 바뀜(code 86 conflict). **수정**: `scripts/migrate-published-article-index.ts`(구 인덱스 dropIndex → partial unique 재생성) 작성. 배포 순서 문서화: 인덱스 마이그레이션 먼저 → 스키마 코드 배포. create 실패를 runNonFatal이 무음으로 삼키지 않도록 unverified 저장 실패는 error 레벨로 명확히 로깅.
+- **H4 (high)**: `post-writer.ts` articleId 추출(:558) 성공 후 `saveCookiesForAccount`(:561)/`incrementActivity`(:573)가 throw하면 catch-all(:619-625)이 articleId/articleUrl 없이 `success:false` 반환 → 실제 발행 성공 유실. **수정**: articleId/currentUrl을 try 바깥 `let`으로 hoist하거나 후속 호출을 자체 try/catch로 감싸, 최소한 관측 URL과 articleId를 반환.
+- **H5 (medium)**: `findRecentArticleBySubject` 복구가 subject 정확일치만 봄(작성자 구분 없음) → 동일 subject 동시 발행 시 남의 articleId 오매칭 가능. **수정**: 가능한 식별자(가장 좁은 시간창, 단일 후보일 때만 채택 등)로 오매칭 방어. 불가하면 다중 후보 시 복구 포기.
+- **H6 (low)**: 순수 fn `findRecentArticleBySubject` fallback이 `publishStartedAt`을 무시(호출부가 재검증으로 우연히 막음). **수정**: 순수 fn 자체가 `publishStartedAt` 하드 컷오프를 강제.
+
+DoD 추가: H1은 "옵션 attempts 키 부재" 테스트로, H2는 "claim 해제 후 재시도 재작성" 테스트로 회귀 고정. H3 마이그레이션 스크립트 존재. `npm run test:harness` 그린 유지.

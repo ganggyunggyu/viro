@@ -14,10 +14,12 @@ const HEALTH_CAFE_ID = '25227349';
 const createAccount = (
   id: string,
   role: NaverAccount['role'] = 'writer',
+  targetCafeIds?: string[],
 ): NaverAccount => ({
   id,
   password: 'secret',
   role,
+  targetCafeIds,
 });
 
 const accountIds = (accounts: NaverAccount[]): string[] =>
@@ -96,5 +98,24 @@ test('commenter policy can exclude the writer and apply allowed account IDs', ()
       ),
     ),
     ['orangeswan630'],
+  );
+});
+
+test('cafe policy excludes explicitly mapped accounts from other cafes and keeps empty mappings global', () => {
+  const accounts = [
+    createAccount('cafe-a-writer', 'writer', ['A']),
+    createAccount('global-writer', 'writer', []),
+    createAccount('legacy-writer'),
+    createAccount('cafe-a-commenter', 'commenter', ['A']),
+    createAccount('global-commenter', 'commenter', []),
+  ];
+
+  assert.deepEqual(
+    accountIds(getCafeWriterAccounts(accounts, 'B')),
+    ['global-writer', 'legacy-writer'],
+  );
+  assert.deepEqual(
+    accountIds(getCafeCommenterAccounts(accounts, 'B')),
+    ['global-writer', 'legacy-writer', 'global-commenter'],
   );
 });

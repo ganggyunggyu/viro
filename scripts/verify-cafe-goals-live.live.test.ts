@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-  buildLiveDaySummary,
-  filterOwnedArticlesByDate,
-} from './verify-cafe-goals-live';
+import { buildLiveDaySummary, filterOwnedArticlesByDate } from './verify-cafe-goals-live';
 
 test('filterOwnedArticlesByDate uses KST date and eligible nicknames', () => {
   const articles = [

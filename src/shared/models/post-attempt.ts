@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { buildAttemptKey } from './post-attempt-utils';
+import { createClaimPostAttempt, createReleasePostAttempt } from './post-attempt-utils';
 
 /**
  * writePostWithAccount()는 되돌릴 수 없는 실제 네이버 발행 액션이다. BullMQ 잡은
@@ -34,21 +34,5 @@ export const PostAttempt: Model<IPostAttempt> =
  * 발행 직전 호출. 오늘 이미 같은 카페+계정+키워드로 클레임이 있으면 false(스킵),
  * 없으면 클레임을 남기고 true(진행) 반환. upsert 원자성으로 동시 요청도 안전하다.
  */
-export const claimPostAttempt = async (
-  cafeId: string,
-  writerAccountId: string,
-  keyword: string
-): Promise<boolean> => {
-  const attemptKey = buildAttemptKey(cafeId, writerAccountId, keyword);
-
-  try {
-    await PostAttempt.create({ attemptKey, cafeId, writerAccountId, keyword });
-    return true;
-  } catch (error) {
-    // E11000 duplicate key = 이미 오늘 같은 조합으로 클레임됨 (진행 중이거나 이미 완료됨)
-    if (error instanceof Error && 'code' in error && (error as { code?: number }).code === 11000) {
-      return false;
-    }
-    throw error;
-  }
-};
+export const claimPostAttempt = createClaimPostAttempt(PostAttempt);
+export const releasePostAttempt = createReleasePostAttempt(PostAttempt);

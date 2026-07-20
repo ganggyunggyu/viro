@@ -37,6 +37,10 @@ const filterAccountsByIds = (
 const isWriterAccount = ({ role }: NaverAccount): boolean => role === 'writer';
 const isEligibleForAutoComment = ({ excludeFromAutoComment }: NaverAccount): boolean =>
   !excludeFromAutoComment;
+const isEligibleForCafe = (
+  { targetCafeIds }: NaverAccount,
+  cafeId?: string,
+): boolean => !cafeId || !targetCafeIds?.length || targetCafeIds.includes(cafeId);
 
 export const getCafeAccountPolicy = (
   accounts: NaverAccount[]
@@ -55,9 +59,9 @@ export const getCafeWriterAccounts = (
   cafeId?: string,
   allowedAccountIds?: string[]
 ): NaverAccount[] => {
-  void cafeId;
   const { writerAccounts } = getCafeAccountPolicy(accounts);
-  return filterAccountsByIds(writerAccounts, allowedAccountIds);
+  const cafeWriterAccounts = writerAccounts.filter((account) => isEligibleForCafe(account, cafeId));
+  return filterAccountsByIds(cafeWriterAccounts, allowedAccountIds);
 };
 
 export const getCafeCommenterAccounts = (
@@ -66,9 +70,10 @@ export const getCafeCommenterAccounts = (
   excludedAccountId?: string,
   allowedAccountIds?: string[]
 ): NaverAccount[] => {
-  void cafeId;
   const { commenterAccounts } = getCafeAccountPolicy(accounts);
-  const filteredCommenters = filterAccountsByIds(commenterAccounts, allowedAccountIds);
+  const cafeCommenterAccounts = commenterAccounts.filter((account) =>
+    isEligibleForCafe(account, cafeId));
+  const filteredCommenters = filterAccountsByIds(cafeCommenterAccounts, allowedAccountIds);
 
   if (!excludedAccountId) {
     return filteredCommenters;
