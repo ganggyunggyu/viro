@@ -24,6 +24,18 @@ get_value() {
   grep -E "^${key}=" "$ENV_FILE" | head -1 | cut -d '=' -f2-
 }
 
+require_public_url() {
+  local name="$1"
+  local value="$2"
+
+  case "$value" in
+    http://localhost*|https://localhost*|http://127.0.0.1*|https://127.0.0.1*)
+      echo "  [FAIL] ${name}에 로컬 주소를 Production으로 올릴 수 없습니다."
+      exit 1
+      ;;
+  esac
+}
+
 set_var() {
   local name="$1"
   local value="$2"
@@ -56,7 +68,9 @@ set_var "REDIS_URL" "$(get_value REDIS_URL)"
 set_var "TASK_WORKER_CONCURRENCY" "$(get_value WORKER_CONCURRENCY)"
 set_var "GOOGLE_SERVICE_ACCOUNT_EMAIL" "$(get_value GOOGLE_SERVICE_ACCOUNT_EMAIL)"
 set_var "GOOGLE_PRIVATE_KEY" "$(get_value GOOGLE_PRIVATE_KEY)"
-set_var "CONTENT_API_URL" "$(get_value CONTENT_API_URL)"
+PRODUCTION_CONTENT_API_URL="${CONTENT_API_URL_PRODUCTION:-https://blog-analyzer.fly.dev}"
+require_public_url "CONTENT_API_URL" "$PRODUCTION_CONTENT_API_URL"
+set_var "CONTENT_API_URL" "$PRODUCTION_CONTENT_API_URL"
 set_var "COMMENT_GEN_API_URL" "$(get_value COMMENT_GEN_API_URL)"
 set_var "NEXT_PUBLIC_COMMENT_GEN_API_URL" "$(get_value NEXT_PUBLIC_COMMENT_GEN_API_URL)"
 set_var "NEXT_PUBLIC_COMMENT_API_URL" "$(get_value NEXT_PUBLIC_COMMENT_API_URL)"
