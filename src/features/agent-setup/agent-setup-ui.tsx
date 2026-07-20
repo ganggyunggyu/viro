@@ -13,9 +13,8 @@ import {
 } from './actions';
 
 const BROKER_URL = 'https://cafe-bot-two.vercel.app';
-const RELEASES_URL = 'https://github.com/ganggyunggyu/viro/releases';
 const DOWNLOAD_BUTTON_CLASS =
-  'flex items-center justify-center gap-2 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3 text-sm font-medium text-(--ink) transition-colors hover:border-(--accent) hover:text-(--accent)';
+  'flex items-center justify-center gap-2 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3 text-sm font-medium text-(--ink-muted) cursor-not-allowed opacity-60';
 
 const formatDate = (iso: string | null): string => {
   if (!iso) {
@@ -95,12 +94,10 @@ export const AgentSetupUI = () => {
             <Monitor className={cn('h-6 w-6')} />
           </span>
           <div>
-            <h2 className={cn('text-lg font-semibold text-(--ink)')}>내 PC에서 켜두는 Viro 프로그램</h2>
+            <h2 className={cn('text-lg font-semibold text-(--ink)')}>다운로드하고 켜두면 끝</h2>
             <p className={cn('mt-1 text-sm leading-6 text-(--ink-muted)')}>
-              프로그램을 내려받아 켜두면, 실제 카페 작업이 내 PC의 브라우저(가정용 IP)에서
-              실행됩니다. 웹에서 발급한 연결 토큰을 넣으면 웹에서 넣은 작업을 내 PC가 알아서
-              처리합니다. PC가 켜져 있는 동안에만 처리되며, 계정/작업 데이터는 서버가 관리하고
-              프로그램은 토큰만 갖습니다.
+              실행 후 연결 토큰만 넣으면, 웹에서 등록한 카페 작업을 내 PC가 자동으로 처리합니다.
+              내 컴퓨터에서 직접 돌아가고, 켜져 있는 동안 알아서 작동합니다.
             </p>
           </div>
         </div>
