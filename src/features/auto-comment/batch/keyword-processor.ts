@@ -3,7 +3,7 @@ import { type NaverAccount, getPersonaId } from '@/shared/lib/account-manager';
 import { generateContent } from '@/shared/api/content-api';
 import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
 import { buildCafePostContent } from '@/shared/lib/cafe-content';
-import { PublishedArticle, type IPublishedArticle, incrementTodayPostCount } from '@/shared/models';
+import { PublishedArticle, type IPublishedArticle, incrementTodayPostCount, claimPostAttempt } from '@/shared/models';
 import { logPublishToSheet } from '@/shared/lib/publish-log-sheet';
 import {
   writeCommentWithAccount,
@@ -164,6 +164,32 @@ export const processKeyword = async ({
     console.log('[BATCH] AI 콘텐츠 생성 완료');
     const { title, htmlContent } = buildCafePostContent(generated.content, keyword);
     const postContext = `${title}\n\n${generated.content}`;
+
+    // writePostWithAccount는 되돌릴 수 없는 실제 네이버 발행이라, BullMQ가 잡을 실패로
+    // 오판해 통째로 재시도(attempts/backoff, 워커 다운 시 stalled 재큐잉)하면 같은 글이
+    // 중복으로 여러 번 올라간다. 발행 직전에 오늘자 클레임을 먼저 남겨, 같은 카페+계정+
+    // 키워드 조합의 재시도는 발행을 건너뛰게 한다.
+    const claimed = await claimPostAttempt(cafeId, writerAccount.id, keyword);
+    if (!claimed) {
+      const skippedLog: KeywordLogEntry = {
+        keyword,
+        success: false,
+        commentCount: 0,
+        replyCount: 0,
+        error: '중복 발행 방지: 오늘 이미 같은 카페/계정/키워드로 발행 시도됨 — 스킵',
+      };
+
+      return {
+        success: false,
+        keywordResult: {
+          keyword,
+          post: { success: false, writerAccountId: writerAccount.id, error: skippedLog.error },
+          comments: [],
+          replies: [],
+        },
+        logEntry: skippedLog,
+      };
+    }
 
     const postResult = await writePostWithAccount(writerAccount, {
       cafeId,

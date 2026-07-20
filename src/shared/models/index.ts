@@ -18,6 +18,7 @@ export { Account, type IAccount, type ActivityHours } from './account';
 export { User, type IUser } from './user';
 export { Cafe, type ICafe } from './cafe';
 export { WorkCafeArticle, type IWorkCafeArticle } from './work-cafe-article';
+export { PostAttempt, type IPostAttempt, claimPostAttempt } from './post-attempt';
 export {
   ManualCommentJob,
   type IManualCommentJob,
