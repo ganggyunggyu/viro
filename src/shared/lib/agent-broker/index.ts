@@ -155,10 +155,12 @@ export const generateJobCommentPlan = async (
 
   for (let attempt = 0; attempt < 3 && comments.length < exactCount; attempt += 1) {
     const batch = await generateCafeCommentBatch({
+      title: article.title,
+      body: article.body,
       keyword: commentKeyword,
       exactCount,
       model: 'deepseek-v4-flash',
-    });
+    } as Parameters<typeof generateCafeCommentBatch>[0]);
     comments = batch.comments.map(({ content }) => content).slice(0, exactCount);
   }
 

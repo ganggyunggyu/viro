@@ -7,6 +7,24 @@ export interface ViroDesktopStatus {
   running: boolean;
 }
 
+export interface ViroDesktopContext {
+  accounts: Array<{
+    accountId: string;
+    nickname?: string;
+    isMain?: boolean;
+    role?: 'writer' | 'commenter';
+  }>;
+  cafes: Array<{
+    cafeId: string;
+    cafeUrl: string;
+    menuId: string;
+    name: string;
+    categories?: string[];
+    isDefault?: boolean;
+    ownerAccountId?: string;
+  }>;
+}
+
 export type ViroDesktopAction =
   | { type: 'account-login'; accountId: string }
   | { type: 'cafe-join-all' }
@@ -83,6 +101,11 @@ export interface ViroDesktopApi {
   isDesktop: true;
   getConfig: () => Promise<ViroDesktopConfig>;
   getStatus: () => Promise<ViroDesktopStatus>;
+  getContext: () => Promise<ViroDesktopContext>;
+  prepare: (
+    operation: string,
+    payload: Record<string, unknown>,
+  ) => Promise<Record<string, unknown>>;
   saveConfig: (config: ViroDesktopConfig) => Promise<boolean>;
   ensureChromium: () => Promise<boolean>;
   startAgent: () => Promise<boolean>;

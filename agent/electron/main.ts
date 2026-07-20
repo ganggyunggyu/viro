@@ -5,8 +5,8 @@ import { join } from 'path';
 
 /**
  * Viro 프로그램(데스크톱 앱) 메인 프로세스.
- * 렌더러(설정 화면)에서 브로커 주소 + 연결 토큰을 받아 저장하고, 첫 실행 시 크롬을
- * 자동 설치한 뒤 에이전트 루프를 이 프로세스에서 돌린다. 로그는 렌더러로 전달한다.
+ * 번들된 로컬 화면에서 브로커 주소 + 연결 토큰을 받아 저장하고, 첫 실행 시 크롬을
+ * 자동 설치한 뒤 작업과 에이전트 루프를 이 프로세스에서 돌린다.
  */
 
 const AGENT_HOME = process.env.VIRO_AGENT_HOME || join(homedir(), '.viro-agent');
@@ -67,26 +67,54 @@ const createWindow = (): void => {
     },
   });
 
-  const { brokerUrl } = loadStored();
-  const allowedOrigin = new URL(brokerUrl).origin;
-
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     void shell.openExternal(url);
     return { action: 'deny' };
   });
   mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (new URL(url).origin !== allowedOrigin) {
+    if (!url.startsWith('file://')) {
       event.preventDefault();
       void shell.openExternal(url);
     }
   });
-  mainWindow.webContents.on('did-fail-load', (_event, errorCode, _description, validatedUrl) => {
-    if (errorCode !== -3 && validatedUrl.startsWith(allowedOrigin)) {
-      void mainWindow?.loadFile(join(__dirname, 'renderer.html'));
-    }
-  });
+  void mainWindow.loadFile(join(__dirname, 'renderer.html'));
+};
 
-  void mainWindow.loadURL(`${allowedOrigin}/`);
+const createStoredBroker = async () => {
+  const stored = loadStored();
+  if (!stored.brokerUrl || !stored.token) {
+    throw new Error('연결 설정에서 서버 주소와 토큰을 먼저 저장하세요');
+  }
+  process.env.BROKER_URL = stored.brokerUrl;
+  process.env.AGENT_TOKEN = stored.token;
+  process.env.PLAYWRIGHT_BROWSERS_PATH = BROWSERS_PATH;
+  const [{ loadAgentConfig }, { createBrokerClient }] = await Promise.all([
+    import('../lib/config'),
+    import('../lib/broker-client'),
+  ]);
+  return createBrokerClient(loadAgentConfig());
+};
+
+const getDesktopContext = async (): Promise<unknown> => {
+  const broker = await createStoredBroker();
+  const { accounts, cafes } = await broker.context();
+  return {
+    accounts: accounts.map(({ accountId, nickname, isMain, role }) => ({
+      accountId,
+      nickname,
+      isMain,
+      role,
+    })),
+    cafes,
+  };
+};
+
+const prepareDesktopOperation = async (
+  operation: string,
+  payload: Record<string, unknown>,
+): Promise<Record<string, unknown>> => {
+  const broker = await createStoredBroker();
+  return broker.prepare(operation, payload);
 };
 
 const startAgent = async (): Promise<boolean> => {
@@ -177,6 +205,12 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('get-config', () => loadStored());
 ipcMain.handle('get-status', () => ({ running: agentRunning }));
+ipcMain.handle('get-desktop-context', getDesktopContext);
+ipcMain.handle(
+  'prepare-desktop-operation',
+  (_event, operation: string, payload: Record<string, unknown>) =>
+    prepareDesktopOperation(operation, payload),
+);
 
 ipcMain.handle('save-config', (_event, config: StoredConfig) => {
   saveStored(config);

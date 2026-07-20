@@ -8,6 +8,9 @@ const desktopApi = {
   isDesktop: true,
   getConfig: () => ipcRenderer.invoke('get-config'),
   getStatus: () => ipcRenderer.invoke('get-status'),
+  getContext: () => ipcRenderer.invoke('get-desktop-context'),
+  prepare: (operation: string, payload: Record<string, unknown>) =>
+    ipcRenderer.invoke('prepare-desktop-operation', operation, payload),
   saveConfig: (config: { brokerUrl: string; token: string }) =>
     ipcRenderer.invoke('save-config', config),
   ensureChromium: () => ipcRenderer.invoke('ensure-chromium'),

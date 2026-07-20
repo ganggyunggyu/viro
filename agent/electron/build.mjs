@@ -37,6 +37,18 @@ await build({
   logLevel: 'info',
 });
 
+await build({
+  entryPoints: [join(here, 'renderer.ts')],
+  bundle: true,
+  platform: 'browser',
+  format: 'iife',
+  target: 'chrome120',
+  tsconfig: join(root, 'tsconfig.json'),
+  outfile: join(outdir, 'renderer.js'),
+  logLevel: 'info',
+});
+
 copyFileSync(join(here, 'renderer.html'), join(outdir, 'renderer.html'));
+copyFileSync(join(here, 'renderer.css'), join(outdir, 'renderer.css'));
 
 console.log('[build] agent/electron/dist 생성 완료');
