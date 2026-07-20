@@ -20,7 +20,6 @@ import {
   cn,
   Drawer,
   Logo,
-  LogoMark,
   mobileSidebarOpenAtom,
   sidebarCollapsedAtom,
   userAtom,
@@ -230,15 +229,23 @@ interface SidebarBodyProps {
 
 const SidebarBody = ({ collapsed, onNavigate, onToggleCollapse, onClose }: SidebarBodyProps) => (
   <React.Fragment>
-    <div className="flex h-14 shrink-0 items-center justify-between px-3">
-      <Link href="/" aria-label="Viro 홈" onClick={onNavigate} className="min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--info)">
-        {collapsed ? <LogoMark size={28} /> : <Logo size={28} />}
-      </Link>
+    <div
+      className={cn(
+        'flex h-14 shrink-0 items-center px-3',
+        collapsed ? 'justify-center' : 'justify-between'
+      )}
+    >
+      {!collapsed && (
+        <Link href="/" aria-label="Viro 홈" onClick={onNavigate} className="min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--info)">
+          <Logo size={28} />
+        </Link>
+      )}
       {onToggleCollapse && (
         <button
           type="button"
           onClick={onToggleCollapse}
           aria-label={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
+          title={collapsed ? 'Viro 홈은 펼친 뒤 로고를 눌러주세요' : undefined}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-(--ink-muted) hover:bg-(--surface-muted) hover:text-(--ink)"
         >
           {collapsed ? (

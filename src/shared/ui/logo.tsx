@@ -12,7 +12,15 @@ export const LogoGlyph = ({ className }: LogoGlyphProps) => (
     aria-hidden="true"
   >
     <path
-      d="M4 11L9.5 18L20 4"
+      d="M6.1 3.9L13.6 17.9L21.1 3.9"
+      stroke="var(--accent)"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      opacity={0.55}
+    />
+    <path
+      d="M4.5 5.5L12 19.5L19.5 5.5"
       stroke="currentColor"
       strokeWidth={2.75}
       strokeLinecap="round"

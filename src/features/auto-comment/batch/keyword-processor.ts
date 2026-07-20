@@ -1,25 +1,18 @@
 import { HydratedDocument } from 'mongoose';
 import { type NaverAccount, getPersonaId } from '@/shared/lib/account-manager';
 import { generateContent } from '@/shared/api/content-api';
-import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
 import { buildCafePostContent } from '@/shared/lib/cafe-content';
 import { PublishedArticle, type IPublishedArticle, incrementTodayPostCount, claimPostAttempt } from '@/shared/models';
 import { logPublishToSheet } from '@/shared/lib/publish-log-sheet';
-import {
-  writeCommentWithAccount,
-  writePostWithAccount,
-  writeReplyWithAccount,
-} from '@/shared/lib/naver-cafe-writing';
+import { writePostWithAccount } from '@/shared/lib/naver-cafe-writing';
 import {
   type KeywordResult,
-  type CommentResult,
-  type ReplyResult,
   type PostOptions,
   type DelayConfig,
   type ProgressCallback,
 } from './types';
-import { getRandomCommentCount } from './random';
 import { parseKeywordWithCategory } from './keyword-utils';
+import { postComments, postReplies } from './keyword-processor-steps';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -52,79 +45,6 @@ export interface KeywordProcessResult {
   keywordResult: KeywordResult;
   logEntry: KeywordLogEntry;
   success: boolean;
-}
-
-interface ReplyTask {
-  targetCommentIndex: number;
-  isAuthor: boolean;
-  account: NaverAccount;
-}
-
-const buildReplyTasks = (
-  writerAccount: NaverAccount,
-  commenterAccounts: NaverAccount[],
-  commentAuthors: Array<{ id: string; nickname: string }>,
-  commentTexts: string[]
-): ReplyTask[] => {
-  const replyTasks: ReplyTask[] = [];
-  const availableIndices = commentTexts.map((_, idx) => idx);
-
-  const authorReplyCount = Math.floor(Math.random() * 2) + 2;
-  for (let k = 0; k < authorReplyCount && availableIndices.length > 0; k++) {
-    const randIdx = Math.floor(Math.random() * availableIndices.length);
-    const targetIdx = availableIndices.splice(randIdx, 1)[0];
-    replyTasks.push({
-      targetCommentIndex: targetIdx,
-      isAuthor: true,
-      account: writerAccount,
-    });
-  }
-
-  const normalReplyCount = Math.min(
-    Math.floor(Math.random() * 3) + 2,
-    availableIndices.length
-  );
-  for (let k = 0; k < normalReplyCount && availableIndices.length > 0; k++) {
-    let targetIdx = -1;
-    let replyer = commenterAccounts[k % commenterAccounts.length];
-
-    const validIndices = availableIndices.filter(
-      (idx) => commentAuthors[idx].id !== replyer.id
-    );
-
-    if (validIndices.length > 0) {
-      const randIdx = Math.floor(Math.random() * validIndices.length);
-      targetIdx = validIndices[randIdx];
-      availableIndices.splice(availableIndices.indexOf(targetIdx), 1);
-    } else {
-      const otherAccountIdx = (k + 1) % commenterAccounts.length;
-      replyer = commenterAccounts[otherAccountIdx];
-      const retryIndices = availableIndices.filter(
-        (idx) => commentAuthors[idx].id !== replyer.id
-      );
-      if (retryIndices.length > 0) {
-        const randIdx = Math.floor(Math.random() * retryIndices.length);
-        targetIdx = retryIndices[randIdx];
-        availableIndices.splice(availableIndices.indexOf(targetIdx), 1);
-      }
-    }
-
-    if (targetIdx === -1) {
-      continue;
-    }
-    replyTasks.push({
-      targetCommentIndex: targetIdx,
-      isAuthor: false,
-      account: replyer,
-    });
-  }
-
-  for (let k = replyTasks.length - 1; k > 0; k--) {
-    const randIdx = Math.floor(Math.random() * (k + 1));
-    [replyTasks[k], replyTasks[randIdx]] = [replyTasks[randIdx], replyTasks[k]];
-  }
-
-  return replyTasks;
 }
 
 export const processKeyword = async ({
@@ -263,46 +183,14 @@ export const processKeyword = async ({
       message: `${progressLabel} - 댓글 작성 중...`,
     });
 
-    const commentResults: CommentResult[] = [];
-    const commentTexts: string[] = [];
-    const commentAuthors: Array<{ id: string; nickname: string }> = [];
-    const commentIds: Array<string | undefined> = [];
-    const commentCount = getRandomCommentCount();
-
-    for (let j = 0; j < commentCount; j++) {
-      const commenter = commenterAccounts[j % commenterAccounts.length];
-
-      let commentText: string;
-      try {
-        commentText = await generateComment(postContext);
-      } catch {
-        commentText = '좋은 정보 감사합니다!';
-      }
-
-      const result = await writeCommentWithAccount(
-        commenter,
-        cafeId,
-        postResult.articleId,
-        commentText
-      );
-
-      commentResults.push({
-        accountId: result.accountId,
-        success: result.success,
-        commentIndex: j,
-        error: result.error,
-      });
-
-      if (result.success) {
-        commentTexts.push(commentText);
-        commentAuthors.push({ id: commenter.id, nickname: commenter.nickname || commenter.id });
-        commentIds.push(result.commentId);
-      }
-
-      if (j < commentCount - 1) {
-        await sleep(delays.betweenComments);
-      }
-    }
+    const comments = await postComments({
+      cafeId,
+      articleId: postResult.articleId,
+      commenterAccounts,
+      postContext,
+      betweenCommentsDelayMs: delays.betweenComments,
+    });
+    const { commentResults } = comments;
 
     await sleep(delays.beforeReplies);
 
@@ -314,60 +202,15 @@ export const processKeyword = async ({
       message: `${progressLabel} - 대댓글 작성 중...`,
     });
 
-    const replyResults: ReplyResult[] = [];
-    const successfulComments = commentResults.filter((c) => c.success);
-
-    if (successfulComments.length >= 2 && commentTexts.length >= 2) {
-      const replyTasks = buildReplyTasks(writerAccount, commenterAccounts, commentAuthors, commentTexts);
-      const writerNickname = writerAccount.nickname || writerAccount.id;
-
-      for (let j = 0; j < replyTasks.length; j++) {
-        const task = replyTasks[j];
-        const parentComment = commentTexts[task.targetCommentIndex];
-        const parentAuthor = commentAuthors[task.targetCommentIndex];
-        const commenterNickname = task.account.nickname || task.account.id;
-
-        let replyText: string;
-        try {
-          if (task.isAuthor) {
-            replyText = await generateAuthorReply(postContext, parentComment, undefined, parentAuthor.nickname, writerNickname);
-          } else {
-            replyText = await generateReply(postContext, parentComment, undefined, writerNickname, parentAuthor.nickname, commenterNickname);
-          }
-        } catch {
-          replyText = task.isAuthor ? '댓글 감사합니다!' : '저도 그렇게 생각해요!';
-        }
-
-        const result = await writeReplyWithAccount(
-          task.account,
-          cafeId,
-          postResult.articleId,
-          replyText,
-          task.targetCommentIndex,
-          {
-            parentCommentId: commentIds[task.targetCommentIndex],
-            parentComment,
-            parentNickname: parentAuthor.nickname,
-          }
-        );
-
-        replyResults.push({
-          accountId: result.accountId,
-          success: result.success,
-          targetCommentIndex: task.targetCommentIndex,
-          isAuthor: task.isAuthor,
-          error: result.error,
-        });
-
-        console.log(
-          `[BATCH] 대댓글 ${j + 1}/${replyTasks.length}: ${task.isAuthor ? '글쓴이' : '일반'} (${task.account.id})`
-        );
-
-        if (j < replyTasks.length - 1) {
-          await sleep(delays.betweenReplies);
-        }
-      }
-    }
+    const replyResults = await postReplies({
+      cafeId,
+      articleId: postResult.articleId,
+      writerAccount,
+      commenterAccounts,
+      postContext,
+      betweenRepliesDelayMs: delays.betweenReplies,
+      comments,
+    });
 
     const successCommentCount = commentResults.filter((c) => c.success).length;
     const successReplyCount = replyResults.filter((r) => r.success).length;

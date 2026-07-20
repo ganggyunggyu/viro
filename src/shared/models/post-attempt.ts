@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { buildAttemptKey } from './post-attempt-utils';
 
 /**
  * writePostWithAccount()는 되돌릴 수 없는 실제 네이버 발행 액션이다. BullMQ 잡은
@@ -29,12 +30,6 @@ const PostAttemptSchema = new Schema<IPostAttempt>({
 export const PostAttempt: Model<IPostAttempt> =
   mongoose.models.PostAttempt || mongoose.model<IPostAttempt>('PostAttempt', PostAttemptSchema);
 
-const getTodayString = (): string => {
-  const kstOffset = 9 * 60;
-  const kstTime = new Date(Date.now() + kstOffset * 60 * 1000);
-  return kstTime.toISOString().split('T')[0];
-};
-
 /**
  * 발행 직전 호출. 오늘 이미 같은 카페+계정+키워드로 클레임이 있으면 false(스킵),
  * 없으면 클레임을 남기고 true(진행) 반환. upsert 원자성으로 동시 요청도 안전하다.
@@ -44,7 +39,7 @@ export const claimPostAttempt = async (
   writerAccountId: string,
   keyword: string
 ): Promise<boolean> => {
-  const attemptKey = `${cafeId}:${writerAccountId}:${keyword}:${getTodayString()}`;
+  const attemptKey = buildAttemptKey(cafeId, writerAccountId, keyword);
 
   try {
     await PostAttempt.create({ attemptKey, cafeId, writerAccountId, keyword });

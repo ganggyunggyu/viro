@@ -11,7 +11,7 @@
     "lint:strict": "node scripts/run-with-project-root.mjs node scripts/eslint-gate.mjs",
     "lint:strict:all": "npm run lint -- --max-warnings=0",
     "bull-board": "node scripts/run-with-project-root.mjs tsx scripts/bull-board.ts",
-    "test:harness": "node scripts/run-with-project-root.mjs tsx --test src/shared/lib/queue/task-job-harness.test.ts src/shared/lib/queue/sequence-harness.test.ts scripts/harness-verify.test.ts scripts/account-roster-harness.test.ts scripts/cafe-account-sheet-source.test.ts src/shared/lib/naver-cafe-writing/comment-writer.test.ts src/shared/lib/parse-cafe-article-url.test.ts src/features/manual-comment-job/manual-comment-job-ui-utils.test.ts",
+    "test:harness": "node scripts/run-with-project-root.mjs tsx --test src/shared/lib/queue/task-job-harness.test.ts src/shared/lib/queue/sequence-harness.test.ts scripts/harness-verify.test.ts scripts/account-roster-harness.test.ts scripts/cafe-account-sheet-source.test.ts src/shared/lib/naver-cafe-writing/comment-writer.test.ts src/shared/lib/parse-cafe-article-url.test.ts src/features/manual-comment-job/manual-comment-job-ui-utils.test.ts src/features/auto-comment/batch/keyword-processor-utils.test.ts src/shared/models/post-attempt-utils.test.ts",
     "test:tooling": "node scripts/run-with-project-root.mjs node --test scripts/eslint-gate.test.mjs scripts/run-with-project-root.test.mjs",
     "accounts:check": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/account-roster-harness.ts --check",
     "accounts:sheet:check": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/sync-cafe-accounts-from-sheet.ts --check",
