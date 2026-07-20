@@ -12,7 +12,6 @@ import {
   type AgentTokenView,
 } from './actions';
 
-const BROKER_URL = 'https://cafe-bot-two.vercel.app';
 const DOWNLOAD_BUTTON_CLASS =
   'flex items-center justify-center gap-2 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3 text-sm font-medium text-(--ink-muted) cursor-not-allowed opacity-60';
 
@@ -84,8 +83,6 @@ export const AgentSetupUI = () => {
     });
   };
 
-  const runCommand = `BROKER_URL=${BROKER_URL} AGENT_TOKEN=발급받은토큰 npm run agent`;
-
   return (
     <div className={cn('space-y-8')}>
       <section className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-6 lg:p-8')}>
@@ -122,30 +119,30 @@ export const AgentSetupUI = () => {
             <div className={cn('min-w-0 flex-1')}>
               <p className={cn('font-medium text-(--ink)')}>프로그램 내려받기</p>
               <div className={cn('mt-3 grid gap-2 sm:grid-cols-2')}>
-                <a href={RELEASES_URL} target="_blank" rel="noreferrer" className={cn(DOWNLOAD_BUTTON_CLASS)}>
+                <button type="button" disabled className={cn(DOWNLOAD_BUTTON_CLASS)}>
                   <Download className={cn('h-4 w-4')} />
-                  macOS 다운로드
-                </a>
-                <a href={RELEASES_URL} target="_blank" rel="noreferrer" className={cn(DOWNLOAD_BUTTON_CLASS)}>
+                  macOS (준비중)
+                </button>
+                <button type="button" disabled className={cn(DOWNLOAD_BUTTON_CLASS)}>
                   <Download className={cn('h-4 w-4')} />
-                  Windows 다운로드
-                </a>
+                  Windows (준비중)
+                </button>
               </div>
               <p className={cn('mt-2 text-xs text-(--ink-muted)')}>
-                첫 설치본을 준비 중입니다. 릴리스되면 위 버튼에서 OS에 맞는 설치본을 바로 받습니다.
+                설치본을 준비 중입니다. 지금은 아래 방법으로 프로그램을 바로 실행할 수 있습니다.
               </p>
               <p className={cn('mt-3 text-sm text-(--ink-muted)')}>
-                개발/기술 사용자는 지금 CLI로 실행할 수 있습니다:
+                프로젝트 폴더에서:
               </p>
               <pre className={cn('mt-2 overflow-x-auto rounded-lg bg-(--surface-muted) p-3 font-mono text-xs text-(--ink)')}>
 {`# 1) 한 번만: 의존성 설치
 npm install
 
-# 2) 에이전트 실행 (토큰은 아래에서 발급)
-${runCommand}`}
+# 2) 프로그램 창 실행 (창에서 서버주소·연결 토큰 입력)
+npm run agent:app`}
               </pre>
               <p className={cn('mt-2 text-xs text-(--ink-muted)')}>
-                첫 실행 시 브라우저 구성요소를 자동으로 내려받은 뒤 작업을 시작합니다.
+                첫 시작 시 브라우저 구성요소를 자동으로 내려받은 뒤 작업을 시작합니다.
               </p>
             </div>
           </li>
