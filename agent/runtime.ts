@@ -153,7 +153,18 @@ const processFixedJob = async (job: BrokerJob, broker: BrokerClient): Promise<vo
   log(job._id, `완료: ${successCount}/${texts.length} 성공`);
 };
 
-export const runAgentLoop = async (config: AgentConfig): Promise<void> => {
+export interface RunAgentLoopOptions {
+  // 데스크톱 앱(Start/Stop)에서 프로그램적으로 루프를 멈추기 위한 훅.
+  shouldStop?: () => boolean;
+  // OS 시그널 핸들러 등록 여부. CLI 는 true(기본), 앱은 자체 관리하므로 false.
+  handleSignals?: boolean;
+}
+
+export const runAgentLoop = async (
+  config: AgentConfig,
+  options: RunAgentLoopOptions = {},
+): Promise<void> => {
+  const { shouldStop, handleSignals = true } = options;
   const broker = createBrokerClient(config);
   let stopping = false;
 
@@ -164,12 +175,14 @@ export const runAgentLoop = async (config: AgentConfig): Promise<void> => {
     }
   };
 
-  process.on('SIGINT', requestStop);
-  process.on('SIGTERM', requestStop);
+  if (handleSignals) {
+    process.on('SIGINT', requestStop);
+    process.on('SIGTERM', requestStop);
+  }
 
   console.log(`[AGENT] 시작 workerId=${config.workerId} broker=${config.brokerUrl}`);
 
-  while (!stopping) {
+  while (!stopping && !(shouldStop?.() ?? false)) {
     let job: BrokerJob | null = null;
 
     try {

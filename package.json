@@ -13,6 +13,9 @@
     "bull-board": "node scripts/run-with-project-root.mjs tsx scripts/bull-board.ts",
     "agent": "node scripts/run-with-project-root.mjs tsx agent/cli.ts",
     "agent:issue-token": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/issue-agent-token.ts",
+    "agent:app:build": "node scripts/run-with-project-root.mjs node agent/electron/build.mjs",
+    "agent:app": "npm run agent:app:build && node scripts/run-with-project-root.mjs electron agent/electron/dist/main.js",
+    "agent:app:dist": "npm run agent:app:build && node scripts/run-with-project-root.mjs electron-builder",
     "test:harness": "node scripts/run-with-project-root.mjs tsx --test src/shared/lib/queue/task-job-harness.test.ts src/shared/lib/queue/sequence-harness.test.ts scripts/harness-verify.test.ts scripts/account-roster-harness.test.ts scripts/cafe-account-sheet-source.test.ts src/shared/lib/naver-cafe-writing/comment-writer.test.ts src/shared/lib/parse-cafe-article-url.test.ts src/features/manual-comment-job/manual-comment-job-ui-utils.test.ts src/features/auto-comment/batch/keyword-processor-utils.test.ts src/shared/models/post-attempt-utils.test.ts",
     "test:tooling": "node scripts/run-with-project-root.mjs node --test scripts/eslint-gate.test.mjs scripts/run-with-project-root.test.mjs",
     "accounts:check": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/account-roster-harness.ts --check",
@@ -21,6 +24,33 @@
     "scan:low-comments": "node scripts/run-with-project-root.mjs tsx --env-file=.env.local scripts/scan-low-comment-articles.ts",
     "verify:task": "node scripts/run-with-project-root.mjs tsx scripts/harness-verify.ts",
     "verify:ci": "npm run lint:strict && npm run test:harness && npm run test:tooling && npm run build"
+  },
+  "build": {
+    "appId": "com.viro.agent",
+    "productName": "Viro",
+    "directories": {
+      "output": "agent/electron/out",
+      "buildResources": "agent/electron/build-resources"
+    },
+    "extraMetadata": {
+      "main": "agent/electron/dist/main.js"
+    },
+    "files": [
+      "agent/electron/dist/**/*"
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities",
+      "identity": null
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    }
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
@@ -54,6 +84,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "concurrently": "^9.2.1",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",

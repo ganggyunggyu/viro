@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Viro</title>
+    <style>
+      :root {
+        --bg: #0f1115;
+        --surface: #171a21;
+        --border: #262b36;
+        --ink: #e7eaf0;
+        --muted: #97a0b0;
+        --accent: #4ade80;
+        --danger: #f87171;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        font-size: 14px;
+      }
+      .wrap { padding: 24px; max-width: 640px; margin: 0 auto; }
+      h1 { font-size: 20px; margin: 0 0 4px; }
+      .sub { color: var(--muted); margin: 0 0 20px; }
+      .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+      label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+      input {
+        width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+        background: var(--bg); color: var(--ink); font-size: 13px; margin-bottom: 12px;
+      }
+      .row { display: flex; gap: 10px; flex-wrap: wrap; }
+      button {
+        border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+        padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;
+      }
+      button.primary { background: var(--accent); color: #08130b; border-color: transparent; }
+      button.danger { color: var(--danger); }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      .status { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 12px; }
+      .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+      .dot.on { background: var(--accent); }
+      pre#log {
+        background: #0a0c10; border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+        height: 220px; overflow: auto; font-size: 12px; color: #b7c0d0; white-space: pre-wrap; margin: 0;
+      }
+      .hint { color: var(--muted); font-size: 12px; margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Viro</h1>
+      <p class="sub">내 PC에서 켜두면 웹에서 넣은 작업을 자동으로 처리합니다.</p>
+
+      <div class="card">
+        <label for="broker">서버 주소</label>
+        <input id="broker" type="text" placeholder="https://cafe-bot-two.vercel.app" />
+        <label for="token">연결 토큰 (웹에서 발급)</label>
+        <input id="token" type="password" placeholder="연결 토큰 붙여넣기" />
+        <div class="row">
+          <button id="save">저장</button>
+        </div>
+        <p class="hint">토큰은 웹 &gt; 프로그램 페이지에서 발급합니다.</p>
+      </div>
+
+      <div class="card">
+        <div class="status">
+          <span id="dot" class="dot"></span>
+          <span id="statusText">정지됨</span>
+        </div>
+        <div class="row">
+          <button id="start" class="primary">시작</button>
+          <button id="stop" class="danger" disabled>정지</button>
+        </div>
+        <p class="hint">첫 시작 시 브라우저 구성요소를 자동으로 내려받습니다(최초 1회).</p>
+      </div>
+
+      <div class="card">
+        <label>로그</label>
+        <pre id="log"></pre>
+      </div>
+    </div>
+
+    <script>
+      const api = window.viroAgent;
+      const $ = (id) => document.getElementById(id);
+      const logEl = $('log');
+
+      const appendLog = (line) => {
+        logEl.textContent += line + '\n';
+        logEl.scrollTop = logEl.scrollHeight;
+      };
+
+      const setRunning = (running) => {
+        $('dot').className = 'dot' + (running ? ' on' : '');
+        $('statusText').textContent = running ? '실행 중' : '정지됨';
+        $('start').disabled = running;
+        $('stop').disabled = !running;
+      };
+
+      const init = async () => {
+        const config = await api.getConfig();
+        $('broker').value = config.brokerUrl || '';
+        $('token').value = config.token || '';
+      };
+
+      const handleSave = async () => {
+        await api.saveConfig({ brokerUrl: $('broker').value.trim(), token: $('token').value.trim() });
+        appendLog('[앱] 저장됨');
+      };
+
+      const handleStart = async () => {
+        await handleSave();
+        const ok = await api.startAgent();
+        if (!ok) {
+          appendLog('[앱] 시작하지 못했습니다. 서버 주소/토큰을 확인하세요.');
+        }
+      };
+
+      const handleStop = async () => {
+        await api.stopAgent();
+      };
+
+      api.onLog(appendLog);
+      api.onSetupProgress((line) => appendLog('[설치] ' + line));
+      api.onStatus((status) => setRunning(status.running));
+
+      $('save').addEventListener('click', handleSave);
+      $('start').addEventListener('click', handleStart);
+      $('stop').addEventListener('click', handleStop);
+
+      init();
+    </script>
+  </body>
+</html>
