@@ -233,7 +233,19 @@ export const closeAllWorkers = async (): Promise<void> => {
   }
 };
 
+// Vercel 서버리스에는 Playwright 크롬 바이너리가 없고 상시 프로세스도 아니라,
+// 여기서 인라인 워커를 켜면 잡 처리 중 브라우저 실행이 터진다(서버 예외).
+// 컨트롤플레인(Vercel)은 큐 적재만 하고, 실제 소비는 로컬/원격 에이전트가 담당한다.
+// WORKER_INLINE=1 로 강제 실행은 가능(로컬 pm2·에이전트는 VERCEL 미설정이라 그대로 켜짐).
+const shouldStartInlineWorker = (): boolean =>
+  !process.env.VERCEL || process.env.WORKER_INLINE === '1';
+
 export const startAllTaskWorkers = async (): Promise<void> => {
+  if (!shouldStartInlineWorker()) {
+    console.log('[WORKER] Vercel 컨트롤플레인 감지 - 인라인 워커 생략(적재 전용)');
+    return;
+  }
+
   const accounts = await getAllAccounts();
 
   createTaskWorker();
