@@ -23,6 +23,8 @@ import {
   toKstDateKey,
   type TargetInfo,
   type TargetStatus,
+  type CafePostCountRecord,
+  type CafePostCountRequest,
 } from './verify-cafe-posts';
 
 dotenv.config({ path: '.env.local' });
@@ -923,6 +925,58 @@ const loadReport = async (args: LiveVerifyArgs): Promise<LiveVerificationReport>
     previousDateKey,
     cafes: cafeSummaries,
   };
+};
+
+export const collectLiveCafePostCounts = async (
+  requests: CafePostCountRequest[],
+): Promise<CafePostCountRecord[]> => {
+  if (requests.length === 0) {
+    return [];
+  }
+
+  const dateKeys = [...new Set(requests.map(({ dateKey }) => dateKey))].sort();
+  const baseDateKey = dateKeys.at(-1);
+  if (!baseDateKey || dateKeys.length > 2) {
+    throw new Error('live 카운트는 연속된 전일/금일 범위만 지원합니다');
+  }
+
+  try {
+    const report = await loadReport({
+      loginId: '21lab',
+      cafes: [...new Set(requests.map(({ cafeId }) => cafeId))],
+      baseDateKey,
+      pageLimit: DEFAULT_PAGE_LIMIT,
+      showPosts: false,
+      json: false,
+      help: false,
+    });
+
+    return requests.map(({ cafeId, dateKey }) => {
+      const cafe = report.cafes.find((candidate) => candidate.cafeId === cafeId);
+      if (!cafe) {
+        throw new Error(`live 카페 결과 누락: ${cafeId}`);
+      }
+
+      const isToday = dateKey === report.baseDateKey;
+      const isYesterday = dateKey === report.previousDateKey;
+      if (!isToday && !isYesterday) {
+        throw new Error(`live 날짜 결과 누락: ${cafeId} ${dateKey}`);
+      }
+
+      const coverageComplete = isToday
+        ? cafe.collection.todayCovered
+        : cafe.collection.previousCovered;
+      const identityComplete = cafe.collection.identityResolved === cafe.collection.identityExpected;
+      if (!coverageComplete || !identityComplete || cafe.collection.errors.length > 0) {
+        throw new Error(`live 검증 불완전: ${cafeId} ${dateKey}`);
+      }
+
+      const summary = isToday ? cafe.today : cafe.yesterday;
+      return { cafeId, dateKey, count: summary.actualPosts };
+    });
+  } finally {
+    await closeAllContexts();
+  }
 };
 
 const main = async (): Promise<void> => {

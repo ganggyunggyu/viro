@@ -25,6 +25,7 @@ export interface IPublishedArticle extends Document {
   writerAccountId: string;
   publishedAt: Date;
   status: 'published' | 'published-unverified' | 'modified';
+  isExternal?: boolean;
   postType?: 'ad' | 'daily' | 'daily-ad';
   commentCount: number;
   replyCount: number;
@@ -33,6 +34,42 @@ export interface IPublishedArticle extends Document {
   exposureRank?: number; // 노출 시 카페 검색결과 내 순위 (1부터)
   exposureFoundLink?: string; // 노출 시 검색결과에서 확인된 실제 링크
   exposureCheckedAt?: Date; // 마지막 노출체크 시각
+}
+
+export interface PublishedArticleUpdate {
+  $push: { comments: IArticleComment };
+  $inc: Record<string, number>;
+  $setOnInsert: {
+    menuId: string;
+    keyword: string;
+    title: string;
+    content: string;
+    articleUrl: string;
+    writerAccountId: string;
+    status: 'published';
+    isExternal: true;
+  };
+}
+
+interface PublishedArticleFindQuery<TArticle> {
+  sort: (sort: Record<string, 1 | -1>) => {
+    limit: (limit: number) => PromiseLike<TArticle[]>;
+  };
+}
+
+export interface PublishedArticleModelLike<TArticle> {
+  findOneAndUpdate: (
+    filter: Record<string, unknown>,
+    update: PublishedArticleUpdate,
+    options: { new: true; upsert: true },
+  ) => PromiseLike<TArticle | null>;
+  find: (filter: Record<string, unknown>) => PublishedArticleFindQuery<TArticle>;
+}
+
+export interface PublishedArticleOperationsDeps<TArticle> {
+  model: PublishedArticleModelLike<TArticle>;
+  now?: () => Date;
+  log?: (message: string) => void;
 }
 
 const ArticleCommentSchema = new Schema<IArticleComment>(
@@ -66,6 +103,7 @@ const PublishedArticleSchema = new Schema<IPublishedArticle>(
       enum: ['published', 'published-unverified', 'modified'],
       default: 'published',
     },
+    isExternal: { type: Boolean, default: false },
     postType: { type: String, enum: ['ad', 'daily', 'daily-ad'] },
     commentCount: { type: Number, default: 0 },
     replyCount: { type: Number, default: 0 },
@@ -90,6 +128,69 @@ export const PublishedArticle: Model<IPublishedArticle> =
   mongoose.models.PublishedArticle ||
   mongoose.model<IPublishedArticle>('PublishedArticle', PublishedArticleSchema);
 
+export const createPublishedArticleOperations = <TArticle>({
+  model,
+  now = () => new Date(),
+  log = console.log,
+}: PublishedArticleOperationsDeps<TArticle>) => {
+  const addCommentToArticleWithModel = async (
+    cafeId: string,
+    articleId: number,
+    comment: Omit<IArticleComment, 'createdAt'>,
+  ): Promise<boolean> => {
+    const updateField = comment.type === 'comment' ? 'commentCount' : 'replyCount';
+
+    log(
+      `[COMMENT-DB] 저장 시도: cafeId=${cafeId}, articleId=${articleId}, accountId=${comment.accountId}, type=${comment.type}`,
+    );
+
+    const result = await model.findOneAndUpdate(
+      { cafeId, articleId },
+      {
+        $push: { comments: { ...comment, createdAt: now() } },
+        $inc: { [updateField]: 1 },
+        $setOnInsert: {
+          menuId: '',
+          keyword: '',
+          title: '외부 글',
+          content: '',
+          articleUrl: `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`,
+          writerAccountId: '',
+          status: 'published',
+          isExternal: true,
+        },
+      },
+      { new: true, upsert: true },
+    );
+
+    if (result) {
+      log(`[COMMENT-DB] 저장 성공: #${articleId} - ${comment.type} by ${comment.accountId}`);
+    }
+
+    return Boolean(result);
+  };
+
+  const getRecentPublishedArticlesWithModel = async (
+    cafeId: string,
+    limit: number = 30,
+  ): Promise<TArticle[]> => model.find({
+    cafeId,
+    status: { $in: ['published', 'modified'] },
+    isExternal: { $ne: true },
+  })
+    .sort({ publishedAt: -1 })
+    .limit(limit);
+
+  return {
+    addCommentToArticle: addCommentToArticleWithModel,
+    getRecentPublishedArticles: getRecentPublishedArticlesWithModel,
+  };
+};
+
+const publishedArticleOperations = createPublishedArticleOperations({
+  model: PublishedArticle as unknown as PublishedArticleModelLike<IPublishedArticle>,
+});
+
 export const hasCommented = async (
   cafeId: string,
   articleId: number,
@@ -113,33 +214,7 @@ export const addCommentToArticle = async (
   articleId: number,
   comment: Omit<IArticleComment, 'createdAt'>
 ): Promise<boolean> => {
-  const updateField = comment.type === 'comment' ? 'commentCount' : 'replyCount';
-
-  console.log(`[COMMENT-DB] 저장 시도: cafeId=${cafeId}, articleId=${articleId}, accountId=${comment.accountId}, type=${comment.type}`);
-
-  const result = await PublishedArticle.findOneAndUpdate(
-    { cafeId, articleId },
-    {
-      $push: { comments: { ...comment, createdAt: new Date() } },
-      $inc: { [updateField]: 1 },
-      $setOnInsert: {
-        menuId: '',
-        keyword: '',
-        title: '외부 글',
-        content: '',
-        articleUrl: `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`,
-        writerAccountId: '',
-        status: 'published',
-      },
-    },
-    { new: true, upsert: true }
-  );
-
-  if (result) {
-    console.log(`[COMMENT-DB] 저장 성공: #${articleId} - ${comment.type} by ${comment.accountId}`);
-  }
-
-  return !!result;
+  return publishedArticleOperations.addCommentToArticle(cafeId, articleId, comment);
 };
 
 export const removeCommentFromArticle = async (
@@ -243,7 +318,5 @@ export const getRecentPublishedArticles = async (
   cafeId: string,
   limit: number = 30
 ): Promise<IPublishedArticle[]> => {
-  return PublishedArticle.find({ cafeId, status: { $in: ['published', 'modified'] } })
-    .sort({ publishedAt: -1 })
-    .limit(limit);
+  return publishedArticleOperations.getRecentPublishedArticles(cafeId, limit);
 };

@@ -1,7 +1,9 @@
 import dotenv from 'dotenv';
+import { google } from 'googleapis';
 import mongoose from 'mongoose';
 import { pathToFileURL } from 'node:url';
 
+dotenv.config({ path: '.env' });
 dotenv.config({ path: '.env.local' });
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -9,6 +11,8 @@ const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const DEFAULT_COMMENT_WARN_THRESHOLD = 3;
 const DEFAULT_SAMPLE_LIMIT = 8;
 const DEFAULT_INFERENCE_WINDOW_DAYS = 14;
+const OPERATIONS_SHEET_ID = '1JMNXyIaTR55aX4SRcD4Kp09W-WNjqMwMi0Xt2TV7ZYw';
+const PUBLISH_LOG_TAB = '카페발행노출로그';
 const BRAND_NAME = '한려담원';
 const DEFAULT_TARGET_NOTE = '기본 운영 목표치';
 const DEFAULT_CAFE_TARGETS: Record<string, { today: number; yesterday: number }> = {
@@ -168,6 +172,7 @@ export interface DaySummary {
   problemArticleCount: number;
   totalIssueCount: number;
   articles: ArticleVerification[];
+  countReconciliation?: CafePostCountReconciliation;
 }
 
 export interface CafeVerificationReport {
@@ -182,6 +187,47 @@ export interface VerificationReport {
   baseDateKey: string;
   previousDateKey: string;
   cafes: CafeVerificationReport[];
+}
+
+export type CafePostCountDirection = 'match' | 'missing' | 'excess';
+export type CafePostCountSource = 'sheet' | 'live';
+
+export interface CafePostCountInput {
+  dbCount: number;
+  sheetCount: number;
+  liveCount: number;
+}
+
+export interface CafePostCountComparison {
+  direction: CafePostCountDirection;
+  difference: number;
+}
+
+export interface CafePostCountReconciliation extends CafePostCountInput {
+  matches: boolean;
+  db: CafePostCountComparison;
+  sheet: CafePostCountComparison;
+}
+
+export interface CafePostCountRequest {
+  cafeId: string;
+  dateKey: string;
+  source: CafePostCountSource;
+}
+
+export interface CafePostCountRecord {
+  cafeId: string;
+  dateKey: string;
+  count: number;
+}
+
+export interface CafePostCountCollectors {
+  collectSheetCounts: (
+    requests: CafePostCountRequest[],
+  ) => Promise<CafePostCountRecord[]>;
+  collectLiveCounts: (
+    requests: CafePostCountRequest[],
+  ) => Promise<CafePostCountRecord[]>;
 }
 
 export interface WriterLimitRecord {
@@ -248,6 +294,46 @@ export const shiftKstDateKey = (dateKey: string, amount: number): string => {
 const getKstDayRange = (dateKey: string): { start: Date; end: Date } => {
   const start = new Date(`${dateKey}T00:00:00+09:00`);
   return { start, end: new Date(start.getTime() + DAY_MS) };
+};
+
+export const buildVerificationArticleDateFilter = (
+  start: Date,
+  end: Date,
+): Record<string, unknown> => ({
+  isExternal: { $ne: true },
+  $or: [
+    { publishedAt: { $gte: start, $lt: end } },
+    { createdAt: { $gte: start, $lt: end } },
+  ],
+});
+
+const comparePostCountToLive = (
+  count: number,
+  liveCount: number,
+): CafePostCountComparison => {
+  const difference = count - liveCount;
+  const direction = difference === 0
+    ? 'match'
+    : difference < 0 ? 'missing' : 'excess';
+  return { direction, difference };
+};
+
+export const reconcileCafePostCounts = ({
+  dbCount,
+  sheetCount,
+  liveCount,
+}: CafePostCountInput): CafePostCountReconciliation => {
+  const db = comparePostCountToLive(dbCount, liveCount);
+  const sheet = comparePostCountToLive(sheetCount, liveCount);
+
+  return {
+    matches: db.direction === 'match' && sheet.direction === 'match',
+    dbCount,
+    sheetCount,
+    liveCount,
+    db,
+    sheet,
+  };
 };
 
 const parseInteger = (value: string, flag: string): number => {
@@ -888,6 +974,107 @@ export const buildDaySummary = (
   };
 };
 
+const toPostCountKey = (cafeId: string, dateKey: string): string => `${cafeId}:${dateKey}`;
+
+const buildPostCountRequests = (
+  report: VerificationReport,
+  source: CafePostCountSource,
+): CafePostCountRequest[] => report.cafes.flatMap(({ cafeId, yesterday, today }) => [
+  { cafeId, dateKey: yesterday.dateKey, source },
+  { cafeId, dateKey: today.dateKey, source },
+]);
+
+const mapPostCountRecords = (
+  records: CafePostCountRecord[],
+): Map<string, number> => new Map(
+  records.map(({ cafeId, dateKey, count }) => [toPostCountKey(cafeId, dateKey), count]),
+);
+
+const requirePostCount = (
+  counts: Map<string, number>,
+  cafeId: string,
+  dateKey: string,
+  source: CafePostCountSource,
+): number => {
+  const count = counts.get(toPostCountKey(cafeId, dateKey));
+  if (count === undefined) {
+    throw new Error(`${source} 카운트 누락: ${cafeId} ${dateKey}`);
+  }
+  return count;
+};
+
+export const reconcileVerificationReportCounts = async (
+  report: VerificationReport,
+  { collectSheetCounts, collectLiveCounts }: CafePostCountCollectors,
+): Promise<VerificationReport> => {
+  const [sheetRecords, liveRecords] = await Promise.all([
+    collectSheetCounts(buildPostCountRequests(report, 'sheet')),
+    collectLiveCounts(buildPostCountRequests(report, 'live')),
+  ]);
+  const sheetCounts = mapPostCountRecords(sheetRecords);
+  const liveCounts = mapPostCountRecords(liveRecords);
+
+  const reconcileDay = (cafeId: string, summary: DaySummary): DaySummary => {
+    const { dateKey, actualPosts: dbCount } = summary;
+    const sheetCount = requirePostCount(sheetCounts, cafeId, dateKey, 'sheet');
+    const liveCount = requirePostCount(liveCounts, cafeId, dateKey, 'live');
+    return {
+      ...summary,
+      countReconciliation: reconcileCafePostCounts({ dbCount, sheetCount, liveCount }),
+    };
+  };
+
+  return {
+    ...report,
+    cafes: report.cafes.map(({ cafeId, cafeName, yesterday, today }) => ({
+      cafeId,
+      cafeName,
+      yesterday: reconcileDay(cafeId, yesterday),
+      today: reconcileDay(cafeId, today),
+    })),
+  };
+};
+
+export const collectSheetCafePostCounts = async (
+  requests: CafePostCountRequest[],
+): Promise<CafePostCountRecord[]> => {
+  const { GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY } = process.env;
+  if (!GOOGLE_SERVICE_ACCOUNT_EMAIL || !GOOGLE_PRIVATE_KEY) {
+    throw new Error('Google Sheets 읽기 자격증명이 필요합니다.');
+  }
+
+  const auth = new google.auth.JWT({
+    email: GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  });
+  const sheets = google.sheets({ version: 'v4', auth });
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: OPERATIONS_SHEET_ID,
+    range: `${PUBLISH_LOG_TAB}!A:F`,
+  });
+  const requestedKeys = new Set(
+    requests.map(({ cafeId, dateKey }) => toPostCountKey(cafeId, dateKey)),
+  );
+  const counts = new Map<string, number>();
+
+  for (const row of (response.data.values || []).slice(1)) {
+    const cafeId = String(row[1] || '').trim();
+    const dateKey = String(row[5] || '').trim().slice(0, 10);
+    const key = toPostCountKey(cafeId, dateKey);
+    if (!requestedKeys.has(key)) {
+      continue;
+    }
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  return requests.map(({ cafeId, dateKey }) => ({
+    cafeId,
+    dateKey,
+    count: counts.get(toPostCountKey(cafeId, dateKey)) || 0,
+  }));
+};
+
 const formatTargetLine = ({ target, actualPosts, targetStatus, diffFromTarget }: DaySummary): string => {
   if (!target) {
     return `목표 미지정 | 실제 ${actualPosts}건`;
@@ -912,6 +1099,33 @@ const formatWriterBreakdown = (writerBreakdown: Array<{ accountId: string; posts
   return `작성자 분포: ${writerBreakdown.map(({ accountId, posts }) => `${accountId}(${posts})`).join(', ')}`;
 };
 
+const formatCountComparison = (
+  count: number,
+  { direction, difference }: CafePostCountComparison,
+): string => {
+  if (direction === 'match') {
+    return `${count}(일치)`;
+  }
+  const label = direction === 'missing' ? '누락' : '초과/유령';
+  return `${count}(${label} ${Math.abs(difference)})`;
+};
+
+const formatCountReconciliation = (
+  reconciliation?: CafePostCountReconciliation,
+): string => {
+  if (!reconciliation) {
+    return '3자 정합성 미검증 (needs-live-browser)';
+  }
+
+  const { matches, dbCount, sheetCount, liveCount, db, sheet } = reconciliation;
+  return [
+    `3자 정합성 ${matches ? 'PASS' : 'FAIL'}`,
+    `DB ${formatCountComparison(dbCount, db)}`,
+    `시트 ${formatCountComparison(sheetCount, sheet)}`,
+    `live ${liveCount}`,
+  ].join(' | ');
+};
+
 const renderIssue = ({ severity, message, accountId, preview }: VerificationIssue): string => {
   const accountLabel = accountId ? ` [${accountId}]` : '';
   const previewLabel = preview ? ` "${preview}"` : '';
@@ -922,6 +1136,7 @@ const renderDaySummary = (summary: DaySummary, sampleLimit: number): string[] =>
   const lines = [
     `  [${summary.dateKey}]`,
     `  ${formatTargetLine(summary)}`,
+    `  ${formatCountReconciliation(summary.countReconciliation)}`,
     `  ${formatWriterBreakdown(summary.writerBreakdown)}`,
     `  문제 글 ${summary.problemArticleCount}건 / 총 이슈 ${summary.totalIssueCount}건`,
   ];
@@ -971,8 +1186,9 @@ export const renderVerificationReport = (report: VerificationReport, sampleLimit
 };
 
 const formatGoalStatusLine = (label: string, summary: DaySummary): string => {
+  const reconciliation = formatCountReconciliation(summary.countReconciliation);
   if (!summary.target) {
-    return `${label} ${summary.dateKey} | 목표 미지정 | 실제 ${summary.actualPosts}건`;
+    return `${label} ${summary.dateKey} | 목표 미지정 | 실제 ${summary.actualPosts}건 | ${reconciliation}`;
   }
 
   const statusLabel = summary.targetStatus === 'pass' ? 'PASS' : 'FAIL';
@@ -980,7 +1196,7 @@ const formatGoalStatusLine = (label: string, summary: DaySummary): string => {
     ? ` (${summary.diffFromTarget > 0 ? `+${summary.diffFromTarget}` : summary.diffFromTarget})`
     : '';
 
-  return `${label} ${summary.dateKey} | ${statusLabel} | 목표 ${summary.target.value}건 / 실제 ${summary.actualPosts}건${diffLabel}`;
+  return `${label} ${summary.dateKey} | ${statusLabel} | 목표 ${summary.target.value}건 / 실제 ${summary.actualPosts}건${diffLabel} | ${reconciliation}`;
 };
 
 export const renderGoalStatusReport = (report: VerificationReport): string => {
@@ -1044,12 +1260,7 @@ const loadReport = async (args: VerifyArgs): Promise<VerificationReport> => {
   const [cafeDocs, articleDocs, writerDocs] = await Promise.all([
     db.collection('cafes').find({ isActive: true }).project({ _id: 0, cafeId: 1, name: 1, cafeUrl: 1 }).toArray(),
     db.collection('publishedarticles')
-      .find({
-        $or: [
-          { publishedAt: { $gte: previousDayStart, $lt: currentDayEnd } },
-          { createdAt: { $gte: previousDayStart, $lt: currentDayEnd } },
-        ],
-      })
+      .find(buildVerificationArticleDateFilter(previousDayStart, currentDayEnd))
       .project({
         _id: 0,
         cafeId: 1,
@@ -1097,10 +1308,7 @@ const loadReport = async (args: VerifyArgs): Promise<VerificationReport> => {
     const recentArticles = await db.collection('publishedarticles')
       .find({
         cafeId: singleCafeId,
-        $or: [
-          { publishedAt: { $gte: recentStart, $lt: currentDayEnd } },
-          { createdAt: { $gte: recentStart, $lt: currentDayEnd } },
-        ],
+        ...buildVerificationArticleDateFilter(recentStart, currentDayEnd),
       })
       .project({ _id: 0, writerAccountId: 1 })
       .toArray();
@@ -1150,7 +1358,12 @@ const main = async (): Promise<void> => {
   }
 
   try {
-    const report = await loadReport(args);
+    const dbReport = await loadReport(args);
+    const { collectLiveCafePostCounts } = await import('./verify-cafe-goals-live');
+    const report = await reconcileVerificationReportCounts(dbReport, {
+      collectSheetCounts: collectSheetCafePostCounts,
+      collectLiveCounts: collectLiveCafePostCounts,
+    });
     if (args.json) {
       console.log(JSON.stringify(report, null, 2));
       return;
