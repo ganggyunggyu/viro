@@ -217,7 +217,7 @@ p { margin: 0; }
 .button.ghost:hover { background: var(--surface-muted); color: var(--ink); }
 
 /* ---------- Panels ---------- */
-.panel { display: none; }
+.panel { display: none; max-width: 1280px; }
 .panel.active { display: block; animation: panel-in 0.2s ease; }
 @keyframes panel-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
