@@ -1,7 +1,6 @@
 import {
   Building2,
   ListChecks,
-  Megaphone,
   MessageSquare,
   Layers,
   PlusSquare,
@@ -27,7 +26,6 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: '발행',
     items: [
-      { href: '/viral', label: '바이럴', icon: Megaphone },
       { href: '/manual-post', label: '수동 발행', icon: UploadCloud },
       { href: '/publish', label: '분리 발행', icon: Layers },
       { href: '/comment-jobs', label: '댓글 작업', icon: MessageSquare },

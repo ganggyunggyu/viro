@@ -11,7 +11,6 @@ src/shared/models/
 ├── cafe.ts               # CafeConfig (menus, roles, posting rules)
 ├── published-article.ts  # Published posts + comment/reply tracking
 ├── modified-article.ts   # Modified post versions
-├── viral-response.ts     # AI-generated viral content cache
 ├── daily-post-count.ts   # Per-account daily posting limits
 ├── daily-activity.ts     # Activity log aggregation
 ├── batch-job-log.ts      # Batch processing job records
@@ -28,8 +27,6 @@ src/shared/models/
 | Get today's post count | `daily-post-count.ts` | `getTodayPostCount(accountId, cafeId)` |
 | Increment post counter | `daily-post-count.ts` | `incrementTodayPostCount(...)` |
 | Check daily limit | `daily-post-count.ts` | `canPostToday(accountId, cafeId, limit)` |
-| Save AI viral response | `viral-response.ts` | `saveViralResponse(entry)` |
-| Get viral response stats | `viral-response.ts` | `getViralResponseStats(userId?)` |
 | Account comment stats | `published-article.ts` | `getAccountCommentStats(accountId)` |
 | Find article by keyword | `published-article.ts` | `getArticleIdByKeyword(cafeId, keyword)` |
 
