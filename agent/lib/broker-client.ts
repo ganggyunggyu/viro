@@ -40,10 +40,18 @@ export interface AgentCompletePayload {
   agentSummary?: string;
 }
 
+export interface CommentAccount {
+  accountId: string;
+  password: string;
+  nickname?: string;
+}
+
 export interface BrokerClient {
   claim: () => Promise<BrokerJob | null>;
   heartbeat: (jobId: string) => Promise<boolean>;
   report: (jobId: string, payload: AgentCompletePayload) => Promise<boolean>;
+  accounts: () => Promise<CommentAccount[]>;
+  pool: (jobId: string, ownerNickname: string, needed: number) => Promise<CommentAccount[]>;
 }
 
 export const createBrokerClient = (config: AgentConfig): BrokerClient => {
@@ -83,5 +91,15 @@ export const createBrokerClient = (config: AgentConfig): BrokerClient => {
     return Boolean(data.ok);
   };
 
-  return { claim, heartbeat, report };
+  const accounts = async (): Promise<CommentAccount[]> => {
+    const data = await post('/api/agent/accounts', {});
+    return (data.accounts as CommentAccount[]) ?? [];
+  };
+
+  const pool = async (jobId: string, ownerNickname: string, needed: number): Promise<CommentAccount[]> => {
+    const data = await post('/api/agent/pool', { jobId, ownerNickname, needed });
+    return (data.pool as CommentAccount[]) ?? [];
+  };
+
+  return { claim, heartbeat, report, accounts, pool };
 };
