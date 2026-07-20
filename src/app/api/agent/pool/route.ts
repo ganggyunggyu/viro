@@ -14,12 +14,21 @@ export const POST = async (request: Request): Promise<Response> => {
   const jobId = String(body.jobId || '');
   const ownerNickname = String(body.ownerNickname || '');
   const needed = Number(body.needed || 1);
+  const reusableAccountIds = Array.isArray(body.reusableAccountIds)
+    ? body.reusableAccountIds.map(String)
+    : [];
 
   if (!jobId) {
     return NextResponse.json({ error: 'jobId required' }, { status: 400 });
   }
 
-  const pool = await getJobAccountPool(identity.userId, jobId, ownerNickname, needed);
+  const pool = await getJobAccountPool(
+    identity.userId,
+    jobId,
+    ownerNickname,
+    needed,
+    reusableAccountIds,
+  );
 
   if (!pool) {
     return NextResponse.json({ error: 'job not found' }, { status: 404 });

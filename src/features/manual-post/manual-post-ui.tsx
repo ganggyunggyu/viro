@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { motion } from 'framer-motion';
 import { cn } from '@/shared';
 import { Select, Button, ConfirmModal, ExecuteConfirmModal } from '@/shared';
-import { runManualPublishAction, runManualModifyAction } from './manual-actions';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 import { PostOptionsUI } from '@/entities/post-options';
 import {
   postOptionsAtom,
@@ -195,18 +195,24 @@ export const ManualPostUI = () => {
 
       try {
         if (mode === 'publish') {
-          const res = await runManualPublishAction({
-            manuscripts,
-            cafeId: selectedCafeId || undefined,
-            postOptions,
+          const res = await runDesktopAction<ManualPublishResult>({
+            type: 'manual-publish',
+            input: {
+              manuscripts,
+              cafeId: selectedCafeId || undefined,
+              postOptions,
+            },
           });
           setPublishResult(res);
         } else {
-          const res = await runManualModifyAction({
-            manuscripts,
-            cafeId: selectedCafeId || undefined,
-            sortOrder,
-            daysLimit,
+          const res = await runDesktopAction<ManualModifyResult>({
+            type: 'manual-modify',
+            input: {
+              manuscripts,
+              cafeId: selectedCafeId || undefined,
+              sortOrder,
+              daysLimit,
+            },
           });
           setModifyResult(res);
         }

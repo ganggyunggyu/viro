@@ -5,7 +5,7 @@ import { cn } from '@/shared';
 import { Select, Button } from '@/shared';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { getCafesAction } from '@/features/accounts/actions';
-import { runAutoCommentAction } from './actions';
+import { queueDesktopAutoCommentAction } from './actions';
 import type { CommentOnlyResult } from './types';
 
 interface CafeConfig {
@@ -48,7 +48,7 @@ export const CommentOnlyUI = () => {
     startTransition(async () => {
       setResult(null);
       setPhase('running');
-      const res = await runAutoCommentAction(selectedCafeId, safeDaysLimit);
+      const res = await queueDesktopAutoCommentAction(selectedCafeId, safeDaysLimit);
       setResult(res);
       setPhase('done');
     });
@@ -132,9 +132,9 @@ export const CommentOnlyUI = () => {
       {phase === 'running' && (
         <div className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-8 text-center')}>
           <Loader2 className={cn('w-8 h-8 text-(--accent) animate-spin mx-auto mb-4')} />
-          <p className={cn('text-sm font-medium text-(--ink)')}>댓글 작성 중...</p>
+          <p className={cn('text-sm font-medium text-(--ink)')}>댓글 작업 등록 중...</p>
           <p className={cn('text-xs text-(--ink-muted) mt-1')}>
-            각 글에 댓글/대댓글을 달고 있습니다
+            데스크톱 프로그램이 로컬 Chrome으로 처리할 작업을 준비합니다
           </p>
         </div>
       )}

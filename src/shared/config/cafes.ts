@@ -30,6 +30,7 @@ export const getAllCafes = async (userId?: string): Promise<CafeConfig[]> => {
         isDefault: c.isDefault,
         categoryMenuIds,
         categoryAliases,
+        ownerAccountId: c.ownerAccountId,
       };
     });
   } catch (error) {

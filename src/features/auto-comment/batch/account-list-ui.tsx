@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from 'react';
 import { cn } from '@/shared';
 import { getAccountsAction } from '@/features/accounts/actions';
-import { loginAccountAction } from '../actions';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 
 interface AccountInfo {
   id: string;
@@ -31,7 +31,18 @@ export const AccountListUI = () => {
     setMessage({ type: 'success', text: `${id} 로그인 중...` });
 
     startTransition(async () => {
-      const result = await loginAccountAction(id);
+      let result: { success: boolean; error?: string };
+      try {
+        result = await runDesktopAction<{ success: boolean; error?: string }>({
+          type: 'account-login',
+          accountId: id,
+        });
+      } catch (error) {
+        result = {
+          success: false,
+          error: error instanceof Error ? error.message : '로컬 실행 실패',
+        };
+      }
 
       if (result.success) {
         setLoginStatus((prev) => ({ ...prev, [id]: 'success' }));
@@ -49,7 +60,15 @@ export const AccountListUI = () => {
     startTransition(async () => {
       for (const account of accounts) {
         setLoginStatus((prev) => ({ ...prev, [account.id]: 'loading' }));
-        const result = await loginAccountAction(account.id);
+        let result: { success: boolean; error?: string };
+        try {
+          result = await runDesktopAction<{ success: boolean; error?: string }>({
+            type: 'account-login',
+            accountId: account.id,
+          });
+        } catch {
+          result = { success: false };
+        }
         setLoginStatus((prev) => ({
           ...prev,
           [account.id]: result.success ? 'success' : 'error',

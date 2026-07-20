@@ -1,6 +1,10 @@
 'use server';
 
 import type { PostOnlyInput } from './types';
+import { generateImages, generateTeteContent } from '@/shared/api/content-api';
+import { buildCafePostContent } from '@/shared/lib/cafe-content';
+import { parseKeywordWithCategory } from '@/features/auto-comment/batch/keyword-utils';
+import type { ManualPublishInput } from '@/features/manual-post/types';
 
 export interface QueueBatchResult {
   success: boolean;
@@ -9,6 +13,53 @@ export interface QueueBatchResult {
 }
 
 export type QueueStatusResult = Record<string, { waiting: number; active: number; completed: number; failed: number }>;
+
+export interface PreparedPostOnlyResult {
+  success: boolean;
+  input?: ManualPublishInput;
+  error?: string;
+}
+
+// 콘텐츠와 이미지는 웹에서 준비하고, 실제 네이버 글쓰기는 데스크톱 로컬 Chrome이 수행한다.
+export const preparePostOnlyAction = async (
+  input: PostOnlyInput,
+): Promise<PreparedPostOnlyResult> => {
+  try {
+    const manuscripts: ManualPublishInput['manuscripts'] = [];
+    for (const keywordInput of input.keywords) {
+      const { keyword, category } = parseKeywordWithCategory(keywordInput);
+      const keywordLabel = category ? `${keyword}:${category}` : keyword;
+      const [generated, imageResult] = await Promise.all([
+        generateTeteContent({ keyword: keywordLabel, ref: input.ref }),
+        input.attachImages
+          ? generateImages({ keyword, count: 3 })
+          : Promise.resolve({ images: [] }),
+      ]);
+      const { title, htmlContent } = buildCafePostContent(generated.content, keywordLabel);
+      manuscripts.push({
+        folderName: keywordLabel,
+        title,
+        body: generated.content,
+        htmlContent,
+        images: imageResult.images || [],
+        category,
+      });
+    }
+    return {
+      success: manuscripts.length > 0,
+      input: {
+        manuscripts,
+        cafeId: input.cafeId,
+        postOptions: input.postOptions,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '콘텐츠 준비 실패',
+    };
+  }
+};
 
 // 글만 발행 (큐 기반) - Redis 필요
 export const runPostOnlyAction = async (

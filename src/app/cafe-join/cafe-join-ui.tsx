@@ -8,9 +8,9 @@ import {
   type BatchResultRow,
   type BatchResultSummaryItem,
 } from '@/shared';
-import { runCafeJoinBatchAction } from '@/features/auto-comment/batch/batch-actions';
 import { getAccountsAction, getCafesAction } from '@/features/accounts/actions';
 import type { BatchJoinResult } from '@/features/auto-comment/batch/cafe-join';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 
 interface AccountInfo {
   id: string;
@@ -44,8 +44,23 @@ export const CafeJoinUI = () => {
   const handleRun = () => {
     startTransition(async () => {
       setResult(null);
-      const res = await runCafeJoinBatchAction();
-      setResult(res);
+      try {
+        setResult(await runDesktopAction<BatchJoinResult>({ type: 'cafe-join-all' }));
+      } catch (error) {
+        setResult({
+          success: false,
+          total: 0,
+          joined: 0,
+          alreadyMember: 0,
+          failed: 1,
+          results: [{
+            success: false,
+            accountId: 'Viro 프로그램',
+            cafeName: '',
+            error: error instanceof Error ? error.message : '로컬 실행 실패',
+          }],
+        });
+      }
     });
   };
 

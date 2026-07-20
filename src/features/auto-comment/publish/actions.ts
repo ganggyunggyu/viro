@@ -8,13 +8,16 @@ import { generateComment, generateReply } from '@/shared/api/comment-gen-api';
 import { addTaskJob } from '@/shared/lib/queue';
 import { startAllTaskWorkers } from '@/shared/lib/queue/workers';
 import { getQueueSettings, getRandomDelay } from '@/shared/models/queue-settings';
-import { getPersonaId, getNextActiveTime } from '@/shared/lib/account-manager';
+import { getNextActiveTime } from '@/shared/lib/account-manager';
 import type { CommentJobData, ReplyJobData } from '@/shared/lib/queue/types';
 import type {
   CommentOnlyFilter,
   CommentTargetArticle,
   CommentOnlyResult,
 } from './types';
+import { getCurrentUserId } from '@/shared/config/user';
+import { getCafeById } from '@/shared/config/cafes';
+import { createManualCommentJobRecord } from '@/features/manual-comment-job/actions';
 
 // 필터링된 발행원고 조회
 export const fetchFilteredArticles = async (
@@ -62,6 +65,76 @@ export const fetchFilteredArticles = async (
     console.error('[COMMENT-ONLY] 조회 오류:', error);
     return [];
   }
+};
+
+// 댓글 실행은 Mongo 작업으로 적재하고 데스크톱 프로그램이 로컬 Chrome으로 처리한다.
+export const queueDesktopAutoCommentAction = async (
+  cafeId: string,
+  daysLimit: number = 3,
+): Promise<CommentOnlyResult> => {
+  await connectDB();
+  const [userId, cafe] = await Promise.all([
+    getCurrentUserId(),
+    getCafeById(cafeId),
+  ]);
+  if (!cafe) {
+    return {
+      success: false,
+      totalArticles: 0,
+      completed: 0,
+      failed: 0,
+      results: [],
+      message: '카페 정보를 찾을 수 없어',
+    };
+  }
+
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - daysLimit);
+  const articles = await PublishedArticle.find({
+    cafeId,
+    status: 'published',
+    publishedAt: { $gte: cutoffDate },
+  }).lean();
+  const selected = articles
+    .sort(() => Math.random() - 0.5)
+    .slice(0, Math.max(1, Math.ceil(articles.length / 2)));
+  const results: CommentOnlyResult['results'] = [];
+
+  for (const article of selected) {
+    const created = await createManualCommentJobRecord(
+      userId,
+      {
+        articleUrl: article.articleUrl,
+        cafeSlug: cafe.cafeUrl,
+        cafeId,
+        articleId: article.articleId,
+      },
+      {
+        articleUrl: article.articleUrl,
+        mode: 'agent',
+        delayMinMinutes: 4,
+        delayMaxMinutes: 9,
+        deleteExisting: false,
+      },
+    );
+    results.push({
+      articleId: article.articleId,
+      keyword: article.keyword,
+      success: created.success,
+      commentsAdded: 0,
+      error: created.success ? undefined : created.error,
+    });
+  }
+
+  const completed = results.filter(({ success }) => success).length;
+  return {
+    success: completed > 0 && completed === results.length,
+    totalArticles: results.length,
+    completed,
+    failed: results.length - completed,
+    results,
+    message: `${completed}개 글을 데스크톱 실행 목록에 추가했어`,
+  };
 };
 
 // 자동 댓글 달기 (큐 기반)
@@ -152,10 +225,6 @@ export const runAutoCommentAction = async (
         continue;
       }
 
-      // 글쓴이 계정 정보 (닉네임 전달용)
-      const writerAccount = accounts.find((a) => a.id === writerAccountId);
-      const writerNickname = writerAccount?.nickname || writerAccountId;
-
       // 글당 3~15개 작성
       const totalCount = Math.floor(Math.random() * 13) + 3; // 3~15
       // 50% 대댓글, 50% 댓글
@@ -171,11 +240,9 @@ export const runAutoCommentAction = async (
       // 댓글 job 추가 (30%)
       for (let j = 0; j < commentCount; j++) {
         const commenter = otherAccounts[j % otherAccounts.length];
-        const personaId = getPersonaId(commenter);
-
         let commentText: string;
         try {
-          commentText = await generateComment(keyword, personaId, writerNickname);
+          commentText = await generateComment(keyword);
         } catch {
           commentText = '좋은 정보 감사합니다!';
         }
@@ -241,13 +308,9 @@ export const runAutoCommentAction = async (
 
         const replyer = availableReplyers[j % availableReplyers.length];
 
-        const replyerPersonaId = getPersonaId(replyer);
-        const replyerNickname = replyer.nickname || replyer.id;
-
         let replyText: string;
         try {
-          // 글쓴이 닉네임 + 원댓글 작성자 닉네임 + 대댓글 작성자 닉네임 전달
-          replyText = await generateReply(keyword, '좋은 정보네요', replyerPersonaId, writerNickname, parentAuthorNickname, replyerNickname);
+          replyText = await generateReply(keyword, '좋은 정보네요');
         } catch {
           replyText = '저도 그렇게 생각해요!';
         }

@@ -5,7 +5,8 @@ import { cn } from '@/shared';
 import { Select, Button, Checkbox } from '@/shared';
 import { CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { getCafesAction, getAccountsAction } from '@/features/accounts/actions';
-import { fetchRecentPublishedArticlesAction, runExposureCheckAction } from './exposure-actions';
+import { fetchRecentPublishedArticlesAction } from './exposure-actions';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 import type {
   PublishedArticleSummary,
   ExposureCheckRequestItem,
@@ -153,8 +154,23 @@ export const ExposureCheckUI = () => {
 
     startTransition(async () => {
       setResult(null);
-      const res = await runExposureCheckAction({ accountId: selectedAccountId, items });
-      setResult(res);
+      try {
+        setResult(await runDesktopAction<ExposureCheckRunResult>({
+          type: 'exposure-check',
+          accountId: selectedAccountId,
+          items,
+        }));
+      } catch (error) {
+        setResult({
+          success: false,
+          total: 0,
+          exposed: 0,
+          notExposed: 0,
+          failed: items.length,
+          results: [],
+          message: error instanceof Error ? error.message : '로컬 실행 실패',
+        });
+      }
       if (pickMode === 'published') {
         loadArticles(selectedCafeId);
       }

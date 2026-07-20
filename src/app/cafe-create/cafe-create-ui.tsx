@@ -5,11 +5,11 @@ import { cn } from '@/shared';
 import { Button } from '@/shared';
 import {
   getCafeCreateFormDataAction,
-  createCafeAction,
   type CafeCreateOwnerOption,
   type CafeCreateActionResult,
   type CafeCreateFormData,
 } from '@/features/auto-comment/batch/cafe-create-actions';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 import {
   generateCafeNameSuggestions,
   type CafeNameSuggestion,
@@ -66,14 +66,25 @@ export const CafeCreateUI = () => {
         .map((k) => k.trim())
         .filter(Boolean);
 
-      const res = await createCafeAction({
-        ownerAccountId,
-        name: name.trim(),
-        slug: slug.trim(),
-        presetKey,
-        description: description.trim(),
-        keywords,
-      });
+      let res: CafeCreateActionResult;
+      try {
+        res = await runDesktopAction<CafeCreateActionResult>({
+          type: 'cafe-create',
+          input: {
+            ownerAccountId,
+            name: name.trim(),
+            slug: slug.trim(),
+            presetKey,
+            description: description.trim(),
+            keywords,
+          },
+        });
+      } catch (error) {
+        res = {
+          success: false,
+          error: error instanceof Error ? error.message : '로컬 실행 실패',
+        };
+      }
       setResult(res);
 
       if (res.success) {

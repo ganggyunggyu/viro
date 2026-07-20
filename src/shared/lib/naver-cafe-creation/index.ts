@@ -79,6 +79,37 @@ export const solveCafeCreateCaptcha = async (
   const shot = await image.screenshot({ type: 'png' }).catch(() => null);
   if (!shot) return { solved: false, error: '캡차 이미지 스크린샷 실패' };
 
+  const base64 = shot.toString('base64');
+  const brokerUrl = (process.env.BROKER_URL || '').replace(/\/+$/, '');
+  const agentToken = process.env.AGENT_TOKEN || '';
+  let answer = '';
+
+  if (brokerUrl && agentToken) {
+    const response = await fetch(`${brokerUrl}/api/agent/captcha`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${agentToken}`,
+      },
+      body: JSON.stringify({ image: base64 }),
+    });
+    if (!response.ok) {
+      return { solved: false, error: `캡차 해석 서버 오류 (${response.status})` };
+    }
+    const data = await response.json() as { answer?: string };
+    answer = data.answer || '';
+  } else {
+    answer = await solveCafeCreateCaptchaImage(base64);
+  }
+
+  if (!answer) return { solved: false, error: 'AI가 빈 답변 반환' };
+
+  await input.fill(answer);
+  return { solved: true };
+};
+
+export const solveCafeCreateCaptchaImage = async (base64: string): Promise<string> => {
+
   const ai = getCafeCreateCaptchaClient();
   const response = await ai.models.generateContent({
     model: CAPTCHA_MODEL,
@@ -86,7 +117,7 @@ export const solveCafeCreateCaptcha = async (
       {
         role: 'user',
         parts: [
-          { inlineData: { mimeType: 'image/png', data: shot.toString('base64') } },
+          { inlineData: { mimeType: 'image/png', data: base64 } },
           {
             text: [
               '이미지에 보이는 네이버 카페 만들기 보안문자(그림문자)를 정확히 읽어라.',
@@ -100,12 +131,7 @@ export const solveCafeCreateCaptcha = async (
       },
     ],
   });
-  const answer = (response.text || '').replace(/[^0-9A-Za-z]/g, '').trim();
-
-  if (!answer) return { solved: false, error: 'AI가 빈 답변 반환' };
-
-  await input.fill(answer);
-  return { solved: true };
+  return (response.text || '').replace(/[^0-9A-Za-z]/g, '').trim();
 };
 
 /** 캡차 이미지를 새로고침해서 새 문제를 받는다 (오답 재시도용) */
