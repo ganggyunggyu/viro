@@ -8,6 +8,10 @@ import {
   type IManualCommentDeleteResult,
   type ManualCommentJobStatus,
 } from '@/shared/models';
+import { buildCommentAccountPool, type CommentAccount } from './account-pool';
+
+export type { CommentAccount } from './account-pool';
+export { getActiveCommenterAccounts } from './account-pool';
 
 /**
  * 멀티테넌트 에이전트 브로커.
@@ -74,6 +78,26 @@ export const claimJobForUser = async (
     { $set: { status: 'running', claimedAt: new Date(), claimedBy: workerId } },
     { sort: { createdAt: 1 }, new: true },
   ).lean<IManualCommentJob>();
+};
+
+/**
+ * 잡 실행에 필요한 계정 풀(자격증명 포함)을 서버측에서 구성해 반환한다.
+ * 잡이 해당 userId 소유가 아니면 null. 에이전트는 이 풀만 받아 로컬 브라우저로 실행한다.
+ */
+export const getJobAccountPool = async (
+  userId: string,
+  jobId: string,
+  ownerNickname: string,
+  needed: number,
+): Promise<CommentAccount[] | null> => {
+  await connectDB();
+
+  const job = await ManualCommentJob.findOne({ _id: jobId, userId }).lean<IManualCommentJob>();
+  if (!job) {
+    return null;
+  }
+
+  return buildCommentAccountPool(userId, job.cafeId, job.articleId, ownerNickname, Math.max(1, needed));
 };
 
 export const heartbeatJob = async (
