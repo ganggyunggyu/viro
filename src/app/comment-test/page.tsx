@@ -113,7 +113,7 @@ export default function CommentTestPage() {
 
   // 댓글 생성
   const handleGenerateComment = async () => {
-    if (!postContent) return;
+    if (!keyword.trim()) return;
     setIsLoading('comment');
     try {
       const userNum = comments.filter(c => c.type === 'comment').length + 1;
@@ -122,19 +122,15 @@ export default function CommentTestPage() {
       const res = await fetch(`${BASE_URL}/generate/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: postContent,
-          author_name: authorName,
-          persona_id: commentPersonaId,
-        }),
+        body: JSON.stringify({ keyword }),
       });
       const data = await res.json();
 
       setComments(prev => [...prev, {
         user: userName,
         text: data.comment,
-        persona: data.persona,
-        personaId: data.persona_id || commentPersonaId,
+        persona: '기본',
+        personaId: 'default',
         type: 'comment',
       }]);
     } catch (error) {
@@ -146,23 +142,17 @@ export default function CommentTestPage() {
 
   // 대댓글 생성
   const handleGenerateReply = async (parentComment: GeneratedComment, parentIndex: number) => {
-    if (!postContent) return;
+    if (!keyword.trim()) return;
     setIsLoading(`reply-${parentIndex}`);
     try {
       const replyCount = comments.filter(c => c.type === 'reply' && c.parentUser === parentComment.user).length + 1;
       const replyerName = `답글러${parentIndex + 1}-${replyCount}`;
-      const personaId = getReplyPersonaId(parentIndex);
-
       const res = await fetch(`${BASE_URL}/generate/recomment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           parent_comment: parentComment.text,
-          content: postContent,
-          author_name: authorName,
-          parent_author: parentComment.user,
-          commenter_name: replyerName,
-          persona_id: personaId,
+          keyword,
         }),
       });
       const data = await res.json();
@@ -170,8 +160,8 @@ export default function CommentTestPage() {
       setComments(prev => [...prev, {
         user: replyerName,
         text: data.comment,
-        persona: data.persona,
-        personaId: data.persona_id || personaId,
+        persona: '기본',
+        personaId: 'default',
         type: 'reply',
         parentUser: parentComment.user,
       }]);

@@ -11,7 +11,7 @@ import {
   type AccountData,
   type AccountInput,
 } from './actions';
-import { loginAccountAction } from '../auto-comment/actions';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 
 const PERSONA_OPTIONS: { id: string; label: string }[] = [
   { id: '', label: '랜덤' },
@@ -260,7 +260,18 @@ export const AccountManagerUI = () => {
     setLoginStatus((prev) => ({ ...prev, [id]: 'loading' }));
 
     startTransition(async () => {
-      const result = await loginAccountAction(id);
+      let result: { success: boolean; error?: string };
+      try {
+        result = await runDesktopAction<{ success: boolean; error?: string }>({
+          type: 'account-login',
+          accountId: id,
+        });
+      } catch (error) {
+        result = {
+          success: false,
+          error: error instanceof Error ? error.message : '로컬 실행 실패',
+        };
+      }
       setLoginStatus((prev) => ({
         ...prev,
         [id]: result.success ? 'success' : 'error',

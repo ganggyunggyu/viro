@@ -11,7 +11,7 @@ export interface PostCommentsParams {
   cafeId: string;
   articleId: number;
   commenterAccounts: NaverAccount[];
-  postContext: string;
+  keyword: string;
   betweenCommentsDelayMs: number;
 }
 
@@ -26,7 +26,7 @@ export const postComments = async ({
   cafeId,
   articleId,
   commenterAccounts,
-  postContext,
+  keyword,
   betweenCommentsDelayMs,
 }: PostCommentsParams): Promise<PostCommentsOutcome> => {
   const commentResults: CommentResult[] = [];
@@ -40,7 +40,7 @@ export const postComments = async ({
 
     let commentText: string;
     try {
-      commentText = await generateComment(postContext);
+      commentText = await generateComment(keyword);
     } catch {
       commentText = '좋은 정보 감사합니다!';
     }
@@ -73,7 +73,7 @@ export interface PostRepliesParams {
   articleId: number;
   writerAccount: NaverAccount;
   commenterAccounts: NaverAccount[];
-  postContext: string;
+  keyword: string;
   betweenRepliesDelayMs: number;
   comments: PostCommentsOutcome;
 }
@@ -83,7 +83,7 @@ export const postReplies = async ({
   articleId,
   writerAccount,
   commenterAccounts,
-  postContext,
+  keyword,
   betweenRepliesDelayMs,
   comments: { commentResults, commentTexts, commentAuthors, commentIds },
 }: PostRepliesParams): Promise<ReplyResult[]> => {
@@ -95,20 +95,16 @@ export const postReplies = async ({
   }
 
   const replyTasks = buildReplyTasks(writerAccount, commenterAccounts, commentAuthors, commentTexts);
-  const writerNickname = writerAccount.nickname || writerAccount.id;
-
   for (let j = 0; j < replyTasks.length; j++) {
     const task = replyTasks[j];
     const parentComment = commentTexts[task.targetCommentIndex];
     const parentAuthor = commentAuthors[task.targetCommentIndex];
-    const commenterNickname = task.account.nickname || task.account.id;
-
     let replyText: string;
     try {
       if (task.isAuthor) {
-        replyText = await generateAuthorReply(postContext, parentComment, undefined, parentAuthor.nickname, writerNickname);
+        replyText = await generateAuthorReply(keyword, parentComment);
       } else {
-        replyText = await generateReply(postContext, parentComment, undefined, writerNickname, parentAuthor.nickname, commenterNickname);
+        replyText = await generateReply(keyword, parentComment);
       }
     } catch {
       replyText = task.isAuthor ? '댓글 감사합니다!' : '저도 그렇게 생각해요!';

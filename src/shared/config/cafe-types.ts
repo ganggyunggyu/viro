@@ -8,6 +8,7 @@ export interface CafeConfig {
   categoryMenuIds?: Record<string, string>;
   /** 다른 카페 카테고리를 이 카페 카테고리로 매핑 (예: { '건강': '웰빙' }) */
   categoryAliases?: Record<string, string>;
+  ownerAccountId?: string;
 }
 
 export type CafeCategoryMap = Record<string, string>;

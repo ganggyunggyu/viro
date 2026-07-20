@@ -1,13 +1,21 @@
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
+import {
+  deleteCommentWithAccount,
+  listLiveComments,
+} from '../src/shared/lib/naver-cafe-writing/comment-deleter';
+import { isNicknameEquivalent } from '../src/shared/lib/naver-cafe-writing/comment-writer-utils';
 import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
 import type { AgentConfig } from './lib/config';
+import { resolveCommentPlan } from './lib/comment-plan';
 import {
   createBrokerClient,
   type BrokerClient,
   type BrokerJob,
+  type AgentArticleSnapshot,
   type AgentCommentResult,
+  type AgentCommentDeleteResult,
   type CommentAccount,
 } from './lib/broker-client';
 
@@ -15,7 +23,8 @@ import {
  * 에이전트 런타임. 브로커에서 자기 잡을 pull → 로컬 브라우저(가정용 IP)로 댓글 게시 →
  * 결과 리포트. 모든 Mongo 접근은 브로커(서버)가 하고, 여기선 브라우저 실행만 한다.
  *
- * MVP는 fixed 모드(미리 준비된 댓글 텍스트)만 지원한다. generate/delete/agent 모드는 후속.
+ * 브라우저가 필요한 본문 읽기, 가입, 댓글 삭제/등록은 로컬에서 실행하고, AI 댓글 계획과
+ * 계정/작업 DB 관리는 웹 브로커에 위임한다.
  */
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,10 +40,10 @@ const toNaverAccount = (account: CommentAccount) => ({
 
 const log = (jobId: string, message: string): void => console.log(`[JOB ${jobId}] ${message}`);
 
-const resolveOwnerNickname = async (
+const readArticleSnapshot = async (
   job: BrokerJob,
   readers: CommentAccount[],
-): Promise<string> => {
+): Promise<AgentArticleSnapshot | null> => {
   for (const reader of readers.slice(0, 3)) {
     const result = await readCafeArticleContent(
       toNaverAccount(reader),
@@ -43,29 +52,88 @@ const resolveOwnerNickname = async (
       { reason: `agent_read:${reader.accountId}` },
     );
     if (result.success && result.content) {
-      return result.authorNickname || '';
+      return {
+        title: result.title || '',
+        body: result.content,
+        ownerNickname: result.authorNickname || '',
+      };
     }
   }
-  return '';
+  return null;
 };
 
-const processFixedJob = async (job: BrokerJob, broker: BrokerClient): Promise<void> => {
-  log(job._id, `시작: ${job.cafeSlug}/${job.articleId} (mode=${job.mode})`);
+const deleteExistingComments = async (
+  job: BrokerJob,
+  broker: BrokerClient,
+  readers: CommentAccount[],
+): Promise<AgentCommentDeleteResult[]> => {
+  const previousResults = [...(job.deleteResults || [])];
+  let liveComments: Array<{ commentId: string; nickname: string; content: string }> = [];
 
-  if (job.mode !== 'fixed') {
-    await broker.report(job._id, {
-      status: 'failed',
-      errorMessage: `에이전트 MVP는 fixed 모드만 지원합니다 (현재: ${job.mode})`,
+  for (const reader of readers.slice(0, 3)) {
+    await broker.heartbeat(job._id);
+    const listed = await listLiveComments(
+      toNaverAccount(reader),
+      job.cafeId,
+      job.articleId,
+    );
+    if (listed.success && listed.comments) {
+      liveComments = listed.comments;
+      break;
+    }
+  }
+
+  if (liveComments.length === 0) {
+    log(job._id, '삭제할 라이브 댓글 없음');
+    return previousResults;
+  }
+
+  const allAccounts = await broker.accounts('all');
+  const results = [...previousResults];
+  let resultIndex = results.length;
+
+  for (const live of liveComments) {
+    const candidates = allAccounts.filter((account) =>
+      isNicknameEquivalent(live.nickname, account.nickname || account.accountId),
+    );
+    let deletedBy: CommentAccount | undefined;
+    let error = candidates.length === 0
+      ? '삭제 가능한 내 계정을 찾지 못함'
+      : '댓글 삭제 실패';
+
+    for (const account of candidates) {
+      await broker.heartbeat(job._id);
+      const deleted = await deleteCommentWithAccount(
+        toNaverAccount(account),
+        job.cafeId,
+        job.articleId,
+        live.commentId,
+      );
+      if (deleted.success) {
+        deletedBy = account;
+        break;
+      }
+      error = deleted.error || error;
+    }
+
+    results.push({
+      index: resultIndex,
+      commentId: live.commentId,
+      accountId: deletedBy?.accountId,
+      nickname: live.nickname,
+      content: live.content,
+      success: Boolean(deletedBy),
+      error: deletedBy ? undefined : error,
+      deletedAt: deletedBy ? new Date().toISOString() : undefined,
     });
-    log(job._id, `건너뜀: ${job.mode} 모드 미지원(후속)`);
-    return;
+    resultIndex += 1;
   }
 
-  const texts = (job.fixedComments || []).map((text) => text.trim()).filter(Boolean);
-  if (texts.length === 0) {
-    await broker.report(job._id, { status: 'failed', errorMessage: 'fixedComments 없음' });
-    return;
-  }
+  return results;
+};
+
+const processJob = async (job: BrokerJob, broker: BrokerClient): Promise<void> => {
+  log(job._id, `시작: ${job.cafeSlug}/${job.articleId} (mode=${job.mode})`);
 
   const readers = await broker.accounts();
   if (readers.length === 0) {
@@ -74,23 +142,66 @@ const processFixedJob = async (job: BrokerJob, broker: BrokerClient): Promise<vo
   }
 
   await broker.heartbeat(job._id);
-  const ownerNickname = await resolveOwnerNickname(job, readers);
+  const article = await readArticleSnapshot(job, readers);
+  if (!article) {
+    await broker.report(job._id, { status: 'failed', errorMessage: '본문 읽기 실패' });
+    return;
+  }
 
   await broker.heartbeat(job._id);
-  const pool = await broker.pool(job._id, ownerNickname, texts.length);
-  const effectivePool = pool.length > 0 ? pool : readers;
-  log(job._id, `계정 풀 ${effectivePool.length}개, 댓글 ${texts.length}개, 소유자="${ownerNickname}"`);
+  const plan = await resolveCommentPlan(job, article, (snapshot) => broker.plan(job._id, snapshot));
+  const texts = plan.comments.map((text) => text.trim()).filter(Boolean);
+  if (texts.length === 0) {
+    await broker.report(job._id, {
+      status: 'failed',
+      errorMessage: '댓글 내용 생성/파싱 실패',
+      agentSummary: plan.summary,
+    });
+    return;
+  }
 
-  const results: AgentCommentResult[] = [];
+  const deleteResults = job.deleteExisting
+    ? await deleteExistingComments(job, broker, readers)
+    : [...(job.deleteResults || [])];
+  const reusableAccountIds = deleteResults
+    .filter(({ success, accountId }) => success && accountId)
+    .map(({ accountId }) => accountId as string);
+
+  await broker.heartbeat(job._id);
+  const pool = await broker.pool(
+    job._id,
+    article.ownerNickname,
+    texts.length,
+    reusableAccountIds,
+  );
+  if (pool.length === 0) {
+    await broker.report(job._id, {
+      status: 'failed',
+      deleteResults,
+      errorMessage: '사용 가능한 댓글 계정 풀이 비어 있음',
+      agentSummary: plan.summary,
+    });
+    return;
+  }
+  log(job._id, `계정 풀 ${pool.length}개, 댓글 ${texts.length}개, 소유자="${article.ownerNickname}"`);
+
+  const results: AgentCommentResult[] = [...(job.results || [])];
+  const alreadySucceededIndices = new Set(
+    results.filter(({ success }) => success).map(({ index }) => index),
+  );
   let accountIdx = 0;
-  let successCount = 0;
+  let successCount = alreadySucceededIndices.size;
 
   for (let commentIdx = 0; commentIdx < texts.length; commentIdx += 1) {
+    if (alreadySucceededIndices.has(commentIdx)) {
+      continue;
+    }
+
     const content = texts[commentIdx];
     let posted = false;
 
-    while (!posted && accountIdx < effectivePool.length) {
-      const account = effectivePool[accountIdx];
+    while (!posted && accountIdx < pool.length) {
+      const account = pool[accountIdx];
       accountIdx += 1;
 
       await broker.heartbeat(job._id);
@@ -148,7 +259,9 @@ const processFixedJob = async (job: BrokerJob, broker: BrokerClient): Promise<vo
   await broker.report(job._id, {
     status: successCount > 0 ? 'done' : 'failed',
     results,
+    deleteResults,
     errorMessage: successCount === 0 ? '댓글을 하나도 등록하지 못함' : undefined,
+    agentSummary: plan.summary,
   });
   log(job._id, `완료: ${successCount}/${texts.length} 성공`);
 };
@@ -199,7 +312,7 @@ export const runAgentLoop = async (
     }
 
     try {
-      await processFixedJob(job, broker);
+      await processJob(job, broker);
     } catch (error) {
       const message = error instanceof Error ? error.message : '알 수 없는 오류';
       console.error(`[JOB ${job._id}] 처리 오류:`, message);

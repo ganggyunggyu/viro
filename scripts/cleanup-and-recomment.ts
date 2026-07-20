@@ -175,7 +175,7 @@ const main = async (): Promise<void> => {
   let posted = 0;
   for (const commenter of commenters) {
     try {
-      const commentText = await generateComment(articleContent, (commenter as any).personaId, (commenter as any).nickname);
+      const commentText = await generateComment(CAFE_URL_SLUG);
       const account = { id: (commenter as any).accountId, password: (commenter as any).password, nickname: (commenter as any).nickname };
       const result = await writeCommentWithAccount(account, CAFE_ID, ARTICLE_ID, commentText);
       console.log(`[댓글 ${result.success ? "성공" : "실패"}] ${(commenter as any).accountId}: "${commentText.slice(0, 40)}" ${result.error || ""}`);

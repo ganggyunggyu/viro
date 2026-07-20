@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { cn } from '@/shared';
 import { Select, Button } from '@/shared';
-import { ChevronDown, Loader2, ImageIcon, CalendarClock } from 'lucide-react';
+import { ChevronDown, ImageIcon, CalendarClock } from 'lucide-react';
 import { getCafesAction } from '@/features/accounts/actions';
 import { PostOptionsUI } from '@/entities/post-options';
 import {
@@ -18,17 +18,9 @@ import {
   postAttachImagesAtom,
   postsPerDayAtom,
 } from '@/entities';
-import { runPostOnlyAction, getPostQueueStatusAction, type QueueBatchResult, type QueueStatusResult } from './queue-actions';
-
-const isQueueSettled = (status: QueueStatusResult | null) => {
-  if (!status) return false;
-  const accounts = Object.values(status);
-  if (accounts.length === 0) return false;
-  const hasSeenWork = accounts.some(
-    (s) => s.waiting + s.active + s.completed + s.failed > 0
-  );
-  return hasSeenWork && accounts.every((s) => s.waiting + s.active === 0);
-};
+import { preparePostOnlyAction, type QueueBatchResult } from './queue-actions';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
+import type { ManualPublishResult } from '@/features/manual-post/types';
 
 export const PostOnlyUI = () => {
   const [isPending, startTransition] = useTransition();
@@ -43,8 +35,6 @@ export const PostOnlyUI = () => {
   const [postsPerDay, setPostsPerDay] = useAtom(postsPerDayAtom);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [result, setResult] = useState<QueueBatchResult | null>(null);
-  const [queueStatus, setQueueStatus] = useState<QueueStatusResult | null>(null);
-  const [isPolling, setIsPolling] = useState(false);
 
   const keywordCount = keywordsText
     .split('\n')
@@ -63,22 +53,6 @@ export const PostOnlyUI = () => {
     };
     loadCafes();
   }, [cafesInitialized, setCafes, setSelectedCafeId, setCafesInitialized]);
-
-  useEffect(() => {
-    if (!isPolling) return;
-
-    const poll = async () => {
-      const status = await getPostQueueStatusAction();
-      setQueueStatus(status);
-      if (isQueueSettled(status)) {
-        setIsPolling(false);
-      }
-    };
-
-    poll();
-    const interval = setInterval(poll, 3000);
-    return () => clearInterval(interval);
-  }, [isPolling]);
 
   const inputClassName = cn(
     'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
@@ -99,7 +73,7 @@ export const PostOnlyUI = () => {
     startTransition(async () => {
       setResult(null);
       const parsedPostsPerDay = Number(postsPerDay);
-      const res = await runPostOnlyAction({
+      const prepared = await preparePostOnlyAction({
         keywords,
         ref: ref || undefined,
         cafeId: selectedCafeId || undefined,
@@ -107,9 +81,26 @@ export const PostOnlyUI = () => {
         attachImages,
         postsPerDay: postsPerDay && parsedPostsPerDay > 0 ? parsedPostsPerDay : undefined,
       });
-      setResult(res);
-      if (res.success) {
-        setIsPolling(true);
+      if (!prepared.success || !prepared.input) {
+        setResult({ success: false, jobsAdded: 0, message: prepared.error || '콘텐츠 준비 실패' });
+        return;
+      }
+      try {
+        const published = await runDesktopAction<ManualPublishResult>({
+          type: 'manual-publish',
+          input: prepared.input,
+        });
+        setResult({
+          success: published.success,
+          jobsAdded: published.completed,
+          message: `${published.completed}/${published.totalManuscripts}개 로컬 발행 완료`,
+        });
+      } catch (error) {
+        setResult({
+          success: false,
+          jobsAdded: 0,
+          message: error instanceof Error ? error.message : '로컬 실행 실패',
+        });
       }
     });
   };
@@ -259,60 +250,13 @@ export const PostOnlyUI = () => {
                 result.success ? 'text-(--success)' : 'text-(--danger)'
               )}
             >
-              {result.success ? '큐에 추가됨' : '실패'}
+              {result.success ? '로컬 발행 완료' : '실패'}
             </h3>
             <span className={cn('text-sm text-(--ink-muted)')}>
-              {result.jobsAdded}개 작업
+              {result.jobsAdded}개 발행
             </span>
           </div>
           <p className={cn('text-sm text-(--ink-muted)')}>{result.message}</p>
-
-          {queueStatus && Object.keys(queueStatus).length > 0 && (
-            <div className={cn('mt-4 space-y-3')}>
-              <div className={cn('flex items-center justify-between')}>
-                <h4 className={cn('text-sm font-medium text-(--ink)')}>진행 상황</h4>
-                {isPolling ? (
-                  <Button
-                    variant="secondary"
-                    size="xs"
-                    onClick={() => setIsPolling(false)}
-                  >
-                    <Loader2 className={cn('w-3.5 h-3.5 animate-spin')} />
-                    폴링 중지
-                  </Button>
-                ) : (
-                  <span className={cn('text-xs text-(--success) font-medium')}>완료</span>
-                )}
-              </div>
-              {Object.entries(queueStatus).map(([accountId, status]) => {
-                const total = status.waiting + status.active + status.completed + status.failed;
-                if (total === 0) return null;
-                const progress = total > 0 ? ((status.completed + status.failed) / total) * 100 : 0;
-                return (
-                  <div key={accountId} className={cn('rounded-xl bg-(--surface) p-3 border border-(--border-light)')}>
-                    <div className={cn('flex items-center justify-between text-xs mb-2')}>
-                      <span className={cn('font-medium text-(--ink)')}>{accountId}</span>
-                      <span className={cn('text-(--ink-muted)')}>
-                        {status.completed}/{total} 완료
-                        {status.failed > 0 && ` (${status.failed} 실패)`}
-                      </span>
-                    </div>
-                    <div className={cn('h-1.5 rounded-full bg-(--surface-muted) overflow-hidden')}>
-                      <div
-                        className={cn('h-full bg-(--accent) transition-all')}
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    {status.active > 0 && (
-                      <p className={cn('text-xs text-(--accent) mt-2')}>
-                        {status.active}개 처리 중...
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
       )}
     </div>

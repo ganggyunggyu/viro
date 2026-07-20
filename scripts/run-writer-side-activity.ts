@@ -76,14 +76,6 @@ const buildCommentText = (writerIndex: number, commentIndex: number): string => 
   return COMMENT_TEMPLATES[templateIndex];
 };
 
-const buildPostContext = (title?: string, content?: string): string => {
-  const normalizedTitle = (title || '').trim();
-  const normalizedContent = (content || '').trim();
-  if (!normalizedTitle) return normalizedContent;
-  if (!normalizedContent) return normalizedTitle;
-  return `${normalizedTitle}\n\n${normalizedContent}`;
-};
-
 const generateCommentForArticle = async (
   writer: NaverAccount,
   cafeId: string,
@@ -100,16 +92,14 @@ const generateCommentForArticle = async (
     return { text: fallback, warnings };
   }
 
-  const postContext = buildPostContext(article.title, article.content);
-  if (!postContext) {
+  const keyword = (article.title || '').trim();
+  if (!keyword) {
     warnings.push(`empty context #${articleId}`);
     return { text: fallback, warnings };
   }
 
   try {
-    // comment API currently expects persona_id as integer or omitted.
-    // To avoid schema mismatch, persona is omitted here.
-    const generated = await generateComment(postContext, null, article.authorNickname);
+    const generated = await generateComment(keyword);
     if (!generated.trim()) {
       warnings.push(`api empty comment #${articleId}`);
       return { text: fallback, warnings };

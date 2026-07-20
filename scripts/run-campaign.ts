@@ -153,11 +153,7 @@ const generateSmartComment = async (
     const article = await readCafeArticleContent(writer, cafeId, articleId);
     if (!article.success || !article.content) return fallback;
 
-    const postContext = article.title
-      ? `${article.title}\n\n${article.content}`
-      : article.content;
-
-    const generated = await generateComment(postContext, null, article.authorNickname);
+    const generated = await generateComment(article.title || '카페 글');
     return generated.trim() || fallback;
   } catch {
     return fallback;

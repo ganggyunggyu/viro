@@ -98,7 +98,6 @@ const main = async (): Promise<void> => {
   const loginId = getArgValue('--login-id', DEFAULT_LOGIN_ID);
   const verifyAccountId = getArgValue('--account-id', DEFAULT_VERIFY_ACCOUNT_ID);
   const model = getArgValue('--model', DEFAULT_MODEL);
-  const category = getArgValue('--category', '');
   const exactCountArg = getArgValue('--count', '');
   const minCount = Number(getArgValue('--min', '5'));
   const maxCount = Number(getArgValue('--max', '10'));
@@ -111,10 +110,7 @@ const main = async (): Promise<void> => {
   const exactCount = exactCountArg ? Number(exactCountArg) : undefined;
 
   const result = await generateCafeCommentBatch({
-    title: article.title || `카페 글 ${articleId}`,
-    body: article.content || '',
-    keyword: article.keyword || article.title,
-    category,
+    keyword: article.keyword || article.title || `카페 글 ${articleId}`,
     exactCount,
     minCount,
     maxCount,

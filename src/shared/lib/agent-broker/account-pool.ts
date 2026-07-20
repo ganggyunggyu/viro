@@ -32,12 +32,18 @@ export const getActiveCommenterAccounts = async (userId: string): Promise<Commen
     .select('accountId password nickname')
     .lean<CommentAccount[]>();
 
+export const getActiveAccounts = async (userId: string): Promise<CommentAccount[]> =>
+  Account.find({ userId, isActive: true })
+    .select('accountId password nickname')
+    .lean<CommentAccount[]>();
+
 export const buildCommentAccountPool = async (
   userId: string,
   cafeId: string,
   articleId: number,
   ownerNickname: string,
   needed: number,
+  reusableAccountIds: string[] = [],
 ): Promise<CommentAccount[]> => {
   const commenterAccounts = await Account.find({
     userId,
@@ -54,6 +60,9 @@ export const buildCommentAccountPool = async (
   const alreadyCommented = new Set(
     (existing?.comments || []).map((comment) => comment.accountId).filter(Boolean) as string[],
   );
+  for (const accountId of reusableAccountIds) {
+    alreadyCommented.delete(accountId);
+  }
 
   const recentDocs = await PublishedArticle.find({}, { comments: 1 })
     .sort({ updatedAt: -1 })

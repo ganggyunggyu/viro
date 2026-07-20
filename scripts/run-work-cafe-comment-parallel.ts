@@ -705,10 +705,7 @@ const createArticleGenerator = (params: {
       for (let attempt = 1; attempt <= 3; attempt += 1) {
         try {
           const candidate = await generateCafeCommentBatch({
-            title: article.title || firstRow.subject,
-            body: article.content,
             keyword: firstRow.subject,
-            category: firstRow.cafeSlug,
             exactCount: rows.length,
             model: options.model,
           });

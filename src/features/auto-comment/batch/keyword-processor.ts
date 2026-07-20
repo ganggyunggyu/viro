@@ -83,7 +83,6 @@ export const processKeyword = async ({
     const generated = await generateContent({ service, keyword: keywordWithCategory, ref, personaId });
     console.log('[BATCH] AI 콘텐츠 생성 완료');
     const { title, htmlContent } = buildCafePostContent(generated.content, keyword);
-    const postContext = `${title}\n\n${generated.content}`;
 
     // writePostWithAccount는 되돌릴 수 없는 실제 네이버 발행이라, BullMQ가 잡을 실패로
     // 오판해 통째로 재시도(attempts/backoff, 워커 다운 시 stalled 재큐잉)하면 같은 글이
@@ -187,7 +186,7 @@ export const processKeyword = async ({
       cafeId,
       articleId: postResult.articleId,
       commenterAccounts,
-      postContext,
+      keyword,
       betweenCommentsDelayMs: delays.betweenComments,
     });
     const { commentResults } = comments;
@@ -207,7 +206,7 @@ export const processKeyword = async ({
       articleId: postResult.articleId,
       writerAccount,
       commenterAccounts,
-      postContext,
+      keyword,
       betweenRepliesDelayMs: delays.betweenReplies,
       comments,
     });

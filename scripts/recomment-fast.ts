@@ -129,7 +129,7 @@ const main = async (): Promise<void> => {
           let posted = 0;
           for (const commenter of shuffled) {
             try {
-              const commentText = await generateComment(readResult.content, commenter.personaId, commenter.nickname);
+              const commentText = await generateComment(readResult.title || cafeName);
               const account = { id: commenter.accountId, password: commenter.password, nickname: commenter.nickname };
               const result = await writeCommentWithAccount(account, cafe.cafeId, articleId, commentText);
               if (result.success) posted++;

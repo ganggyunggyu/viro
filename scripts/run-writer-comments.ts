@@ -152,14 +152,7 @@ const main = async (): Promise<void> => {
             article.articleId,
           );
           if (content.success && content.content) {
-            const postContext = content.title
-              ? `${content.title}\n\n${content.content}`
-              : content.content;
-            const generated = await generateComment(
-              postContext,
-              null,
-              content.authorNickname,
-            );
+            const generated = await generateComment(content.title || article.subject || '카페 글');
             if (generated.trim()) commentText = generated.trim();
           }
         } catch {}

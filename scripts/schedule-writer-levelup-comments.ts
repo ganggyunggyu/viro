@@ -284,16 +284,12 @@ const buildComment = async (
       return fallback;
     }
 
-    const context = compact(`${content.title || article.subject}\n\n${content.content}`);
-    if (!context) {
+    const keyword = compact(content.title || article.subject || '카페 글');
+    if (!keyword) {
       return fallback;
     }
 
-    const generated = await generateComment(
-      `${context}\n\n[지시] 존댓말로 짧고 자연스럽게 1문장만 작성. 과한 칭찬, 광고 문구, 이모지 금지.`,
-      null,
-      content.authorNickname,
-    );
+    const generated = await generateComment(keyword);
 
     return compact(generated) || fallback;
   } catch {

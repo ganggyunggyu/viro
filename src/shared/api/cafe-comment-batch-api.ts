@@ -1,10 +1,7 @@
 import { generateContentWithPrompt } from './content-api';
 
 export interface CafeCommentBatchInput {
-  title: string;
-  body: string;
-  keyword?: string;
-  category?: string;
+  keyword: string;
   minCount?: number;
   maxCount?: number;
   exactCount?: number;
@@ -35,7 +32,6 @@ interface ParsedCommentPayload {
 const DEFAULT_MODEL = 'deepseek-v4-flash';
 const DEFAULT_MIN_COUNT = 5;
 const DEFAULT_MAX_COUNT = 10;
-const MAX_BODY_CHARS = 4500;
 const START_CHECK_LENGTH = 6;
 
 const normalizeText = (value: string): string =>
@@ -56,17 +52,11 @@ const getCountRule = (input: CafeCommentBatchInput): string => {
 };
 
 export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): string => {
-  const title = normalizeText(input.title);
-  const body = normalizeText(input.body).slice(0, MAX_BODY_CHARS);
-  const keyword = normalizeText(input.keyword || '');
-  const category = normalizeText(input.category || '');
-  const keywordRule = keyword
-    ? `- 댓글 중 3개 정도는 "${keyword}"를 문장에 자연스럽게 그대로 포함시킨다. 전체 개수가 3개보다 적으면 가능한 만큼만 포함한다.`
-    : '';
+  const keyword = normalizeText(input.keyword);
 
-  return `너는 네이버 카페 댓글 작성자 여러 명을 시뮬레이션한다.
+  return `너는 네이버 카페에서 짧고 무난한 댓글을 다는 일반 회원 여러 명이야.
 
-아래 카페 글을 읽고, 글 내용과 직접 연결되는 일반 댓글만 만든다.
+입력으로 받은 키워드만 보고 댓글을 작성해.
 
 ## 출력 형식
 반드시 JSON만 출력한다. 마크다운 코드블록, 설명문, 머리말, 꼬리말 금지.
@@ -86,44 +76,25 @@ export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): strin
 ## 개수
 ${getCountRule(input)}
 
-## 댓글 작성 규칙
+## 작성 방향
+- 잘 보고 갑니다
+- 좋은 정보 감사합니다
+- 저도 ${keyword}에 관한 정보를 찾아봤는데 좋은 정보 감사합니다
+- ${keyword} 관련 내용 잘 보고 갑니다
+- 장소나 맛집 키워드라면 제가 가본 곳도 좋았는데 소개해주신 곳도 좋아 보이네요
+
+## 규칙
 - 모든 type은 "comment"만 사용한다. 대댓글은 만들지 않는다.
-- content는 실제 카페 댓글처럼 한 줄로 작성한다.
-- content는 35~120자 사이로 쓴다.
-- 모든 문장은 존댓말로 쓴다.
-- 글의 구체 요소를 받아서 말한다. 제목만 보고 쓴 듯한 포괄 댓글 금지.
-- 글에 없는 상호, 가격, 지역, 효능, 후기, 병원명, 제품명을 새로 만들지 않는다.
-${keywordRule}
-- 글에 없는 방문 경험, 품절 경험, 대기 시간, 메뉴명, 좌석 수, 주차 상황을 실제로 겪은 것처럼 꾸며내지 않는다.
-- content에 "원고"라는 단어를 절대 쓰지 않는다. 실제 카페 회원은 "원고"라고 말하지 않는다. 글을 가리킬 때는 "글", "내용", "정보", "여기"라고 쓰거나 아예 지칭을 생략한다.
-- 글 제목이나 카페 이름이 영문/숫자 코드(예: livingnote702)로만 되어 있으면, 그 코드를 댓글에 그대로 옮기지 않는다. 본문 내용을 근거로 자연스럽게 쓴다.
-- 개인 경험형 댓글도 "이런 경우가 있더라고요" 수준으로 일반화한다. "지난번에 갔을 때", "제가 갔던 곳은"처럼 실방문을 단정하지 않는다.
-- 닉네임, 아이디, 해시태그, 이모지, URL, 마크다운, 따옴표 과다 사용 금지.
-- 광고처럼 보이는 추천, 구매 유도, 문의 유도 금지.
-- "저도", "저는", "맞아요", "공감돼요", "좋은 정보"로 시작하는 댓글은 전체에서 각각 최대 1개만 허용한다.
+- 위 예시를 매번 그대로 복사하지 말고 비슷한 의미로 자연스럽게 바꾼다.
+- content는 한 문장, 10~50자 정도의 무난한 존댓말로 쓴다.
+- 일부 댓글은 ${keyword}를 자연스럽게 언급하고, 일부는 키워드 없이 짧게 마무리한다.
+- 질문, 평가, 과한 칭찬, 광고 문구는 쓰지 않는다.
+- 키워드 외의 상호, 가격, 효능, 지역, 메뉴, 구체적인 경험은 지어내지 않는다.
+- 닉네임, 아이디, 해시태그, 이모지, URL, 마크다운은 쓰지 않는다.
 - 첫 6글자가 같은 댓글이 있으면 실패다.
-- 문장 끝도 모두 비슷하면 실패다. "~같아요", "~네요", "~더라고요", 질문형, 짧은 반응형을 섞는다.
-- 모든 댓글이 칭찬/공감이면 실패다. 질문, 경험, 비교, 주의, 생활 장면, 메모/저장, 조건 확인을 섞는다.
 
-## 페르소나 분산
-아래 유형 중 최소 5개 이상을 섞는다.
-- 처음 방문 전 체크하는 사람
-- 실제 다녀온 경험을 떠올리는 사람
-- 숫자/시간/동선/좌석 같은 조건을 확인하는 사람
-- 사진보다 편의성을 보는 사람
-- 가족/친구/반려동물 동행을 생각하는 사람
-- 주말 혼잡이나 대기 시간을 걱정하는 사람
-- 저장해두고 나중에 보려는 사람
-- 글의 특정 문장을 보고 추가 질문하는 사람
-- 살짝 조심스럽게 다른 기준을 덧붙이는 사람
-
-## 글 정보
-제목: ${title}
-키워드: ${keyword || '(없음)'}
-카테고리: ${category || '(없음)'}
-
-## 글 본문
-${body}
+## 키워드
+${keyword}
 
 JSON만 출력한다.`;
 };
@@ -169,8 +140,8 @@ const validateComments = (
 
   const starts = new Map<string, number>();
   for (const comment of comments) {
-    if (comment.content.length < 20) warnings.push(`short:${comment.index}`);
-    if (comment.content.length > 140) warnings.push(`long:${comment.index}`);
+    if (comment.content.length < 8) warnings.push(`short:${comment.index}`);
+    if (comment.content.length > 60) warnings.push(`long:${comment.index}`);
     if (comment.content.includes('원고')) warnings.push(`contains-wongo:${comment.index}`);
 
     const start = comment.content.slice(0, START_CHECK_LENGTH);
@@ -179,15 +150,6 @@ const validateComments = (
 
   for (const [start, count] of starts) {
     if (count > 1) warnings.push(`duplicate-start:${start}`);
-  }
-
-  const bannedStartCounts = ['저도', '저는', '맞아요', '공감돼요', '좋은 정보'].map((token) => ({
-    token,
-    count: comments.filter((comment) => comment.content.startsWith(token)).length,
-  }));
-
-  for (const { token, count } of bannedStartCounts) {
-    if (count > 1) warnings.push(`repeated-opening:${token}:${count}`);
   }
 
   return warnings;

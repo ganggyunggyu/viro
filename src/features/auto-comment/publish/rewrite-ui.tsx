@@ -2,34 +2,17 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { cn, Checkbox, Button, ExecuteConfirmModal } from '@/shared';
-import { Loader2, RefreshCw, Sparkles, PenLine } from 'lucide-react';
+import { RefreshCw, Sparkles, PenLine } from 'lucide-react';
 import { getCafesAction } from '@/features/accounts/actions';
 import { REWRITE_KEYWORD_POOL } from '../batch/rewrite-keyword-pool';
 import { inferCafeService } from '../batch/rewrite-cafe-service';
-import {
-  runRewriteBatchAction,
-  getRewriteBatchStatusAction,
-  type RewriteBatchStartResult,
-  type RewriteBatchStatusResult,
-  type RewriteKeywordSource,
-} from './rewrite-actions';
+import type { RewriteBatchStartResult, RewriteKeywordSource } from './rewrite-actions';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 
 interface CafeOption {
   cafeId: string;
   name: string;
 }
-
-interface JobRef {
-  cafeId: string;
-  cafeName: string;
-  jobLogId: string;
-  totalArticles: number;
-}
-
-const isStatusSettled = (status: RewriteBatchStatusResult | null): boolean => {
-  if (!status) return false;
-  return status.jobs.length > 0 && status.overallDone;
-};
 
 export const RewriteUI = () => {
   const [isPending, startTransition] = useTransition();
@@ -42,9 +25,6 @@ export const RewriteUI = () => {
   const [customKeywordsText, setCustomKeywordsText] = useState('');
   const [showExecuteModal, setShowExecuteModal] = useState(false);
   const [startResult, setStartResult] = useState<RewriteBatchStartResult | null>(null);
-  const [jobRefs, setJobRefs] = useState<JobRef[]>([]);
-  const [statusResult, setStatusResult] = useState<RewriteBatchStatusResult | null>(null);
-  const [isPolling, setIsPolling] = useState(false);
 
   useEffect(() => {
     const loadCafes = async () => {
@@ -54,22 +34,6 @@ export const RewriteUI = () => {
     };
     loadCafes();
   }, []);
-
-  useEffect(() => {
-    if (!isPolling || jobRefs.length === 0) return;
-
-    const poll = async () => {
-      const status = await getRewriteBatchStatusAction(jobRefs.map((job) => job.jobLogId));
-      setStatusResult(status);
-      if (isStatusSettled(status)) {
-        setIsPolling(false);
-      }
-    };
-
-    poll();
-    const interval = setInterval(poll, 3000);
-    return () => clearInterval(interval);
-  }, [isPolling, jobRefs]);
 
   const toggleCafe = useCallback((cafeId: string) => {
     setSelectedCafeIds((prev) =>
@@ -106,22 +70,24 @@ export const RewriteUI = () => {
 
     startTransition(async () => {
       setStartResult(null);
-      setStatusResult(null);
-      setJobRefs([]);
-
-      const res = await runRewriteBatchAction({
-        cafeIds: selectedCafeIds,
-        dateFrom,
-        dateTo,
-        keywordSource,
-        customKeywords: keywordSource === 'custom' ? customKeywords : undefined,
-      });
-
-      setStartResult(res);
-
-      if (res.success && res.jobs.length > 0) {
-        setJobRefs(res.jobs);
-        setIsPolling(true);
+      try {
+        setStartResult(await runDesktopAction<RewriteBatchStartResult>({
+          type: 'rewrite',
+          input: {
+            cafeIds: selectedCafeIds,
+            dateFrom,
+            dateTo,
+            keywordSource,
+            customKeywords: keywordSource === 'custom' ? customKeywords : undefined,
+          },
+        }));
+      } catch (error) {
+        setStartResult({
+          success: false,
+          message: error instanceof Error ? error.message : '로컬 실행 실패',
+          jobs: [],
+          totalArticles: 0,
+        });
       }
     });
   };
@@ -303,66 +269,13 @@ export const RewriteUI = () => {
         >
           <div className={cn('flex items-center justify-between mb-3')}>
             <h3 className={cn('font-semibold', startResult.success ? 'text-(--success)' : 'text-(--danger)')}>
-              {startResult.success ? '재작성 시작됨' : '시작 실패'}
+              {startResult.success ? '재작성 완료' : '실행 실패'}
             </h3>
             {startResult.success && (
               <span className={cn('text-sm text-(--ink-muted)')}>{startResult.totalArticles}개 글</span>
             )}
           </div>
           <p className={cn('text-sm text-(--ink-muted)')}>{startResult.message}</p>
-
-          {jobRefs.length > 0 && (
-            <div className={cn('mt-4 space-y-3')}>
-              <div className={cn('flex items-center justify-between')}>
-                <h4 className={cn('text-sm font-medium text-(--ink)')}>진행 상황</h4>
-                {isPolling ? (
-                  <Button variant="secondary" size="xs" onClick={() => setIsPolling(false)}>
-                    <Loader2 className={cn('w-3.5 h-3.5 animate-spin')} />
-                    폴링 중지
-                  </Button>
-                ) : (
-                  <span className={cn('text-xs text-(--success) font-medium')}>완료</span>
-                )}
-              </div>
-
-              {jobRefs.map((job) => {
-                const jobStatus = statusResult?.jobs.find((s) => s.jobLogId === job.jobLogId);
-                const total = jobStatus?.totalKeywords ?? job.totalArticles;
-                const completed = jobStatus?.completed ?? 0;
-                const failed = jobStatus?.failed ?? 0;
-                const progress = total > 0 ? ((completed + failed) / total) * 100 : 0;
-                const failedResults = (jobStatus?.results ?? []).filter((r) => !r.success);
-
-                return (
-                  <div key={job.jobLogId} className={cn('rounded-xl bg-(--surface) p-3 border border-(--border-light)')}>
-                    <div className={cn('flex items-center justify-between text-xs mb-2')}>
-                      <span className={cn('font-medium text-(--ink)')}>{job.cafeName}</span>
-                      <span className={cn('text-(--ink-muted)')}>
-                        {completed}/{total} 완료
-                        {failed > 0 && ` (${failed} 실패)`}
-                      </span>
-                    </div>
-                    <div className={cn('h-1.5 rounded-full bg-(--surface-muted) overflow-hidden')}>
-                      <div className={cn('h-full bg-(--accent) transition-all')} style={{ width: `${progress}%` }} />
-                    </div>
-
-                    {failedResults.length > 0 && (
-                      <div className={cn('mt-3 space-y-1')}>
-                        <p className={cn('text-xs font-medium text-(--danger)')}>실패 사유</p>
-                        <ul className={cn('text-xs text-(--ink-muted) space-y-0.5')}>
-                          {failedResults.map((r, i) => (
-                            <li key={i}>
-                              articleId={r.articleId} &quot;{r.keyword}&quot; — {r.error || '알 수 없는 오류'}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
       )}
     </div>

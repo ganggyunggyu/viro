@@ -2,7 +2,7 @@ import { PostJobData, CommentJobData, ReplyJobData, JobResult } from '../types';
 import { addTaskJob } from '../index';
 import { writePostWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
-import { getPersonaId, getNextActiveTime, NaverAccount } from '@/shared/lib/account-manager';
+import { getNextActiveTime, NaverAccount } from '@/shared/lib/account-manager';
 import { getRandomDelay } from '@/shared/models/queue-settings';
 import { connectDB } from '@/shared/lib/mongodb';
 import { PublishedArticle, incrementTodayPostCount } from '@/shared/models';
@@ -357,10 +357,7 @@ const handlePostSuccess = async (
   }
 
   const writerAccount = accounts.find((a) => a.id === writerAccountId);
-  const writerNickname = writerAccount?.nickname || writerAccountId;
-
-  const postContent = rawContent || content;
-  const postContext = `${subject}\n\n${postContent}`;
+  const commentKeyword = keyword || subject;
 
   const commentDelays: Map<string, number> = new Map();
   const afterPostDelay = getRandomDelay(settings.delays.afterPost);
@@ -382,12 +379,11 @@ const handlePostSuccess = async (
 
     if (maxCommentsPerAccount > 0 && currentCount >= maxCommentsPerAccount) continue;
 
-    const personaId = getPersonaId(commenter);
     accountCommentCounts.set(commenter.id, (accountCommentCounts.get(commenter.id) ?? 0) + 1);
 
     let commentText: string;
     try {
-      commentText = await generateComment(postContext, personaId, writerNickname);
+      commentText = await generateComment(commentKeyword);
     } catch {
       commentText = '좋은 정보 감사합니다!';
     }
@@ -449,7 +445,6 @@ const handlePostSuccess = async (
 
   // 글쓴이 대댓글
   if (writerAccount && authorReplyCount > 0) {
-    const writerPersonaId = getPersonaId(writerAccount);
     const writerActivityDelay = getNextActiveTime(writerAccount);
 
     for (let i = 0; i < authorReplyCount; i++) {
@@ -475,11 +470,8 @@ const handlePostSuccess = async (
       let replyText: string;
       try {
         replyText = await generateAuthorReply(
-          postContext,
-          parentCommentContent,
-          writerPersonaId,
-          parentAuthorNickname,
-          writerNickname
+          commentKeyword,
+          parentCommentContent
         );
       } catch {
         replyText = '댓글 감사합니다!';
@@ -547,19 +539,12 @@ const handlePostSuccess = async (
     }
 
     const replyer = availableReplyers[i % availableReplyers.length];
-    const replyerPersonaId = getPersonaId(replyer);
-    const replyerNickname = replyer.nickname || replyer.id;
-
     const parentCommentContent = commentContents[targetCommentIndex] || '좋은 정보네요';
     let replyText: string;
     try {
       replyText = await generateReply(
-        postContext,
-        parentCommentContent,
-        replyerPersonaId,
-        writerNickname,
-        targetCommentAuthor.nickname,
-        replyerNickname
+        commentKeyword,
+        parentCommentContent
       );
     } catch {
       replyText = '저도 그렇게 생각해요!';

@@ -67,8 +67,7 @@ const smartComment = async (
   try {
     const article = await readCafeArticleContent(writer, cafeId, articleId);
     if (!article.success || !article.content) return fallback;
-    const ctx = article.title ? `${article.title}\n\n${article.content}` : article.content;
-    const gen = await generateComment(`${ctx}\n\n[지시] 반드시 존댓말로 작성할 것. 반말 금지. 짧고 자연스럽게.`, null, article.authorNickname);
+    const gen = await generateComment(article.title || '샤넬 오픈런');
     return gen.trim() || fallback;
   } catch {
     return fallback;

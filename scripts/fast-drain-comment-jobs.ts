@@ -70,7 +70,7 @@ const processJob = async (
   for (let attempt = 0; attempt < 2 && texts.length < needed; attempt += 1) {
     try {
       const batch = await generateCafeCommentBatch({
-        title, body: body || title, keyword: title, category: job.cafeSlug,
+        keyword: title || job.cafeSlug,
         exactCount: needed, model: 'deepseek-v4-flash',
       });
       texts = (batch.comments || []).map((c) => c.content).filter(Boolean);

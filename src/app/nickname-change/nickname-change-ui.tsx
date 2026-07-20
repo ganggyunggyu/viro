@@ -10,11 +10,7 @@ import {
   type BatchResultRow,
   type BatchResultSummaryItem,
 } from '@/shared';
-import {
-  changeNicknameByCafeAction,
-  changeNicknameByAccountAction,
-  changeNicknameAllAction,
-} from '@/features/auto-comment/batch/batch-actions';
+import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 import type {
   BatchNicknameResult,
   NicknameChangeMode,
@@ -83,22 +79,28 @@ export const NicknameChangeUI = ({ mode }: NicknameChangeUIProps) => {
     startTransition(async () => {
       setResult(null);
 
-      let res: BatchNicknameResult;
-
-      switch (mode) {
-        case 'by-cafe':
-          res = await changeNicknameByCafeAction(selectedCafeId);
-          break;
-        case 'by-account':
-          res = await changeNicknameByAccountAction(selectedAccountId);
-          break;
-        case 'all':
-        default:
-          res = await changeNicknameAllAction();
-          break;
+      try {
+        setResult(await runDesktopAction<BatchNicknameResult>({
+          type: 'nickname-change',
+          mode,
+          cafeId: mode === 'by-cafe' ? selectedCafeId : undefined,
+          accountId: mode === 'by-account' ? selectedAccountId : undefined,
+        }));
+      } catch (error) {
+        setResult({
+          success: false,
+          total: 0,
+          changed: 0,
+          failed: 1,
+          results: [{
+            success: false,
+            accountId: selectedAccountId || 'Viro 프로그램',
+            cafeId: selectedCafeId,
+            cafeName: '',
+            error: error instanceof Error ? error.message : '로컬 실행 실패',
+          }],
+        });
       }
-
-      setResult(res);
     });
   };
 

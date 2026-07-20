@@ -3,15 +3,21 @@ import { connectDB } from '@/shared/lib/mongodb';
 import { AgentToken } from '@/shared/models/agent-token';
 import {
   ManualCommentJob,
+  PublishedArticle,
   type IManualCommentJob,
   type IManualCommentResult,
   type IManualCommentDeleteResult,
   type ManualCommentJobStatus,
 } from '@/shared/models';
+import { generateCafeCommentBatch } from '@/shared/api/cafe-comment-batch-api';
+import {
+  addCommentToArticle,
+  removeCommentFromArticle,
+} from '@/shared/models/published-article';
 import { buildCommentAccountPool, type CommentAccount } from './account-pool';
 
 export type { CommentAccount } from './account-pool';
-export { getActiveCommenterAccounts } from './account-pool';
+export { getActiveAccounts, getActiveCommenterAccounts } from './account-pool';
 
 /**
  * 멀티테넌트 에이전트 브로커.
@@ -89,6 +95,7 @@ export const getJobAccountPool = async (
   jobId: string,
   ownerNickname: string,
   needed: number,
+  reusableAccountIds: string[] = [],
 ): Promise<CommentAccount[] | null> => {
   await connectDB();
 
@@ -97,7 +104,70 @@ export const getJobAccountPool = async (
     return null;
   }
 
-  return buildCommentAccountPool(userId, job.cafeId, job.articleId, ownerNickname, Math.max(1, needed));
+  return buildCommentAccountPool(
+    userId,
+    job.cafeId,
+    job.articleId,
+    ownerNickname,
+    Math.max(1, needed),
+    reusableAccountIds,
+  );
+};
+
+export interface AgentArticleSnapshot {
+  title: string;
+  body: string;
+  ownerNickname: string;
+}
+
+export interface AgentCommentPlan {
+  comments: string[];
+  summary?: string;
+}
+
+export const generateJobCommentPlan = async (
+  userId: string,
+  jobId: string,
+  article: AgentArticleSnapshot,
+): Promise<AgentCommentPlan | null> => {
+  await connectDB();
+
+  const job = await ManualCommentJob.findOne({ _id: jobId, userId }).lean<IManualCommentJob>();
+  if (!job) {
+    return null;
+  }
+
+  if (job.mode === 'fixed') {
+    return {
+      comments: (job.fixedComments || []).map((comment) => comment.trim()).filter(Boolean),
+    };
+  }
+
+  const min = job.mode === 'agent' ? 8 : Math.max(1, job.generateMinCount || 8);
+  const max = job.mode === 'agent' ? 13 : Math.max(min, job.generateMaxCount || 13);
+  const exactCount = Math.floor(min + Math.random() * (max - min + 1));
+  let comments: string[] = [];
+  const publishedArticle = await PublishedArticle.findOne(
+    { cafeId: job.cafeId, articleId: job.articleId },
+    { keyword: 1 },
+  ).lean<{ keyword?: string } | null>();
+  const commentKeyword = publishedArticle?.keyword?.trim() || article.title.trim() || job.cafeSlug;
+
+  for (let attempt = 0; attempt < 3 && comments.length < exactCount; attempt += 1) {
+    const batch = await generateCafeCommentBatch({
+      keyword: commentKeyword,
+      exactCount,
+      model: 'deepseek-v4-flash',
+    });
+    comments = batch.comments.map(({ content }) => content).slice(0, exactCount);
+  }
+
+  return {
+    comments,
+    summary: job.mode === 'agent'
+      ? `웹 AI가 키워드로 ${comments.length}개 댓글을 계획하고 로컬 Viro가 실행함`
+      : undefined,
+  };
 };
 
 export const heartbeatJob = async (
@@ -130,6 +200,13 @@ export const completeJob = async (
 ): Promise<boolean> => {
   await connectDB();
 
+  const job = await ManualCommentJob.findOne({ _id: jobId, userId })
+    .select('cafeId articleId')
+    .lean<Pick<IManualCommentJob, 'cafeId' | 'articleId'> | null>();
+  if (!job) {
+    return false;
+  }
+
   const result = await ManualCommentJob.updateOne(
     { _id: jobId, userId },
     {
@@ -143,6 +220,33 @@ export const completeJob = async (
       $unset: { claimedBy: '', claimedAt: '' },
     },
   );
+
+  for (const deleted of input.deleteResults || []) {
+    if (deleted.success) {
+      await removeCommentFromArticle(job.cafeId, job.articleId, deleted.commentId);
+    }
+  }
+
+  for (const posted of input.results || []) {
+    if (!posted.success || !posted.accountId || !posted.commentId) {
+      continue;
+    }
+
+    const exists = await PublishedArticle.exists({
+      cafeId: job.cafeId,
+      articleId: job.articleId,
+      'comments.commentId': posted.commentId,
+    });
+    if (!exists) {
+      await addCommentToArticle(job.cafeId, job.articleId, {
+        accountId: posted.accountId,
+        nickname: posted.nickname || posted.accountId,
+        content: posted.content,
+        type: 'comment',
+        commentId: posted.commentId,
+      });
+    }
+  }
 
   return result.matchedCount > 0;
 };

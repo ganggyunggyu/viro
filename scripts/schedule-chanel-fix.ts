@@ -54,8 +54,7 @@ const smart = async (w: NaverAccount, cafeId: string, articleId: number): Promis
   try {
     const a = await readCafeArticleContent(w, cafeId, articleId);
     if (!a.success || !a.content) return fb;
-    const ctx = a.title ? `${a.title}\n\n${a.content}` : a.content;
-    const g = await generateComment(`${ctx}\n\n[지시] 반드시 존댓말로 작성할 것. 반말 금지. 짧고 자연스럽게.`, null, a.authorNickname);
+    const g = await generateComment(a.title || '샤넬 오픈런');
     return g.trim() || fb;
   } catch { return fb; }
 };

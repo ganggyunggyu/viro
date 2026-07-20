@@ -197,12 +197,10 @@ const generateManuscript = async (item: SeedPlanItem): Promise<GeneratedManuscri
 };
 
 const generateCommentItems = async (
-  manuscript: GeneratedManuscript,
   keyword: string,
   options: CommentGenerationOptions,
 ): Promise<ViralCommentsData> => {
   const comments: ViralCommentItem[] = [];
-  const postContext = `${manuscript.title}\n\n${manuscript.body}`;
   const totalCount = getRandomInt(options.min, options.max);
   const mainCommentCount = options.includeReplies
     ? Math.max(4, Math.ceil(totalCount * 0.65))
@@ -212,7 +210,7 @@ const generateCommentItems = async (
   for (let index = 1; index <= mainCommentCount; index += 1) {
     const result = await postJson<{ success: boolean; comment: string }>(
       `${COMMENT_GEN_URL}/generate/comment`,
-      { content: postContext, keyword },
+      { keyword },
     );
     if (result.success && result.comment.trim()) {
       comments.push({
@@ -236,7 +234,7 @@ const generateCommentItems = async (
         `${COMMENT_GEN_URL}/generate/recomment`,
         {
           parent_comment: parentComment.content,
-          content: postContext,
+          keyword,
         },
       );
 
@@ -379,7 +377,6 @@ const main = async (): Promise<void> => {
       manuscript = await generateManuscript(item);
       if (pregenerateComments && !skipComments) {
         const generatedComments = await generateCommentItems(
-          manuscript,
           item.keyword,
           {
             min: commentMin,

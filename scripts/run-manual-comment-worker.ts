@@ -340,10 +340,7 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
     let batch: Awaited<ReturnType<typeof generateCafeCommentBatch>> | null = null;
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       const candidate = await generateCafeCommentBatch({
-        title: articleTitle || job.cafeSlug,
-        body: articleBody,
-        keyword: articleTitle,
-        category: job.cafeSlug,
+        keyword: articleTitle || job.cafeSlug,
         exactCount,
         model: 'deepseek-v4-flash',
       });

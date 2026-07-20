@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
@@ -9,7 +9,7 @@ import { join } from 'path';
  * 자동 설치한 뒤 에이전트 루프를 이 프로세스에서 돌린다. 로그는 렌더러로 전달한다.
  */
 
-const AGENT_HOME = join(homedir(), '.viro-agent');
+const AGENT_HOME = process.env.VIRO_AGENT_HOME || join(homedir(), '.viro-agent');
 const CONFIG_PATH = join(AGENT_HOME, 'config.json');
 const BROWSERS_PATH = join(AGENT_HOME, 'browsers');
 
@@ -55,8 +55,10 @@ console.error = (...args: unknown[]) => {
 
 const createWindow = (): void => {
   mainWindow = new BrowserWindow({
-    width: 680,
-    height: 760,
+    width: 1440,
+    height: 920,
+    minWidth: 1100,
+    minHeight: 720,
     title: 'Viro',
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
@@ -65,47 +67,36 @@ const createWindow = (): void => {
     },
   });
 
-  mainWindow.loadFile(join(__dirname, 'renderer.html'));
-};
+  const { brokerUrl } = loadStored();
+  const allowedOrigin = new URL(brokerUrl).origin;
 
-app.whenReady().then(() => {
-  process.env.PLAYWRIGHT_BROWSERS_PATH = BROWSERS_PATH;
-  createWindow();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    void shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (new URL(url).origin !== allowedOrigin) {
+      event.preventDefault();
+      void shell.openExternal(url);
     }
   });
-});
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, _description, validatedUrl) => {
+    if (errorCode !== -3 && validatedUrl.startsWith(allowedOrigin)) {
+      void mainWindow?.loadFile(join(__dirname, 'renderer.html'));
+    }
+  });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+  void mainWindow.loadURL(`${allowedOrigin}/`);
+};
 
-ipcMain.handle('get-config', () => loadStored());
-
-ipcMain.handle('save-config', (_event, config: StoredConfig) => {
-  saveStored(config);
-  return true;
-});
-
-ipcMain.handle('ensure-chromium', async () => {
-  const { ensureChromium } = await import('../lib/ensure-chromium');
-  await ensureChromium({ onProgress: (line) => send('setup-progress', line) });
-  return true;
-});
-
-ipcMain.handle('start-agent', async () => {
+const startAgent = async (): Promise<boolean> => {
   if (agentRunning) {
     return false;
   }
 
   const stored = loadStored();
   if (!stored.brokerUrl || !stored.token) {
-    send('agent-log', '[앱] 브로커 주소와 연결 토큰을 먼저 저장하세요');
+    send('agent-log', '[앱] 서버 주소와 연결 토큰을 먼저 저장하세요');
     return false;
   }
 
@@ -121,7 +112,7 @@ ipcMain.handle('start-agent', async () => {
   stopRequested = false;
   send('agent-status', { running: true });
 
-  (async () => {
+  void (async () => {
     try {
       await ensureChromium({ onProgress: (line) => send('setup-progress', line) });
       await runAgentLoop(loadAgentConfig(), {
@@ -137,10 +128,74 @@ ipcMain.handle('start-agent', async () => {
   })();
 
   return true;
+};
+
+const executeBrowserAction = async (action: unknown): Promise<unknown> => {
+  const stored = loadStored();
+  if (!stored.brokerUrl || !stored.token) {
+    return { success: false, error: '프로그램 메뉴에서 연결 토큰을 먼저 발급하세요' };
+  }
+
+  process.env.BROKER_URL = stored.brokerUrl;
+  process.env.AGENT_TOKEN = stored.token;
+  process.env.PLAYWRIGHT_BROWSERS_PATH = BROWSERS_PATH;
+
+  try {
+    const { ensureChromium } = await import('../lib/ensure-chromium');
+    const { loadAgentConfig } = await import('../lib/config');
+    const { createBrokerClient } = await import('../lib/broker-client');
+    const { executeDesktopAction } = await import('../desktop-actions');
+    await ensureChromium({ onProgress: (line) => send('setup-progress', line) });
+    return executeDesktopAction(action, createBrokerClient(loadAgentConfig()));
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '로컬 실행 실패',
+    };
+  }
+};
+
+app.whenReady().then(() => {
+  process.env.PLAYWRIGHT_BROWSERS_PATH = BROWSERS_PATH;
+  createWindow();
+  if (loadStored().token) {
+    void startAgent();
+  }
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
 });
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+ipcMain.handle('get-config', () => loadStored());
+ipcMain.handle('get-status', () => ({ running: agentRunning }));
+
+ipcMain.handle('save-config', (_event, config: StoredConfig) => {
+  saveStored(config);
+  return true;
+});
+
+ipcMain.handle('ensure-chromium', async () => {
+  const { ensureChromium } = await import('../lib/ensure-chromium');
+  await ensureChromium({ onProgress: (line) => send('setup-progress', line) });
+  return true;
+});
+
+ipcMain.handle('start-agent', startAgent);
 
 ipcMain.handle('stop-agent', () => {
   stopRequested = true;
   send('agent-log', '[앱] 정지 요청 - 현재 작업 마무리 후 멈춥니다');
   return true;
 });
+
+ipcMain.handle('execute-browser-action', (_event, action: unknown) =>
+  executeBrowserAction(action));

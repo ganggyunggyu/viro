@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import { existsSync } from 'fs';
+import { dirname, join } from 'path';
 import { chromium } from 'playwright';
 
 /**
@@ -13,6 +14,30 @@ import { chromium } from 'playwright';
 export interface EnsureChromiumOptions {
   onProgress?: (line: string) => void;
 }
+
+export interface PlaywrightInstallCommand {
+  executable: string;
+  args: string[];
+  env: NodeJS.ProcessEnv;
+}
+
+export const buildPlaywrightInstallCommand = (
+  env: NodeJS.ProcessEnv = process.env,
+  executable: string = process.execPath,
+): PlaywrightInstallCommand => {
+  // rebrowser-playwright는 cli.js를 package exports에 공개하지 않는다. package.json만
+  // 공식 export로 해석한 뒤 같은 패키지 디렉터리의 CLI 엔트리를 직접 조합한다.
+  const packagePath = require.resolve('playwright/package.json');
+  const cliPath = join(dirname(packagePath), 'cli.js');
+
+  return {
+    executable,
+    args: [cliPath, 'install', 'chromium'],
+    // 패키징 앱의 process.execPath는 node가 아니라 Electron 바이너리다. 자식
+    // 프로세스만 Node 모드로 실행해야 CLI가 새 Electron 창 대신 설치 명령을 수행한다.
+    env: { ...env, ELECTRON_RUN_AS_NODE: '1' },
+  };
+};
 
 export const getChromiumPath = (): string | null => {
   try {
@@ -34,12 +59,11 @@ export const ensureChromium = async (options: EnsureChromiumOptions = {}): Promi
 
   onProgress?.('브라우저 구성요소 다운로드 중... (최초 1회, 수백 MB)');
 
-  // npx 없이 번들 환경에서도 동작하도록 rebrowser-playwright 의 cli.js 를 직접 실행한다.
-  const cliPath = require.resolve('playwright/cli.js');
+  const command = buildPlaywrightInstallCommand();
 
   await new Promise<void>((resolve, reject) => {
-    const child = spawn(process.execPath, [cliPath, 'install', 'chromium'], {
-      env: { ...process.env },
+    const child = spawn(command.executable, command.args, {
+      env: command.env,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 

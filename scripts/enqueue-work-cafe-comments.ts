@@ -290,10 +290,7 @@ const main = async (): Promise<void> => {
     try {
       const article = await readArticle(selectedRows, accounts, loginWaitMs);
       const generated = await generateCafeCommentBatch({
-        title: article.title || firstRow.subject,
-        body: article.content,
         keyword: firstRow.subject,
-        category: firstRow.cafeSlug,
         exactCount: selectedRows.length,
         model,
       });
