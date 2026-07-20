@@ -163,7 +163,7 @@ export const AgentSetupUI = () => {
             {[
               { icon: Monitor, title: '로컬 Chrome', detail: '내 PC에서 직접 실행' },
               { icon: ShieldCheck, title: '간편 연결', detail: '서버 비밀번호 저장 없음' },
-              { icon: Laptop, title: '전체 기능', detail: '웹 메뉴 그대로 제공' },
+              { icon: Laptop, title: '전체 기능', detail: '전용 데스크톱 메뉴' },
             ].map(({ icon: Icon, title, detail }) => (
               <div key={title} className={cn('flex items-center gap-3 rounded-2xl border border-white/10 bg-white/7 px-4 py-3 backdrop-blur-sm')}>
                 <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white')}>
