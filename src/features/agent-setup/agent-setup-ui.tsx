@@ -13,6 +13,9 @@ import {
 } from './actions';
 
 const BROKER_URL = 'https://cafe-bot-two.vercel.app';
+const RELEASES_URL = 'https://github.com/ganggyunggyu/viro/releases';
+const DOWNLOAD_BUTTON_CLASS =
+  'flex items-center justify-center gap-2 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3 text-sm font-medium text-(--ink) transition-colors hover:border-(--accent) hover:text-(--accent)';
 
 const formatDate = (iso: string | null): string => {
   if (!iso) {
@@ -120,14 +123,21 @@ export const AgentSetupUI = () => {
             <span className={cn('flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--accent) text-sm font-semibold text-(--background))')}>2</span>
             <div className={cn('min-w-0 flex-1')}>
               <p className={cn('font-medium text-(--ink)')}>에이전트 내려받기</p>
-              <div className={cn('mt-2 flex flex-wrap items-center gap-3')}>
-                <Button variant="secondary" size="sm" disabled>
-                  Windows 설치본 (준비중)
-                </Button>
-                <span className={cn('text-xs text-(--ink-muted)')}>데스크톱 설치본은 곧 제공됩니다.</span>
+              <div className={cn('mt-3 grid gap-2 sm:grid-cols-2')}>
+                <a href={RELEASES_URL} target="_blank" rel="noreferrer" className={cn(DOWNLOAD_BUTTON_CLASS)}>
+                  <Download className={cn('h-4 w-4')} />
+                  macOS 다운로드
+                </a>
+                <a href={RELEASES_URL} target="_blank" rel="noreferrer" className={cn(DOWNLOAD_BUTTON_CLASS)}>
+                  <Download className={cn('h-4 w-4')} />
+                  Windows 다운로드
+                </a>
               </div>
+              <p className={cn('mt-2 text-xs text-(--ink-muted)')}>
+                첫 설치본을 준비 중입니다. 릴리스되면 위 버튼에서 OS에 맞는 설치본을 바로 받습니다.
+              </p>
               <p className={cn('mt-3 text-sm text-(--ink-muted)')}>
-                지금은 개발/기술 사용자용 실행 방식입니다. 프로젝트 폴더에서:
+                개발/기술 사용자는 지금 CLI로 실행할 수 있습니다:
               </p>
               <pre className={cn('mt-2 overflow-x-auto rounded-lg bg-(--surface-muted) p-3 font-mono text-xs text-(--ink)')}>
 {`# 1) 한 번만: 의존성 설치
