@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
-import { basename, join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import {
@@ -11,10 +12,16 @@ import {
   buildProjectRootSpawnOptions,
 } from "./run-with-project-root.mjs";
 
-test("PROJECT_ROOT resolves to the cafe-bot repository root", () => {
-  assert.equal(basename(PROJECT_ROOT), "cafe-bot");
+test("PROJECT_ROOT resolves to the repository root", () => {
+  const expectedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+  assert.equal(PROJECT_ROOT, expectedRoot);
   assert.equal(existsSync(join(PROJECT_ROOT, "package.json")), true);
   assert.equal(existsSync(join(PROJECT_ROOT, "src")), true);
+
+  const pkg = JSON.parse(readFileSync(join(PROJECT_ROOT, "package.json"), "utf8"));
+
+  assert.equal(pkg.name, "viro");
 });
 
 test("buildProjectRootPath prepends the local bin directory once", () => {
