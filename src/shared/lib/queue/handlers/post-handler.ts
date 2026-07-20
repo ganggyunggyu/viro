@@ -308,7 +308,7 @@ const handlePostSuccess = async (
   accounts: NaverAccount[],
   settings: PostHandlerContext['settings']
 ): Promise<void> => {
-  const { cafeId, menuId, keyword, subject, content, rawContent, accountId: writerAccountId, userId } = postData;
+  const { cafeId, menuId, keyword, subject, content, accountId: writerAccountId, userId } = postData;
 
   console.log(`[WORKER] 글 발행 성공: #${articleId} - 체인 작업 시작`);
 

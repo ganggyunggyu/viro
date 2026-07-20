@@ -66,8 +66,6 @@ export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): strin
     {
       "index": 1,
       "type": "comment",
-      "persona": "댓글러 성격 한 줄",
-      "intent": "댓글 의도 한 줄",
       "content": "실제 등록할 댓글"
     }
   ]
@@ -85,9 +83,11 @@ ${getCountRule(input)}
 
 ## 규칙
 - 모든 type은 "comment"만 사용한다. 대댓글은 만들지 않는다.
+- index, type, content 외의 필드는 만들지 않는다.
 - 위 예시를 매번 그대로 복사하지 말고 비슷한 의미로 자연스럽게 바꾼다.
 - content는 한 문장, 10~50자 정도의 무난한 존댓말로 쓴다.
-- 일부 댓글은 ${keyword}를 자연스럽게 언급하고, 일부는 키워드 없이 짧게 마무리한다.
+- ${keyword} 직접 언급은 전체에서 최대 2개만 사용하고, 키워드로 시작하는 댓글은 최대 1개만 쓴다.
+- 장소나 맛집 키워드라면 경험을 가볍게 연결하는 댓글을 1개 포함한다.
 - 질문, 평가, 과한 칭찬, 광고 문구는 쓰지 않는다.
 - 키워드 외의 상호, 가격, 효능, 지역, 메뉴, 구체적인 경험은 지어내지 않는다.
 - 닉네임, 아이디, 해시태그, 이모지, URL, 마크다운은 쓰지 않는다.

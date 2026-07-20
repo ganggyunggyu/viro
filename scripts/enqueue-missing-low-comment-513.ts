@@ -1,7 +1,7 @@
 /**
  * 누락된 댓글 미달글을 generate(5~13개) 잡으로 큐에 등록 + 기존 pending 잡 5~13으로 하향.
  *
- * - 본문/제목 기반 자연 흐름 댓글은 worker의 generateCafeCommentBatch(body+keyword)가 처리.
+ * - 키워드 기반 무난한 댓글은 worker의 generateCafeCommentBatch(keyword)가 처리.
  * - 이미 pending/running/done 잡이 있는 글은 건너뜀(과다 댓글 방지).
  *
  * Usage: npx tsx --env-file=.env.local scripts/enqueue-missing-low-comment-513.ts
