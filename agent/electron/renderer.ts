@@ -142,6 +142,28 @@ const renderResult = (id: string, value: unknown): void => {
   host.append(details);
 };
 
+type ProgressState = 'done' | 'active' | 'pending' | 'error';
+
+const renderProgress = (
+  id: string,
+  title: string,
+  steps: Array<{ label: string; note?: string; state: ProgressState }>,
+): void => {
+  const host = byId<HTMLElement>(id);
+  host.replaceChildren();
+  host.append(el('p', 'progress-title', title));
+  const list = el('ol', 'progress-steps');
+  for (const step of steps) {
+    const item = el('li', `progress-step ${step.state}`);
+    const body = el('div', 'progress-body');
+    body.append(el('span', 'progress-label', step.label));
+    if (step.note) body.append(el('span', 'progress-note', step.note));
+    item.append(el('span', 'progress-marker'), body);
+    list.append(item);
+  }
+  host.append(list);
+};
+
 const logTone = (line: string): string => {
   if (/오류|실패|에러|error|abort/i.test(line)) return 'bad';
   if (/완료|성공|success|done|ready|활성/i.test(line)) return 'ok';
@@ -328,7 +350,10 @@ const refreshContext = async (): Promise<void> => {
   appendLog(`[앱] 데이터 연결 완료: 계정 ${context.accounts.length}, 카페 ${context.cafes.length}`);
 };
 
-const runBusy = async (event: Event, task: () => Promise<void>): Promise<void> => {
+const runBusy = async (
+  event: Event,
+  task: (setLabel: (text: string) => void) => Promise<void>,
+): Promise<void> => {
   event.preventDefault();
   const button = (event.currentTarget as HTMLElement).querySelector<HTMLButtonElement>('button[type="submit"]')
     || event.currentTarget as HTMLButtonElement;
@@ -336,8 +361,11 @@ const runBusy = async (event: Event, task: () => Promise<void>): Promise<void> =
   button.disabled = true;
   button.dataset.busy = 'true';
   button.textContent = '처리 중';
+  const setLabel = (text: string): void => {
+    if (button.dataset.busy) button.textContent = text;
+  };
   try {
-    await task();
+    await task(setLabel);
   } catch (error) {
     const message = error instanceof Error ? error.message : '작업 중 오류가 발생했습니다';
     appendLog(`[오류] ${message}`);
@@ -392,21 +420,46 @@ const handleRefreshContextClick = (): void => {
 };
 
 const handlePublish = (event: Event): void => {
-  void runBusy(event, async () => {
+  void runBusy(event, async (setLabel) => {
     const keywords = splitLines(byId<HTMLTextAreaElement>('publish-keywords').value);
-    const prepared = await api.prepare('post-content', {
-      keywords,
-      ref: byId<HTMLInputElement>('publish-ref').value.trim(),
-      attachImages: byId<HTMLInputElement>('publish-images').checked,
-    });
-    const manuscripts = Array.isArray(prepared.manuscripts) ? prepared.manuscripts : [];
-    if (manuscripts.length === 0) throw new Error('생성된 원고가 없습니다');
-    const response = await execute({
-      type: 'manual-publish',
-      input: { cafeId: byId<HTMLSelectElement>('publish-cafe').value, manuscripts: manuscripts as never[] },
-    });
-    showResult('publish-result', response.result);
-    showToast(`${manuscripts.length}개 원고의 로컬 발행을 마쳤습니다`);
+    const stages = [
+      { label: '원고·이미지 생성', note: `키워드 ${keywords.length}개 · AI 작성` },
+      { label: '이 PC에서 발행', note: '로그인 · 글 작성' },
+    ];
+    let active = 0;
+    const paint = (state: ProgressState = 'active'): void => renderProgress(
+      'publish-result',
+      '발행 진행 중',
+      stages.map((stage, index) => ({
+        ...stage,
+        state: index < active ? 'done' : index === active ? state : 'pending',
+      })),
+    );
+
+    try {
+      paint();
+      setLabel('원고 생성 중');
+      const prepared = await api.prepare('post-content', {
+        keywords,
+        ref: byId<HTMLInputElement>('publish-ref').value.trim(),
+        attachImages: byId<HTMLInputElement>('publish-images').checked,
+      });
+      const manuscripts = Array.isArray(prepared.manuscripts) ? prepared.manuscripts : [];
+      if (manuscripts.length === 0) throw new Error('생성된 원고가 없습니다');
+
+      active = 1;
+      paint();
+      setLabel('발행 중');
+      const response = await execute({
+        type: 'manual-publish',
+        input: { cafeId: byId<HTMLSelectElement>('publish-cafe').value, manuscripts: manuscripts as never[] },
+      });
+      showResult('publish-result', response.result);
+      showToast(`${manuscripts.length}개 원고의 로컬 발행을 마쳤습니다`);
+    } catch (error) {
+      paint('error');
+      throw error;
+    }
   });
 };
 
