@@ -2,6 +2,10 @@ import { Page } from 'playwright';
 import { GoogleGenAI } from '@google/genai';
 import { createHash } from 'crypto';
 import { captureFailureShot } from './debug-capture';
+import {
+  hasCaptchaBrokerConfig,
+  solveCaptchaViaBroker,
+} from '@/shared/lib/captcha-broker';
 
 const CAPTCHA_PROVIDER = process.env.CAPTCHA_PROVIDER || 'gemini';
 const CAPTCHA_MODEL = process.env.GEMINI_CAPTCHA_MODEL || 'gemini-3.5-flash';
@@ -27,6 +31,9 @@ const getGeminiApiKey = (): string | null => {
     null
   );
 };
+
+export const canSolveCaptcha = (): boolean =>
+  Boolean(getGeminiApiKey()) || hasCaptchaBrokerConfig();
 
 let geminiClient: GoogleGenAI | null = null;
 
@@ -83,7 +90,7 @@ export const detectCaptcha = async (page: Page): Promise<CaptchaDetectResult> =>
   return { detected: true, base64, question, captchaType };
 };
 
-const solveWithGemini = async (
+export const solveLoginCaptchaImage = async (
   base64: string,
   question: string
 ): Promise<{ answer: string; elapsed: number }> => {
@@ -124,6 +131,23 @@ const solveWithGemini = async (
   return { answer, elapsed };
 };
 
+const solveCaptchaImage = async (
+  base64: string,
+  question: string,
+): Promise<{ answer: string; elapsed: number }> => {
+  if (!hasCaptchaBrokerConfig()) {
+    return solveLoginCaptchaImage(base64, question);
+  }
+
+  const startedAt = Date.now();
+  const answer = await solveCaptchaViaBroker({
+    kind: 'login',
+    image: base64,
+    question,
+  });
+  return { answer, elapsed: Date.now() - startedAt };
+};
+
 export const solveCaptchaOnPage = async (
   page: Page,
   accountId: string,
@@ -145,7 +169,7 @@ export const solveCaptchaOnPage = async (
     );
 
     try {
-      const { answer, elapsed } = await solveWithGemini(captcha.base64!, captcha.question!);
+      const { answer, elapsed } = await solveCaptchaImage(captcha.base64!, captcha.question!);
 
       if (!answer) {
         console.warn(`[CAPTCHA] ${accountId} AI가 빈 답변 반환 — 재시도`);

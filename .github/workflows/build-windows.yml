@@ -4,7 +4,7 @@ name: Build Windows Desktop
 # macOS에서는 NSIS 크로스빌드가 안 되므로(윈도우 러너 필요) 이 워크플로우로 처리한다.
 #
 # 실행 방법:
-#  - 수동: Actions 탭 > Build Windows Desktop > Run workflow (release_tag 입력, 예: v0.2.0)
+#  - 수동: Actions 탭 > Build Windows Desktop > Run workflow (release_tag 입력, 예: v0.2.1)
 #  - 태그: v* 태그를 push 하면 자동 실행
 # 산출물: Viro-<version>-setup.exe (package.json build.win.artifactName 과 동일)
 
@@ -12,9 +12,9 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: '업로드할 릴리스 태그 (예: v0.2.0)'
+        description: '업로드할 릴리스 태그 (예: v0.2.1)'
         required: true
-        default: 'v0.2.0'
+        default: 'v0.2.1'
   push:
     tags:
       - 'v*'

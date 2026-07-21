@@ -91,10 +91,6 @@ export interface AgentContext {
   cafes: AgentCafe[];
 }
 
-export interface AgentRuntimeConfig {
-  geminiApiKey: string;
-}
-
 export interface BrokerClient {
   claim: () => Promise<BrokerJob | null>;
   heartbeat: (jobId: string) => Promise<boolean>;
@@ -108,7 +104,6 @@ export interface BrokerClient {
   ) => Promise<CommentAccount[]>;
   plan: (jobId: string, article: AgentArticleSnapshot) => Promise<AgentCommentPlan>;
   context: () => Promise<AgentContext>;
-  config: () => Promise<AgentRuntimeConfig>;
   sync: (operation: string, payload: Record<string, unknown>) => Promise<Record<string, unknown>>;
   prepare: (operation: string, payload: Record<string, unknown>) => Promise<Record<string, unknown>>;
 }
@@ -194,11 +189,6 @@ export const createBrokerClient = (config: AgentConfig): BrokerClient => {
     };
   };
 
-  const fetchRuntimeConfig = async (): Promise<AgentRuntimeConfig> => {
-    const data = await post('/api/agent/config', {});
-    return { geminiApiKey: typeof data.geminiApiKey === 'string' ? data.geminiApiKey : '' };
-  };
-
   const sync = async (
     operation: string,
     payload: Record<string, unknown>,
@@ -209,5 +199,5 @@ export const createBrokerClient = (config: AgentConfig): BrokerClient => {
     payload: Record<string, unknown>,
   ): Promise<Record<string, unknown>> => post('/api/agent/prepare', { operation, payload });
 
-  return { claim, heartbeat, report, accounts, pool, plan, context, config: fetchRuntimeConfig, sync, prepare };
+  return { claim, heartbeat, report, accounts, pool, plan, context, sync, prepare };
 };

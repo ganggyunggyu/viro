@@ -24,7 +24,7 @@ import {
   type AgentTokenView,
 } from './actions';
 
-const APP_VERSION = '0.2.0';
+const APP_VERSION = '0.2.1';
 const MAC_DOWNLOAD_URL = '/api/download/viro/mac';
 const WINDOWS_DOWNLOAD_URL = '/api/download/viro/windows';
 
@@ -98,7 +98,7 @@ export const AgentSetupUI = () => {
   };
 
   useEffect(() => {
-    setPrimaryOS(detectOS());
+    queueMicrotask(() => setPrimaryOS(detectOS()));
     loadTokens();
     const desktop = window.viroDesktop;
     if (!desktop) return;

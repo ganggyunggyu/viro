@@ -2,7 +2,7 @@ import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import type { NaverAccount } from './account-manager';
-import { detectCaptcha, solveCaptchaOnPage } from './captcha-solver';
+import { canSolveCaptcha, detectCaptcha, solveCaptchaOnPage } from './captcha-solver';
 import { captureFailureShot } from './debug-capture';
 
 const SESSION_DIR = join(process.cwd(), '.playwright-session');
@@ -542,15 +542,10 @@ export const loginAccount = async (
     if (isLoginRedirect(page.url())) {
       const captchaCheck = await detectCaptcha(page);
       if (captchaCheck.detected) {
-        const geminiKey =
-          process.env.GEMINI_API_KEY ||
-          process.env.GOOGLE_API_KEY ||
-          process.env.GOOGLE_GENAI_API_KEY;
-
-        if (!geminiKey) {
+        if (!canSolveCaptcha()) {
           return {
             success: false,
-            error: 'GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가',
+            error: '캡차 자동 풀이 연결 정보 없음',
           };
         }
 

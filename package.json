@@ -1,6 +1,6 @@
 {
   "name": "viro",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "scripts": {
     "dev": "concurrently \"node scripts/run-with-project-root.mjs next dev --port 3007\" \"node scripts/run-with-project-root.mjs tsx scripts/bull-board.ts\"",

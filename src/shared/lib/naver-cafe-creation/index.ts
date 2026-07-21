@@ -20,6 +20,10 @@ import { toCafeSlug } from '../naver-cafe-membership';
 import { Cafe } from '../../models/cafe';
 import { Account } from '../../models/account';
 import { buildCafeRegistrationUpdate } from '../cafe-registration-harness';
+import {
+  hasCaptchaBrokerConfig,
+  solveCaptchaViaBroker,
+} from '@/shared/lib/captcha-broker';
 
 export interface CreateCafeInput {
   name: string;
@@ -82,24 +86,10 @@ export const solveCafeCreateCaptcha = async (
   if (!shot) return { solved: false, error: '캡차 이미지 스크린샷 실패' };
 
   const base64 = shot.toString('base64');
-  const brokerUrl = (process.env.BROKER_URL || '').replace(/\/+$/, '');
-  const agentToken = process.env.AGENT_TOKEN || '';
   let answer = '';
 
-  if (brokerUrl && agentToken) {
-    const response = await fetch(`${brokerUrl}/api/agent/captcha`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${agentToken}`,
-      },
-      body: JSON.stringify({ image: base64 }),
-    });
-    if (!response.ok) {
-      return { solved: false, error: `캡차 해석 서버 오류 (${response.status})` };
-    }
-    const data = await response.json() as { answer?: string };
-    answer = data.answer || '';
+  if (hasCaptchaBrokerConfig()) {
+    answer = await solveCaptchaViaBroker({ kind: 'cafe-create', image: base64 });
   } else {
     answer = await solveCafeCreateCaptchaImage(base64);
   }
