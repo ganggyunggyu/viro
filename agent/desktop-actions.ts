@@ -20,6 +20,7 @@ import type {
   ViroDesktopActionResponse,
 } from '../src/shared/types/viro-desktop';
 import type { BrokerClient, CommentAccount } from './lib/broker-client';
+import { hydrateAgentSecrets } from './lib/agent-secrets';
 import { validateDesktopAction } from './lib/desktop-action-contract';
 import { assignDiverseKeywords } from '../src/features/auto-comment/batch/rewrite-keyword-pool';
 import { inferCafeService } from '../src/features/auto-comment/batch/rewrite-cafe-service';
@@ -444,6 +445,7 @@ export const executeDesktopAction = async (
 ): Promise<ViroDesktopActionResponse> => {
   try {
     const action = validateDesktopAction(value);
+    await hydrateAgentSecrets(broker);
     if (action.type === 'account-login') {
       const { accounts } = await broker.context();
       const account = accounts.find(({ accountId }) => accountId === action.accountId);

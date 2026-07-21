@@ -8,6 +8,7 @@ import { isNicknameEquivalent } from '../src/shared/lib/naver-cafe-writing/comme
 import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
 import type { AgentConfig } from './lib/config';
+import { hydrateAgentSecrets } from './lib/agent-secrets';
 import { resolveCommentPlan } from './lib/comment-plan';
 import {
   createBrokerClient,
@@ -279,6 +280,7 @@ export const runAgentLoop = async (
 ): Promise<void> => {
   const { shouldStop, handleSignals = true } = options;
   const broker = createBrokerClient(config);
+  await hydrateAgentSecrets(broker);
   let stopping = false;
 
   const requestStop = (): void => {
