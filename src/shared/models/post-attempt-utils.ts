@@ -14,3 +14,49 @@ export const buildAttemptKey = (
   keyword: string,
   nowMs: number = Date.now()
 ): string => `${cafeId}:${writerAccountId}:${keyword}:${getKstDateString(nowMs)}`;
+
+export interface PostAttemptModel {
+  create: (record: {
+    attemptKey: string;
+    cafeId: string;
+    writerAccountId: string;
+    keyword: string;
+  }) => Promise<unknown>;
+}
+
+export interface PostAttemptReleaseModel {
+  deleteOne: (filter: { attemptKey: string }) => PromiseLike<unknown>;
+}
+
+export const createClaimPostAttempt = (
+  model: PostAttemptModel,
+  now: () => number = Date.now,
+) => async (
+  cafeId: string,
+  writerAccountId: string,
+  keyword: string,
+): Promise<boolean> => {
+  const attemptKey = buildAttemptKey(cafeId, writerAccountId, keyword, now());
+
+  try {
+    await model.create({ attemptKey, cafeId, writerAccountId, keyword });
+    return true;
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && (error as { code?: number }).code === 11000) {
+      return false;
+    }
+    throw error;
+  }
+};
+
+export const createReleasePostAttempt = (
+  model: PostAttemptReleaseModel,
+  now: () => number = Date.now,
+) => async (
+  cafeId: string,
+  writerAccountId: string,
+  keyword: string,
+): Promise<void> => {
+  const attemptKey = buildAttemptKey(cafeId, writerAccountId, keyword, now());
+  await model.deleteOne({ attemptKey });
+};

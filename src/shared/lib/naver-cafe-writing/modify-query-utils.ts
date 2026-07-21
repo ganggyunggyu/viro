@@ -5,11 +5,16 @@ export type ArticleModifySortOrder = 'oldest' | 'newest' | 'random';
 export interface QueryFilter {
   cafeId: string;
   status: string;
+  isExternal: { $ne: true };
   publishedAt?: { $gte: Date };
 }
 
 export const buildBaseFilter = (cafeId: string, daysLimit?: number): QueryFilter => {
-  const baseFilter: QueryFilter = { cafeId, status: 'published' };
+  const baseFilter: QueryFilter = {
+    cafeId,
+    status: 'published',
+    isExternal: { $ne: true },
+  };
   if (daysLimit) {
     const limitDate = new Date();
     limitDate.setDate(limitDate.getDate() - daysLimit);

@@ -1,9 +1,12 @@
 import { ReplyJobData, JobResult } from '../types';
 import { addTaskJob, createRescheduleToken } from '../index';
 import { waitForSequenceTurn, advanceSequence } from '../sequence';
+import { resolveSequenceTurnResult } from '../sequence-harness';
+import { shouldSkipReplyWrite } from '../reply-idempotency-harness';
+import { persistWrittenReply } from '../reply-handler-harness';
 import { writeReplyWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { NaverAccount } from '@/shared/lib/account-manager';
-import { addCommentToArticle, getArticleComments, getArticleIdByKeyword } from '@/shared/models';
+import { addCommentToArticle, getArticleComments, getArticleIdByKeyword, hasReplied } from '@/shared/models';
 import { invalidateLoginCache } from '@/shared/lib/multi-session';
 import { getRedisConnection } from '@/shared/lib/redis';
 import { createLogger } from '@/shared/lib/logger';
@@ -87,7 +90,8 @@ export const handleReplyJob = async (
 
   if (hasSequence) {
     const turn = await waitForSequenceTurn(data.sequenceId!, data.sequenceIndex!);
-    if (turn === 'skipped') return { success: true };
+    const skippedResult = resolveSequenceTurnResult(turn);
+    if (skippedResult) return skippedResult;
     if (turn === 'pending') {
       log.info('순서 대기 — 재스케줄', { sequenceId: data.sequenceId, index: data.sequenceIndex });
       await addTaskJob(
@@ -144,6 +148,22 @@ export const handleReplyJob = async (
     articleId = foundId;
   }
 
+  const alreadyReplied = await shouldSkipReplyWrite(
+    {
+      accountId: account.id,
+      cafeId: data.cafeId,
+      articleId,
+      parentIndex: data.commentIndex,
+      content: data.content,
+    },
+    { hasReplied },
+  );
+  if (alreadyReplied) {
+    log.info('중복 대댓글 스킵', { accountId: account.id, articleId, commentIndex: data.commentIndex });
+    await advanceIfNeeded();
+    return { success: true, skipped: true, outcome: 'skipped' };
+  }
+
   // 부모 댓글 ID 조회
   let { parentCommentId } = data;
   if (!parentCommentId) {
@@ -165,7 +185,11 @@ export const handleReplyJob = async (
     }
 
     await rescheduleCurrentTurn(WRITE_FAIL_RETRY_MS, retryCount);
-    return { success: false, error: '대댓글 작성 락 중복 - BullMQ retry 대기' };
+    return {
+      success: false,
+      error: '대댓글 작성 락 중복 - BullMQ retry 대기',
+      willRetry: true,
+    };
   }
 
   log.info('대댓글 작성 시도', { accountId: account.id, articleId, cafeId: data.cafeId, commentIndex: data.commentIndex });
@@ -203,16 +227,24 @@ export const handleReplyJob = async (
 
   log.info('대댓글 작성 성공', { accountId: account.id, articleId, commentIndex: data.commentIndex });
 
-  try {
-    await addCommentToArticle(data.cafeId, articleId, {
+  const persistenceResult = await persistWrittenReply(
+    {
       accountId: account.id,
+      cafeId: data.cafeId,
+      articleId,
       nickname: account.nickname || account.id,
       content: data.content,
-      type: 'reply',
       parentIndex: data.commentIndex,
+    },
+    { addCommentToArticle },
+  );
+  if (!persistenceResult.success) {
+    log.error('대댓글 DB 저장 실패', {
+      accountId: account.id,
+      articleId,
+      error: persistenceResult.error,
     });
-  } catch (dbErr) {
-    log.error('대댓글 DB 저장 실패', { accountId: account.id, articleId, error: String(dbErr) });
+    return persistenceResult;
   }
 
   await advanceIfNeeded();

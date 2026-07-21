@@ -1,8 +1,10 @@
 'use server';
 
 import { connectDB } from '@/shared/lib/mongodb';
+import { toCafeSlug } from '@/shared/lib/naver-cafe-membership';
 import { Cafe } from '@/shared/models';
 import { getCurrentUserId } from '@/shared/config/user';
+import { createCafeRegistration } from '@/shared/lib/cafe-registration-harness';
 import { revalidatePath } from 'next/cache';
 import type { CafeData, CafeInput } from '../model';
 
@@ -44,20 +46,22 @@ export const getCafesAction = async (): Promise<CafeData[]> => {
 export const addCafeAction = async (input: CafeInput) => {
   await connectDB();
   const userId = await getCurrentUserId();
+  const cafeId = input.cafeId.trim();
+  const cafeUrl = toCafeSlug(input.cafeUrl) || input.cafeUrl.trim();
 
-  const existing = await Cafe.findOne({ userId, cafeId: input.cafeId });
-  if (existing) {
-    return { success: false, error: '이미 존재하는 카페입니다' };
-  }
-
-  if (input.isDefault) {
-    await Cafe.updateMany({ userId }, { $set: { isDefault: false } });
-  }
-
-  await Cafe.create({
+  const register = createCafeRegistration({
+    findActive: async (filter) => Cafe.findOne({ ...filter, isActive: true }).lean(),
+    upsert: async ({ filter, update }) => {
+      if (input.isDefault) {
+        await Cafe.updateMany({ userId }, { $set: { isDefault: false } });
+      }
+      return Cafe.findOneAndUpdate(filter, update, { upsert: true });
+    },
+  });
+  const result = await register({
     userId,
-    cafeId: input.cafeId,
-    cafeUrl: input.cafeUrl,
+    cafeId,
+    cafeUrl,
     menuId: input.menuId,
     name: input.name,
     categories: input.categories ?? [],
@@ -66,21 +70,30 @@ export const addCafeAction = async (input: CafeInput) => {
     isDefault: input.isDefault ?? false,
   });
 
+  if (!result.success) return result;
+
   revalidatePath('/accounts');
-  return { success: true };
+  return result;
 };
 
 export const updateCafeAction = async (cafeId: string, input: Partial<CafeInput>) => {
   await connectDB();
   const userId = await getCurrentUserId();
+  const normalizedInput = {
+    ...input,
+    ...(input.cafeId === undefined ? {} : { cafeId: input.cafeId.trim() }),
+    ...(input.cafeUrl === undefined
+      ? {}
+      : { cafeUrl: toCafeSlug(input.cafeUrl) || input.cafeUrl.trim() }),
+  };
 
   if (input.isDefault) {
     await Cafe.updateMany({ userId }, { $set: { isDefault: false } });
   }
 
   await Cafe.findOneAndUpdate(
-    { userId, cafeId },
-    { $set: input }
+    { userId, cafeId: cafeId.trim() },
+    { $set: normalizedInput }
   );
 
   revalidatePath('/accounts');

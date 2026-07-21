@@ -1,6 +1,7 @@
 import { CommentJobData, JobResult } from '../types';
 import { addTaskJob, createRescheduleToken } from '../index';
 import { waitForSequenceTurn, advanceSequence } from '../sequence';
+import { resolveSequenceTurnResult } from '../sequence-harness';
 import { writeCommentWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { NaverAccount } from '@/shared/lib/account-manager';
 import { hasCommented, addCommentToArticle, getArticleIdByKeyword } from '@/shared/models';
@@ -47,9 +48,8 @@ export const handleCommentJob = async (
 
   if (hasSequence) {
     const turn = await waitForSequenceTurn(data.sequenceId!, data.sequenceIndex!);
-    if (turn === 'skipped') {
-      return { success: true };
-    }
+    const skippedResult = resolveSequenceTurnResult(turn);
+    if (skippedResult) return skippedResult;
     if (turn === 'pending') {
       const retryDelay = SEQUENCE_WAIT_RETRY_MS;
       console.log(`[WORKER] 순서 대기 - ${retryDelay / 1000}초 뒤 재스케줄: ${data.sequenceId}#${data.sequenceIndex}`);
@@ -139,7 +139,11 @@ export const handleCommentJob = async (
     }
 
     await rescheduleCurrentTurn(WRITE_LOCK_RETRY_MS, retryCount);
-    return { success: false, error: '댓글 작성 락 중복 - BullMQ retry 대기' };
+    return {
+      success: false,
+      error: '댓글 작성 락 중복 - BullMQ retry 대기',
+      willRetry: true,
+    };
   }
 
   log.info('댓글 작성 시도', { accountId: account.id, articleId, cafeId: data.cafeId, keyword: data.keyword });

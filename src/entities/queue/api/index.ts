@@ -4,8 +4,16 @@ import { Queue, Job } from 'bullmq';
 import type { AccountQueueStatus, QueueOverview, QueueTotals } from '../model';
 import { getRedisConnection } from '@/shared/lib/redis';
 import { getAllAccounts } from '@/shared/config/accounts';
-import { getTaskQueueName, TaskJobData } from '@/shared/lib/queue/types';
+import { getTaskQueueName, TaskJobData, type JobResult } from '@/shared/lib/queue/types';
 import { getAllCafes } from '@/shared/config/cafes';
+import {
+  aggregateQueueEntries,
+  createEmptyQueueCounts,
+  resolveQueueJobStatus,
+  type LogicalQueueStatus,
+  type PhysicalQueueStatus,
+  type QueueRetentionReport,
+} from '@/shared/lib/queue/status-harness';
 
 export type AllQueueStatus = QueueOverview;
 
@@ -15,7 +23,7 @@ export interface JobDetail {
   type: 'post' | 'comment' | 'reply' | 'like' | 'disable-comment';
   cafeId: string;
   cafeName?: string;
-  status: 'waiting' | 'active' | 'delayed' | 'completed' | 'failed';
+  status: LogicalQueueStatus;
   subject?: string;
   keyword?: string;
   content?: string;
@@ -34,10 +42,11 @@ export interface JobsPage {
   page: number;
   pageSize: number;
   totalPages: number;
+  retention: QueueRetentionReport;
 }
 
 export interface JobsFilter {
-  status?: 'waiting' | 'active' | 'delayed' | 'completed' | 'failed' | 'all';
+  status?: LogicalQueueStatus | 'all';
   type?: 'post' | 'comment' | 'reply' | 'like' | 'disable-comment' | 'all';
   accountId?: string;
   cafeId?: string;
@@ -45,31 +54,22 @@ export interface JobsFilter {
 
 export interface QueueSummary {
   total: QueueTotals;
-  byType: {
-    post: { delayed: number; waiting: number; active: number; completed: number; failed: number };
-    comment: { delayed: number; waiting: number; active: number; completed: number; failed: number };
-    reply: { delayed: number; waiting: number; active: number; completed: number; failed: number };
-    like: { delayed: number; waiting: number; active: number; completed: number; failed: number };
-    'disable-comment': { delayed: number; waiting: number; active: number; completed: number; failed: number };
-  };
+  byType: Record<TaskJobData['type'], QueueTotals>;
   byCafe: { cafeId: string; cafeName: string; count: number }[];
   byAccount: { accountId: string; count: number }[];
+  retention: QueueRetentionReport;
 }
 
 const TASK_JOB_STATUSES = ['delayed', 'waiting', 'active', 'completed', 'failed'] as const;
 
 const createTaskQueue = () =>
-  new Queue<TaskJobData>(getTaskQueueName(), { connection: getRedisConnection() });
+  new Queue<TaskJobData, JobResult>(getTaskQueueName(), { connection: getRedisConnection() });
 
 const getJobsForStatuses = async (
-  queue: Queue<TaskJobData>,
-  statusFilter: JobsFilter['status'] = 'all'
-): Promise<Array<{ job: Job<TaskJobData>; status: JobDetail['status'] }>> => {
-  const requestedStatuses =
-    statusFilter === 'all' ? TASK_JOB_STATUSES : TASK_JOB_STATUSES.filter((status) => status === statusFilter);
-
+  queue: Queue<TaskJobData, JobResult>,
+): Promise<Array<{ job: Job<TaskJobData, JobResult>; status: PhysicalQueueStatus }>> => {
   const jobsByStatus = await Promise.all(
-    requestedStatuses.map(async (status) => {
+    TASK_JOB_STATUSES.map(async (status) => {
       const limit = status === 'active' ? 100 : 10000;
       const jobs = await queue.getJobs([status], 0, limit);
       return jobs.map((job) => ({ job, status }));
@@ -79,34 +79,22 @@ const getJobsForStatuses = async (
   return jobsByStatus.flat();
 };
 
-const createEmptyTotals = (): QueueTotals => ({
-  waiting: 0,
-  active: 0,
-  delayed: 0,
-  completed: 0,
-  failed: 0,
-});
-
 export const getAllQueueStatus = async (): Promise<AllQueueStatus> => {
   const accounts = await getAllAccounts();
   const queueName = getTaskQueueName();
   const queue = createTaskQueue();
-  const statusByAccount = new Map<string, QueueTotals>();
-  const total = createEmptyTotals();
-
-  for (const { id } of accounts) {
-    statusByAccount.set(id, createEmptyTotals());
-  }
+  let aggregate = aggregateQueueEntries({ accountIds: accounts.map(({ id }) => id), entries: [] });
 
   try {
     const entries = await getJobsForStatuses(queue);
-
-    for (const { job, status } of entries) {
-      const accountTotals = statusByAccount.get(job.data.accountId) ?? createEmptyTotals();
-      accountTotals[status]++;
-      total[status]++;
-      statusByAccount.set(job.data.accountId, accountTotals);
-    }
+    aggregate = aggregateQueueEntries({
+      accountIds: accounts.map(({ id }) => id),
+      entries: entries.map(({ job: { data, returnvalue }, status }) => ({
+        accountId: data.accountId,
+        result: returnvalue,
+        status,
+      })),
+    });
   } catch (error) {
     console.error('[QUEUE] 글로벌 큐 상태 조회 실패:', error);
   } finally {
@@ -116,10 +104,10 @@ export const getAllQueueStatus = async (): Promise<AllQueueStatus> => {
   const queues: AccountQueueStatus[] = accounts.map(({ id }) => ({
     accountId: id,
     queueName,
-    ...(statusByAccount.get(id) ?? createEmptyTotals()),
+    ...(aggregate.byAccount.get(id) ?? createEmptyQueueCounts()),
   }));
 
-  return { queues, total };
+  return { queues, retention: aggregate.retention, total: aggregate.total };
 };
 
 export const clearAccountQueue = async (accountId: string): Promise<{ success: boolean; message: string }> => {
@@ -160,8 +148,8 @@ export const clearAllQueues = async (): Promise<{ success: boolean; message: str
 };
 
 const jobToDetail = (
-  job: Job<TaskJobData>,
-  status: JobDetail['status'],
+  job: Job<TaskJobData, JobResult>,
+  status: PhysicalQueueStatus,
   cafeMap: Map<string, string>
 ): JobDetail => {
   const data = job.data;
@@ -173,7 +161,7 @@ const jobToDetail = (
     type: data.type,
     cafeId: data.cafeId,
     cafeName: cafeMap.get(data.cafeId),
-    status,
+    status: resolveQueueJobStatus(status, job.returnvalue),
     createdAt: job.timestamp || now,
     processedOn: job.processedOn,
     finishedOn: job.finishedOn,
@@ -193,7 +181,7 @@ const jobToDetail = (
     detail.articleId = data.articleId;
   }
 
-  if (status === 'delayed' && job.delay) {
+  if (detail.status === 'delayed' && job.delay) {
     const scheduledTime = (job.timestamp || now) + job.delay;
     detail.delay = Math.max(0, scheduledTime - now);
   }
@@ -217,9 +205,18 @@ export const getDetailedJobs = async (
 
   const allJobs: JobDetail[] = [];
   const queue = createTaskQueue();
+  let retention = aggregateQueueEntries({ accountIds: [], entries: [] }).retention;
 
   try {
-    const entries = await getJobsForStatuses(queue, filter.status || 'all');
+    const entries = await getJobsForStatuses(queue);
+    retention = aggregateQueueEntries({
+      accountIds: Array.from(targetAccountIds),
+      entries: entries.map(({ job: { data, returnvalue }, status }) => ({
+        accountId: data.accountId,
+        result: returnvalue,
+        status,
+      })),
+    }).retention;
     for (const { job, status } of entries) {
       if (!targetAccountIds.has(job.data.accountId)) continue;
       allJobs.push(jobToDetail(job, status, cafeMap));
@@ -231,6 +228,9 @@ export const getDetailedJobs = async (
   }
 
   let filtered = allJobs;
+  if (filter.status && filter.status !== 'all') {
+    filtered = filtered.filter(({ status }) => status === filter.status);
+  }
   if (filter.type && filter.type !== 'all') {
     filtered = filtered.filter((j) => j.type === filter.type);
   }
@@ -238,7 +238,16 @@ export const getDetailedJobs = async (
     filtered = filtered.filter((j) => j.cafeId === filter.cafeId);
   }
 
-  const statusOrder = { active: 0, delayed: 1, waiting: 2, completed: 3, failed: 4 };
+  const statusOrder: Record<LogicalQueueStatus, number> = {
+    active: 0,
+    delayed: 1,
+    waiting: 2,
+    requeued: 3,
+    softFailed: 4,
+    skipped: 5,
+    completed: 6,
+    failed: 7,
+  };
   filtered.sort((a, b) => {
     const orderDiff = statusOrder[a.status] - statusOrder[b.status];
     if (orderDiff !== 0) return orderDiff;
@@ -253,25 +262,26 @@ export const getDetailedJobs = async (
   const start = (page - 1) * pageSize;
   const jobs = filtered.slice(start, start + pageSize);
 
-  return { jobs, total, page, pageSize, totalPages };
+  return { jobs, total, page, pageSize, totalPages, retention };
 };
 
 export const getQueueSummary = async (): Promise<QueueSummary> => {
-  const { jobs } = await getDetailedJobs({}, 1, 10000);
+  const { jobs, retention } = await getDetailedJobs({}, 1, 10000);
   const cafes = await getAllCafes();
   const cafeMap = new Map(cafes.map((c) => [c.cafeId, c.name]));
 
   const summary: QueueSummary = {
-    total: { waiting: 0, active: 0, delayed: 0, completed: 0, failed: 0 },
+    total: createEmptyQueueCounts(),
     byType: {
-      post: { delayed: 0, waiting: 0, active: 0, completed: 0, failed: 0 },
-      comment: { delayed: 0, waiting: 0, active: 0, completed: 0, failed: 0 },
-      reply: { delayed: 0, waiting: 0, active: 0, completed: 0, failed: 0 },
-      like: { delayed: 0, waiting: 0, active: 0, completed: 0, failed: 0 },
-      'disable-comment': { delayed: 0, waiting: 0, active: 0, completed: 0, failed: 0 },
+      post: createEmptyQueueCounts(),
+      comment: createEmptyQueueCounts(),
+      reply: createEmptyQueueCounts(),
+      like: createEmptyQueueCounts(),
+      'disable-comment': createEmptyQueueCounts(),
     },
     byCafe: [],
     byAccount: [],
+    retention,
   };
 
   const cafeCount = new Map<string, number>();
@@ -280,6 +290,10 @@ export const getQueueSummary = async (): Promise<QueueSummary> => {
   for (const job of jobs) {
     summary.total[job.status]++;
     summary.byType[job.type][job.status]++;
+    if (job.status === 'softFailed') {
+      summary.total.failed++;
+      summary.byType[job.type].failed++;
+    }
 
     if (['delayed', 'waiting', 'active'].includes(job.status)) {
       cafeCount.set(job.cafeId, (cafeCount.get(job.cafeId) || 0) + 1);
@@ -352,7 +366,16 @@ export const getRelatedJobs = async (articleId: number): Promise<JobDetail[]> =>
     await queue.close();
   }
 
-  const statusOrder = { active: 0, delayed: 1, waiting: 2, completed: 3, failed: 4 };
+  const statusOrder: Record<LogicalQueueStatus, number> = {
+    active: 0,
+    delayed: 1,
+    waiting: 2,
+    requeued: 3,
+    softFailed: 4,
+    skipped: 5,
+    completed: 6,
+    failed: 7,
+  };
   relatedJobs.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
 
   return relatedJobs;

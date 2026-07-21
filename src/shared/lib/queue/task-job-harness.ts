@@ -18,7 +18,7 @@ export interface TaskQueueLike<TJob> {
   add: (
     name: TaskJobData['type'],
     data: TaskJobData,
-    options: { delay: number; jobId: string }
+    options: { delay: number; jobId: string; attempts?: number }
   ) => Promise<TJob>;
 }
 
@@ -26,6 +26,7 @@ export interface CreateAddTaskJobDeps<TJob> {
   getTaskQueue: (accountId: string) => TaskQueueLike<TJob>;
   getQueueSettings: () => Promise<QueueDelaySettings>;
   getRandomDelay: (range: DelayRange) => number;
+  getAttempts?: (data: TaskJobData) => number | undefined;
   log?: (message: string) => void;
 }
 
@@ -100,10 +101,14 @@ export const resolveTaskJobDelay = (
   return getRandomDelay(settings.delays.betweenComments);
 };
 
+export const resolveTaskJobAttempts = ({ type }: TaskJobData): number | undefined =>
+  type === 'post' ? 2 : undefined;
+
 export const createAddTaskJob = <TJob>({
   getTaskQueue,
   getQueueSettings,
   getRandomDelay,
+  getAttempts = () => undefined,
   log = console.log,
 }: CreateAddTaskJobDeps<TJob>) => {
   return async (
@@ -125,10 +130,13 @@ export const createAddTaskJob = <TJob>({
       }
     }
 
-    const job = await queue.add(data.type, data, {
+    const attempts = getAttempts(data);
+    const options = {
       delay: jobDelay,
       jobId,
-    });
+      ...(attempts === undefined ? {} : { attempts }),
+    };
+    const job = await queue.add(data.type, data, options);
 
     log(`[QUEUE] Job 추가: ${data.type} (${accountId}), 딜레이: ${Math.round(jobDelay / 1000)}초`);
     return job;

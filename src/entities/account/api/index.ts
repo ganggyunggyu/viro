@@ -3,6 +3,7 @@
 import { connectDB } from '@/shared/lib/mongodb';
 import { Account } from '@/shared/models';
 import { getCurrentUserId } from '@/shared/config/user';
+import { createAccountRegistration } from '@/shared/lib/account-registration-harness';
 import { revalidatePath } from 'next/cache';
 import type { AccountData, AccountInput } from '../model';
 
@@ -32,13 +33,15 @@ export const getAccountsAction = async (): Promise<AccountData[]> => {
 export const addAccountAction = async (input: AccountInput) => {
   await connectDB();
   const userId = await getCurrentUserId();
-
-  const existing = await Account.findOne({ userId, accountId: input.accountId });
-  if (existing) {
-    return { success: false, error: '이미 존재하는 계정입니다' };
-  }
-
-  await Account.create({
+  const register = createAccountRegistration({
+    findActive: async (filter) => Account.findOne({ ...filter, isActive: true }).lean(),
+    upsert: async ({ filter, set }) => Account.findOneAndUpdate(
+      filter,
+      { $set: set },
+      { upsert: true },
+    ),
+  });
+  const result = await register({
     userId,
     accountId: input.accountId,
     password: input.password,
@@ -52,8 +55,10 @@ export const addAccountAction = async (input: AccountInput) => {
     excludeFromAutoComment: input.excludeFromAutoComment ?? false,
   });
 
+  if (!result.success) return result;
+
   revalidatePath('/accounts');
-  return { success: true };
+  return result;
 };
 
 export const updateAccountAction = async (accountId: string, input: Partial<AccountInput>) => {

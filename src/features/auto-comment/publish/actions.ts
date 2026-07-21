@@ -41,6 +41,7 @@ export const fetchFilteredArticles = async (
     const articles = await PublishedArticle.find({
       cafeId,
       status: 'published',
+      isExternal: { $ne: true },
       publishedAt: { $lte: cutoffDate },
       commentCount: { $lte: maxComments },
     })
@@ -93,6 +94,7 @@ export const queueDesktopAutoCommentAction = async (
   const articles = await PublishedArticle.find({
     cafeId,
     status: 'published',
+    isExternal: { $ne: true },
     publishedAt: { $gte: cutoffDate },
   }).lean();
   const selected = articles
@@ -184,6 +186,7 @@ export const runAutoCommentAction = async (
     const allArticles = await PublishedArticle.find({
       cafeId,
       status: 'published',
+      isExternal: { $ne: true },
       publishedAt: { $gte: cutoffDate },
     }).lean();
 

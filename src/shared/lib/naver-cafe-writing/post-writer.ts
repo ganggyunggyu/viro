@@ -16,6 +16,9 @@ import { incrementActivity } from '@/shared/models/daily-activity';
 import { uploadImages, placeCursorAtEndOfParagraph } from './image-uploader';
 import { isTypedContentTooShort } from './article-modifier-utils';
 import type { ElementHandle } from 'playwright';
+import { buildPostWriteFailure, extractArticleIdFromUrl } from './post-writer-utils';
+
+export { extractArticleIdFromUrl, findRecentArticleBySubject } from './post-writer-utils';
 
 // 팝업 닫고 클릭 재시도 헬퍼
 const clickWithPopupRetry = async (
@@ -207,84 +210,6 @@ export interface WritePostInput {
   images?: string[]; // Base64 이미지 배열
 }
 
-interface RecentCafeArticle {
-  articleId: number;
-  subject: string;
-  writeDateTimestamp: number;
-  menuId?: number;
-}
-
-interface FindRecentArticleOptions {
-  knownArticleIds?: Set<number>;
-  publishStartedAt?: number;
-  menuId?: number;
-}
-
-export const extractArticleIdFromUrl = (url: string): number | undefined => {
-  const decodedCandidates = new Set<string>([url]);
-  let current = url;
-
-  for (let i = 0; i < 2; i += 1) {
-    try {
-      const next = decodeURIComponent(current);
-      if (next === current) {
-        break;
-      }
-      decodedCandidates.add(next);
-      current = next;
-    } catch {
-      break;
-    }
-  }
-
-  for (const candidate of decodedCandidates) {
-    if (/\/articles\/write\b/i.test(candidate)) {
-      continue;
-    }
-
-    const articleIdMatch =
-      candidate.match(/articleid=(\d+)/i) ??
-      candidate.match(/\/articles\/(\d+)(?:[/?#]|$)/i);
-
-    if (articleIdMatch) {
-      return Number.parseInt(articleIdMatch[1], 10);
-    }
-  }
-
-  return undefined;
-};
-
-export const findRecentArticleBySubject = (
-  articles: RecentCafeArticle[],
-  subject: string,
-  options?: FindRecentArticleOptions,
-): RecentCafeArticle | undefined => {
-  const { knownArticleIds = new Set<number>(), publishStartedAt = 0, menuId } = options ?? {};
-
-  const matchingArticles = articles
-    .filter((article) => article.subject === subject)
-    .filter((article) => (menuId == null ? true : article.menuId === menuId))
-    .sort((left, right) => right.writeDateTimestamp - left.writeDateTimestamp);
-
-  const freshMatch = matchingArticles.find((article) => {
-    if (knownArticleIds.has(article.articleId)) {
-      return false;
-    }
-
-    if (publishStartedAt > 0 && article.writeDateTimestamp < publishStartedAt) {
-      return false;
-    }
-
-    return true;
-  });
-
-  if (freshMatch) {
-    return freshMatch;
-  }
-
-  return matchingArticles.find((article) => !knownArticleIds.has(article.articleId)) ?? matchingArticles[0];
-};
-
 export const writePostWithAccount = async (
   account: NaverAccount,
   input: WritePostInput
@@ -294,6 +219,8 @@ export const writePostWithAccount = async (
 
   // 계정 락 획득 (동시 접근 방지)
   await acquireAccountLock(id);
+  let observedArticleId: number | undefined;
+  let observedArticleUrl: string | undefined;
 
   try {
     const loginResult = await loginAccount(id, password, {
@@ -625,12 +552,14 @@ export const writePostWithAccount = async (
 
     // 글 작성 후 URL에서 articleId 추출 시도
     const currentUrl = page.url();
+    observedArticleUrl = currentUrl;
     console.log('[DEBUG] 현재 URL:', currentUrl);
 
     const decodedUrl = decodeURIComponent(decodeURIComponent(currentUrl));
     console.log('[DEBUG] 디코딩된 URL:', decodedUrl);
 
     const articleId = extractArticleIdFromUrl(currentUrl);
+    observedArticleId = articleId;
     console.log('[DEBUG] URL에서 추출한 articleId:', articleId);
 
     await saveCookiesForAccount(id);
@@ -692,12 +621,12 @@ export const writePostWithAccount = async (
       articleUrl: currentUrl,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-    return {
-      success: false,
+    return buildPostWriteFailure({
       writerAccountId: id,
-      error: errorMessage,
-    };
+      error,
+      articleId: observedArticleId,
+      articleUrl: observedArticleUrl,
+    });
   } finally {
     // 락 해제
     releaseAccountLock(id);

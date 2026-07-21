@@ -48,6 +48,9 @@ const STATUS_LABELS: Record<string, string> = {
   active: '진행',
   completed: '완료',
   failed: '실패',
+  requeued: '재적재',
+  softFailed: '소프트 실패',
+  skipped: '스킵',
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -62,9 +65,21 @@ const STATUS_BADGE_VARIANT: Record<string, BadgeVariant> = {
   active: 'warning',
   completed: 'success',
   failed: 'danger',
+  requeued: 'info',
+  softFailed: 'danger',
+  skipped: 'neutral',
 };
 
-const STATUS_ORDER = ['delayed', 'waiting', 'active', 'completed', 'failed'] as const;
+const STATUS_ORDER = [
+  'delayed',
+  'waiting',
+  'active',
+  'requeued',
+  'completed',
+  'skipped',
+  'softFailed',
+  'failed',
+] as const;
 
 const TYPE_ICONS: Record<string, LucideIcon> = {
   post: FileText,
@@ -358,8 +373,8 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
         <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-4')}>
           <Card padding="md">
             <h3 className={cn('text-sm font-medium text-ink-muted mb-4')}>전체 상태</h3>
-            <div className={cn('grid grid-cols-5 gap-2')}>
-              {(['failed', 'active', 'delayed', 'waiting', 'completed'] as const).map((status) => (
+            <div className={cn('grid grid-cols-4 gap-2')}>
+              {(['failed', 'softFailed', 'active', 'delayed', 'waiting', 'requeued', 'completed', 'skipped'] as const).map((status) => (
                 <div key={status} className={cn('text-center')}>
                   <div className={cn('font-mono text-xl font-bold text-ink')}>
                     {summary.total[status]}
@@ -431,6 +446,12 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
             </div>
           </Card>
         </div>
+      )}
+
+      {summary && (summary.retention.completed.mayBeTruncated || summary.retention.failed.mayBeTruncated) && (
+        <p className={cn('text-xs text-(--ink-muted)')}>
+          완료/실패 이력은 보존 상한({summary.retention.completed.limit}/{summary.retention.failed.limit})에 도달해 최소 집계로 표시됩니다.
+        </p>
       )}
 
       {/* 필터 */}
