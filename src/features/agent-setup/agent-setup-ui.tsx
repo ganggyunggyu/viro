@@ -2,16 +2,15 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import {
+  Apple,
   ArrowRight,
   Check,
   CheckCircle2,
   Copy,
   Download,
-  Laptop,
-  Monitor,
+  MonitorSmartphone,
   Play,
   ShieldCheck,
-  Sparkles,
   Square,
   Trash2,
 } from 'lucide-react';
@@ -25,7 +24,46 @@ import {
   type AgentTokenView,
 } from './actions';
 
+const APP_VERSION = '0.2.0';
 const MAC_DOWNLOAD_URL = '/api/download/viro/mac';
+const WINDOWS_DOWNLOAD_URL = '/api/download/viro/windows';
+
+type TargetOS = 'windows' | 'mac';
+
+interface PlatformMeta {
+  os: TargetOS;
+  label: string;
+  icon: typeof Apple;
+  href: string;
+  fileName: string;
+  requirement: string;
+}
+
+const PLATFORMS: Record<TargetOS, PlatformMeta> = {
+  windows: {
+    os: 'windows',
+    label: 'Windows',
+    icon: MonitorSmartphone,
+    href: WINDOWS_DOWNLOAD_URL,
+    fileName: `Viro-${APP_VERSION}-setup.exe`,
+    requirement: 'Windows 10 이상 · 64-bit',
+  },
+  mac: {
+    os: 'mac',
+    label: 'macOS',
+    icon: Apple,
+    href: MAC_DOWNLOAD_URL,
+    fileName: `Viro-${APP_VERSION}-arm64.dmg`,
+    requirement: 'Apple Silicon · macOS 13 이상',
+  },
+};
+
+const detectOS = (): TargetOS => {
+  if (typeof navigator === 'undefined') return 'windows';
+  const source = `${navigator.userAgent} ${navigator.platform}`.toLowerCase();
+  if (source.includes('mac') || source.includes('iphone') || source.includes('ipad')) return 'mac';
+  return 'windows';
+};
 
 const formatDate = (iso: string | null): string => {
   if (!iso) return '접속 기록 없음';
@@ -36,6 +74,12 @@ const formatDate = (iso: string | null): string => {
 const isOnline = (iso: string | null): boolean =>
   Boolean(iso && Date.now() - new Date(iso).getTime() < 3 * 60 * 1000);
 
+const HIGHLIGHTS = [
+  { icon: MonitorSmartphone, title: '내 PC에서 실행', detail: 'Chrome 작업이 서버가 아닌 이 컴퓨터에서 처리됩니다.' },
+  { icon: ShieldCheck, title: '비밀번호 저장 없음', detail: '연결 코드 한 번이면 다음 실행부터 자동으로 준비됩니다.' },
+  { icon: Download, title: '전체 기능 그대로', detail: '발행·수정·댓글·가입·노출 확인까지 창 안에서 바로.' },
+];
+
 export const AgentSetupUI = () => {
   const [label, setLabel] = useState('');
   const [issuedToken, setIssuedToken] = useState('');
@@ -44,6 +88,7 @@ export const AgentSetupUI = () => {
   const [isDesktop, setIsDesktop] = useState(false);
   const [desktopRunning, setDesktopRunning] = useState(false);
   const [desktopLogs, setDesktopLogs] = useState<string[]>([]);
+  const [primaryOS, setPrimaryOS] = useState<TargetOS>('windows');
   const [isPending, startTransition] = useTransition();
 
   const loadTokens = () => {
@@ -53,6 +98,7 @@ export const AgentSetupUI = () => {
   };
 
   useEffect(() => {
+    setPrimaryOS(detectOS());
     loadTokens();
     const desktop = window.viroDesktop;
     if (!desktop) return;
@@ -115,69 +161,142 @@ export const AgentSetupUI = () => {
     await window.viroDesktop?.stopAgent();
   };
 
+  const primary = PLATFORMS[primaryOS];
+  const secondary = PLATFORMS[primaryOS === 'windows' ? 'mac' : 'windows'];
+  const PrimaryIcon = primary.icon;
+  const SecondaryIcon = secondary.icon;
+
   return (
-    <div className={cn('space-y-6')}>
+    <div className={cn('space-y-5')}>
       <section
         className={cn(
           'relative overflow-hidden rounded-3xl border border-(--border-light)',
-          'bg-[linear-gradient(135deg,var(--ink)_0%,#1f2937_58%,#0f766e_145%)] px-6 py-8 sm:px-9 sm:py-10 lg:px-12 lg:py-12',
+          'bg-(--surface-elevated)',
+          'px-6 py-9 sm:px-10 sm:py-12',
         )}
       >
-        <div className={cn('absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/8 blur-2xl')} />
-        <div className={cn('absolute -bottom-28 left-1/3 h-52 w-80 rounded-full bg-(--teal)/20 blur-3xl')} />
-        <div className={cn('relative grid items-center gap-9 lg:grid-cols-[1fr_auto]')}>
-          <div className={cn('max-w-2xl')}>
-            <div className={cn('mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-xs font-medium text-white/80')}>
-              <Sparkles className={cn('h-3.5 w-3.5')} />
-              Viro Desktop 0.2.0
-            </div>
-            <h2 className={cn('text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl')}>
-              카페 운영을<br className={cn('hidden sm:block')} /> 한 프로그램에서
+        <div className={cn('pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-(--accent-soft) opacity-60 blur-3xl')} />
+        <div className={cn('relative grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center')}>
+          <div>
+            <span
+              className={cn(
+                'inline-flex items-center gap-2 rounded-full border border-(--border-light) bg-(--surface-muted)',
+                'px-3 py-1 text-xs font-medium tracking-wide text-(--ink-muted)',
+              )}
+            >
+              <span className={cn('h-1.5 w-1.5 rounded-full bg-(--accent)')} />
+              Viro Desktop v{APP_VERSION}
+            </span>
+
+            <h2 className={cn('mt-5 text-3xl font-bold leading-[1.12] tracking-tight text-(--ink) sm:text-4xl')}>
+              카페 운영 전체를<br />
+              데스크톱 앱 하나로
             </h2>
-            <p className={cn('mt-4 max-w-xl text-sm leading-6 text-white/65 sm:text-base')}>
-              발행, 수정, 댓글, 가입, 닉네임 변경, 노출 확인까지 Viro 창에서 바로 실행하세요.
-              Chrome 작업은 서버가 아닌 이 Mac에서 안전하게 처리됩니다.
+            <p className={cn('mt-4 max-w-md text-sm leading-6 text-(--ink-muted) sm:text-base')}>
+              발행, 수정, 댓글, 가입, 닉네임 변경, 노출 확인까지. 브라우저 작업은 서버가 아닌
+              내 컴퓨터에서 안전하게 돌아갑니다.
             </p>
 
             {!isDesktop && (
-              <div className={cn('mt-7 flex flex-col gap-3 sm:flex-row sm:items-center')}>
-                <a
-                  href={MAC_DOWNLOAD_URL}
-                  download="Viro-0.2.0-arm64.dmg"
-                  className={cn(
-                    'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3',
-                    'text-sm font-semibold text-slate-900 shadow-lg shadow-black/10 transition-all',
-                    'hover:-translate-y-0.5 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-white/70',
-                  )}
-                >
-                  <Download className={cn('h-4 w-4')} />
-                  Mac용 Viro 다운로드
-                  <ArrowRight className={cn('h-4 w-4')} />
-                </a>
-                <span className={cn('text-xs text-white/50')}>Apple Silicon · macOS 13 이상</span>
+              <div className={cn('mt-8 space-y-3')}>
+                <div className={cn('flex flex-col gap-3 sm:flex-row sm:items-center')}>
+                  <a
+                    href={primary.href}
+                    download={primary.fileName}
+                    className={cn(
+                      'group inline-flex min-h-12 items-center justify-center gap-2.5 rounded-xl bg-(--accent) px-6 py-3',
+                      'text-sm font-semibold text-white shadow-sm transition-all',
+                      'hover:-translate-y-0.5 hover:bg-(--accent-hover) focus:outline-none focus:ring-2 focus:ring-(--accent)/50',
+                    )}
+                  >
+                    <PrimaryIcon className={cn('h-[18px] w-[18px]')} />
+                    {primary.label}용 다운로드
+                    <ArrowRight className={cn('h-4 w-4 transition-transform group-hover:translate-x-0.5')} />
+                  </a>
+                  <a
+                    href={secondary.href}
+                    download={secondary.fileName}
+                    className={cn(
+                      'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-(--border) bg-(--surface) px-5 py-3',
+                      'text-sm font-medium text-(--ink) transition-all',
+                      'hover:border-(--ink-tertiary) hover:bg-(--surface-muted) focus:outline-none focus:ring-2 focus:ring-(--accent)/40',
+                    )}
+                  >
+                    <SecondaryIcon className={cn('h-[18px] w-[18px]')} />
+                    {secondary.label}
+                  </a>
+                </div>
+                <p className={cn('text-xs text-(--ink-tertiary)')}>
+                  {primary.requirement} · 무료 · 설치 후 연결 코드 한 번이면 끝
+                </p>
               </div>
             )}
           </div>
 
-          <div className={cn('grid min-w-64 gap-3 sm:grid-cols-3 lg:grid-cols-1')}>
-            {[
-              { icon: Monitor, title: '로컬 Chrome', detail: '내 PC에서 직접 실행' },
-              { icon: ShieldCheck, title: '간편 연결', detail: '서버 비밀번호 저장 없음' },
-              { icon: Laptop, title: '전체 기능', detail: '전용 데스크톱 메뉴' },
-            ].map(({ icon: Icon, title, detail }) => (
-              <div key={title} className={cn('flex items-center gap-3 rounded-2xl border border-white/10 bg-white/7 px-4 py-3 backdrop-blur-sm')}>
-                <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white')}>
-                  <Icon className={cn('h-4 w-4')} />
+          <div className={cn('flex flex-col gap-2.5')}>
+            {HIGHLIGHTS.map(({ icon: Icon, title, detail }) => (
+              <div
+                key={title}
+                className={cn(
+                  'flex items-start gap-3.5 rounded-2xl border border-(--border-light) bg-(--surface) px-4 py-3.5',
+                )}
+              >
+                <span className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--accent-soft) text-(--accent)')}>
+                  <Icon className={cn('h-[18px] w-[18px]')} />
                 </span>
                 <div>
-                  <p className={cn('text-sm font-semibold text-white')}>{title}</p>
-                  <p className={cn('text-xs text-white/50')}>{detail}</p>
+                  <p className={cn('text-sm font-semibold text-(--ink)')}>{title}</p>
+                  <p className={cn('mt-0.5 text-xs leading-5 text-(--ink-muted)')}>{detail}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </section>
+
+      {!isDesktop && (
+        <section className={cn('grid gap-3 sm:grid-cols-2')}>
+          {(['windows', 'mac'] as const).map((os) => {
+            const platform = PLATFORMS[os];
+            const PlatformIcon = platform.icon;
+            const isRecommended = os === primaryOS;
+            return (
+              <a
+                key={os}
+                href={platform.href}
+                download={platform.fileName}
+                className={cn(
+                  'group flex items-center justify-between gap-4 rounded-2xl border bg-(--surface) px-5 py-4 transition-all',
+                  isRecommended
+                    ? 'border-(--accent)/40 shadow-sm'
+                    : 'border-(--border-light) hover:border-(--border)',
+                  'hover:-translate-y-0.5',
+                )}
+              >
+                <div className={cn('flex items-center gap-3.5')}>
+                  <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--surface-muted) text-(--ink)')}>
+                    <PlatformIcon className={cn('h-5 w-5')} />
+                  </span>
+                  <div>
+                    <div className={cn('flex items-center gap-2')}>
+                      <p className={cn('text-sm font-semibold text-(--ink)')}>{platform.label}</p>
+                      {isRecommended && (
+                        <span className={cn('rounded-full bg-(--accent)/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-(--accent)')}>
+                          내 기기
+                        </span>
+                      )}
+                    </div>
+                    <p className={cn('mt-0.5 text-xs text-(--ink-muted)')}>{platform.requirement}</p>
+                  </div>
+                </div>
+                <span className={cn('flex h-9 w-9 items-center justify-center rounded-lg text-(--ink-muted) transition-colors group-hover:bg-(--surface-muted) group-hover:text-(--ink)')}>
+                  <Download className={cn('h-[18px] w-[18px]')} />
+                </span>
+              </a>
+            );
+          })}
+        </section>
+      )}
 
       {isDesktop ? (
         <section className={cn('rounded-3xl border border-(--accent)/25 bg-(--surface) p-6 lg:p-8')}>
@@ -189,7 +308,7 @@ export const AgentSetupUI = () => {
               </span>
               <div>
                 <h3 className={cn('text-lg font-semibold text-(--ink)')}>
-                  {desktopRunning ? '이 Mac이 연결되어 있습니다' : '실행 준비가 필요합니다'}
+                  {desktopRunning ? '이 PC가 연결되어 있습니다' : '실행 준비가 필요합니다'}
                 </h3>
                 <p className={cn('mt-1 text-sm text-(--ink-muted)')}>
                   {desktopRunning
@@ -221,7 +340,7 @@ export const AgentSetupUI = () => {
       ) : (
         <section className={cn('grid gap-3 sm:grid-cols-3')}>
           {[
-            { step: '01', title: '다운로드', detail: 'DMG를 받아 Viro를 응용 프로그램에 설치합니다.' },
+            { step: '01', title: '다운로드', detail: '설치 파일을 받아 Viro를 설치합니다.' },
             { step: '02', title: '이 PC 연결', detail: 'Viro에 로그인하고 연결 버튼을 한 번 누릅니다.' },
             { step: '03', title: '바로 사용', detail: '모든 메뉴를 Viro 창에서 그대로 사용합니다.' },
           ].map(({ step, title, detail }) => (
@@ -257,7 +376,7 @@ export const AgentSetupUI = () => {
             type="text"
             value={label}
             onChange={(event) => setLabel(event.target.value)}
-            placeholder="예: 내 MacBook, 사무실 iMac"
+            placeholder="예: 사무실 PC, 내 노트북"
             containerClassName="flex-1"
           />
           <Button onClick={handleIssue} isLoading={isPending}>
@@ -315,8 +434,8 @@ export const AgentSetupUI = () => {
 
       {!isDesktop && (
         <p className={cn('px-2 text-center text-xs leading-5 text-(--ink-muted)')}>
-          첫 실행 때 로컬 Chrome 구성요소를 자동으로 설치합니다. Apple 공증 전 버전은
-          Finder에서 Viro를 우클릭한 뒤 ‘열기’를 선택해야 할 수 있습니다.
+          Windows는 SmartScreen, macOS는 Gatekeeper 안내가 뜰 수 있습니다. 공증 전 버전은
+          설치 파일을 우클릭한 뒤 ‘열기’를 선택하면 실행됩니다.
         </p>
       )}
     </div>
