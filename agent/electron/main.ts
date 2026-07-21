@@ -183,6 +183,41 @@ const executeBrowserAction = async (action: unknown): Promise<unknown> => {
   }
 };
 
+const loginToBroker = async (
+  brokerUrl: string,
+  loginId: string,
+  password: string,
+): Promise<{ success: boolean; error?: string; displayName?: string }> => {
+  const url = brokerUrl.replace(/\/+$/, '');
+  if (!url || !loginId || !password) {
+    return { success: false, error: '서버 주소, 아이디, 비밀번호를 모두 입력하세요' };
+  }
+  try {
+    const response = await fetch(`${url}/api/agent/login`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ loginId, password }),
+    });
+    const data = (await response.json().catch(() => ({}))) as {
+      token?: string;
+      displayName?: string;
+      error?: string;
+    };
+    if (!response.ok || typeof data.token !== 'string') {
+      return { success: false, error: data.error || `로그인 실패 (${response.status})` };
+    }
+    saveStored({ brokerUrl: url, token: data.token });
+    process.env.BROKER_URL = url;
+    process.env.AGENT_TOKEN = data.token;
+    return { success: true, displayName: data.displayName };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '서버에 연결하지 못했습니다',
+    };
+  }
+};
+
 app.whenReady().then(() => {
   process.env.PLAYWRIGHT_BROWSERS_PATH = BROWSERS_PATH;
   createWindow();
@@ -216,6 +251,12 @@ ipcMain.handle('save-config', (_event, config: StoredConfig) => {
   saveStored(config);
   return true;
 });
+
+ipcMain.handle(
+  'login',
+  (_event, payload: { brokerUrl: string; loginId: string; password: string }) =>
+    loginToBroker(payload.brokerUrl, payload.loginId, payload.password),
+);
 
 ipcMain.handle('ensure-chromium', async () => {
   const { ensureChromium } = await import('../lib/ensure-chromium');

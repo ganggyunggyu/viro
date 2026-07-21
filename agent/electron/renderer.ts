@@ -385,14 +385,17 @@ const execute = async (action: ViroDesktopAction): Promise<ViroDesktopActionResp
   return response;
 };
 
-const handleSettings = (event: Event): void => {
+const handleViroLogin = (event: Event): void => {
   void runBusy(event, async () => {
-    await api.saveConfig({
+    const result = await api.login({
       brokerUrl: byId<HTMLInputElement>('broker').value.trim().replace(/\/+$/, ''),
-      token: byId<HTMLInputElement>('token').value.trim(),
+      loginId: byId<HTMLInputElement>('login-id').value.trim(),
+      password: byId<HTMLInputElement>('login-password').value,
     });
+    if (!result.success) throw new Error(result.error || '로그인에 실패했습니다');
+    byId<HTMLInputElement>('login-password').value = '';
     await refreshContext();
-    showToast('연결 정보를 저장하고 데이터 연결을 확인했습니다');
+    showToast(`${result.displayName || 'VIRO'} 님으로 로그인했습니다`);
   });
 };
 
@@ -621,7 +624,6 @@ const initialize = async (): Promise<void> => {
   initializeDates();
   const config = await api.getConfig();
   byId<HTMLInputElement>('broker').value = config.brokerUrl || '';
-  byId<HTMLInputElement>('token').value = config.token || '';
   const status = await api.getStatus();
   setRunning(status.running);
   if (config.token) {
@@ -636,7 +638,7 @@ const initialize = async (): Promise<void> => {
     }
   } else {
     const notice = byId('notice');
-    notice.textContent = '연결 설정에서 데이터 서버와 토큰을 저장하면 모든 기능을 사용할 수 있습니다.';
+    notice.textContent = 'VIRO 계정으로 로그인하면 모든 기능을 사용할 수 있습니다.';
     notice.hidden = false;
     selectFeature('settings');
   }
@@ -645,7 +647,7 @@ const initialize = async (): Promise<void> => {
 api.onLog(appendLog);
 api.onSetupProgress((line) => appendLog(`[브라우저 설치] ${line}`));
 api.onStatus(({ running }) => setRunning(running));
-byId('settings-form').addEventListener('submit', handleSettings);
+byId('settings-form').addEventListener('submit', handleViroLogin);
 byId('toggle-worker').addEventListener('click', handleWorkerToggleClick);
 byId('refresh-context').addEventListener('click', handleRefreshContextClick);
 byId('publish-form').addEventListener('submit', handlePublish);
