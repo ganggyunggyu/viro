@@ -1,5 +1,11 @@
 import { DESKTOP_FEATURES, type DesktopFeatureId } from '../lib/desktop-feature-registry';
-import { parseExposureRows, parseManuscripts, splitLines } from './renderer-utils';
+import {
+  buildResultModel,
+  parseExposureRows,
+  parseManuscripts,
+  splitLines,
+  type ResultModel,
+} from './renderer-utils';
 import type {
   ViroDesktopAction,
   ViroDesktopActionResponse,
@@ -24,7 +30,94 @@ let context: ViroDesktopContext = { accounts: [], cafes: [] };
 let currentFeature: DesktopFeatureId = 'home';
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
-const formatResult = (value: unknown): string => JSON.stringify(value, null, 2);
+const el = (tag: string, className?: string, text?: string): HTMLElement => {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+
+const externalLink = (href: string, className: string, text: string): HTMLAnchorElement => {
+  const anchor = document.createElement('a');
+  anchor.href = href;
+  anchor.className = className;
+  anchor.textContent = text;
+  anchor.target = '_blank';
+  anchor.rel = 'noreferrer';
+  return anchor;
+};
+
+const renderResultStats = (host: HTMLElement, model: ResultModel): void => {
+  if (model.stats.length === 0) return;
+  const stats = el('div', 'result-stats');
+  for (const stat of model.stats) {
+    const chip = el('div', `result-stat ${stat.tone}`);
+    chip.append(el('strong', undefined, stat.value), el('span', undefined, stat.label));
+    stats.append(chip);
+  }
+  host.append(stats);
+};
+
+const renderResultKv = (host: HTMLElement, model: ResultModel): void => {
+  if (model.kv.length === 0) return;
+  const list = el('dl', 'result-kv');
+  for (const row of model.kv) {
+    list.append(el('dt', undefined, row.label));
+    const value = el('dd');
+    if (row.link) value.append(externalLink(row.link, 'result-inline-link', row.value));
+    else value.textContent = row.value;
+    list.append(value);
+  }
+  host.append(list);
+};
+
+const renderResultItems = (host: HTMLElement, model: ResultModel): void => {
+  if (model.items.length === 0) return;
+  const list = el('ul', 'result-items');
+  for (const item of model.items) {
+    const row = el('li', `result-item ${item.tone}`);
+    const head = el('div', 'result-item-head');
+    head.append(el('span', 'result-item-title', item.title));
+    if (item.statusLabel) head.append(el('span', `result-tag ${item.tone}`, item.statusLabel));
+    row.append(head);
+    if (item.badges.length > 0) {
+      const badges = el('div', 'result-badges');
+      for (const badge of item.badges) badges.append(el('span', `result-badge ${badge.tone}`, badge.label));
+      row.append(badges);
+    }
+    if (item.detail) row.append(el('p', 'result-item-detail', item.detail));
+    if (item.link) row.append(externalLink(item.link, 'result-link', '글 열기 ↗'));
+    list.append(row);
+  }
+  host.append(list);
+};
+
+const renderResult = (id: string, value: unknown): void => {
+  const host = byId<HTMLElement>(id);
+  const model = buildResultModel(value);
+  host.replaceChildren();
+
+  if (model.empty) {
+    host.append(el('p', 'result-empty', '결과가 없습니다.'));
+    return;
+  }
+
+  const head = el('div', 'result-head');
+  head.append(el('span', `result-status ${model.tone}`, model.statusLabel));
+  if (model.message) head.append(el('span', 'result-message', model.message));
+  host.append(head);
+
+  if (model.error) host.append(el('p', 'result-error', model.error));
+
+  renderResultStats(host, model);
+  renderResultKv(host, model);
+  renderResultItems(host, model);
+
+  const details = document.createElement('details');
+  details.className = 'result-raw';
+  details.append(el('summary', undefined, '원본 데이터'), el('pre', undefined, model.raw));
+  host.append(details);
+};
 
 const appendLog = (line: string): void => {
   const log = byId<HTMLPreElement>('log');
@@ -43,7 +136,7 @@ const showToast = (message: string, error = false): void => {
 };
 
 const showResult = (id: string, value: unknown): void => {
-  byId<HTMLPreElement>(id).textContent = formatResult(value);
+  renderResult(id, value);
 };
 
 const setRunning = (running: boolean): void => {

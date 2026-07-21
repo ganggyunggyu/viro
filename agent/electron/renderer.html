@@ -51,7 +51,7 @@
               <label class="check"><input id="publish-images" type="checkbox" checked /><span>이미지 3장 자동 생성·첨부</span></label>
               <button class="button primary wide" type="submit">원고 생성 후 로컬 발행</button>
             </form>
-            <div class="card result-card"><h3>실행 결과</h3><pre id="publish-result">아직 실행한 작업이 없습니다.</pre></div>
+            <div class="card result-card"><h3>실행 결과</h3><div id="publish-result" class="result-view"><p class="result-empty">아직 실행한 작업이 없습니다.</p></div></div>
           </div>
         </section>
 
@@ -64,7 +64,7 @@
               <div id="modify-options" class="inline-fields" hidden><label>정렬<select id="modify-sort"><option value="oldest">오래된 글부터</option><option value="newest">최신 글부터</option><option value="random">무작위</option></select></label><label>최근 N일<input id="modify-days" type="number" min="1" placeholder="제한 없음" /></label></div>
               <button class="button primary wide" type="submit">이 PC에서 실행</button>
             </form>
-            <div class="card result-card"><h3>실행 결과</h3><pre id="manuscript-result">아직 실행한 작업이 없습니다.</pre></div>
+            <div class="card result-card"><h3>실행 결과</h3><div id="manuscript-result" class="result-view"><p class="result-empty">아직 실행한 작업이 없습니다.</p></div></div>
           </div>
         </section>
 
@@ -80,7 +80,7 @@
               <label class="check"><input id="comment-delete" type="checkbox" /><span>기존 내 댓글을 삭제한 뒤 작성</span></label>
               <button class="button primary wide" type="submit">댓글 작업 시작</button>
             </form>
-            <div class="card result-card"><h3>등록 결과</h3><pre id="comment-result">아직 등록한 작업이 없습니다.</pre></div>
+            <div class="card result-card"><h3>등록 결과</h3><div id="comment-result" class="result-view"><p class="result-empty">아직 등록한 작업이 없습니다.</p></div></div>
           </div>
         </section>
 
@@ -92,14 +92,14 @@
               <label>확인 목록<textarea id="exposure-rows" rows="11" placeholder="카페ID|키워드|글번호(선택)&#10;123456|건강 정보|789" required></textarea></label>
               <button class="button primary wide" type="submit">로컬 Chrome으로 확인</button>
             </form>
-            <div class="card result-card"><h3>확인 결과</h3><pre id="exposure-result">아직 확인한 항목이 없습니다.</pre></div>
+            <div class="card result-card"><h3>확인 결과</h3><div id="exposure-result" class="result-view"><p class="result-empty">아직 확인한 항목이 없습니다.</p></div></div>
           </div>
         </section>
 
         <section class="panel" data-panel="accounts">
           <div class="section-grid two">
             <form id="login-form" class="card form-card"><div class="card-heading"><div><h3>계정 로그인 점검</h3><p>저장된 계정으로 네이버 로그인이 되는지 확인합니다.</p></div><span class="local-badge">LOCAL</span></div><label>계정<select id="login-account"></select></label><button class="button primary wide" type="submit">로그인 확인</button></form>
-            <div class="card result-card"><h3>계정 상태</h3><pre id="login-result">계정을 선택해 점검하세요.</pre></div>
+            <div class="card result-card"><h3>계정 상태</h3><div id="login-result" class="result-view"><p class="result-empty">계정을 선택해 점검하세요.</p></div></div>
           </div>
         </section>
 
@@ -111,13 +111,13 @@
             </div>
             <form id="cafe-create-form" class="card form-card"><div class="card-heading"><div><h3>새 카페 만들기</h3><p>개설과 운영 데이터 등록을 한 번에 처리합니다.</p></div><span class="local-badge">LOCAL</span></div><label>소유 계정<select id="cafe-owner"></select></label><div class="inline-fields"><label>카페 이름<input id="cafe-name" required /></label><label>주소 슬러그<input id="cafe-slug" required placeholder="영문/숫자" /></label></div><label>주제<select id="cafe-preset"><option value="health-care">건강 - 건강관리/건강식품</option><option value="health-general">건강 - 일반</option><option value="living-house">생활 - 주거살림</option><option value="living-info">생활 - 생활정보</option><option value="daily-social">일상 - 친목/모임</option><option value="family-parenting">육아 - 가족/육아</option></select></label><label>설명<textarea id="cafe-description" rows="4" required></textarea></label><label>검색 키워드<input id="cafe-keywords" placeholder="쉼표로 구분" /></label><button class="button primary wide" type="submit">카페 만들기</button></form>
           </div>
-          <div class="card result-card top-gap"><h3>카페 작업 결과</h3><pre id="cafe-result">아직 실행한 작업이 없습니다.</pre></div>
+          <div class="card result-card top-gap"><h3>카페 작업 결과</h3><div id="cafe-result" class="result-view"><p class="result-empty">아직 실행한 작업이 없습니다.</p></div></div>
         </section>
 
         <section class="panel" data-panel="rewrite">
           <div class="section-grid two">
             <form id="rewrite-form" class="card form-card"><div class="card-heading"><div><h3>기존 글 재작성</h3><p>날짜 범위의 글을 읽고 새 원고로 바꿉니다.</p></div><span class="local-badge">LOCAL</span></div><fieldset><legend>대상 카페</legend><div id="rewrite-cafes" class="choice-grid"></div></fieldset><div class="inline-fields"><label>시작일<input id="rewrite-from" type="date" required /></label><label>종료일<input id="rewrite-to" type="date" required /></label></div><label>키워드 방식<select id="rewrite-source"><option value="pool">서비스별 키워드 풀</option><option value="custom">직접 입력</option></select></label><label id="rewrite-keywords-wrap" hidden>직접 키워드<textarea id="rewrite-keywords" rows="5" placeholder="한 줄에 하나씩"></textarea></label><button class="button primary wide" type="submit">로컬 Chrome에서 재작성</button></form>
-            <div class="card result-card"><h3>재작성 결과</h3><pre id="rewrite-result">아직 실행한 작업이 없습니다.</pre></div>
+            <div class="card result-card"><h3>재작성 결과</h3><div id="rewrite-result" class="result-view"><p class="result-empty">아직 실행한 작업이 없습니다.</p></div></div>
           </div>
         </section>
 
