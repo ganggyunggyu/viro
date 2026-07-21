@@ -48,13 +48,29 @@ export const getChromiumPath = (): string | null => {
   }
 };
 
+// 실행 파일이 "존재"만 해서는 부족하다(다운로드 중단 시 파일은 남아도 깨져 있어
+// launch 직후 크래시 → "Target page, context or browser has been closed"). 실제로
+// 한 번 띄워봐서 정상 실행되는지 검증한다.
+export const verifyChromiumLaunches = async (): Promise<boolean> => {
+  try {
+    const browser = await chromium.launch({ headless: true });
+    await browser.close();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const ensureChromium = async (options: EnsureChromiumOptions = {}): Promise<string> => {
   const { onProgress } = options;
 
   const existing = getChromiumPath();
-  if (existing) {
+  if (existing && (await verifyChromiumLaunches())) {
     onProgress?.('브라우저 구성요소 확인됨');
     return existing;
+  }
+  if (existing) {
+    onProgress?.('브라우저 구성요소가 손상되어 다시 설치합니다');
   }
 
   onProgress?.('브라우저 구성요소 다운로드 중... (최초 1회, 수백 MB)');
