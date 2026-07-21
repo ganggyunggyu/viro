@@ -379,6 +379,18 @@ const handleWorkerToggle = async (): Promise<void> => {
   }
 };
 
+const handleWorkerToggleClick = (): void => {
+  void handleWorkerToggle();
+};
+
+const handleRefreshContextError = (error: unknown): void => {
+  showToast(error instanceof Error ? error.message : '연결 실패', true);
+};
+
+const handleRefreshContextClick = (): void => {
+  void refreshContext().catch(handleRefreshContextError);
+};
+
 const handlePublish = (event: Event): void => {
   void runBusy(event, async () => {
     const keywords = splitLines(byId<HTMLTextAreaElement>('publish-keywords').value);
@@ -581,8 +593,8 @@ api.onLog(appendLog);
 api.onSetupProgress((line) => appendLog(`[브라우저 설치] ${line}`));
 api.onStatus(({ running }) => setRunning(running));
 byId('settings-form').addEventListener('submit', handleSettings);
-byId('toggle-worker').addEventListener('click', () => { void handleWorkerToggle(); });
-byId('refresh-context').addEventListener('click', () => { void refreshContext().catch((error: unknown) => showToast(error instanceof Error ? error.message : '연결 실패', true)); });
+byId('toggle-worker').addEventListener('click', handleWorkerToggleClick);
+byId('refresh-context').addEventListener('click', handleRefreshContextClick);
 byId('publish-form').addEventListener('submit', handlePublish);
 byId('manuscript-form').addEventListener('submit', handleManuscript);
 byId('comment-form').addEventListener('submit', handleComment);

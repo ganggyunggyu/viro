@@ -1,6 +1,6 @@
 {
   "name": "viro",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "scripts": {
     "dev": "concurrently \"node scripts/run-with-project-root.mjs next dev --port 3007\" \"node scripts/run-with-project-root.mjs tsx scripts/bull-board.ts\"",
@@ -40,6 +40,7 @@
       "agent/electron/dist/**/*"
     ],
     "mac": {
+      "icon": "agent/electron/build-resources/icon.icns",
       "target": [
         "dmg",
         "zip"
@@ -48,6 +49,7 @@
       "identity": "-"
     },
     "win": {
+      "icon": "agent/electron/build-resources/icon.ico",
       "target": [
         "nsis"
       ],

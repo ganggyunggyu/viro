@@ -8,7 +8,7 @@ test('Mac download starts from the Viro domain and redirects to the release asse
   assert.equal(response.status, 307);
   assert.equal(
     response.headers.get('location'),
-    'https://github.com/ganggyunggyu/viro/releases/download/v0.2.1/Viro-0.2.1-arm64.dmg',
+    'https://github.com/ganggyunggyu/viro/releases/download/v0.2.2/Viro-0.2.2-arm64.dmg',
   );
   assert.equal(response.headers.get('cache-control'), 'public, max-age=300');
 });

@@ -8,7 +8,7 @@ test('Windows download starts from the Viro domain and redirects to the release 
   assert.equal(response.status, 307);
   assert.equal(
     response.headers.get('location'),
-    'https://github.com/ganggyunggyu/viro/releases/download/v0.2.1/Viro-0.2.1-setup.exe',
+    'https://github.com/ganggyunggyu/viro/releases/download/v0.2.2/Viro-0.2.2-setup.exe',
   );
   assert.equal(response.headers.get('cache-control'), 'public, max-age=300');
 });

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const MAC_RELEASE_ASSET_URL =
-  'https://github.com/ganggyunggyu/viro/releases/download/v0.2.1/Viro-0.2.1-arm64.dmg';
+  'https://github.com/ganggyunggyu/viro/releases/download/v0.2.2/Viro-0.2.2-arm64.dmg';
 
 export const GET = (): Response =>
   NextResponse.redirect(MAC_RELEASE_ASSET_URL, {
