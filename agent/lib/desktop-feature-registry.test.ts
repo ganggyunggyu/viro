@@ -9,3 +9,14 @@ test('desktop UI exposes every local browser workflow', () => {
   );
   assert.equal(DESKTOP_FEATURES.filter(({ localExecution }) => localExecution).length, 7);
 });
+
+test('desktop navigation has product-ready groups, descriptions, and vector icons', () => {
+  assert.deepEqual(
+    [...new Set(DESKTOP_FEATURES.map(({ group }) => group))],
+    ['overview', 'work', 'manage', 'system'],
+  );
+  for (const { description, iconPath } of DESKTOP_FEATURES) {
+    assert.ok(description.length >= 8);
+    assert.match(iconPath, /^[Mm]/);
+  }
+});

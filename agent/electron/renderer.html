@@ -9,20 +9,35 @@
   <body>
     <div class="app-shell">
       <aside class="sidebar">
-        <div class="brand"><span class="brand-mark">V</span><div><strong>Viro</strong><small>Desktop</small></div></div>
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 5.5 10.2 19h3.6L19 5.5h-4l-3 9-3-9H5Z" /></svg>
+          </span>
+          <div class="brand-copy"><strong>Viro</strong><small>Desktop workspace</small></div>
+          <span class="brand-version">0.2</span>
+        </div>
         <nav id="navigation" aria-label="기능 메뉴"></nav>
         <div class="sidebar-status">
-          <span id="status-dot" class="status-dot"></span>
+          <span class="status-orb"><span id="status-dot" class="status-dot"></span></span>
           <div><strong id="status-label">실행 준비</strong><small id="status-detail">연결 정보를 확인하세요</small></div>
         </div>
       </aside>
 
       <main class="main">
         <header class="topbar">
-          <div><p class="eyebrow">LOCAL AUTOMATION</p><h1 id="page-title">홈</h1></div>
-          <div class="top-actions">
-            <button id="refresh-context" class="button secondary">데이터 새로고침</button>
-            <button id="toggle-worker" class="button primary">로컬 실행 시작</button>
+          <div class="page-heading">
+            <p class="eyebrow">VIRO WORKSPACE</p>
+            <h1 id="page-title">홈</h1>
+            <p id="page-description" class="page-description">로컬 실행 상태와 주요 기능을 한눈에 확인합니다.</p>
+          </div>
+          <div class="topbar-tools">
+            <div id="header-runtime" class="runtime-chip">
+              <span></span><strong id="header-status-text">로컬 실행 대기</strong>
+            </div>
+            <div class="top-actions">
+              <button id="refresh-context" class="button secondary">데이터 새로고침</button>
+              <button id="toggle-worker" class="button primary">로컬 실행 시작</button>
+            </div>
           </div>
         </header>
 
@@ -30,15 +45,27 @@
 
         <section class="panel active" data-panel="home">
           <div class="hero">
-            <div><span class="pill">이 PC에서 직접 실행</span><h2>웹페이지가 아닌<br />완전한 Viro 프로그램</h2><p>화면과 Chrome 자동화가 모두 이 앱에서 실행됩니다. 서버는 계정·카페 데이터와 작업 결과만 안전하게 동기화합니다.</p></div>
-            <div class="hero-orbit"><span>LOCAL</span><strong>Chrome</strong><small>Playwright</small></div>
+            <div class="hero-copy">
+              <div class="hero-labels"><span class="pill">이 PC에서 직접 실행</span><span class="hero-secure">브라우저 로컬 처리</span></div>
+              <h2>카페 운영의 모든 흐름을<br /><span>한 화면에서 빠르게.</span></h2>
+              <p>원고 생성부터 발행, 댓글, 계정과 카페 관리까지 Viro 안에서 끝냅니다. Chrome 자동화는 서버가 아닌 이 컴퓨터에서 실행됩니다.</p>
+              <div class="hero-points"><span>발행</span><span>댓글</span><span>노출 확인</span><span>카페 관리</span></div>
+            </div>
+            <div class="hero-orbit" aria-hidden="true">
+              <span class="orbit-halo one"></span><span class="orbit-halo two"></span>
+              <div class="orbit-core"><span>V</span><strong>LOCAL</strong></div>
+              <span class="orbit-node node-one">원고</span>
+              <span class="orbit-node node-two">Chrome</span>
+              <span class="orbit-node node-three">결과</span>
+              <small>내 PC에서 안전하게 연결</small>
+            </div>
           </div>
           <div class="stat-grid">
-            <article class="stat"><span>연결 계정</span><strong id="account-count">-</strong><small>개</small></article>
-            <article class="stat"><span>등록 카페</span><strong id="cafe-count">-</strong><small>개</small></article>
-            <article class="stat"><span>실행 방식</span><strong class="stat-word">로컬</strong><small>이 PC의 IP</small></article>
+            <article class="stat"><div class="stat-label"><span>연결 계정</span><i class="stat-dot teal"></i></div><div class="stat-value"><strong id="account-count">-</strong><small>개 계정</small></div></article>
+            <article class="stat"><div class="stat-label"><span>등록 카페</span><i class="stat-dot violet"></i></div><div class="stat-value"><strong id="cafe-count">-</strong><small>개 카페</small></div></article>
+            <article class="stat"><div class="stat-label"><span>실행 엔진</span><i class="stat-dot green"></i></div><div class="stat-value"><strong class="stat-word">로컬</strong><small>이 PC의 Chrome</small></div></article>
           </div>
-          <div class="card"><div class="card-heading"><div><h3>바로 실행</h3><p>작업을 선택하면 왼쪽 메뉴에서 해당 화면이 열립니다.</p></div></div><div id="quick-actions" class="quick-grid"></div></div>
+          <div class="card quick-card"><div class="card-heading"><div><h3>빠른 실행</h3><p>자주 쓰는 작업을 바로 시작하세요.</p></div><span class="section-caption">LOCAL TOOLS</span></div><div id="quick-actions" class="quick-grid"></div></div>
         </section>
 
         <section class="panel" data-panel="publish">
@@ -121,7 +148,7 @@
           </div>
         </section>
 
-        <section class="panel" data-panel="logs"><div class="card log-card"><div class="card-heading"><div><h3>실행 로그</h3><p>Chromium 설치, 작업 수신, 브라우저 실행 상태를 확인합니다.</p></div><button id="clear-log" class="button ghost">로그 지우기</button></div><pre id="log"></pre></div></section>
+        <section class="panel" data-panel="logs"><div class="card log-card"><div class="card-heading"><div><h3>실행 로그</h3><p>Chromium 설치, 작업 수신, 브라우저 실행 상태를 확인합니다.</p></div><button id="clear-log" class="button ghost">로그 지우기</button></div><div id="log" class="log-view"><p class="log-empty">아직 로그가 없습니다.</p></div></div></section>
 
         <section class="panel" data-panel="settings">
           <div class="section-grid two"><form id="settings-form" class="card form-card"><div class="card-heading"><div><h3>서버 연결</h3><p>앱 화면은 로컬에서 실행되며 이 주소는 데이터 동기화에만 사용됩니다.</p></div></div><label>데이터 서버 주소<input id="broker" type="url" placeholder="https://cafe-bot-two.vercel.app" required /></label><label>연결 토큰<input id="token" type="password" placeholder="웹 다운로드 페이지에서 발급한 토큰" required /></label><button class="button primary wide" type="submit">저장하고 연결 확인</button></form><div class="card"><h3>데이터 처리 방식</h3><ul class="privacy-list"><li><strong>화면</strong><span>이 앱에 포함되어 있어 웹 오류와 무관합니다.</span></li><li><strong>브라우저 작업</strong><span>이 PC의 Playwright/Chrome에서 실행됩니다.</span></li><li><strong>서버</strong><span>계정·카페 데이터, AI 원고, 결과 동기화만 담당합니다.</span></li><li><strong>토큰</strong><span>이 PC의 Viro 설정 폴더에만 저장됩니다.</span></li></ul></div></div>

@@ -1,4 +1,8 @@
-import { DESKTOP_FEATURES, type DesktopFeatureId } from '../lib/desktop-feature-registry';
+import {
+  DESKTOP_FEATURES,
+  type DesktopFeatureGroup,
+  type DesktopFeatureId,
+} from '../lib/desktop-feature-registry';
 import {
   buildResultModel,
   parseExposureRows,
@@ -21,9 +25,11 @@ const byId = <T extends HTMLElement>(id: string): T => {
   return element as T;
 };
 
-const icons: Record<DesktopFeatureId, string> = {
-  home: '⌂', publish: 'P', manuscript: 'M', comments: 'C', exposure: 'E',
-  accounts: 'A', cafes: 'N', rewrite: 'R', logs: 'L', settings: 'S',
+const FEATURE_GROUP_LABELS: Record<DesktopFeatureGroup, string> = {
+  overview: '워크스페이스',
+  work: '콘텐츠 작업',
+  manage: '운영 관리',
+  system: '시스템',
 };
 
 let context: ViroDesktopContext = { accounts: [], cafes: [] };
@@ -35,6 +41,23 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+};
+
+const createIcon = (iconPath: string, className: string): SVGSVGElement => {
+  const namespace = 'http://www.w3.org/2000/svg';
+  const icon = document.createElementNS(namespace, 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '1.8');
+  icon.setAttribute('stroke-linecap', 'round');
+  icon.setAttribute('stroke-linejoin', 'round');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.classList.add(className);
+  const path = document.createElementNS(namespace, 'path');
+  path.setAttribute('d', iconPath);
+  icon.append(path);
+  return icon;
 };
 
 const externalLink = (href: string, className: string, text: string): HTMLAnchorElement => {
@@ -119,11 +142,31 @@ const renderResult = (id: string, value: unknown): void => {
   host.append(details);
 };
 
+const logTone = (line: string): string => {
+  if (/오류|실패|에러|error|abort/i.test(line)) return 'bad';
+  if (/완료|성공|success|done|ready|활성/i.test(line)) return 'ok';
+  if (/설치|준비|다운로드|받는|setup|install|download/i.test(line)) return 'accent';
+  return 'neutral';
+};
+
 const appendLog = (line: string): void => {
-  const log = byId<HTMLPreElement>('log');
+  const log = byId<HTMLElement>('log');
+  log.querySelector('.log-empty')?.remove();
   const time = new Date().toLocaleTimeString('ko-KR', { hour12: false });
-  log.textContent += `[${time}] ${line}\n`;
+  const entry = el('div', `log-line ${logTone(line)}`);
+  entry.append(el('time', 'log-time', time));
+  const tagged = line.match(/^\[([^\]]+)\]\s*([\s\S]*)$/);
+  if (tagged) {
+    entry.append(el('span', 'log-tag', tagged[1]), el('span', 'log-msg', tagged[2]));
+  } else {
+    entry.append(el('span', 'log-msg', line));
+  }
+  log.append(entry);
   log.scrollTop = log.scrollHeight;
+};
+
+const clearLog = (): void => {
+  byId('log').replaceChildren(el('p', 'log-empty', '아직 로그가 없습니다.'));
 };
 
 const showToast = (message: string, error = false): void => {
@@ -147,6 +190,10 @@ const setRunning = (running: boolean): void => {
   button.textContent = running ? '로컬 실행 정지' : '로컬 실행 시작';
   button.dataset.running = String(running);
   button.classList.toggle('primary', !running);
+  button.classList.toggle('secondary', running);
+  const headerRuntime = byId('header-runtime');
+  headerRuntime.classList.toggle('on', running);
+  byId('header-status-text').textContent = running ? '로컬 실행 중' : '로컬 실행 대기';
 };
 
 const selectFeature = (feature: DesktopFeatureId): void => {
@@ -159,6 +206,11 @@ const selectFeature = (feature: DesktopFeatureId): void => {
   });
   const selected = DESKTOP_FEATURES.find(({ id }) => id === feature);
   byId('page-title').textContent = selected?.label || 'Viro';
+  byId('page-description').textContent = selected?.description || '';
+  document.querySelectorAll<HTMLButtonElement>('.nav-item').forEach((item) => {
+    if (item.dataset.feature === feature) item.setAttribute('aria-current', 'page');
+    else item.removeAttribute('aria-current');
+  });
 };
 
 const handleNavigation = (event: Event): void => {
@@ -168,13 +220,22 @@ const handleNavigation = (event: Event): void => {
 
 const buildNavigation = (): void => {
   const navigation = byId<HTMLElement>('navigation');
+  let currentGroup: DesktopFeatureGroup | undefined;
   for (const feature of DESKTOP_FEATURES) {
+    if (feature.group !== currentGroup) {
+      currentGroup = feature.group;
+      navigation.append(el('p', 'nav-group-label', FEATURE_GROUP_LABELS[currentGroup]));
+    }
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `nav-item${feature.id === currentFeature ? ' active' : ''}`;
     button.dataset.feature = feature.id;
-    button.dataset.icon = icons[feature.id];
-    button.textContent = feature.label;
+    button.title = feature.description;
+    if (feature.id === currentFeature) button.setAttribute('aria-current', 'page');
+    button.append(
+      createIcon(feature.iconPath, 'nav-icon'),
+      el('span', 'nav-label', feature.label),
+    );
     button.addEventListener('click', handleNavigation);
     navigation.append(button);
   }
@@ -192,11 +253,14 @@ const buildQuickActions = (): void => {
     button.type = 'button';
     button.className = 'quick-action';
     button.dataset.feature = feature.id;
-    const title = document.createElement('strong');
-    title.textContent = feature.label;
-    const detail = document.createElement('span');
-    detail.textContent = '이 PC의 Chrome에서 실행 →';
-    button.append(title, detail);
+    const icon = el('span', 'quick-icon');
+    icon.append(createIcon(feature.iconPath, 'quick-icon-svg'));
+    const copy = el('span', 'quick-copy');
+    copy.append(
+      el('strong', undefined, feature.label),
+      el('span', undefined, feature.description),
+    );
+    button.append(icon, copy, el('span', 'quick-arrow', '→'));
     button.addEventListener('click', handleQuickAction);
     container.append(button);
   }
@@ -270,7 +334,8 @@ const runBusy = async (event: Event, task: () => Promise<void>): Promise<void> =
     || event.currentTarget as HTMLButtonElement;
   const original = button.textContent;
   button.disabled = true;
-  button.textContent = '처리 중...';
+  button.dataset.busy = 'true';
+  button.textContent = '처리 중';
   try {
     await task();
   } catch (error) {
@@ -279,6 +344,7 @@ const runBusy = async (event: Event, task: () => Promise<void>): Promise<void> =
     showToast(message, true);
   } finally {
     button.disabled = false;
+    delete button.dataset.busy;
     button.textContent = original;
   }
 };
@@ -530,6 +596,6 @@ byId('manuscript-mode').addEventListener('change', handleManuscriptMode);
 byId('comment-mode').addEventListener('change', handleCommentMode);
 byId('nickname-mode').addEventListener('change', populateNicknameTarget);
 byId('rewrite-source').addEventListener('change', handleRewriteSource);
-byId('clear-log').addEventListener('click', () => { byId('log').textContent = ''; });
+byId('clear-log').addEventListener('click', clearLog);
 
 void initialize();
