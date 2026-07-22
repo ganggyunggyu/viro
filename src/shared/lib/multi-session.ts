@@ -403,8 +403,12 @@ export const closeContextForAccount = async (accountId: string): Promise<void> =
 
 export const closeAllContexts = async (): Promise<void> => {
   for (const [accountId, context] of contexts) {
-    await saveCookiesForAccount(accountId);
-    await context.close();
+    try {
+      await saveCookiesForAccount(accountId);
+      await context.close();
+    } catch (error) {
+      console.log(`[BROWSER] ${accountId} 종료 중 컨텍스트 정리 실패(무시): ${error}`);
+    }
   }
   contexts.clear();
   loginStatusCache.clear();
