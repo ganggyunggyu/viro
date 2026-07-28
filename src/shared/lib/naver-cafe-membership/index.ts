@@ -103,11 +103,7 @@ const getCafeJoinCaptchaClient = (): GoogleGenAI => {
   return cafeJoinCaptchaClient;
 };
 
-export const sleep = async (ms: number): Promise<void> => {
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-};
+export { sleep } from '@ganggyunggyu/shared';
 
 export const solveCafeJoinCaptchaImage = async (base64: string): Promise<string> => {
   const ai = getCafeJoinCaptchaClient();

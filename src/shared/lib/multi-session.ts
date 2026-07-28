@@ -1,6 +1,7 @@
 import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { sleep } from '@ganggyunggyu/shared';
 import type { NaverAccount } from './account-manager';
 import { canSolveCaptcha, detectCaptcha, solveCaptchaOnPage } from './captcha-solver';
 import { captureFailureShot } from './debug-capture';
@@ -734,9 +735,7 @@ export const warmupScheduleSessions = async (
     }
 
     if (i < uniqueAccounts.length - 1) {
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, waitBetweenAccountsMs);
-      });
+      await sleep(waitBetweenAccountsMs);
     }
   }
 

@@ -1,3 +1,4 @@
+import { sleep } from '@ganggyunggyu/shared';
 import { Account, PublishedArticle } from '@/shared/models';
 import { hasCommented, addCommentToArticle } from '@/shared/models/published-article';
 import { writeCommentWithAccount } from '@/shared/lib/naver-cafe-writing/comment-writer';
@@ -81,7 +82,6 @@ interface ChatMessage {
   tool_call_id?: string;
 }
 
-const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 const normalizeName = (v: string): string => (v || '').replace(/\([^)]*\)/g, '').replace(/\s+/g, '').trim();
 
 const callDeepSeek = async (

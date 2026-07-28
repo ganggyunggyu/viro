@@ -1,3 +1,5 @@
+import { pickRandom, randomInt, shuffle } from '@/shared/lib/random';
+
 interface HanryeoCafePromptInput {
   keyword: string;
   category?: string;
@@ -51,12 +53,6 @@ const COMMENT_DIRECTIONS = [
   '제품보다 본인 상황 확인이 먼저라는 신중한 댓글',
 ];
 
-const pickRandom = <T>(items: T[]): T =>
-  items[Math.floor(Math.random() * items.length)];
-
-const randomInt = (min: number, max: number): number =>
-  min + Math.floor(Math.random() * (max - min + 1));
-
 const buildCategoryLine = (category?: string): string => {
   const normalizedCategory = category?.trim();
   if (!normalizedCategory) return '';
@@ -71,12 +67,8 @@ export const buildHanryeoCafePrompt = ({
 }: HanryeoCafePromptInput): string => {
   const opening = pickRandom(PERSONA_OPENINGS);
   const sectionDirection = pickRandom(SECTION_DIRECTIONS);
-  const productPoints = [...HANRYEO_POINTS]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 2);
-  const commentDirections = [...COMMENT_DIRECTIONS]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
+  const productPoints = shuffle(HANRYEO_POINTS).slice(0, 2);
+  const commentDirections = shuffle(COMMENT_DIRECTIONS).slice(0, 4);
   const bodyMin = randomInt(1600, 1900);
   const bodyMax = bodyMin + randomInt(500, 800);
   const mainCommentCount = randomInt(5, 7);

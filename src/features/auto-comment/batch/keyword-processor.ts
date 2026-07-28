@@ -1,4 +1,5 @@
 import { HydratedDocument } from 'mongoose';
+import { sleep } from '@ganggyunggyu/shared';
 import { type NaverAccount, getPersonaId } from '@/shared/lib/account-manager';
 import { generateContent } from '@/shared/api/content-api';
 import { buildCafePostContent } from '@/shared/lib/cafe-content';
@@ -13,8 +14,6 @@ import {
 } from './types';
 import { parseKeywordWithCategory } from './keyword-utils';
 import { postComments, postReplies } from './keyword-processor-steps';
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export interface KeywordLogEntry {
   keyword: string;

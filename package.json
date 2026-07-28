@@ -60,6 +60,7 @@
     "@anthropic-ai/sdk": "^0.80.0",
     "@bull-board/api": "^6.16.2",
     "@bull-board/express": "^6.16.2",
+    "@ganggyunggyu/shared": "^0.2.0",
     "@google/genai": "^1.42.0",
     "bullmq": "^5.66.5",
     "cheerio": "^1.2.0",

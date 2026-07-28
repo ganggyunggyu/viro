@@ -1,3 +1,4 @@
+import { randomDelay } from '@ganggyunggyu/shared';
 import { acquireAccountLock, getPageForAccount, releaseAccountLock, saveCookiesForAccount } from './multi-session';
 import { buildNaverSearchUrl, extractCafeIdFromUrl, parseCafeSearchItems, type NaverCafeSearchItem } from './naver-search-parser';
 import { createLogger } from './logger';
@@ -31,9 +32,6 @@ const SEARCH_TIMEOUT_MS = 20000;
 const MAX_ATTEMPTS = 2;
 const RETRY_DELAY_MIN_MS = 2000;
 const RETRY_DELAY_MAX_MS = 4000;
-
-const randomDelay = (minMs: number, maxMs: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, minMs + Math.floor(Math.random() * (maxMs - minMs + 1))));
 
 interface CafeMatch {
   index: number;

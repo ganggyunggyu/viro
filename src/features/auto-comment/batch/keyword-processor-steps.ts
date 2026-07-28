@@ -1,11 +1,10 @@
+import { sleep } from '@ganggyunggyu/shared';
 import type { NaverAccount } from '@/shared/lib/account-manager';
 import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
 import { writeCommentWithAccount, writeReplyWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { type CommentResult, type ReplyResult } from './types';
 import { getRandomCommentCount } from './random';
 import { buildReplyTasks } from './keyword-processor-utils';
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export interface PostCommentsParams {
   cafeId: string;

@@ -10,6 +10,7 @@
  * - 별명 충돌이 잡히면 joinCafeWithNicknameRetry 가 자동 닉 변형으로 재시도하고
  *   성공 시 DB 닉네임을 갱신한다.
  */
+import { sleep } from '@ganggyunggyu/shared';
 import {
   getPageForAccount,
   saveCookiesForAccount,
@@ -350,7 +351,7 @@ export const joinCafeWithAccounts = async (
     results.push(result);
 
     // 계정 간 딜레이
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await sleep(2000);
   }
 
   return results;

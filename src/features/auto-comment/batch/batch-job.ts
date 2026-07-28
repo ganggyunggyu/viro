@@ -1,4 +1,5 @@
 import mongoose, { HydratedDocument } from 'mongoose';
+import { sleep } from '@ganggyunggyu/shared';
 import { closeAllContexts } from '@/shared/lib/multi-session';
 import { getAllAccounts } from '@/shared/config/accounts';
 import {
@@ -20,8 +21,6 @@ import {
   DEFAULT_DELAYS,
 } from './types';
 import { processKeyword } from './keyword-processor';
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const runBatchJob = async (
   input: BatchJobInput,

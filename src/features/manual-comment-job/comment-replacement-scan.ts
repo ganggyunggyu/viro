@@ -1,3 +1,4 @@
+import { normalizeText } from '@ganggyunggyu/shared';
 import { getAllAccounts } from '@/shared/config/accounts';
 import { getAllCafes } from '@/shared/config/cafes';
 import { browseCafePosts } from '@/shared/lib/cafe-browser';
@@ -41,8 +42,6 @@ export interface QueueCommentReplacementResult {
 const STOP_WORDS = new Set([
   '추천', '비교', '고르는', '기준', '방법', '종류', '정보', '후기', '정리', '사용', '부터', '까지', '대한', '있는', '위한',
 ]);
-
-const normalizeText = (value: string): string => value.replace(/\s+/g, ' ').trim();
 
 const getKeywords = (title: string): string[] =>
   [...new Set(

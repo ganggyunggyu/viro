@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { normalizeText as normalizeReplyContent } from '@ganggyunggyu/shared';
 
 export interface IArticleComment {
   accountId: string;
@@ -138,8 +139,6 @@ PublishedArticleSchema.index(
 export const PublishedArticle: Model<IPublishedArticle> =
   mongoose.models.PublishedArticle ||
   mongoose.model<IPublishedArticle>('PublishedArticle', PublishedArticleSchema);
-
-const normalizeReplyContent = (content: string): string => content.replace(/\s+/g, ' ').trim();
 
 export const createReplyIdentity = (
   accountId: string,

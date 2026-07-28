@@ -1,5 +1,6 @@
 'use server';
 
+import { sleep } from '@ganggyunggyu/shared';
 import { getAllAccounts } from '@/shared/config/accounts';
 import { getCafeWriterAccounts } from '@/shared/config/cafe-account-policy';
 import { getCafeById, getDefaultCafe } from '@/shared/config/cafes';
@@ -264,7 +265,7 @@ export const runManuscriptModifyAction = async (
 
       if (i < articlesToModify.length - 1) {
         console.log('[MANUSCRIPT MODIFY] 다음 글 수정 전 30초 대기...');
-        await new Promise((resolve) => setTimeout(resolve, 30000));
+        await sleep(30000);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';

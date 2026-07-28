@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { sleep } from '@ganggyunggyu/shared';
 
 const execAsync = promisify(exec);
 
@@ -74,5 +75,3 @@ export const setMobileData = async (enable: boolean): Promise<AdbResult> => {
 export const setUsbTethering = async (): Promise<AdbResult> => {
   return executeAdbCommand('svc usb setFunctions rndis');
 };
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

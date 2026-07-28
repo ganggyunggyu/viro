@@ -1,3 +1,5 @@
+import { shuffle } from '@/shared/lib/random';
+
 // scripts/rewrite-with-tete.ts의 KEYWORD_POOL/assignDiverseKeywords와 동일한 계약을 갖는 공유 모듈.
 // 실제 캠페인 스케줄에서 쓰는 키워드 풀(88개)을 셔플해서 대상 전체(카페 무관)에 한 번씩
 // 나눠주고, 풀이 모자라면 다시 셔플해서 이어붙인다 — 완전히 못 피하는 극소수 인접 중복만
@@ -32,15 +34,6 @@ const cleanWord = (word: string): string => word.replace(/[,.!?]/g, '');
 
 export const extractKeywordFromSubject = (subject: string): string =>
   subject.split(/\s+/).slice(0, 3).map(cleanWord).join(' ');
-
-const shuffle = <T,>(arr: T[]): T[] => {
-  const shuffled = [...arr];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
 
 export const assignDiverseKeywords = <T extends KeywordAssignable>(tasks: T[]): void => {
   let pool: string[] = [];
