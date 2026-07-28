@@ -1,3 +1,4 @@
+import { normalizeText, clamp } from '@ganggyunggyu/shared';
 import { generateContentWithPrompt } from './content-api';
 
 export interface CafeCommentBatchInput {
@@ -33,12 +34,6 @@ const DEFAULT_MODEL = 'deepseek-v4-flash';
 const DEFAULT_MIN_COUNT = 5;
 const DEFAULT_MAX_COUNT = 10;
 const START_CHECK_LENGTH = 6;
-
-const normalizeText = (value: string): string =>
-  value.replace(/\s+/g, ' ').trim();
-
-const clamp = (value: number, min: number, max: number): number =>
-  Math.min(max, Math.max(min, value));
 
 const getCountRule = (input: CafeCommentBatchInput): string => {
   if (input.exactCount) {

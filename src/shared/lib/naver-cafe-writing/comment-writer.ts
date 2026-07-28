@@ -30,7 +30,7 @@ export interface WriteCommentOptions {
 }
 
 const normalizeText = (value: string | null | undefined): string => {
-  return (value ?? '').replace(/\s+/g, ' ').trim();
+  return normalizeTextKit(value ?? '');
 };
 
 export const navigateToArticle = async (

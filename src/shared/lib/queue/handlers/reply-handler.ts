@@ -1,3 +1,4 @@
+import { normalizeText as normalizeTextKit } from '@ganggyunggyu/shared';
 import { ReplyJobData, JobResult } from '../types';
 import { addTaskJob, createRescheduleToken } from '../index';
 import { waitForSequenceTurn, advanceSequence } from '../sequence';
@@ -36,7 +37,7 @@ const acquireWriteLock = async (
 };
 
 const normalizeText = (value: string | null | undefined): string =>
-  (value ?? '').replace(/\s+/g, ' ').trim();
+  normalizeTextKit(value ?? '');
 
 const findParentCommentId = async (
   data: ReplyJobData,
