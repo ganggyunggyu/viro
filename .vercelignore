@@ -10,3 +10,9 @@ adoy-covers
 .cafe-bot-data
 .claude_backup
 .viral-debug
+.next
+agent/electron/out
+agent/electron/dist
+agent/electron/build-resources
+debug-shots
+profile-images

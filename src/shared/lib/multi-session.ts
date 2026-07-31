@@ -1,8 +1,9 @@
 import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { sleep } from '@ganggyunggyu/shared';
 import type { NaverAccount } from './account-manager';
-import { detectCaptcha, solveCaptchaOnPage } from './captcha-solver';
+import { canSolveCaptcha, detectCaptcha, solveCaptchaOnPage } from './captcha-solver';
 import { captureFailureShot } from './debug-capture';
 
 const SESSION_DIR = join(process.cwd(), '.playwright-session');
@@ -235,10 +236,18 @@ export const getBrowser = async (): Promise<Browser> => {
     }
     const isHeadless = process.env.PLAYWRIGHT_HEADLESS !== 'false';
     console.log(`[BROWSER] 브라우저 시작 (headless: ${isHeadless})`);
-    g.__pwBrowser = await chromium.launch({
+    const launched = await chromium.launch({
       headless: isHeadless,
       slowMo: isHeadless ? 0 : 100,
     });
+    // 브라우저가 크래시/종료되면 즉시 캐시를 비워 다음 호출에서 재실행되게 한다.
+    // (패키징된 데스크톱 앱에서 번들 Chromium이 launch 직후 죽는 경우 대비)
+    launched.on('disconnected', () => {
+      if (g.__pwBrowser === launched) g.__pwBrowser = null;
+      contexts.clear();
+      loginStatusCache.clear();
+    });
+    g.__pwBrowser = launched;
     return g.__pwBrowser;
   })();
 
@@ -252,6 +261,10 @@ export const getBrowser = async (): Promise<Browser> => {
 
 const isContextAlive = (ctx: BrowserContext): boolean => {
   try {
+    // 브라우저가 끊겼으면 컨텍스트도 죽은 것. ctx.pages()는 닫힌 컨텍스트에서도
+    // 예외를 던지지 않아(빈 배열 반환) 단독으로는 신뢰할 수 없다.
+    if (!g.__pwBrowser || !g.__pwBrowser.isConnected()) return false;
+    if (ctx.browser() !== g.__pwBrowser) return false;
     ctx.pages();
     return true;
   } catch {
@@ -310,15 +323,35 @@ export const getContextForAccount = async (accountId: string): Promise<BrowserCo
   return context;
 }
 
+const isClosedError = (error: unknown): boolean => {
+  const msg = error instanceof Error ? error.message : String(error);
+  return /has been closed|Target (page|closed)|browser has been closed|Target page, context or browser/i.test(msg);
+};
+
 export const getPageForAccount = async (accountId: string): Promise<Page> => {
   touchAccount(accountId);
-  const ctx = await getContextForAccount(accountId);
-  const pages = ctx.pages();
-  if (pages.length > 0) {
-    const page = pages[0];
-    if (!page.isClosed()) return page;
+
+  // 브라우저/컨텍스트가 (특히 패키징된 데스크톱 앱에서) launch 직후 죽을 수 있어,
+  // newPage가 "closed"로 실패하면 캐시를 비우고 한 번 재실행 후 재시도한다.
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const ctx = await getContextForAccount(accountId);
+    try {
+      const pages = ctx.pages();
+      if (pages.length > 0 && !pages[0].isClosed()) return pages[0];
+      return await ctx.newPage();
+    } catch (error) {
+      if (!isClosedError(error) || attempt === 2) throw error;
+      console.log(`[BROWSER] ${accountId} newPage 실패(브라우저 종료 감지) - 재실행 후 재시도`);
+      contexts.delete(accountId);
+      loginStatusCache.delete(accountId);
+      if (g.__pwBrowser && !g.__pwBrowser.isConnected()) {
+        try { await g.__pwBrowser.close(); } catch {}
+        g.__pwBrowser = null;
+        contexts.clear();
+      }
+    }
   }
-  return ctx.newPage();
+  throw new Error('getPageForAccount: 브라우저 재시도 실패');
 }
 
 export const saveCookiesForAccount = async (accountId: string): Promise<void> => {
@@ -371,8 +404,12 @@ export const closeContextForAccount = async (accountId: string): Promise<void> =
 
 export const closeAllContexts = async (): Promise<void> => {
   for (const [accountId, context] of contexts) {
-    await saveCookiesForAccount(accountId);
-    await context.close();
+    try {
+      await saveCookiesForAccount(accountId);
+      await context.close();
+    } catch (error) {
+      console.log(`[BROWSER] ${accountId} 종료 중 컨텍스트 정리 실패(무시): ${error}`);
+    }
   }
   contexts.clear();
   loginStatusCache.clear();
@@ -542,15 +579,10 @@ export const loginAccount = async (
     if (isLoginRedirect(page.url())) {
       const captchaCheck = await detectCaptcha(page);
       if (captchaCheck.detected) {
-        const geminiKey =
-          process.env.GEMINI_API_KEY ||
-          process.env.GOOGLE_API_KEY ||
-          process.env.GOOGLE_GENAI_API_KEY;
-
-        if (!geminiKey) {
+        if (!canSolveCaptcha()) {
           return {
             success: false,
-            error: 'GEMINI_API_KEY 미설정 — 캡차 자동 풀이 불가',
+            error: '캡차 자동 풀이 연결 정보 없음',
           };
         }
 
@@ -703,9 +735,7 @@ export const warmupScheduleSessions = async (
     }
 
     if (i < uniqueAccounts.length - 1) {
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, waitBetweenAccountsMs);
-      });
+      await sleep(waitBetweenAccountsMs);
     }
   }
 

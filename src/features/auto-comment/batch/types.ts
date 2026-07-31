@@ -1,4 +1,5 @@
 import type { NaverAccount } from '@/shared/lib/account-manager';
+import { shuffle as shuffleArray } from '@/shared/lib/random';
 import type { PostOptions, PostResult } from '@/shared/types';
 export type { PostOptions, PostResult } from '@/shared/types';
 export type { BatchProgress, ProgressCallback } from '@/shared/types';
@@ -73,15 +74,6 @@ export interface BatchJobOptions {
   delays?: Partial<DelayConfig>;
   replyStrategy?: ReplyStrategy;
 }
-
-const shuffleArray = <T>(array: T[]): T[] => {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
 
 export const getWriterAccount = (
   accounts: NaverAccount[]

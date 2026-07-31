@@ -1,3 +1,4 @@
+import { normalizeText as normalizeTextKit } from '@ganggyunggyu/shared';
 import {
   acquireAccountLock,
   getPageForAccount,
@@ -71,7 +72,7 @@ const navigateToArticle = async (
 };
 
 const normalizeText = (value: string | null | undefined): string => {
-  return (value ?? '').replace(/\s+/g, ' ').trim();
+  return normalizeTextKit(value ?? '');
 };
 
 const getArticleRoot = async (page: Page): Promise<Page | Frame> => {

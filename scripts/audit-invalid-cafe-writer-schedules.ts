@@ -6,6 +6,7 @@ import { Account } from "../src/shared/models/account";
 import { Cafe } from "../src/shared/models/cafe";
 import { addTaskJob } from "../src/shared/lib/queue";
 import { getCafeWriterAccounts } from "../src/shared/config/cafe-account-policy";
+import { toCafeSlug } from "../src/shared/lib/naver-cafe-membership";
 import type { PostJobData, TaskJobData } from "../src/shared/lib/queue/types";
 import type { NaverAccount } from "../src/shared/lib/account-manager";
 
@@ -43,6 +44,7 @@ const toNaverAccount = (account: {
   dailyPostLimit?: number;
   personaId?: string;
   role?: "writer" | "commenter";
+  targetCafeIds?: string[];
 }): NaverAccount => ({
   id: account.accountId,
   password: account.password,
@@ -53,6 +55,7 @@ const toNaverAccount = (account: {
   dailyPostLimit: account.dailyPostLimit,
   personaId: account.personaId,
   role: account.role,
+  targetCafeIds: account.targetCafeIds,
 });
 
 const getRemainingDelayMs = (job: { timestamp?: number; delay?: number }): number => {
@@ -94,7 +97,11 @@ const main = async (): Promise<void> => {
   const writerIdsByCafeId = new Map(
     cafes.map((cafe) => [
       cafe.cafeId,
-      getCafeWriterAccounts(policyAccounts, cafe.cafeId).map((account) => account.id),
+      getCafeWriterAccounts(
+        policyAccounts,
+        cafe.cafeId,
+        toCafeSlug(cafe.cafeUrl),
+      ).map((account) => account.id),
     ]),
   );
   const repairCursorByCafeId = new Map<string, number>();

@@ -1,5 +1,15 @@
-import { DESKTOP_FEATURES, type DesktopFeatureId } from '../lib/desktop-feature-registry';
-import { parseExposureRows, parseManuscripts, splitLines } from './renderer-utils';
+import {
+  DESKTOP_FEATURES,
+  type DesktopFeatureGroup,
+  type DesktopFeatureId,
+} from '../lib/desktop-feature-registry';
+import {
+  buildResultModel,
+  parseExposureRows,
+  parseManuscripts,
+  splitLines,
+  type ResultModel,
+} from './renderer-utils';
 import type {
   ViroDesktopAction,
   ViroDesktopActionResponse,
@@ -15,22 +25,170 @@ const byId = <T extends HTMLElement>(id: string): T => {
   return element as T;
 };
 
-const icons: Record<DesktopFeatureId, string> = {
-  home: '⌂', publish: 'P', manuscript: 'M', comments: 'C', exposure: 'E',
-  accounts: 'A', cafes: 'N', rewrite: 'R', logs: 'L', settings: 'S',
+const FEATURE_GROUP_LABELS: Record<DesktopFeatureGroup, string> = {
+  overview: '워크스페이스',
+  work: '콘텐츠 작업',
+  manage: '운영 관리',
+  system: '시스템',
 };
 
 let context: ViroDesktopContext = { accounts: [], cafes: [] };
 let currentFeature: DesktopFeatureId = 'home';
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
-const formatResult = (value: unknown): string => JSON.stringify(value, null, 2);
+const el = (tag: string, className?: string, text?: string): HTMLElement => {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+
+const createIcon = (iconPath: string, className: string): SVGSVGElement => {
+  const namespace = 'http://www.w3.org/2000/svg';
+  const icon = document.createElementNS(namespace, 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '1.8');
+  icon.setAttribute('stroke-linecap', 'round');
+  icon.setAttribute('stroke-linejoin', 'round');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.classList.add(className);
+  const path = document.createElementNS(namespace, 'path');
+  path.setAttribute('d', iconPath);
+  icon.append(path);
+  return icon;
+};
+
+const externalLink = (href: string, className: string, text: string): HTMLAnchorElement => {
+  const anchor = document.createElement('a');
+  anchor.href = href;
+  anchor.className = className;
+  anchor.textContent = text;
+  anchor.target = '_blank';
+  anchor.rel = 'noreferrer';
+  return anchor;
+};
+
+const renderResultStats = (host: HTMLElement, model: ResultModel): void => {
+  if (model.stats.length === 0) return;
+  const stats = el('div', 'result-stats');
+  for (const stat of model.stats) {
+    const chip = el('div', `result-stat ${stat.tone}`);
+    chip.append(el('strong', undefined, stat.value), el('span', undefined, stat.label));
+    stats.append(chip);
+  }
+  host.append(stats);
+};
+
+const renderResultKv = (host: HTMLElement, model: ResultModel): void => {
+  if (model.kv.length === 0) return;
+  const list = el('dl', 'result-kv');
+  for (const row of model.kv) {
+    list.append(el('dt', undefined, row.label));
+    const value = el('dd');
+    if (row.link) value.append(externalLink(row.link, 'result-inline-link', row.value));
+    else value.textContent = row.value;
+    list.append(value);
+  }
+  host.append(list);
+};
+
+const renderResultItems = (host: HTMLElement, model: ResultModel): void => {
+  if (model.items.length === 0) return;
+  const list = el('ul', 'result-items');
+  for (const item of model.items) {
+    const row = el('li', `result-item ${item.tone}`);
+    const head = el('div', 'result-item-head');
+    head.append(el('span', 'result-item-title', item.title));
+    if (item.statusLabel) head.append(el('span', `result-tag ${item.tone}`, item.statusLabel));
+    row.append(head);
+    if (item.badges.length > 0) {
+      const badges = el('div', 'result-badges');
+      for (const badge of item.badges) badges.append(el('span', `result-badge ${badge.tone}`, badge.label));
+      row.append(badges);
+    }
+    if (item.detail) row.append(el('p', 'result-item-detail', item.detail));
+    if (item.link) row.append(externalLink(item.link, 'result-link', '글 열기 ↗'));
+    list.append(row);
+  }
+  host.append(list);
+};
+
+const renderResult = (id: string, value: unknown): void => {
+  const host = byId<HTMLElement>(id);
+  const model = buildResultModel(value);
+  host.replaceChildren();
+
+  if (model.empty) {
+    host.append(el('p', 'result-empty', '결과가 없습니다.'));
+    return;
+  }
+
+  const head = el('div', 'result-head');
+  head.append(el('span', `result-status ${model.tone}`, model.statusLabel));
+  if (model.message) head.append(el('span', 'result-message', model.message));
+  host.append(head);
+
+  if (model.error) host.append(el('p', 'result-error', model.error));
+
+  renderResultStats(host, model);
+  renderResultKv(host, model);
+  renderResultItems(host, model);
+
+  const details = document.createElement('details');
+  details.className = 'result-raw';
+  details.append(el('summary', undefined, '원본 데이터'), el('pre', undefined, model.raw));
+  host.append(details);
+};
+
+type ProgressState = 'done' | 'active' | 'pending' | 'error';
+
+const renderProgress = (
+  id: string,
+  title: string,
+  steps: Array<{ label: string; note?: string; state: ProgressState }>,
+): void => {
+  const host = byId<HTMLElement>(id);
+  host.replaceChildren();
+  host.append(el('p', 'progress-title', title));
+  const list = el('ol', 'progress-steps');
+  for (const step of steps) {
+    const item = el('li', `progress-step ${step.state}`);
+    const body = el('div', 'progress-body');
+    body.append(el('span', 'progress-label', step.label));
+    if (step.note) body.append(el('span', 'progress-note', step.note));
+    item.append(el('span', 'progress-marker'), body);
+    list.append(item);
+  }
+  host.append(list);
+};
+
+const logTone = (line: string): string => {
+  if (/오류|실패|에러|error|abort/i.test(line)) return 'bad';
+  if (/완료|성공|success|done|ready|활성/i.test(line)) return 'ok';
+  if (/설치|준비|다운로드|받는|setup|install|download/i.test(line)) return 'accent';
+  return 'neutral';
+};
 
 const appendLog = (line: string): void => {
-  const log = byId<HTMLPreElement>('log');
+  const log = byId<HTMLElement>('log');
+  log.querySelector('.log-empty')?.remove();
   const time = new Date().toLocaleTimeString('ko-KR', { hour12: false });
-  log.textContent += `[${time}] ${line}\n`;
+  const entry = el('div', `log-line ${logTone(line)}`);
+  entry.append(el('time', 'log-time', time));
+  const tagged = line.match(/^\[([^\]]+)\]\s*([\s\S]*)$/);
+  if (tagged) {
+    entry.append(el('span', 'log-tag', tagged[1]), el('span', 'log-msg', tagged[2]));
+  } else {
+    entry.append(el('span', 'log-msg', line));
+  }
+  log.append(entry);
   log.scrollTop = log.scrollHeight;
+};
+
+const clearLog = (): void => {
+  byId('log').replaceChildren(el('p', 'log-empty', '아직 로그가 없습니다.'));
 };
 
 const showToast = (message: string, error = false): void => {
@@ -43,7 +201,7 @@ const showToast = (message: string, error = false): void => {
 };
 
 const showResult = (id: string, value: unknown): void => {
-  byId<HTMLPreElement>(id).textContent = formatResult(value);
+  renderResult(id, value);
 };
 
 const setRunning = (running: boolean): void => {
@@ -54,6 +212,10 @@ const setRunning = (running: boolean): void => {
   button.textContent = running ? '로컬 실행 정지' : '로컬 실행 시작';
   button.dataset.running = String(running);
   button.classList.toggle('primary', !running);
+  button.classList.toggle('secondary', running);
+  const headerRuntime = byId('header-runtime');
+  headerRuntime.classList.toggle('on', running);
+  byId('header-status-text').textContent = running ? '로컬 실행 중' : '로컬 실행 대기';
 };
 
 const selectFeature = (feature: DesktopFeatureId): void => {
@@ -66,6 +228,11 @@ const selectFeature = (feature: DesktopFeatureId): void => {
   });
   const selected = DESKTOP_FEATURES.find(({ id }) => id === feature);
   byId('page-title').textContent = selected?.label || 'Viro';
+  byId('page-description').textContent = selected?.description || '';
+  document.querySelectorAll<HTMLButtonElement>('.nav-item').forEach((item) => {
+    if (item.dataset.feature === feature) item.setAttribute('aria-current', 'page');
+    else item.removeAttribute('aria-current');
+  });
 };
 
 const handleNavigation = (event: Event): void => {
@@ -75,13 +242,22 @@ const handleNavigation = (event: Event): void => {
 
 const buildNavigation = (): void => {
   const navigation = byId<HTMLElement>('navigation');
+  let currentGroup: DesktopFeatureGroup | undefined;
   for (const feature of DESKTOP_FEATURES) {
+    if (feature.group !== currentGroup) {
+      currentGroup = feature.group;
+      navigation.append(el('p', 'nav-group-label', FEATURE_GROUP_LABELS[currentGroup]));
+    }
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `nav-item${feature.id === currentFeature ? ' active' : ''}`;
     button.dataset.feature = feature.id;
-    button.dataset.icon = icons[feature.id];
-    button.textContent = feature.label;
+    button.title = feature.description;
+    if (feature.id === currentFeature) button.setAttribute('aria-current', 'page');
+    button.append(
+      createIcon(feature.iconPath, 'nav-icon'),
+      el('span', 'nav-label', feature.label),
+    );
     button.addEventListener('click', handleNavigation);
     navigation.append(button);
   }
@@ -99,11 +275,14 @@ const buildQuickActions = (): void => {
     button.type = 'button';
     button.className = 'quick-action';
     button.dataset.feature = feature.id;
-    const title = document.createElement('strong');
-    title.textContent = feature.label;
-    const detail = document.createElement('span');
-    detail.textContent = '이 PC의 Chrome에서 실행 →';
-    button.append(title, detail);
+    const icon = el('span', 'quick-icon');
+    icon.append(createIcon(feature.iconPath, 'quick-icon-svg'));
+    const copy = el('span', 'quick-copy');
+    copy.append(
+      el('strong', undefined, feature.label),
+      el('span', undefined, feature.description),
+    );
+    button.append(icon, copy, el('span', 'quick-arrow', '→'));
     button.addEventListener('click', handleQuickAction);
     container.append(button);
   }
@@ -171,21 +350,29 @@ const refreshContext = async (): Promise<void> => {
   appendLog(`[앱] 데이터 연결 완료: 계정 ${context.accounts.length}, 카페 ${context.cafes.length}`);
 };
 
-const runBusy = async (event: Event, task: () => Promise<void>): Promise<void> => {
+const runBusy = async (
+  event: Event,
+  task: (setLabel: (text: string) => void) => Promise<void>,
+): Promise<void> => {
   event.preventDefault();
   const button = (event.currentTarget as HTMLElement).querySelector<HTMLButtonElement>('button[type="submit"]')
     || event.currentTarget as HTMLButtonElement;
   const original = button.textContent;
   button.disabled = true;
-  button.textContent = '처리 중...';
+  button.dataset.busy = 'true';
+  button.textContent = '처리 중';
+  const setLabel = (text: string): void => {
+    if (button.dataset.busy) button.textContent = text;
+  };
   try {
-    await task();
+    await task(setLabel);
   } catch (error) {
     const message = error instanceof Error ? error.message : '작업 중 오류가 발생했습니다';
     appendLog(`[오류] ${message}`);
     showToast(message, true);
   } finally {
     button.disabled = false;
+    delete button.dataset.busy;
     button.textContent = original;
   }
 };
@@ -198,14 +385,17 @@ const execute = async (action: ViroDesktopAction): Promise<ViroDesktopActionResp
   return response;
 };
 
-const handleSettings = (event: Event): void => {
+const handleViroLogin = (event: Event): void => {
   void runBusy(event, async () => {
-    await api.saveConfig({
+    const result = await api.login({
       brokerUrl: byId<HTMLInputElement>('broker').value.trim().replace(/\/+$/, ''),
-      token: byId<HTMLInputElement>('token').value.trim(),
+      loginId: byId<HTMLInputElement>('login-id').value.trim(),
+      password: byId<HTMLInputElement>('login-password').value,
     });
+    if (!result.success) throw new Error(result.error || '로그인에 실패했습니다');
+    byId<HTMLInputElement>('login-password').value = '';
     await refreshContext();
-    showToast('연결 정보를 저장하고 데이터 연결을 확인했습니다');
+    showToast(`${result.displayName || 'VIRO'} 님으로 로그인했습니다`);
   });
 };
 
@@ -220,22 +410,59 @@ const handleWorkerToggle = async (): Promise<void> => {
   }
 };
 
+const handleWorkerToggleClick = (): void => {
+  void handleWorkerToggle();
+};
+
+const handleRefreshContextError = (error: unknown): void => {
+  showToast(error instanceof Error ? error.message : '연결 실패', true);
+};
+
+const handleRefreshContextClick = (): void => {
+  void refreshContext().catch(handleRefreshContextError);
+};
+
 const handlePublish = (event: Event): void => {
-  void runBusy(event, async () => {
+  void runBusy(event, async (setLabel) => {
     const keywords = splitLines(byId<HTMLTextAreaElement>('publish-keywords').value);
-    const prepared = await api.prepare('post-content', {
-      keywords,
-      ref: byId<HTMLInputElement>('publish-ref').value.trim(),
-      attachImages: byId<HTMLInputElement>('publish-images').checked,
-    });
-    const manuscripts = Array.isArray(prepared.manuscripts) ? prepared.manuscripts : [];
-    if (manuscripts.length === 0) throw new Error('생성된 원고가 없습니다');
-    const response = await execute({
-      type: 'manual-publish',
-      input: { cafeId: byId<HTMLSelectElement>('publish-cafe').value, manuscripts: manuscripts as never[] },
-    });
-    showResult('publish-result', response.result);
-    showToast(`${manuscripts.length}개 원고의 로컬 발행을 마쳤습니다`);
+    const stages = [
+      { label: '원고·이미지 생성', note: `키워드 ${keywords.length}개 · AI 작성` },
+      { label: '이 PC에서 발행', note: '로그인 · 글 작성' },
+    ];
+    let active = 0;
+    const paint = (state: ProgressState = 'active'): void => renderProgress(
+      'publish-result',
+      '발행 진행 중',
+      stages.map((stage, index) => ({
+        ...stage,
+        state: index < active ? 'done' : index === active ? state : 'pending',
+      })),
+    );
+
+    try {
+      paint();
+      setLabel('원고 생성 중');
+      const prepared = await api.prepare('post-content', {
+        keywords,
+        ref: byId<HTMLInputElement>('publish-ref').value.trim(),
+        attachImages: byId<HTMLInputElement>('publish-images').checked,
+      });
+      const manuscripts = Array.isArray(prepared.manuscripts) ? prepared.manuscripts : [];
+      if (manuscripts.length === 0) throw new Error('생성된 원고가 없습니다');
+
+      active = 1;
+      paint();
+      setLabel('발행 중');
+      const response = await execute({
+        type: 'manual-publish',
+        input: { cafeId: byId<HTMLSelectElement>('publish-cafe').value, manuscripts: manuscripts as never[] },
+      });
+      showResult('publish-result', response.result);
+      showToast(`${manuscripts.length}개 원고의 로컬 발행을 마쳤습니다`);
+    } catch (error) {
+      paint('error');
+      throw error;
+    }
   });
 };
 
@@ -397,7 +624,6 @@ const initialize = async (): Promise<void> => {
   initializeDates();
   const config = await api.getConfig();
   byId<HTMLInputElement>('broker').value = config.brokerUrl || '';
-  byId<HTMLInputElement>('token').value = config.token || '';
   const status = await api.getStatus();
   setRunning(status.running);
   if (config.token) {
@@ -412,7 +638,7 @@ const initialize = async (): Promise<void> => {
     }
   } else {
     const notice = byId('notice');
-    notice.textContent = '연결 설정에서 데이터 서버와 토큰을 저장하면 모든 기능을 사용할 수 있습니다.';
+    notice.textContent = 'VIRO 계정으로 로그인하면 모든 기능을 사용할 수 있습니다.';
     notice.hidden = false;
     selectFeature('settings');
   }
@@ -421,9 +647,9 @@ const initialize = async (): Promise<void> => {
 api.onLog(appendLog);
 api.onSetupProgress((line) => appendLog(`[브라우저 설치] ${line}`));
 api.onStatus(({ running }) => setRunning(running));
-byId('settings-form').addEventListener('submit', handleSettings);
-byId('toggle-worker').addEventListener('click', () => { void handleWorkerToggle(); });
-byId('refresh-context').addEventListener('click', () => { void refreshContext().catch((error: unknown) => showToast(error instanceof Error ? error.message : '연결 실패', true)); });
+byId('settings-form').addEventListener('submit', handleViroLogin);
+byId('toggle-worker').addEventListener('click', handleWorkerToggleClick);
+byId('refresh-context').addEventListener('click', handleRefreshContextClick);
 byId('publish-form').addEventListener('submit', handlePublish);
 byId('manuscript-form').addEventListener('submit', handleManuscript);
 byId('comment-form').addEventListener('submit', handleComment);
@@ -437,6 +663,6 @@ byId('manuscript-mode').addEventListener('change', handleManuscriptMode);
 byId('comment-mode').addEventListener('change', handleCommentMode);
 byId('nickname-mode').addEventListener('change', populateNicknameTarget);
 byId('rewrite-source').addEventListener('change', handleRewriteSource);
-byId('clear-log').addEventListener('click', () => { byId('log').textContent = ''; });
+byId('clear-log').addEventListener('click', clearLog);
 
 void initialize();

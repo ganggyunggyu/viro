@@ -28,6 +28,7 @@ import { handleCommentJob } from './handlers/comment-handler';
 import { handleReplyJob } from './handlers/reply-handler';
 import { handleLikeJob } from './handlers/like-handler';
 import { handleDisableCommentJob } from './handlers/disable-comment-handler';
+import { annotateJobResult } from './job-outcome-harness';
 
 declare global {
   var __taskWorker: Worker<TaskJobData, JobResult> | null | undefined;
@@ -86,7 +87,7 @@ export const processTaskJob = async (
   }
 
   if (!account) {
-    return { success: false, error: `계정 없음: ${data.accountId}` };
+    return annotateJobResult({ success: false, error: `계정 없음: ${data.accountId}` });
   }
 
   if (!isAccountActive(account)) {
@@ -101,11 +102,11 @@ export const processTaskJob = async (
       { ...data, rescheduleToken: createRescheduleToken() },
       nextActiveDelay
     );
-    return {
+    return annotateJobResult({
       success: false,
       error: '비활동 시간대 - 재스케줄됨',
       willRetry: true,
-    };
+    });
   }
 
   const loggedIn = await isAccountLoggedIn(account.id);
@@ -120,19 +121,19 @@ export const processTaskJob = async (
 
   switch (data.type) {
     case 'post':
-      return handlePostJob(data as PostJobData, { account, accounts, settings });
+      return annotateJobResult(await handlePostJob(data as PostJobData, { account, accounts, settings }));
 
     case 'comment':
-      return handleCommentJob(data as CommentJobData, { account, settings });
+      return annotateJobResult(await handleCommentJob(data as CommentJobData, { account, settings }));
 
     case 'reply':
-      return handleReplyJob(data as ReplyJobData, { account, settings });
+      return annotateJobResult(await handleReplyJob(data as ReplyJobData, { account, settings }));
 
     case 'like':
-      return handleLikeJob(data as LikeJobData, { account, settings });
+      return annotateJobResult(await handleLikeJob(data as LikeJobData, { account, settings }));
 
     case 'disable-comment':
-      return handleDisableCommentJob(data as DisableCommentJobData, { account });
+      return annotateJobResult(await handleDisableCommentJob(data as DisableCommentJobData, { account }));
 
     default:
       throw new Error('알 수 없는 작업 타입');

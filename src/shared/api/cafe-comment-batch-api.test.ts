@@ -13,4 +13,5 @@ test('buildCafeCommentBatchPrompt uses only the keyword and the neutral comment 
   assert.match(prompt, /제가 가본 곳도 좋았는데 소개해주신 곳도 좋아 보이네요/);
   assert.doesNotMatch(prompt, /글 본문/);
   assert.doesNotMatch(prompt, /페르소나 분산/);
+  assert.doesNotMatch(prompt, /persona/);
 });

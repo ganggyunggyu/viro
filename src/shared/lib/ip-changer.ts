@@ -1,3 +1,4 @@
+import { sleep } from '@ganggyunggyu/shared';
 import {
   checkAdbConnection,
   toggleAirplaneMode,
@@ -89,5 +90,3 @@ export const verifyIPChanged = async (previousIP: string): Promise<boolean> => {
   const currentIP = await getCurrentIP();
   return currentIP !== null && currentIP !== previousIP;
 };
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

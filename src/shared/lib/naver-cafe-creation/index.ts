@@ -16,8 +16,14 @@
 import { GoogleGenAI } from '@google/genai';
 import type { Page } from 'playwright';
 import { getPageForAccount, isAccountLoggedIn, loginAccount } from '../multi-session';
+import { toCafeSlug } from '../naver-cafe-membership';
 import { Cafe } from '../../models/cafe';
 import { Account } from '../../models/account';
+import { buildCafeRegistrationUpdate } from '../cafe-registration-harness';
+import {
+  hasCaptchaBrokerConfig,
+  solveCaptchaViaBroker,
+} from '@/shared/lib/captcha-broker';
 
 export interface CreateCafeInput {
   name: string;
@@ -80,24 +86,10 @@ export const solveCafeCreateCaptcha = async (
   if (!shot) return { solved: false, error: '캡차 이미지 스크린샷 실패' };
 
   const base64 = shot.toString('base64');
-  const brokerUrl = (process.env.BROKER_URL || '').replace(/\/+$/, '');
-  const agentToken = process.env.AGENT_TOKEN || '';
   let answer = '';
 
-  if (brokerUrl && agentToken) {
-    const response = await fetch(`${brokerUrl}/api/agent/captcha`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${agentToken}`,
-      },
-      body: JSON.stringify({ image: base64 }),
-    });
-    if (!response.ok) {
-      return { solved: false, error: `캡차 해석 서버 오류 (${response.status})` };
-    }
-    const data = await response.json() as { answer?: string };
-    answer = data.answer || '';
+  if (hasCaptchaBrokerConfig()) {
+    answer = await solveCaptchaViaBroker({ kind: 'cafe-create', image: base64 });
   } else {
     answer = await solveCafeCreateCaptchaImage(base64);
   }
@@ -417,8 +409,7 @@ export interface RegisterCreatedCafeOptions {
 /**
  * createNaverCafe() 로 실제로 만든 카페를 플랫폼 CafeConfig(DB)에 등록해서
  * getAllCafes()/카페 가입 UI 등 나머지 기능에서 바로 잡히게 한다.
- * upsert 방식이라 같은 카페를 다시 등록해도 에러 없이 그대로 반영된다
- * (entities/cafe/api 의 addCafeAction 은 soft-delete 후 재등록이 막히는 버그가 있어 그 방식은 따르지 않았다).
+ * upsert 방식이라 같은 카페를 다시 등록해도 에러 없이 그대로 반영된다.
  */
 export const registerCreatedCafeInDb = async (
   userId: string,
@@ -427,23 +418,25 @@ export const registerCreatedCafeInDb = async (
 ): Promise<void> => {
   const menuId = options.menuId ?? '1';
   const categories = options.categories ?? ['자유게시판'];
+  const cafeId = cafe.cafeId.trim();
+  const cafeUrl = toCafeSlug(cafe.cafeUrl) || cafe.cafeUrl.trim();
+
+  const update = buildCafeRegistrationUpdate({
+    userId,
+    cafeId,
+    cafeUrl,
+    name: cafe.name,
+    menuId,
+    categories,
+    categoryMenuIds: options.categoryMenuIds ?? { [categories[0]]: menuId },
+    categoryAliases: options.categoryAliases,
+    commentableMenuIds: options.commentableMenuIds ?? [Number(menuId)],
+    ownerAccountId: options.ownerAccountId,
+  }, { preserveExistingDefault: true });
 
   await Cafe.findOneAndUpdate(
-    { userId, cafeId: cafe.cafeId },
-    {
-      $set: {
-        cafeUrl: cafe.cafeUrl,
-        name: cafe.name,
-        menuId,
-        categories,
-        categoryMenuIds: options.categoryMenuIds ?? { [categories[0]]: menuId },
-        categoryAliases: options.categoryAliases,
-        commentableMenuIds: options.commentableMenuIds ?? [Number(menuId)],
-        ownerAccountId: options.ownerAccountId,
-        isActive: true,
-      },
-      $setOnInsert: { isDefault: false },
-    },
+    { userId, cafeId },
+    update,
     { upsert: true },
   );
 };

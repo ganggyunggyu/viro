@@ -7,6 +7,7 @@ import {
   releaseAccountLock,
 } from '@/shared/lib/multi-session';
 import type { NaverAccount } from '@/shared/lib/account-manager';
+import { shuffle } from '@/shared/lib/random';
 
 export interface CafeArticle {
   articleId: number;
@@ -159,8 +160,7 @@ export const browseCafePosts = async (
 };
 
 export const pickRandomArticles = (articles: CafeArticle[], count: number): CafeArticle[] => {
-  const shuffled = [...articles].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+  return shuffle(articles).slice(0, count);
 };
 
 export interface CafeMenu {

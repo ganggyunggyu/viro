@@ -1,6 +1,7 @@
 'use server';
 
 import mongoose from 'mongoose';
+import { sleep } from '@ganggyunggyu/shared';
 import { closeAllContexts } from '@/shared/lib/multi-session';
 import { getAllAccounts } from '@/shared/config/accounts';
 import { getDefaultCafe, getCafeById } from '@/shared/config/cafes';
@@ -14,8 +15,6 @@ import type {
   ManualModifyResult,
   ManuscriptModifyResult,
 } from './types';
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export type SortOrder = 'oldest' | 'newest' | 'random';
 

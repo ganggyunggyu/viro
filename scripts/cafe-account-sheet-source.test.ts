@@ -58,3 +58,67 @@ test('buildSheetAccountSyncPlan reports cafe roster accounts missing in master s
   assert.deepEqual(plan.missingInMaster, ['ghost-account']);
   assert.deepEqual(plan.accounts, []);
 });
+
+test('buildSheetAccountSyncPlan separates explicit inactive accounts from DB-only drift', () => {
+  const masterAccounts = parseMasterAccountRows([
+    ['N0.', '블로그 아이디', '블로그 링크', 'ID', 'PW', '카테고리', 'MVPN', '실명인증', '특이사항'],
+    ['', '활성 작가', '', 'active-writer', 'pw1', '건강', 'PC', '담당자', '마스터 메모'],
+    ['', '비활성 댓글러', '', 'inactive-commenter', 'pw2', '건강', '모바일', '담당자', '비활성 메모'],
+  ]);
+  const cafeAccounts = parseCafeAccountRows([
+    ['계정ID', '역할', '사용여부', '닉네임', '원장행', '카테고리', '담당/실명인증', '대상카페', '일일글한도', '비고'],
+    ['active-writer', 'writer', 'TRUE', '활성 작가', '9', '건강', '', 'A', '5', '카페 메모'],
+    ['inactive-commenter', 'commenter', 'FALSE', '비활성 댓글러', '10', '건강', '', '', '5', '중지'],
+  ]);
+
+  const plan = buildSheetAccountSyncPlan(
+    masterAccounts,
+    cafeAccounts,
+    ['active-writer'],
+    ['active-writer', 'inactive-commenter', 'db-only-account'],
+  );
+
+  assert.deepEqual(plan.deactivateAccountIds, ['inactive-commenter']);
+  assert.deepEqual(plan.driftAccountIds, ['db-only-account']);
+});
+
+test('buildSheetAccountSyncPlan preserves target cafes, mvpn, and sheet metadata', () => {
+  const masterAccounts = parseMasterAccountRows([
+    ['N0.', '블로그 아이디', '블로그 링크', 'ID', 'PW', '카테고리', 'MVPN', '실명인증', '특이사항'],
+    ['', '활성 작가', 'https://m.blog.naver.com/active-writer', 'active-writer', 'pw1', '건강', 'PC', '담당자', '마스터 메모'],
+  ]);
+  const cafeAccounts = parseCafeAccountRows([
+    ['계정ID', '역할', '사용여부', '닉네임', '원장행', '카테고리', '담당/실명인증', '대상카페', '일일글한도', '비고'],
+    ['active-writer', 'writer', 'TRUE', '활성 작가', '9', '건강', '', 'https://cafe.naver.com/A, B', '7', '카페 메모'],
+  ]);
+
+  const { accounts } = buildSheetAccountSyncPlan(
+    masterAccounts,
+    cafeAccounts,
+    ['active-writer'],
+  );
+
+  assert.deepEqual(accounts[0], {
+    rowNumber: 2,
+    accountId: 'active-writer',
+    role: 'writer',
+    isActive: true,
+    targetCafes: 'https://cafe.naver.com/A, B',
+    targetCafeIds: ['A', 'B'],
+    dailyPostLimit: 7,
+    note: '카페 메모',
+    password: 'pw1',
+    nickname: '활성 작가',
+    blogUrl: 'https://m.blog.naver.com/active-writer',
+    category: '건강',
+    mvpn: 'PC',
+    owner: '담당자',
+    sourceRowNumber: 9,
+    sheetMeta: {
+      masterRowNumber: 9,
+      cafeRowNumber: 2,
+      masterNote: '마스터 메모',
+      cafeNote: '카페 메모',
+    },
+  });
+});

@@ -1,5 +1,6 @@
 'use server';
 
+import { sleep } from '@ganggyunggyu/shared';
 import { auth } from '@/shared/lib/auth';
 import { generateContent } from '@/shared/api/content-api';
 import { postToCafe } from '@/shared/api/naver-cafe-api';
@@ -23,8 +24,6 @@ export interface AutoPostResult {
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const writeComments = async (
   cafeId: string,

@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
+import { normalizeText } from '@ganggyunggyu/shared';
 
 export interface GenerateCafeCommentInput {
   articleTitle?: string;
@@ -19,10 +20,6 @@ const getGeminiApiKey = (): string => {
   }
 
   return apiKey;
-};
-
-const normalizeText = (value: string): string => {
-  return value.replace(/\s+/g, ' ').trim();
 };
 
 const COMMENT_PATTERN_GUIDES = [

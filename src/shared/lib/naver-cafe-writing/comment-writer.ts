@@ -1,4 +1,5 @@
 import type { ElementHandle, Frame, Page } from 'playwright';
+import { normalizeText as normalizeTextKit } from '@ganggyunggyu/shared';
 import {
   getPageForAccount,
   saveCookiesForAccount,
@@ -29,7 +30,7 @@ export interface WriteCommentOptions {
 }
 
 const normalizeText = (value: string | null | undefined): string => {
-  return (value ?? '').replace(/\s+/g, ' ').trim();
+  return normalizeTextKit(value ?? '');
 };
 
 export const navigateToArticle = async (

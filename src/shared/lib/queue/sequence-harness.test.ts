@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createSequenceController } from './sequence-harness';
+import { createSequenceController, resolveSequenceTurnResult } from './sequence-harness';
 import { createFakeSequenceRedis, createTestClock } from './testing/queue-test-harness';
 
 test('waitForSequenceTurn returns ready when the requested index is current', async () => {
@@ -58,6 +58,30 @@ test('waitForSequenceTurn forces stalled sequences forward', async () => {
 
   assert.equal(result, 'ready');
   assert.equal(store.get('comment_sequence:seq-c'), '2');
+});
+
+test('a force-advanced earlier index is reported as skipped instead of done', async () => {
+  const { redis, store } = createFakeSequenceRedis();
+  const clock = createTestClock(10_000);
+  store.set('comment_sequence:seq-recovery', '0');
+  store.set('comment_sequence:seq-recovery:ts', '1000');
+
+  const controller = createSequenceController({
+    getRedisConnection: () => redis,
+    log: () => undefined,
+    now: clock.now,
+    sleep: clock.sleep,
+    stallMs: 5_000,
+  });
+
+  assert.equal(await controller.waitForSequenceTurn('seq-recovery', 2), 'ready');
+  const lateTurn = await controller.waitForSequenceTurn('seq-recovery', 0);
+  const result = resolveSequenceTurnResult(lateTurn);
+
+  assert.equal(lateTurn, 'skipped');
+  assert.equal(result?.success, true);
+  assert.equal(result?.skipped, true);
+  assert.equal(result?.outcome, 'skipped');
 });
 
 test('advanceSequence increments the sequence cursor and refreshes timestamp', async () => {

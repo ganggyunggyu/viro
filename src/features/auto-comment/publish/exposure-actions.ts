@@ -1,5 +1,6 @@
 'use server';
 
+import { randomDelay } from '@ganggyunggyu/shared';
 import { connectDB } from '@/shared/lib/mongodb';
 import { getRecentPublishedArticles, updateArticleExposure } from '@/shared/models';
 import { getCafeById } from '@/shared/config/cafes';
@@ -42,9 +43,6 @@ export const fetchRecentPublishedArticlesAction = async (
 };
 
 const CHECK_INTERVAL_DELAY_MS = { min: 1500, max: 3000 };
-
-const randomDelay = (minMs: number, maxMs: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, minMs + Math.floor(Math.random() * (maxMs - minMs + 1))));
 
 // 카페+키워드(+글ID) 목록을 순서대로 노출체크 — DB(exposureStatus)와 구글시트 양쪽에 기록
 export const runExposureCheckAction = async (

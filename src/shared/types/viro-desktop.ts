@@ -107,6 +107,11 @@ export interface ViroDesktopApi {
     payload: Record<string, unknown>,
   ) => Promise<Record<string, unknown>>;
   saveConfig: (config: ViroDesktopConfig) => Promise<boolean>;
+  login: (payload: {
+    brokerUrl: string;
+    loginId: string;
+    password: string;
+  }) => Promise<{ success: boolean; error?: string; displayName?: string }>;
   ensureChromium: () => Promise<boolean>;
   startAgent: () => Promise<boolean>;
   stopAgent: () => Promise<boolean>;

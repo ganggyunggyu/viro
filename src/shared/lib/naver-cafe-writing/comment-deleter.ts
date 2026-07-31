@@ -1,4 +1,5 @@
 import type { ElementHandle } from 'playwright';
+import { normalizeText as normalizeTextKit } from '@ganggyunggyu/shared';
 import {
   getPageForAccount,
   acquireAccountLock,
@@ -35,7 +36,7 @@ export interface DeleteCommentResult {
 }
 
 const normalizeText = (value: string | null | undefined): string =>
-  (value ?? '').replace(/\s+/g, ' ').trim();
+  normalizeTextKit(value ?? '');
 
 /**
  * 글의 현재 라이브 댓글 전체를 나열한다 (읽기 전용).

@@ -3,11 +3,14 @@ import test from 'node:test';
 
 import {
   buildDaySummary,
+  buildVerificationArticleDateFilter,
   detectArticleIssues,
   getDefaultTargetForCafe,
   inferTargetFromWriterLimits,
   normalizeCommentContent,
   parseVerifyArgs,
+  reconcileCafePostCounts,
+  reconcileVerificationReportCounts,
   renderGoalStatusReport,
 } from './verify-cafe-posts';
 
@@ -195,4 +198,88 @@ test('renderGoalStatusReport prints compact yesterday and today goal status', ()
   assert.match(report, /쇼핑지름신 \(25729954\)/);
   assert.match(report, /전일 2026-04-13 \| PASS \| 목표 15건 \/ 실제 15건/);
   assert.match(report, /금일 2026-04-14 \| FAIL \| 목표 15건 \/ 실제 12건 \(-3\)/);
+});
+
+test('reconcileCafePostCounts reports a three-way match', () => {
+  assert.deepEqual(
+    reconcileCafePostCounts({ dbCount: 12, sheetCount: 12, liveCount: 12 }),
+    {
+      matches: true,
+      dbCount: 12,
+      sheetCount: 12,
+      liveCount: 12,
+      db: { direction: 'match', difference: 0 },
+      sheet: { direction: 'match', difference: 0 },
+    },
+  );
+});
+
+test('reconcileCafePostCounts reports DB records missing against live UI', () => {
+  const result = reconcileCafePostCounts({ dbCount: 10, sheetCount: 12, liveCount: 12 });
+
+  assert.equal(result.matches, false);
+  assert.deepEqual(result.db, { direction: 'missing', difference: -2 });
+  assert.deepEqual(result.sheet, { direction: 'match', difference: 0 });
+});
+
+test('reconcileCafePostCounts reports DB ghost records above live UI', () => {
+  const result = reconcileCafePostCounts({ dbCount: 14, sheetCount: 12, liveCount: 12 });
+
+  assert.equal(result.matches, false);
+  assert.deepEqual(result.db, { direction: 'excess', difference: 2 });
+  assert.deepEqual(result.sheet, { direction: 'match', difference: 0 });
+});
+
+test('reconcileCafePostCounts reports sheet mismatch independently', () => {
+  const result = reconcileCafePostCounts({ dbCount: 12, sheetCount: 9, liveCount: 12 });
+
+  assert.equal(result.matches, false);
+  assert.deepEqual(result.db, { direction: 'match', difference: 0 });
+  assert.deepEqual(result.sheet, { direction: 'missing', difference: -3 });
+});
+
+test('verification article date filter excludes only explicitly external records', () => {
+  const start = new Date('2026-04-13T00:00:00.000Z');
+  const end = new Date('2026-04-15T00:00:00.000Z');
+
+  assert.deepEqual(buildVerificationArticleDateFilter(start, end), {
+    isExternal: { $ne: true },
+    $or: [
+      { publishedAt: { $gte: start, $lt: end } },
+      { createdAt: { $gte: start, $lt: end } },
+    ],
+  });
+});
+
+test('reconcileVerificationReportCounts wires injected sheet and live count collectors', async () => {
+  const requests: string[][] = [];
+  const report = await reconcileVerificationReportCounts({
+    generatedAt: '2026-04-14T12:00:00.000Z',
+    baseDateKey: '2026-04-14',
+    previousDateKey: '2026-04-13',
+    cafes: [
+      {
+        cafeId: '25729954',
+        cafeName: '쇼핑지름신',
+        yesterday: buildDaySummary([], { dateKey: '2026-04-13' }),
+        today: buildDaySummary([], { dateKey: '2026-04-14' }),
+      },
+    ],
+  }, {
+    collectSheetCounts: async (countRequests) => {
+      requests.push(countRequests.map(({ source }) => source));
+      return countRequests.map(({ cafeId, dateKey }) => ({ cafeId, dateKey, count: 0 }));
+    },
+    collectLiveCounts: async (countRequests) => {
+      requests.push(countRequests.map(({ source }) => source));
+      return countRequests.map(({ cafeId, dateKey }) => ({ cafeId, dateKey, count: 0 }));
+    },
+  });
+
+  assert.deepEqual(requests, [
+    ['sheet', 'sheet'],
+    ['live', 'live'],
+  ]);
+  assert.equal(report.cafes[0]?.today.countReconciliation?.matches, true);
+  assert.equal(report.cafes[0]?.yesterday.countReconciliation?.matches, true);
 });

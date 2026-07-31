@@ -1,3 +1,5 @@
+import type { JobResult } from './types';
+
 export type SequenceTurnStatus = 'ready' | 'skipped' | 'pending';
 
 export interface SequenceRedisMultiLike {
@@ -38,6 +40,12 @@ const DEFAULT_SEQUENCE_STALL_MS = 2 * 60 * 1000;
 
 const getSequenceKey = (sequenceId: string): string => `comment_sequence:${sequenceId}`;
 const getSequenceTimeKey = (sequenceId: string): string => `comment_sequence:${sequenceId}:ts`;
+
+export const resolveSequenceTurnResult = (
+  status: SequenceTurnStatus,
+): JobResult | null => status === 'skipped'
+  ? { success: true, skipped: true, outcome: 'skipped' }
+  : null;
 
 export const createSequenceController = ({
   getRedisConnection,

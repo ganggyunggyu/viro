@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="background" x1="128" y1="72" x2="896" y2="952" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#15243a" />
+      <stop offset="1" stop-color="#07101a" />
+    </linearGradient>
+    <linearGradient id="accent" x1="284" y1="234" x2="760" y2="806" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c4fff5" />
+      <stop offset="0.55" stop-color="#5eead4" />
+      <stop offset="1" stop-color="#a78bfa" />
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="34" />
+    </filter>
+    <clipPath id="app-shape">
+      <rect x="40" y="40" width="944" height="944" rx="236" />
+    </clipPath>
+  </defs>
+  <rect x="40" y="40" width="944" height="944" rx="236" fill="url(#background)" />
+  <g clip-path="url(#app-shape)">
+    <circle cx="716" cy="276" r="196" fill="#5eead4" opacity="0.12" filter="url(#glow)" />
+    <circle cx="304" cy="774" r="180" fill="#a78bfa" opacity="0.11" filter="url(#glow)" />
+  </g>
+  <rect x="58" y="58" width="908" height="908" rx="218" fill="none" stroke="#99f6e4" stroke-opacity="0.16" stroke-width="8" />
+  <path d="M278 286 478 754h70L750 286" fill="none" stroke="url(#accent)" stroke-width="94" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M372 286 512 618l140-332" fill="none" stroke="#f3fffd" stroke-opacity="0.22" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { sleep } from '@ganggyunggyu/shared';
 import { closeAllContexts } from '@/shared/lib/multi-session';
 import { getAllAccounts } from '@/shared/config/accounts';
 import { getDefaultCafe, getCafeById } from '@/shared/config/cafes';
@@ -8,8 +9,6 @@ import { processArticleModification, type ModifyProcessResult } from './modify-a
 import { parseKeywordWithCategory } from './keyword-utils';
 import { buildBaseFilter, fetchArticlesToModify } from '@/shared/lib/naver-cafe-writing';
 import type { ProgressCallback } from './types';
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export type SortOrder = 'oldest' | 'newest' | 'random';
 

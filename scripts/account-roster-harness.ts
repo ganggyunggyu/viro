@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 import { getCafeWriterAccounts } from '../src/shared/config/cafe-account-policy';
 import type { NaverAccount } from '../src/shared/lib/account-manager';
+import { toCafeSlug } from '../src/shared/lib/naver-cafe-membership';
 import { Account } from '../src/shared/models/account';
 import { Cafe } from '../src/shared/models/cafe';
 import { User } from '../src/shared/models/user';
@@ -11,10 +12,12 @@ export interface DbAccountSnapshot {
   nickname?: string;
   role?: string;
   isActive?: boolean;
+  targetCafeIds?: string[];
 }
 
 export interface DbCafeSnapshot {
   cafeId: string;
+  cafeUrl?: string;
   name: string;
   isActive?: boolean;
 }
@@ -45,6 +48,7 @@ const toPolicyAccount = (account: DbAccountSnapshot): NaverAccount => ({
   password: '',
   nickname: account.nickname,
   role: account.role === 'writer' || account.role === 'commenter' ? account.role : undefined,
+  targetCafeIds: account.targetCafeIds,
 });
 
 export const createAccountRosterAudit = (
@@ -58,7 +62,11 @@ export const createAccountRosterAudit = (
     .map((cafe) => ({
       cafeId: cafe.cafeId,
       cafeName: cafe.name,
-      writerAccountIds: getCafeWriterAccounts(activePolicyAccounts, cafe.cafeId).map(({ id }) => id),
+      writerAccountIds: getCafeWriterAccounts(
+        activePolicyAccounts,
+        cafe.cafeId,
+        toCafeSlug(cafe.cafeUrl),
+      ).map(({ id }) => id),
     }));
   const requiredWriterCafeNames = new Set(REQUIRED_WRITER_CAFE_NAMES);
   const emptyWriterCafeNames = cafeWriterPolicies
@@ -124,13 +132,13 @@ const getUserId = async (): Promise<string> => {
 
 const getDbAccountsForUser = async (userId: string): Promise<DbAccountSnapshot[]> => {
   return Account.find({ userId })
-    .select('accountId nickname role isActive')
+    .select('accountId nickname role isActive targetCafeIds')
     .lean<DbAccountSnapshot[]>();
 };
 
 const getDbCafesForUser = async (userId: string): Promise<DbCafeSnapshot[]> => {
   return Cafe.find({ userId })
-    .select('cafeId name isActive')
+    .select('cafeId cafeUrl name isActive')
     .lean<DbCafeSnapshot[]>();
 };
 

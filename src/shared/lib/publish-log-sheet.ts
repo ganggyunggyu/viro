@@ -40,7 +40,7 @@ const LOG_HEADER = [
 export interface PublishLogRecord {
   cafeId: string;
   keyword: string;
-  articleId: number;
+  articleId?: number;
   articleUrl: string;
   writerAccountId: string;
   publishedAt?: Date;
@@ -148,7 +148,7 @@ export const logPublishToSheet = async (record: PublishLogRecord): Promise<Sheet
             cafeMeta.name,
             record.cafeId,
             record.keyword,
-            record.articleId,
+            record.articleId ?? '',
             record.articleUrl,
             formatKst(publishedAt),
             record.writerAccountId,

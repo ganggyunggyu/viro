@@ -11,6 +11,8 @@
  * 최종 확인해야 한다 — 이 함수는 "그럴듯한 후보"를 뽑아줄 뿐 중복까지 보장하지 않는다.
  */
 
+import { pickRandom } from '../random';
+
 const ADJECTIVES: string[] = [
   '포근한', '다정한', '산뜻한', '느긋한', '알찬', '정겨운', '소소한', '담백한',
   '차분한', '활기찬', '든든한', '살가운', '조용한', '말랑한', '촉촉한', '단단한',
@@ -50,8 +52,6 @@ export interface CafeNameSuggestion {
   name: string;
   slug: string;
 }
-
-const pickRandom = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 const randomTag = (): string => String(Math.floor(1000 + Math.random() * 9000)); // 배틀넷 태그처럼 4자리
 

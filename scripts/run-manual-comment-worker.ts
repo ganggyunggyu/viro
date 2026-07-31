@@ -342,7 +342,7 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
       const candidate = await generateCafeCommentBatch({
         keyword: articleTitle || job.cafeSlug,
         exactCount,
-        model: 'deepseek-v4-flash',
+        model: process.env.MANUAL_COMMENT_GEN_MODEL || 'deepseek-v4-flash',
       });
       batch = candidate;
       if (candidate.comments.length >= exactCount) break;

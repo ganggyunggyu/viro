@@ -13,6 +13,8 @@ const desktopApi = {
     ipcRenderer.invoke('prepare-desktop-operation', operation, payload),
   saveConfig: (config: { brokerUrl: string; token: string }) =>
     ipcRenderer.invoke('save-config', config),
+  login: (payload: { brokerUrl: string; loginId: string; password: string }) =>
+    ipcRenderer.invoke('login', payload),
   ensureChromium: () => ipcRenderer.invoke('ensure-chromium'),
   startAgent: () => ipcRenderer.invoke('start-agent'),
   stopAgent: () => ipcRenderer.invoke('stop-agent'),

@@ -1,6 +1,7 @@
 'use server';
 
 import mongoose from 'mongoose';
+import { shuffle } from '@/shared/lib/random';
 import { getAllAccounts } from '@/shared/config/accounts';
 import { connectDB } from '@/shared/lib/mongodb';
 import { PublishedArticle } from '@/shared/models';
@@ -41,6 +42,7 @@ export const fetchFilteredArticles = async (
     const articles = await PublishedArticle.find({
       cafeId,
       status: 'published',
+      isExternal: { $ne: true },
       publishedAt: { $lte: cutoffDate },
       commentCount: { $lte: maxComments },
     })
@@ -49,7 +51,7 @@ export const fetchFilteredArticles = async (
       .lean();
 
     // 랜덤 셔플 후 articleCount개 선택
-    const shuffled = articles.sort(() => Math.random() - 0.5);
+    const shuffled = shuffle(articles);
     const selected = shuffled.slice(0, articleCount);
 
     return selected.map((a) => ({
@@ -93,11 +95,10 @@ export const queueDesktopAutoCommentAction = async (
   const articles = await PublishedArticle.find({
     cafeId,
     status: 'published',
+    isExternal: { $ne: true },
     publishedAt: { $gte: cutoffDate },
   }).lean();
-  const selected = articles
-    .sort(() => Math.random() - 0.5)
-    .slice(0, Math.max(1, Math.ceil(articles.length / 2)));
+  const selected = shuffle(articles).slice(0, Math.max(1, Math.ceil(articles.length / 2)));
   const results: CommentOnlyResult['results'] = [];
 
   for (const article of selected) {
@@ -184,6 +185,7 @@ export const runAutoCommentAction = async (
     const allArticles = await PublishedArticle.find({
       cafeId,
       status: 'published',
+      isExternal: { $ne: true },
       publishedAt: { $gte: cutoffDate },
     }).lean();
 
@@ -201,7 +203,7 @@ export const runAutoCommentAction = async (
     }
 
     // 랜덤으로 절반 선택
-    const shuffled = allArticles.sort(() => Math.random() - 0.5);
+    const shuffled = shuffle(allArticles);
     const halfCount = Math.max(1, Math.ceil(allArticles.length / 2));
     const selectedArticles = shuffled.slice(0, halfCount);
 

@@ -1,5 +1,6 @@
 'use server';
 
+import { sleep } from '@ganggyunggyu/shared';
 import { getAllAccounts } from '@/shared/config/accounts';
 import { getCafeWriterAccounts } from '@/shared/config/cafe-account-policy';
 import { getCafeById, getDefaultCafe } from '@/shared/config/cafes';
@@ -8,6 +9,7 @@ import { addTaskJob } from '@/shared/lib/queue';
 import { getRandomDelay } from '@/shared/models/queue-settings';
 import { getRemainingPostsToday, PublishedArticle, ModifiedArticle } from '@/shared/models';
 import { buildCafePostContentFromManuscript } from '@/shared/lib/cafe-content';
+import { toCafeSlug } from '@/shared/lib/naver-cafe-membership';
 import { isAccountActive } from '@/shared/lib/account-manager';
 import { PostJobData } from '@/shared/lib/queue/types';
 import { modifyArticleWithAccount } from '@/shared/lib/naver-cafe-writing';
@@ -34,7 +36,11 @@ export const runManuscriptUploadAction = async (
   }
 
   const { accounts, cafe, settings } = ctx;
-  const writerAccounts = getCafeWriterAccounts(accounts, cafe.cafeId);
+  const writerAccounts = getCafeWriterAccounts(
+    accounts,
+    cafe.cafeId,
+    toCafeSlug(cafe.cafeUrl),
+  );
 
   if (writerAccounts.length === 0) {
     return {
@@ -259,7 +265,7 @@ export const runManuscriptModifyAction = async (
 
       if (i < articlesToModify.length - 1) {
         console.log('[MANUSCRIPT MODIFY] 다음 글 수정 전 30초 대기...');
-        await new Promise((resolve) => setTimeout(resolve, 30000));
+        await sleep(30000);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';

@@ -1,4 +1,5 @@
 import mongoose, { HydratedDocument } from 'mongoose';
+import { sleep } from '@ganggyunggyu/shared';
 import { closeAllContexts } from '@/shared/lib/multi-session';
 import { getAllAccounts } from '@/shared/config/accounts';
 import {
@@ -6,6 +7,7 @@ import {
   getCafeWriterAccounts,
 } from '@/shared/config/cafe-account-policy';
 import { getDefaultCafe, getCafeById } from '@/shared/config/cafes';
+import { toCafeSlug } from '@/shared/lib/naver-cafe-membership';
 import { connectDB } from '@/shared/lib/mongodb';
 import { BatchJobLog, type IBatchJobLog, canPostToday } from '@/shared/models';
 import { getQueueSettings, getRandomDelay } from '@/shared/models/queue-settings';
@@ -19,8 +21,6 @@ import {
   DEFAULT_DELAYS,
 } from './types';
 import { processKeyword } from './keyword-processor';
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const runBatchJob = async (
   input: BatchJobInput,
@@ -65,9 +65,10 @@ export const runBatchJob = async (
     };
   }
 
-  const { cafeId, menuId, name: cafeName } = cafe;
+  const { cafeId, cafeUrl, menuId, name: cafeName } = cafe;
+  const cafeSlug = toCafeSlug(cafeUrl);
   console.log(`[BATCH] 카페: ${cafeName} (${cafeId})`)
-  const writerAccounts = getCafeWriterAccounts(accounts, cafeId);
+  const writerAccounts = getCafeWriterAccounts(accounts, cafeId, cafeSlug);
 
   if (writerAccounts.length === 0) {
     console.log(`[BATCH] ${cafeName} 글쓰기 가능한 계정 없음`);
@@ -161,7 +162,12 @@ export const runBatchJob = async (
     for (let i = 0; i < keywords.length; i++) {
       const rawKeyword = keywords[i];
       const writerAccount = writerAccounts[i % writerAccounts.length];
-      const commenterAccounts = getCafeCommenterAccounts(accounts, cafeId, writerAccount.id);
+      const commenterAccounts = getCafeCommenterAccounts(
+        accounts,
+        cafeId,
+        cafeSlug,
+        writerAccount.id,
+      );
 
       if (!isAccountActive(writerAccount)) {
         console.log(`[BATCH] ${writerAccount.id} 비활동 시간대 - 스킵`);
