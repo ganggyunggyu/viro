@@ -124,7 +124,20 @@ export const createBrokerClient = (config: AgentConfig): BrokerClient => {
     }
 
     if (!response.ok) {
-      throw new Error(`브로커 오류 ${response.status} (${path})`);
+      const raw = await response.text().catch(() => '');
+      let detail = raw.trim();
+      try {
+        const parsed = raw ? JSON.parse(raw) as { error?: unknown } : null;
+        if (parsed && typeof parsed.error === 'string' && parsed.error.trim()) {
+          detail = parsed.error.trim();
+        }
+      } catch {}
+
+      throw new Error(
+        detail
+          ? `브로커 오류 ${response.status} (${path}): ${detail}`
+          : `브로커 오류 ${response.status} (${path})`,
+      );
     }
 
     return (await response.json()) as Record<string, unknown>;

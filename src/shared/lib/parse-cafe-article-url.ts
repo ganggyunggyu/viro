@@ -13,6 +13,7 @@ const M_CAFE_PATTERN = /m\.cafe\.naver\.com\/([a-zA-Z0-9_-]+)\/(\d+)(?:[/?]|$)/;
 // PC 카페 대문에서 흔한 축약형: cafe.naver.com/{slug}/{articleId} (ca-fe, articles/ 접두어 없음)
 const CAFE_ARTICLE_PATH_PATTERN = /cafe\.naver\.com\/(?!ca-fe\/)([a-zA-Z0-9_-]+)\/(\d+)(?:[/?]|$)/;
 const LEGACY_SLUG_PATTERN = /cafe\.naver\.com\/([a-zA-Z0-9_-]+)(?:[/?]|$)/;
+const LEGACY_ARTICLE_READ_PATTERN = /cafe\.naver\.com\/ArticleRead\.nhn(?:[/?]|$)/i;
 const NAVER_ME_PATTERN = /naver\.me\/[a-zA-Z0-9]+/i;
 
 // naver.me 단축링크를 실제 카페 글 URL로 해석한다. Node fetch는 redirect:'manual'일 때
@@ -54,6 +55,17 @@ export const parseCafeArticleUrlShape = (rawUrl: string): { cafeSlug?: string; c
   const cafeArticlePathMatch = url.match(CAFE_ARTICLE_PATH_PATTERN);
   if (cafeArticlePathMatch) {
     return { cafeSlug: cafeArticlePathMatch[1], articleId: Number(cafeArticlePathMatch[2]) };
+  }
+
+  if (LEGACY_ARTICLE_READ_PATTERN.test(url)) {
+    try {
+      const parsed = new URL(url);
+      const cafeId = parsed.searchParams.get('clubid');
+      const articleId = parsed.searchParams.get('articleid');
+      if (cafeId && articleId && /^\d+$/.test(cafeId) && /^\d+$/.test(articleId)) {
+        return { cafeId, articleId: Number(articleId) };
+      }
+    } catch {}
   }
 
   const legacySlugMatch = url.match(LEGACY_SLUG_PATTERN);
