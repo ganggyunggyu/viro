@@ -17,9 +17,9 @@ import { closeAllContexts } from '../src/shared/lib/multi-session';
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';
-const MAX_COMMENT_COUNT = Number(process.env.MAX_COMMENT_COUNT) || 3;
-const GEN_MIN_COUNT = Number(process.env.GEN_MIN_COUNT) || 5;
-const GEN_MAX_COUNT = Number(process.env.GEN_MAX_COUNT) || 7;
+const MAX_COMMENT_COUNT = process.env.MAX_COMMENT_COUNT !== undefined ? Number(process.env.MAX_COMMENT_COUNT) : 3;
+const GEN_MIN_COUNT = process.env.GEN_MIN_COUNT !== undefined ? Number(process.env.GEN_MIN_COUNT) : 5;
+const GEN_MAX_COUNT = process.env.GEN_MAX_COUNT !== undefined ? Number(process.env.GEN_MAX_COUNT) : 7;
 
 const main = async (): Promise<void> => {
   if (!MONGODB_URI) throw new Error('MONGODB_URI missing');

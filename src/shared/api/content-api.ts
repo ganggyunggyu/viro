@@ -445,6 +445,81 @@ export const generateViralContent = async (
   return response.json();
 };
 
+interface RestaurantContentRequest {
+  keyword: string;
+  ref?: string;
+  businessName?: string;
+  /** 맛집2 전용 캐릭터명(블루망고/제이제이/삼남매/사랑채/호이호이/바글바글), 맛집1은 무시됨 */
+  blogName?: string;
+}
+
+interface RestaurantContentResponse {
+  _id?: string;
+  content: string;
+  createdAt?: string;
+  engine?: string;
+  service?: string;
+  category?: string;
+  keyword?: string;
+  businessName?: string;
+  ref?: string;
+}
+
+/**
+ * 맛집1 — "아껴둔 비밀 맛집 추천" 7단 구조 원고 생성(21lab 계정 다붓 프론트엔드 프로젝트).
+ * 실제 업체 실체 정보(주소/메뉴/가격/영업시간)를 백엔드가 네이버 검색으로 직접 확인해서 쓰므로
+ * 임의로 지어낸 맛집 정보를 ref/businessName에 넘기지 말 것 — 모르면 비워서 자유 선택시킨다.
+ */
+export const generateRestaurantV1Content = async (
+  request: RestaurantContentRequest,
+): Promise<RestaurantContentResponse> => {
+  const response = await fetch(`${CONTENT_API_URL}/generate/restaurant/v1`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      keyword: request.keyword,
+      ref: request.ref || '',
+      business_name: request.businessName || '',
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error('[맛집1 API] 에러 응답:', response.status, errorBody);
+    throw new Error(`맛집1 원고 생성 실패: ${response.status} - ${errorBody}`);
+  }
+
+  return response.json();
+};
+
+/** 맛집2 — 캐릭터(blog_name) 기반 맛집 원고 생성. blogName 미지정 시 서버가 임의 배정한다. */
+export const generateRestaurantV2Content = async (
+  request: RestaurantContentRequest,
+): Promise<RestaurantContentResponse> => {
+  const response = await fetch(`${CONTENT_API_URL}/generate/restaurant/v2`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      keyword: request.keyword,
+      ref: request.ref || '',
+      business_name: request.businessName || '',
+      blog_name: request.blogName || '',
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error('[맛집2 API] 에러 응답:', response.status, errorBody);
+    throw new Error(`맛집2 원고 생성 실패: ${response.status} - ${errorBody}`);
+  }
+
+  return response.json();
+};
+
 // 이미지 생성 API
 interface ImageGenerateRequest {
   keyword: string;
