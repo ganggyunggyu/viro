@@ -1,19 +1,16 @@
-import { normalizeText, clamp } from '@ganggyunggyu/shared';
+import { normalizeText } from '@ganggyunggyu/shared';
 import { generateContentWithPrompt } from './content-api';
 
 export interface CafeCommentBatchInput {
   keyword: string;
-  minCount?: number;
-  maxCount?: number;
-  exactCount?: number;
+  title?: string;
+  body: string;
   model?: string;
 }
 
 export interface CafeGeneratedComment {
   index: number;
   type: 'comment';
-  persona: string;
-  intent: string;
   content: string;
 }
 
@@ -30,28 +27,23 @@ interface ParsedCommentPayload {
   comments?: Array<Partial<CafeGeneratedComment>>;
 }
 
-const DEFAULT_MODEL = 'deepseek-v4-flash';
-const DEFAULT_MIN_COUNT = 5;
-const DEFAULT_MAX_COUNT = 10;
+const DEFAULT_MODEL = process.env.CAFE_COMMENT_MODEL || 'deepseek-v4-flash';
 const START_CHECK_LENGTH = 6;
+const MIN_COMMENT_LENGTH = 15;
+const MAX_COMMENT_LENGTH = 140;
+const MAX_BODY_LENGTH = 2500;
 
-const getCountRule = (input: CafeCommentBatchInput): string => {
-  if (input.exactCount) {
-    const exactCount = clamp(input.exactCount, 1, 20);
-    return `댓글은 정확히 ${exactCount}개 작성한다.`;
-  }
-
-  const minCount = clamp(input.minCount ?? DEFAULT_MIN_COUNT, 1, 20);
-  const maxCount = clamp(input.maxCount ?? DEFAULT_MAX_COUNT, minCount, 20);
-  return `댓글은 ${minCount}~${maxCount}개 사이에서 자연스럽게 랜덤 개수로 작성한다.`;
-};
+/** 댓글 개수는 전 경로에서 8개로 고정한다. 랜덤 개수/범위 옵션은 두지 않는다. */
+export const CAFE_COMMENT_COUNT = 8;
 
 export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): string => {
   const keyword = normalizeText(input.keyword);
+  const title = normalizeText(input.title ?? '');
+  const body = normalizeText(input.body).slice(0, MAX_BODY_LENGTH);
 
-  return `너는 네이버 카페에서 짧고 무난한 댓글을 다는 일반 회원 여러 명이야.
+  return `너는 네이버 카페에서 방금 이 글을 끝까지 읽은 일반 회원 ${CAFE_COMMENT_COUNT}명이야.
 
-입력으로 받은 키워드만 보고 댓글을 작성해.
+각자 글에서 인상 깊었던 대목을 하나씩 골라, 그 내용이 무슨 얘기였는지 자기 말로 한 번 더 풀어서 설명하는 댓글을 단다.
 
 ## 출력 형식
 반드시 JSON만 출력한다. 마크다운 코드블록, 설명문, 머리말, 꼬리말 금지.
@@ -67,29 +59,33 @@ export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): strin
 }
 
 ## 개수
-${getCountRule(input)}
+댓글은 정확히 ${CAFE_COMMENT_COUNT}개 작성한다.
 
 ## 작성 방향
-- 잘 보고 갑니다
-- 좋은 정보 감사합니다
-- 저도 ${keyword}에 관한 정보를 찾아봤는데 좋은 정보 감사합니다
-- ${keyword} 관련 내용 잘 보고 갑니다
-- 장소나 맛집 키워드라면 제가 가본 곳도 좋았는데 소개해주신 곳도 좋아 보이네요
+- 본문에서 실제로 다룬 내용 중 하나를 짚어서, 그게 어떤 얘기였는지 자기 말로 풀어서 설명한다.
+- 설명한 뒤에 짧은 소감이나 인사를 한 마디만 덧붙인다.
+- ${CAFE_COMMENT_COUNT}개 댓글은 각각 본문의 서로 다른 부분을 설명한다. 같은 대목을 두 번 설명하면 실패다.
+- 본문을 그대로 복사하지 말고, 읽은 사람이 요약해서 되짚는 말투로 바꿔 쓴다.
 
 ## 규칙
 - 모든 type은 "comment"만 사용한다. 대댓글은 만들지 않는다.
 - index, type, content 외의 필드는 만들지 않는다.
-- 위 예시를 매번 그대로 복사하지 말고 비슷한 의미로 자연스럽게 바꾼다.
-- content는 한 문장, 10~50자 정도의 무난한 존댓말로 쓴다.
-- ${keyword} 직접 언급은 전체에서 최대 2개만 사용하고, 키워드로 시작하는 댓글은 최대 1개만 쓴다.
-- 장소나 맛집 키워드라면 경험을 가볍게 연결하는 댓글을 1개 포함한다.
-- 질문, 평가, 과한 칭찬, 광고 문구는 쓰지 않는다.
-- 키워드 외의 상호, 가격, 효능, 지역, 메뉴, 구체적인 경험은 지어내지 않는다.
+- content는 1~2문장, ${MIN_COMMENT_LENGTH}~${MAX_COMMENT_LENGTH}자 사이의 존댓말로 쓴다.
+- 본문에 없는 상호, 가격, 효능, 수치, 지역, 개인 경험은 지어내지 않는다.
+- "${keyword}" 직접 언급은 전체에서 최대 2개까지만 쓴다.
+- 평가, 훈수, 과한 칭찬, 광고 문구, 구매 유도는 쓰지 않는다.
+- "원고", "글쓴이님이 쓰신 원고" 같은 표현은 쓰지 않는다.
 - 닉네임, 아이디, 해시태그, 이모지, URL, 마크다운은 쓰지 않는다.
-- 첫 6글자가 같은 댓글이 있으면 실패다.
+- 첫 ${START_CHECK_LENGTH}글자가 같은 댓글이 있으면 실패다.
 
 ## 키워드
 ${keyword}
+
+## 글 제목
+${title || '(제목 없음)'}
+
+## 글 본문
+${body}
 
 JSON만 출력한다.`;
 };
@@ -114,29 +110,22 @@ const parseComments = (rawContent: string): CafeGeneratedComment[] => {
     .map((comment, index) => ({
       index: Number(comment.index || index + 1),
       type: 'comment' as const,
-      persona: normalizeText(String(comment.persona || '')),
-      intent: normalizeText(String(comment.intent || '')),
       content: normalizeText(String(comment.content || '')),
     }))
     .filter((comment) => comment.content.length > 0);
 };
 
-const validateComments = (
-  comments: CafeGeneratedComment[],
-  input: CafeCommentBatchInput,
-): string[] => {
+export const validateCafeComments = (comments: CafeGeneratedComment[]): string[] => {
   const warnings: string[] = [];
-  const minCount = input.exactCount ?? input.minCount ?? DEFAULT_MIN_COUNT;
-  const maxCount = input.exactCount ?? input.maxCount ?? DEFAULT_MAX_COUNT;
 
-  if (comments.length < minCount || comments.length > maxCount) {
-    warnings.push(`count-out-of-range:${comments.length}/${minCount}-${maxCount}`);
+  if (comments.length !== CAFE_COMMENT_COUNT) {
+    warnings.push(`count-mismatch:${comments.length}/${CAFE_COMMENT_COUNT}`);
   }
 
   const starts = new Map<string, number>();
   for (const comment of comments) {
-    if (comment.content.length < 8) warnings.push(`short:${comment.index}`);
-    if (comment.content.length > 60) warnings.push(`long:${comment.index}`);
+    if (comment.content.length < MIN_COMMENT_LENGTH) warnings.push(`short:${comment.index}`);
+    if (comment.content.length > MAX_COMMENT_LENGTH) warnings.push(`long:${comment.index}`);
     if (comment.content.includes('원고')) warnings.push(`contains-wongo:${comment.index}`);
 
     const start = comment.content.slice(0, START_CHECK_LENGTH);
@@ -157,7 +146,7 @@ export const generateCafeCommentBatch = async (
   const model = input.model || DEFAULT_MODEL;
   const response = await generateContentWithPrompt({ prompt, model });
   const rawContent = response.content || '';
-  const comments = parseComments(rawContent);
+  const comments = parseComments(rawContent).slice(0, CAFE_COMMENT_COUNT);
 
   return {
     comments,
@@ -165,6 +154,6 @@ export const generateCafeCommentBatch = async (
     model: response.model || model,
     elapsed: Number(response.elapsed || 0),
     prompt,
-    warnings: validateComments(comments, input),
+    warnings: validateCafeComments(comments),
   };
 };

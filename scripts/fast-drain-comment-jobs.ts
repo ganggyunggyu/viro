@@ -7,7 +7,7 @@ import { User, ManualCommentJob, PublishedArticle, addCommentToArticle, hasComme
 import { getCommenterAccounts } from '../src/shared/config/accounts';
 import type { NaverAccount } from '../src/shared/lib/account-manager';
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
-import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
+import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
 
@@ -25,7 +25,17 @@ let doneJobs = 0;
 let okComments = 0;
 let failComments = 0;
 
-const appendResult = async (jobId: mongoose.Types.ObjectId, r: any) =>
+interface CommentResultRecord {
+  index: number;
+  accountId?: string;
+  nickname?: string;
+  content: string;
+  success: boolean;
+  error?: string;
+  commentId?: string;
+}
+
+const appendResult = async (jobId: mongoose.Types.ObjectId, r: CommentResultRecord) =>
   ManualCommentJob.updateOne({ _id: jobId }, { $push: { results: { ...r, postedAt: new Date() } } });
 
 const processJob = async (
@@ -33,7 +43,7 @@ const processJob = async (
   pool: NaverAccount[],
 ): Promise<void> => {
   const jobId = job._id as mongoose.Types.ObjectId;
-  const existingOk = (job.results || []).filter((r: any) => r.success).length;
+  const existingOk = (job.results || []).filter((r) => r.success).length;
   const needed = TARGET_PER_ARTICLE - existingOk;
   const tag = `${job.cafeSlug}/${job.articleId}`;
 
@@ -67,11 +77,14 @@ const processJob = async (
 
   // 2) 댓글 생성
   let texts: string[] = [];
-  for (let attempt = 0; attempt < 2 && texts.length < needed; attempt += 1) {
+  const wanted = Math.min(needed, CAFE_COMMENT_COUNT);
+  for (let attempt = 0; attempt < 2 && texts.length < wanted; attempt += 1) {
     try {
       const batch = await generateCafeCommentBatch({
         keyword: title || job.cafeSlug,
-        exactCount: needed, model: 'deepseek-v4-flash',
+        title,
+        body,
+        model: 'deepseek-v4-flash',
       });
       texts = (batch.comments || []).map((c) => c.content).filter(Boolean);
     } catch (e) {
@@ -134,7 +147,7 @@ const main = async () => {
   await mongoose.connect(process.env.MONGODB_URI!, { serverSelectionTimeoutMS: 10_000 });
   const user = await User.findOne({ loginId: LOGIN_ID, isActive: true }).lean();
   if (!user) throw new Error('user not found');
-  const userId = (user as any).userId;
+  const userId = (user as { userId: string }).userId;
 
   const pool = (await getCommenterAccounts(userId)).filter((a) => !a.excludeFromAutoComment);
   console.log(`[FAST-DRAIN] 커밋터 ${pool.length}명 / 글당 ${TARGET_PER_ARTICLE}개 / 동시 ${CONCURRENCY}레인 / 댓글간 ${COMMENT_DELAY_MS}ms`);

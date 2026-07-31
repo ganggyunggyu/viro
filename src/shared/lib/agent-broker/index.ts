@@ -9,7 +9,7 @@ import {
   type IManualCommentDeleteResult,
   type ManualCommentJobStatus,
 } from '@/shared/models';
-import { generateCafeCommentBatch } from '@/shared/api/cafe-comment-batch-api';
+import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '@/shared/api/cafe-comment-batch-api';
 import {
   addCommentToArticle,
   removeCommentFromArticle,
@@ -143,9 +143,6 @@ export const generateJobCommentPlan = async (
     };
   }
 
-  const min = job.mode === 'agent' ? 8 : Math.max(1, job.generateMinCount || 8);
-  const max = job.mode === 'agent' ? 13 : Math.max(min, job.generateMaxCount || 13);
-  const exactCount = Math.floor(min + Math.random() * (max - min + 1));
   let comments: string[] = [];
   const publishedArticle = await PublishedArticle.findOne(
     { cafeId: job.cafeId, articleId: job.articleId },
@@ -153,21 +150,20 @@ export const generateJobCommentPlan = async (
   ).lean<{ keyword?: string } | null>();
   const commentKeyword = publishedArticle?.keyword?.trim() || article.title.trim() || job.cafeSlug;
 
-  for (let attempt = 0; attempt < 3 && comments.length < exactCount; attempt += 1) {
+  for (let attempt = 0; attempt < 3 && comments.length < CAFE_COMMENT_COUNT; attempt += 1) {
     const batch = await generateCafeCommentBatch({
       title: article.title,
       body: article.body,
       keyword: commentKeyword,
-      exactCount,
       model: 'deepseek-v4-flash',
-    } as Parameters<typeof generateCafeCommentBatch>[0]);
-    comments = batch.comments.map(({ content }) => content).slice(0, exactCount);
+    });
+    comments = batch.comments.map(({ content }) => content).slice(0, CAFE_COMMENT_COUNT);
   }
 
   return {
     comments,
     summary: job.mode === 'agent'
-      ? `웹 AI가 키워드로 ${comments.length}개 댓글을 계획하고 로컬 Viro가 실행함`
+      ? `웹 AI가 원고 본문으로 ${comments.length}개 댓글을 계획하고 로컬 Viro가 실행함`
       : undefined,
   };
 };

@@ -5,6 +5,24 @@ export interface CafePostContent {
   htmlContent: string;
 }
 
+/**
+ * 발행용 HTML 본문을 댓글 생성 프롬프트에 넣을 평문으로 되돌린다. 이미지 data URL이
+ * 그대로 들어가면 프롬프트가 본문 길이 제한을 이미지로 다 써버리므로 태그째 제거한다.
+ */
+export const toPlainCafeBody = (htmlContent: string): string =>
+  htmlContent
+    .replace(/<img[^>]*>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
 export const buildCafePostContent = (rawContent: string, fallbackTitle: string): CafePostContent => {
   const lines = rawContent.split('\n');
   const firstLine = lines[0] ?? '';

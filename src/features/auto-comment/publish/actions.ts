@@ -5,7 +5,9 @@ import { shuffle } from '@/shared/lib/random';
 import { getAllAccounts } from '@/shared/config/accounts';
 import { connectDB } from '@/shared/lib/mongodb';
 import { PublishedArticle } from '@/shared/models';
-import { generateComment, generateReply } from '@/shared/api/comment-gen-api';
+import { generateReply } from '@/shared/api/comment-gen-api';
+import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '@/shared/api/cafe-comment-batch-api';
+import { toPlainCafeBody } from '@/shared/lib/cafe-content';
 import { addTaskJob } from '@/shared/lib/queue';
 import { startAllTaskWorkers } from '@/shared/lib/queue/workers';
 import { getQueueSettings, getRandomDelay } from '@/shared/models/queue-settings';
@@ -227,11 +229,32 @@ export const runAutoCommentAction = async (
         continue;
       }
 
-      // 글당 3~15개 작성
-      const totalCount = Math.floor(Math.random() * 13) + 3; // 3~15
-      // 50% 대댓글, 50% 댓글
-      const replyCount = Math.round(totalCount * 0.5);
-      const commentCount = totalCount - replyCount;
+      // 댓글은 본문 내용을 다시 풀어 설명하는 형식으로 글당 8개 고정 생성한다.
+      let commentTexts: string[] = [];
+      try {
+        const batch = await generateCafeCommentBatch({
+          keyword,
+          title: article.title,
+          body: toPlainCafeBody(article.content || ''),
+        });
+        if (batch.warnings.length > 0) {
+          console.warn(`[AUTO-COMMENT] #${articleId} 댓글 생성 경고: ${batch.warnings.join(', ')}`);
+        }
+        commentTexts = batch.comments.map(({ content }) => content).slice(0, CAFE_COMMENT_COUNT);
+      } catch (error) {
+        console.error(
+          `[AUTO-COMMENT] #${articleId} 댓글 생성 실패:`,
+          error instanceof Error ? error.message : error,
+        );
+      }
+
+      if (commentTexts.length === 0) {
+        console.log(`[AUTO-COMMENT] #${articleId} - 생성된 댓글 없음, 스킵`);
+        continue;
+      }
+
+      const commentCount = commentTexts.length;
+      const replyCount = Math.round(commentCount * 0.5);
 
       console.log(`[AUTO-COMMENT] #${articleId} - 댓글 ${commentCount}개, 대댓글 ${replyCount}개 job 추가`);
 
@@ -242,12 +265,7 @@ export const runAutoCommentAction = async (
       // 댓글 job 추가 (30%)
       for (let j = 0; j < commentCount; j++) {
         const commenter = otherAccounts[j % otherAccounts.length];
-        let commentText: string;
-        try {
-          commentText = await generateComment(keyword);
-        } catch {
-          commentText = '좋은 정보 감사합니다!';
-        }
+        const commentText = commentTexts[j];
 
         // 활동시간까지 대기 시간 계산
         const baseDelay = accountDelays.get(commenter.id) ?? 0;

@@ -4,7 +4,7 @@ import { hasCommented, removeCommentFromArticle } from '../src/shared/models/pub
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { listLiveComments, deleteCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-deleter';
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
-import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
+import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
 import { runDeepSeekAgentCommentJob, type DeepSeekAgentEvent } from '../src/shared/lib/deepseek-agent-comment';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
 import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
@@ -94,15 +94,11 @@ const buildAccountPool = async (
 };
 
 /**
- * 잡이 살아서 진행 중임을 표시하는 하트비트. claimNextJob의 stale 재claim(30분) 기준이
- * claimedAt 하나뿐이라, 계정 락 대기·재시도가 겹쳐 한 잡이 30분을 넘기면 다른 슬롯이
- * 아직 살아있는 잡을 죽은 걸로 오판해 처음부터 재처리 → 댓글 중복 게시로 이어졌던 사고가 있었음.
- * 결과를 남길 때마다 claimedAt을 현재 시각으로 갱신해 "진행 중"임을 계속 증명한다.
+ * 잡이 살아서 진행 중임을 표시하는 하트비트는 appendResult/appendDeleteResult가 겸한다.
+ * claimNextJob의 stale 재claim(30분) 기준이 claimedAt 하나뿐이라, 계정 락 대기·재시도가
+ * 겹쳐 한 잡이 30분을 넘기면 다른 슬롯이 살아있는 잡을 죽은 걸로 오판해 처음부터 재처리
+ * → 댓글 중복 게시로 이어졌던 사고가 있었음. 결과를 남길 때마다 claimedAt을 갱신한다.
  */
-const touchClaim = async (jobId: mongoose.Types.ObjectId): Promise<void> => {
-  await ManualCommentJob.updateOne({ _id: jobId }, { $set: { claimedAt: new Date() } });
-};
-
 const appendResult = async (
   jobId: mongoose.Types.ObjectId,
   result: {
@@ -334,21 +330,18 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
   if (job.mode === 'fixed') {
     texts = job.fixedComments || [];
   } else {
-    const min = job.generateMinCount || 8;
-    const max = job.generateMaxCount || 13;
-    const exactCount = Math.floor(min + Math.random() * Math.max(0, max - min));
     let batch: Awaited<ReturnType<typeof generateCafeCommentBatch>> | null = null;
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       const candidate = await generateCafeCommentBatch({
         keyword: articleTitle || job.cafeSlug,
-        exactCount,
+        title: articleTitle,
+        body: articleBody,
         model: process.env.MANUAL_COMMENT_GEN_MODEL || 'deepseek-v4-flash',
       });
       batch = candidate;
-      if (candidate.comments.length >= exactCount) break;
+      if (candidate.comments.length >= CAFE_COMMENT_COUNT) break;
     }
-    // AI가 exactCount보다 많이 생성해도 목표치(min~max)를 넘겨 올리지 않도록 자른다.
-    texts = (batch?.comments || []).map((c) => c.content).slice(0, exactCount);
+    texts = (batch?.comments || []).map((c) => c.content).slice(0, CAFE_COMMENT_COUNT);
   }
 
   if (texts.length === 0) {

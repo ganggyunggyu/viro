@@ -3,6 +3,7 @@ import { Account, PublishedArticle } from '@/shared/models';
 import { hasCommented, addCommentToArticle } from '@/shared/models/published-article';
 import { writeCommentWithAccount } from '@/shared/lib/naver-cafe-writing/comment-writer';
 import { readCafeArticleContent } from '@/shared/lib/cafe-article-reader';
+import { CAFE_COMMENT_COUNT } from '@/shared/api/cafe-comment-batch-api';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 const DEEPSEEK_MODEL = 'deepseek-chat';
@@ -251,11 +252,11 @@ export const runDeepSeekAgentCommentJob = async (
         '',
         '작업 절차:',
         '1. read_article로 실제 본문을 읽는다. 절대 본문을 상상하지 않는다.',
-        '2. 본문 내용을 바탕으로 8~13개 사이에서 자연스러운 개수의 댓글을 계획한다.',
+        `2. 본문 내용을 바탕으로 정확히 ${CAFE_COMMENT_COUNT}개의 댓글을 계획한다. 개수는 늘리거나 줄이지 않는다.`,
         '3. list_accounts로 사용 가능한 계정을 확인한다.',
         '4. post_comment로 계정마다 서로 다른 댓글을 하나씩 등록한다. 실패하면 다른 계정으로 같은 댓글을 재시도한다.',
         '5. 댓글 사이마다 wait_minutes로 2~8분 정도 자연스럽게 대기한다.',
-        '6. 댓글 규칙: 존댓말만 사용, 35~120자, 본문의 구체적인 내용(제품명/숫자/조건 등)을 실제로 언급, "저도/맞아요/좋은 정보"로 시작하는 댓글은 전체에서 최대 1개, 질문형/경험형/정보형/생활잡담형을 섞어서 다양하게, 광고처럼 보이는 구매 유도 금지.',
+        '6. 댓글 규칙: 각 댓글은 본문에서 실제로 다룬 내용 하나를 골라 그게 어떤 얘기였는지 자기 말로 풀어서 설명하고 짧은 소감을 한 마디 덧붙인다. 댓글마다 본문의 서로 다른 부분을 설명한다. 존댓말만 사용, 35~120자, 본문에 없는 내용은 지어내지 않는다, 광고처럼 보이는 구매 유도 금지.',
         '7. 목표 개수만큼(또는 계정이 소진될 때까지) 등록했으면 finish를 호출해 종료한다.',
       ].join('\n'),
     },

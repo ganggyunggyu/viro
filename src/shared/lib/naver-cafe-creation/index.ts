@@ -266,7 +266,14 @@ export const submitCafeCreateForm = async (
       return { success: false, resultText: captchaResult.error || '캡차 풀이 실패' };
     }
 
-    await page.locator('a.BaseButton--green:has-text("만들기")').last().click();
+    // "만들기" 버튼은 첫 클릭에서 보안문자 검증(POST .../validation/imageCaptcha)만 수행하고
+    // 카페를 실제로 만들지 않는다 — 두 번째 클릭에서야 생성 요청이 나간다(실측 확인,
+    // 2026-07-28). 한 번만 클릭하면 폼이 그대로 남은 채 아무 반응도 없어서 매번 실패로
+    // 오판했었다. 검증 응답을 기다렸다가 같은 버튼을 한 번 더 눌러야 한다.
+    const createButton = page.locator('a.BaseButton--green:has-text("만들기")').last();
+    await createButton.click();
+    await page.waitForTimeout(1200);
+    await createButton.click();
 
     let captchaRejected = false;
 

@@ -10,7 +10,7 @@ import type { CommentJobData, TaskJobData } from '../src/shared/lib/queue/types'
 import type { NaverAccount } from '../src/shared/lib/account-manager';
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
-import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
+import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
 
 interface ScheduleRow {
   sequence: number;
@@ -291,11 +291,13 @@ const main = async (): Promise<void> => {
       const article = await readArticle(selectedRows, accounts, loginWaitMs);
       const generated = await generateCafeCommentBatch({
         keyword: firstRow.subject,
-        exactCount: selectedRows.length,
+        title: article.title,
+        body: article.content,
         model,
       });
-      if (generated.comments.length < selectedRows.length) {
-        throw new Error(`generated comment shortage: ${generated.comments.length}/${selectedRows.length}`);
+      const usableCount = Math.min(selectedRows.length, CAFE_COMMENT_COUNT);
+      if (generated.comments.length < usableCount) {
+        throw new Error(`generated comment shortage: ${generated.comments.length}/${usableCount}`);
       }
 
       await PublishedArticle.findOneAndUpdate(
@@ -326,7 +328,7 @@ const main = async (): Promise<void> => {
         ? `work_cafe_${firstRow.cafeId}_${firstRow.articleId}_${Date.now().toString(36)}`
         : undefined;
       const jobs: Array<Record<string, unknown>> = [];
-      for (const [commentIndex, row] of selectedRows.entries()) {
+      for (const [commentIndex, row] of selectedRows.slice(0, usableCount).entries()) {
         const comment = generated.comments[commentIndex];
         const jobData: CommentJobData = {
           type: 'comment',

@@ -1,4 +1,5 @@
 import { pickRandom, randomInt, shuffle } from '@/shared/lib/random';
+import { CAFE_COMMENT_COUNT } from '@/shared/api/cafe-comment-batch-api';
 
 interface HanryeoCafePromptInput {
   keyword: string;
@@ -44,15 +45,6 @@ const HANRYEO_POINTS = [
   '하루 1~2포로 루틴화하기 쉬운 섭취 방식',
 ];
 
-const COMMENT_DIRECTIONS = [
-  '본문의 기준이나 수치를 다시 묻는 댓글',
-  '비슷한 증상이나 건강 고민을 공유하는 댓글',
-  '한려담원 흑염소진액을 먹어본 사람이 생활 루틴처럼 언급하는 댓글',
-  '작성자가 과장 없이 제품 선택 기준을 다시 설명하는 답글',
-  '비린맛, 꾸준함, 체질처럼 실제 구매 전 고민을 묻는 댓글',
-  '제품보다 본인 상황 확인이 먼저라는 신중한 댓글',
-];
-
 const buildCategoryLine = (category?: string): string => {
   const normalizedCategory = category?.trim();
   if (!normalizedCategory) return '';
@@ -68,10 +60,8 @@ export const buildHanryeoCafePrompt = ({
   const opening = pickRandom(PERSONA_OPENINGS);
   const sectionDirection = pickRandom(SECTION_DIRECTIONS);
   const productPoints = shuffle(HANRYEO_POINTS).slice(0, 2);
-  const commentDirections = shuffle(COMMENT_DIRECTIONS).slice(0, 4);
   const bodyMin = randomInt(1600, 1900);
   const bodyMax = bodyMin + randomInt(500, 800);
-  const mainCommentCount = randomInt(5, 7);
   const replyCount = randomInt(4, 6);
 
   return `## 출력 형식 최우선
@@ -158,7 +148,9 @@ ${sectionDirection}
 예시는 방향만 참고하고 그대로 복사하지 않는다.
 
 ## 댓글 규칙
-- [댓글] 섹션에는 본댓글 ${mainCommentCount}개와 대댓글 ${replyCount}개를 만든다.
+- [댓글] 섹션에는 본댓글 ${CAFE_COMMENT_COUNT}개와 대댓글 ${replyCount}개를 만든다.
+- 본댓글은 각각 본문에서 실제로 다룬 내용 하나를 골라, 그게 어떤 얘기였는지 자기 말로 한 번 더 풀어서 설명하고 짧은 소감을 덧붙인다.
+- 본댓글 ${CAFE_COMMENT_COUNT}개는 각각 본문의 서로 다른 부분을 설명한다.
 - 본댓글은 [댓글1]부터 순서대로 쓴다.
 - 대댓글은 [작성자-N], [댓글러-N], [제3자-N] 중 하나를 사용하고 실제 존재하는 댓글 번호에 붙인다.
 - 각 댓글은 한 줄로 쓴다.
@@ -168,9 +160,6 @@ ${sectionDirection}
 - 한려담원 언급은 추천/권유가 아니라 경험담, 질문, 선택 기준 대화로만 쓴다.
 - 브랜드 추천, 구매 유도, 링크 요청, 병원명 요청 금지.
 - "저도", "맞아요", "좋은 정보" 시작은 각각 최대 1개만 허용한다.
-
-댓글 구성 참고:
-${commentDirections.map((direction) => `- ${direction}`).join('\n')}
 
 ## 금지
 - 마크다운 헤더, 굵게, 표, 코드블록, HTML

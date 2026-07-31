@@ -204,8 +204,6 @@ const main = async (): Promise<void> => {
     title: '{ARTICLE_TITLE}',
     body: '{LIVE_NAVER_ARTICLE_BODY}',
     keyword: '{ARTICLE_TITLE_OR_KEYWORD}',
-    category: '{CAFE_CATEGORY}',
-    exactCount: useRange ? rangeMax : targetCommentCount,
     model,
   });
 

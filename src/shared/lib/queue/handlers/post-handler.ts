@@ -1,7 +1,9 @@
 import { PostJobData, CommentJobData, ReplyJobData, JobResult } from '../types';
 import { addTaskJob } from '../index';
 import { writePostWithAccount } from '@/shared/lib/naver-cafe-writing';
-import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
+import { generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
+import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '@/shared/api/cafe-comment-batch-api';
+import { toPlainCafeBody } from '@/shared/lib/cafe-content';
 import { getNextActiveTime, NaverAccount } from '@/shared/lib/account-manager';
 import { getRandomDelay } from '@/shared/models/queue-settings';
 import { connectDB } from '@/shared/lib/mongodb';
@@ -371,7 +373,6 @@ const handlePostSuccess = async (
 ): Promise<void> => {
   const { cafeId, menuId, keyword, subject, content, accountId: writerAccountId, userId } = postData;
   void menuId;
-  void content;
 
   console.log(`[WORKER] 글 발행 성공: #${articleId} - 체인 작업 시작`);
 
@@ -395,7 +396,29 @@ const handlePostSuccess = async (
   const commentBatchId = `batch_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 
   const maxCommentsPerAccount = settings.limits?.maxCommentsPerAccount ?? 1;
-  const commentCount = commenterAccounts.length;
+
+  // 댓글은 본문을 읽고 그 내용을 다시 풀어 설명하는 형식으로, 글 단위 8개 고정 생성한다.
+  let commentTexts: string[] = [];
+  try {
+    const batch = await generateCafeCommentBatch({
+      keyword: commentKeyword,
+      title: subject,
+      body: toPlainCafeBody(content),
+    });
+    if (batch.warnings.length > 0) {
+      console.warn(`[WORKER] 댓글 생성 경고: ${batch.warnings.join(', ')}`);
+    }
+    commentTexts = batch.comments.map(({ content: text }) => text).slice(0, CAFE_COMMENT_COUNT);
+  } catch (error) {
+    console.error('[WORKER] 댓글 생성 실패:', error instanceof Error ? error.message : error);
+  }
+
+  if (commentTexts.length === 0) {
+    console.log('[WORKER] 생성된 댓글 없음 - 댓글 체인 스킵');
+    return;
+  }
+
+  const commentCount = commentTexts.length;
 
   console.log(`[WORKER] 댓글 ${commentCount}개 job 추가 예정 (계정당 ${maxCommentsPerAccount}개)`);
 
@@ -412,12 +435,7 @@ const handlePostSuccess = async (
 
     accountCommentCounts.set(commenter.id, (accountCommentCounts.get(commenter.id) ?? 0) + 1);
 
-    let commentText: string;
-    try {
-      commentText = await generateComment(commentKeyword);
-    } catch {
-      commentText = '좋은 정보 감사합니다!';
-    }
+    const commentText = commentTexts[i];
 
     const baseDelay = commentDelays.get(commenter.id) ?? afterPostDelay;
     const activityDelay = getNextActiveTime(commenter);

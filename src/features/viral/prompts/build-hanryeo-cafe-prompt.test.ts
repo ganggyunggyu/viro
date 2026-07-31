@@ -33,3 +33,12 @@ test('buildHanryeoCafePrompt requires product connection without title branding'
   assert.match(prompt, /5번 섹션 마지막에서만 허용/);
   assert.match(prompt, /가격, 구매 링크, 할인, 배송, 환불 유도 문구는 쓰지 않는다/);
 });
+
+test('buildHanryeoCafePrompt fixes the main comment count at 8 and asks for body re-explanation', () => {
+  const prompt = buildHanryeoCafePrompt({ keyword: '수족냉증' });
+
+  assert.match(prompt, /본댓글 8개/);
+  assert.match(prompt, /본문에서 실제로 다룬 내용 하나를 골라/);
+  assert.match(prompt, /서로 다른 부분을 설명한다/);
+  assert.doesNotMatch(prompt, /댓글 구성 참고/);
+});

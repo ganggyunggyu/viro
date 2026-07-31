@@ -1,9 +1,9 @@
 import { sleep } from '@ganggyunggyu/shared';
 import type { NaverAccount } from '@/shared/lib/account-manager';
-import { generateComment, generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
+import { generateReply, generateAuthorReply } from '@/shared/api/comment-gen-api';
+import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '@/shared/api/cafe-comment-batch-api';
 import { writeCommentWithAccount, writeReplyWithAccount } from '@/shared/lib/naver-cafe-writing';
 import { type CommentResult, type ReplyResult } from './types';
-import { getRandomCommentCount } from './random';
 import { buildReplyTasks } from './keyword-processor-utils';
 
 export interface PostCommentsParams {
@@ -11,6 +11,8 @@ export interface PostCommentsParams {
   articleId: number;
   commenterAccounts: NaverAccount[];
   keyword: string;
+  articleTitle: string;
+  articleBody: string;
   betweenCommentsDelayMs: number;
 }
 
@@ -26,23 +28,32 @@ export const postComments = async ({
   articleId,
   commenterAccounts,
   keyword,
+  articleTitle,
+  articleBody,
   betweenCommentsDelayMs,
 }: PostCommentsParams): Promise<PostCommentsOutcome> => {
   const commentResults: CommentResult[] = [];
   const commentTexts: string[] = [];
   const commentAuthors: Array<{ id: string; nickname: string }> = [];
   const commentIds: Array<string | undefined> = [];
-  const commentCount = getRandomCommentCount();
+
+  // 본문을 읽고 그 내용을 다시 풀어 설명하는 댓글이므로, 글 단위로 한 번에 8개를 받아 쓴다.
+  const batch = await generateCafeCommentBatch({
+    keyword,
+    title: articleTitle,
+    body: articleBody,
+  });
+  const texts = batch.comments.map(({ content }) => content).slice(0, CAFE_COMMENT_COUNT);
+
+  if (batch.warnings.length > 0) {
+    console.warn(`[BATCH] 댓글 생성 경고: ${batch.warnings.join(', ')}`);
+  }
+
+  const commentCount = texts.length;
 
   for (let j = 0; j < commentCount; j++) {
     const commenter = commenterAccounts[j % commenterAccounts.length];
-
-    let commentText: string;
-    try {
-      commentText = await generateComment(keyword);
-    } catch {
-      commentText = '좋은 정보 감사합니다!';
-    }
+    const commentText = texts[j];
 
     const result = await writeCommentWithAccount(commenter, cafeId, articleId, commentText);
 

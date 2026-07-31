@@ -186,6 +186,8 @@ export const processKeyword = async ({
       articleId: postResult.articleId,
       commenterAccounts,
       keyword,
+      articleTitle: title,
+      articleBody: generated.content,
       betweenCommentsDelayMs: delays.betweenComments,
     });
     const { commentResults } = comments;

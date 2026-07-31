@@ -12,7 +12,7 @@ import {
   warmupScheduleSessions,
 } from '../src/shared/lib/multi-session';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
-import { generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
+import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
 import { Account, User, WorkCafeArticle, PublishedArticle, addCommentToArticle } from '../src/shared/models';
 import { getArticleComments, hasCommented } from '../src/shared/models/published-article';
 
@@ -88,8 +88,6 @@ interface GeneratedArticle {
   comments: Array<{
     index: number;
     content: string;
-    persona: string;
-    intent: string;
   }>;
   warnings: string[];
   readerAccountId: string;
@@ -608,7 +606,7 @@ const createArticleGenerator = (params: {
       cafeId: firstRow.cafeId,
       articleId: firstRow.articleId,
       readerAccountIds: readerAccounts.map((account) => account.id),
-      exactCount: rows.length,
+      wantedCount: Math.min(rows.length, CAFE_COMMENT_COUNT),
       at: startedAt.toISOString(),
     });
 
@@ -702,30 +700,33 @@ const createArticleGenerator = (params: {
       let result: Awaited<ReturnType<typeof generateCafeCommentBatch>> | null = null;
       let lastGenerateError = '';
 
+      const wantedCount = Math.min(rows.length, CAFE_COMMENT_COUNT);
+
       for (let attempt = 1; attempt <= 3; attempt += 1) {
         try {
           const candidate = await generateCafeCommentBatch({
             keyword: firstRow.subject,
-            exactCount: rows.length,
+            title: article.title || firstRow.subject,
+            body: article.content,
             model: options.model,
           });
           const hasCriticalWarning = candidate.warnings.some((warning) =>
-            warning.startsWith('count-out-of-range') ||
+            warning.startsWith('count-mismatch') ||
             warning.startsWith('duplicate-start') ||
             warning.startsWith('repeated-opening') ||
             warning.startsWith('contains-wongo'),
           );
           result = candidate;
 
-          if (candidate.comments.length >= rows.length && !hasCriticalWarning) break;
+          if (candidate.comments.length >= wantedCount && !hasCriticalWarning) break;
           lastGenerateError = `댓글 생성 검증 경고: ${candidate.warnings.join(', ') || 'none'}`;
         } catch (error) {
           lastGenerateError = error instanceof Error ? error.message : '댓글 생성 실패';
         }
       }
 
-      if (!result || result.comments.length < rows.length) {
-        throw new Error(lastGenerateError || `댓글 생성 개수 부족: ${result?.comments.length || 0}/${rows.length}`);
+      if (!result || result.comments.length < wantedCount) {
+        throw new Error(lastGenerateError || `댓글 생성 개수 부족: ${result?.comments.length || 0}/${wantedCount}`);
       }
 
       const generated: GeneratedArticle = {
@@ -734,12 +735,10 @@ const createArticleGenerator = (params: {
         articleId: firstRow.articleId,
         title: article.title || firstRow.subject,
         bodyLength: article.content.length,
-        comments: result.comments.slice(0, rows.length).map((comment) => ({
+        comments: result.comments.slice(0, wantedCount).map((comment) => ({
           index: comment.index,
           // 최종 방어: 재생성 후에도 남은 "원고" 표현을 자연스러운 지칭으로 치환해 게시
           content: comment.content.replace(/원고에서/g, '글에서').replace(/원고에/g, '글에').replace(/원고/g, '글'),
-          persona: comment.persona,
-          intent: comment.intent,
         })),
         warnings: result.warnings,
         readerAccountId: selectedReaderAccount.id,
