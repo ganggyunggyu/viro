@@ -59,9 +59,12 @@ const shuffle = <T,>(arr: T[]): T[] => {
   return copy;
 };
 
+// 맛집2 응답은 제목 줄 앞에 "[제목]" 같은 템플릿 라벨이 그대로 섞여 나올 때가 있어 제거한다.
+const TITLE_LABEL_PREFIX_PATTERN = /^\[?제목\]?[:\s]*/;
+
 const parseManuscript = (raw: string): { subject: string; content: string } => {
   const lines = raw.split('\n');
-  const subject = lines[0]?.trim() || '';
+  const subject = (lines[0]?.trim() || '').replace(TITLE_LABEL_PREFIX_PATTERN, '').trim();
   const content = lines.slice(1).join('\n').trim();
   return { subject, content };
 };
