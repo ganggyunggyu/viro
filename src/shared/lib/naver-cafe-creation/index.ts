@@ -18,7 +18,7 @@ import type { Page } from 'playwright';
 import { getPageForAccount, isAccountLoggedIn, loginAccount } from '../multi-session';
 import { toCafeSlug } from '../naver-cafe-membership';
 import { Cafe } from '../../models/cafe';
-import { Account } from '../../models/account';
+import { Account, resolveGeminiApiKeyForAccount } from '../../models/account';
 import { buildCafeRegistrationUpdate } from '../cafe-registration-harness';
 import {
   hasCaptchaBrokerConfig,
@@ -52,17 +52,13 @@ export interface CreateCafeResult {
 const CREATE_CAFE_URL = 'https://section.cafe.naver.com/ca-fe/home/create';
 const CAPTCHA_MODEL = process.env.GEMINI_CAPTCHA_MODEL || 'gemini-3.5-flash';
 
-let cafeCreateCaptchaClient: GoogleGenAI | null = null;
+// 전역 폴백 키는 없다 — 계정마다 등록된 Gemini 키만 쓴다. 캐싱하면 웹에서 키를
+// 바꿔도 반영이 안 되니 매번 새로 만든다.
+const getCafeCreateCaptchaClient = async (accountId: string): Promise<GoogleGenAI> => {
+  const apiKey = await resolveGeminiApiKeyForAccount(accountId);
+  if (!apiKey) throw new Error(`${accountId} 계정에 등록된 Gemini 키 없음`);
 
-const getCafeCreateCaptchaClient = (): GoogleGenAI => {
-  if (cafeCreateCaptchaClient) return cafeCreateCaptchaClient;
-
-  const apiKey =
-    process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
-  if (!apiKey) throw new Error('GEMINI_API_KEY 없음');
-
-  cafeCreateCaptchaClient = new GoogleGenAI({ apiKey });
-  return cafeCreateCaptchaClient;
+  return new GoogleGenAI({ apiKey });
 };
 
 const CAPTCHA_REJECTED_PATTERN = /보안문자를 입력해주세요|보안문자가 일치하지|보안문자를 다시|보안문자를 정확히/;
@@ -74,6 +70,7 @@ const CAPTCHA_REJECTED_PATTERN = /보안문자를 입력해주세요|보안문�
  */
 export const solveCafeCreateCaptcha = async (
   page: Page,
+  accountId: string,
 ): Promise<{ solved: boolean; error?: string }> => {
   const container = page.locator('.SectionCreateCafeCaptcha').first();
   const image = container.locator('img').first();
@@ -89,9 +86,9 @@ export const solveCafeCreateCaptcha = async (
   let answer = '';
 
   if (hasCaptchaBrokerConfig()) {
-    answer = await solveCaptchaViaBroker({ kind: 'cafe-create', image: base64 });
+    answer = await solveCaptchaViaBroker({ kind: 'cafe-create', image: base64, accountId });
   } else {
-    answer = await solveCafeCreateCaptchaImage(base64);
+    answer = await solveCafeCreateCaptchaImage(base64, accountId);
   }
 
   if (!answer) return { solved: false, error: 'AI가 빈 답변 반환' };
@@ -100,9 +97,9 @@ export const solveCafeCreateCaptcha = async (
   return { solved: true };
 };
 
-export const solveCafeCreateCaptchaImage = async (base64: string): Promise<string> => {
+export const solveCafeCreateCaptchaImage = async (base64: string, accountId: string): Promise<string> => {
 
-  const ai = getCafeCreateCaptchaClient();
+  const ai = await getCafeCreateCaptchaClient(accountId);
   const response = await ai.models.generateContent({
     model: CAPTCHA_MODEL,
     contents: [
@@ -254,6 +251,7 @@ export const agreeToCafePolicy = async (page: Page): Promise<void> => {
 export const submitCafeCreateForm = async (
   page: Page,
   slug: string,
+  accountId: string,
   options: { captchaAttempts?: number } = {},
 ): Promise<{ success: boolean; resultText: string; cafeUrl?: string }> => {
   const { captchaAttempts = 4 } = options;
@@ -261,7 +259,7 @@ export const submitCafeCreateForm = async (
   let resultText = '';
 
   for (let captchaAttempt = 1; captchaAttempt <= captchaAttempts; captchaAttempt += 1) {
-    const captchaResult = await solveCafeCreateCaptcha(page);
+    const captchaResult = await solveCafeCreateCaptcha(page, accountId);
     if (!captchaResult.solved) {
       return { success: false, resultText: captchaResult.error || '캡차 풀이 실패' };
     }
@@ -367,7 +365,7 @@ export const createNaverCafe = async (
     if (dryRun) {
       // 드라이런은 제출을 안 하므로 캡차 정답 여부를 검증할 방법이 없다 — 폼이 여기까지
       // 정상적으로 채워지는지만 확인하고 캡차는 한 번만 채워본다.
-      const captchaResult = await solveCafeCreateCaptcha(page);
+      const captchaResult = await solveCafeCreateCaptcha(page, accountId);
       if (!captchaResult.solved) {
         return { success: false, dryRun, error: captchaResult.error || '캡차 풀이 실패' };
       }
@@ -376,7 +374,7 @@ export const createNaverCafe = async (
     }
 
     await agreeToCafePolicy(page);
-    const submitResult = await submitCafeCreateForm(page, input.slug);
+    const submitResult = await submitCafeCreateForm(page, input.slug, accountId);
     if (!submitResult.success) {
       return {
         success: false,

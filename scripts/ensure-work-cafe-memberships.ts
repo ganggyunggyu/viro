@@ -276,7 +276,7 @@ const ensureAccountMemberships = async (params: {
       let screenshotPath: string | undefined;
 
       try {
-        result = await joinCafeMembership(page, target, {
+        result = await joinCafeMembership(page, target, account.id, {
           nickname: account.nickname || account.id,
           logPrefix: `JOIN:${account.id}:${pair.cafeSlug}`,
           skipCaptchaSolve: skipJoinCaptchaSolve,

@@ -6,7 +6,7 @@ import {
   hasCaptchaBrokerConfig,
   solveCaptchaViaBroker,
 } from '@/shared/lib/captcha-broker';
-import { resolveGeminiApiKey } from '@/shared/models/api-key-settings';
+import { resolveGeminiApiKeyForAccount } from '@/shared/models/account';
 
 const CAPTCHA_PROVIDER = process.env.CAPTCHA_PROVIDER || 'gemini';
 const CAPTCHA_MODEL = process.env.GEMINI_CAPTCHA_MODEL || 'gemini-3.5-flash';
@@ -24,16 +24,17 @@ const SELECTORS = {
   loginButton: 'button.btn_login, button#log\\.login',
 } as const;
 
-export const canSolveCaptcha = async (): Promise<boolean> =>
-  Boolean(await resolveGeminiApiKey()) || hasCaptchaBrokerConfig();
+// 전역 폴백 키는 없다 — 계정마다 자기 키가 등록돼있어야 캡차를 풀 수 있다.
+export const canSolveCaptcha = async (accountId: string): Promise<boolean> =>
+  Boolean(await resolveGeminiApiKeyForAccount(accountId)) || hasCaptchaBrokerConfig();
 
-// 클라이언트를 캐싱하면 웹 설정에서 키를 바꿔도 pm2 워커를 재시작하기 전까진 옛 키를
-// 계속 쓰게 된다 — 캡차 시도마다 매번 최신 키로 새로 만든다(비용은 거의 없음).
-const getGeminiClient = async (): Promise<GoogleGenAI> => {
-  const apiKey = await resolveGeminiApiKey();
-  if (!apiKey) throw new Error('GEMINI_API_KEY 없음');
+// 클라이언트를 캐싱하면 웹에서 키를 바꿔도 pm2 워커를 재시작하기 전까진 옛 키를
+// 계속 쓰게 된다 — 캡차 시도마다 매번 그 계정의 최신 키로 새로 만든다(비용 거의 없음).
+const getGeminiClient = async (accountId: string): Promise<GoogleGenAI> => {
+  const apiKey = await resolveGeminiApiKeyForAccount(accountId);
+  if (!apiKey) throw new Error(`${accountId} 계정에 등록된 Gemini 키 없음`);
 
-  console.log(`[CAPTCHA] provider=${CAPTCHA_PROVIDER} model=${CAPTCHA_MODEL}`);
+  console.log(`[CAPTCHA] provider=${CAPTCHA_PROVIDER} model=${CAPTCHA_MODEL} account=${accountId}`);
   return new GoogleGenAI({ apiKey });
 };
 
@@ -75,9 +76,10 @@ export const detectCaptcha = async (page: Page): Promise<CaptchaDetectResult> =>
 
 export const solveLoginCaptchaImage = async (
   base64: string,
-  question: string
+  question: string,
+  accountId: string
 ): Promise<{ answer: string; elapsed: number }> => {
-  const ai = await getGeminiClient();
+  const ai = await getGeminiClient(accountId);
   const startedAt = Date.now();
 
   const response = await ai.models.generateContent({
@@ -117,9 +119,10 @@ export const solveLoginCaptchaImage = async (
 const solveCaptchaImage = async (
   base64: string,
   question: string,
+  accountId: string,
 ): Promise<{ answer: string; elapsed: number }> => {
   if (!hasCaptchaBrokerConfig()) {
-    return solveLoginCaptchaImage(base64, question);
+    return solveLoginCaptchaImage(base64, question, accountId);
   }
 
   const startedAt = Date.now();
@@ -127,6 +130,7 @@ const solveCaptchaImage = async (
     kind: 'login',
     image: base64,
     question,
+    accountId,
   });
   return { answer, elapsed: Date.now() - startedAt };
 };
@@ -152,7 +156,7 @@ export const solveCaptchaOnPage = async (
     );
 
     try {
-      const { answer, elapsed } = await solveCaptchaImage(captcha.base64!, captcha.question!);
+      const { answer, elapsed } = await solveCaptchaImage(captcha.base64!, captcha.question!, accountId);
 
       if (!answer) {
         console.warn(`[CAPTCHA] ${accountId} AI가 빈 답변 반환 — 재시도`);

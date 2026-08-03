@@ -59,7 +59,7 @@ const main = async (): Promise<void> => {
         };
 
         try {
-          const result = await joinCafeMembership(page, target, {
+          const result = await joinCafeMembership(page, target, account.id, {
             nickname: account.nickname || account.id,
             logPrefix: `JOIN:${account.id}:${cafe.name}`,
           });

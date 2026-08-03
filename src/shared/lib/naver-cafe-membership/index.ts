@@ -4,6 +4,7 @@ import {
   hasCaptchaBrokerConfig,
   solveCaptchaViaBroker,
 } from '@/shared/lib/captcha-broker';
+import { resolveGeminiApiKeyForAccount } from '@/shared/models/account';
 
 export interface NaverCafeTarget {
   cafeId: string;
@@ -85,28 +86,20 @@ const CAFE_JOIN_CAPTCHA_REFRESH_SELECTOR = [
 ].join(', ');
 const CAFE_JOIN_CAPTCHA_MODEL = process.env.GEMINI_CAPTCHA_MODEL || 'gemini-3.5-flash';
 
-let cafeJoinCaptchaClient: GoogleGenAI | null = null;
-
-const getCafeJoinCaptchaClient = (): GoogleGenAI => {
-  if (cafeJoinCaptchaClient) return cafeJoinCaptchaClient;
-
-  const apiKey =
-    process.env.GOOGLE_API_KEY ||
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_GENAI_API_KEY;
-
+// 전역 폴백 키는 없다 — 계정마다 등록된 Gemini 키만 쓴다.
+const getCafeJoinCaptchaClient = async (accountId: string): Promise<GoogleGenAI> => {
+  const apiKey = await resolveGeminiApiKeyForAccount(accountId);
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY 없음');
+    throw new Error(`${accountId} 계정에 등록된 Gemini 키 없음`);
   }
 
-  cafeJoinCaptchaClient = new GoogleGenAI({ apiKey });
-  return cafeJoinCaptchaClient;
+  return new GoogleGenAI({ apiKey });
 };
 
 export { sleep } from '@ganggyunggyu/shared';
 
-export const solveCafeJoinCaptchaImage = async (base64: string): Promise<string> => {
-  const ai = getCafeJoinCaptchaClient();
+export const solveCafeJoinCaptchaImage = async (base64: string, accountId: string): Promise<string> => {
+  const ai = await getCafeJoinCaptchaClient(accountId);
   const response = await ai.models.generateContent({
     model: CAFE_JOIN_CAPTCHA_MODEL,
     contents: [
@@ -233,6 +226,7 @@ export const hasVisibleSelector = async (
 
 export const solveCafeJoinCaptchaOnPage = async (
   page: Page,
+  accountId: string,
   options: { attempts?: number; logPrefix?: string } = {},
 ): Promise<{ solved: boolean; attempts: number; error?: string }> => {
   const { attempts = 8, logPrefix = 'NAVER_CAFE_JOIN' } = options;
@@ -248,8 +242,8 @@ export const solveCafeJoinCaptchaOnPage = async (
       const image = await captchaImage.screenshot({ type: 'png' });
       const base64 = image.toString('base64');
       const answer = hasCaptchaBrokerConfig()
-        ? await solveCaptchaViaBroker({ kind: 'cafe-join', image: base64 })
-        : await solveCafeJoinCaptchaImage(base64);
+        ? await solveCaptchaViaBroker({ kind: 'cafe-join', image: base64, accountId })
+        : await solveCafeJoinCaptchaImage(base64, accountId);
       console.log(`[${logPrefix}] cafe join captcha answer attempt=${attempt}: ${answer || '(empty)'}`);
 
       if (!answer) {
@@ -389,6 +383,7 @@ export const readCafeMemberCount = async (
 export const joinCafeMembership = async (
   page: Page,
   target: NaverCafeTarget,
+  accountId: string,
   options: JoinCafeMembershipOptions,
 ): Promise<JoinCafeMembershipResult> => {
   const {
@@ -449,7 +444,7 @@ export const joinCafeMembership = async (
     }
   }
 
-  const captchaResult = await solveCafeJoinCaptchaOnPage(page, { logPrefix });
+  const captchaResult = await solveCafeJoinCaptchaOnPage(page, accountId, { logPrefix });
   if (!captchaResult.solved) {
     return {
       status: 'failed',

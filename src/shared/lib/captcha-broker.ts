@@ -6,6 +6,7 @@ interface CaptchaBrokerInput {
   kind: CaptchaKind;
   image: string;
   question?: string;
+  accountId?: string;
 }
 
 interface CaptchaBrokerOptions {

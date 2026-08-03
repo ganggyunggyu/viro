@@ -4,7 +4,7 @@ import { hasCommented, addCommentToArticle } from '@/shared/models/published-art
 import { writeCommentWithAccount } from '@/shared/lib/naver-cafe-writing/comment-writer';
 import { readCafeArticleContent } from '@/shared/lib/cafe-article-reader';
 import { CAFE_COMMENT_COUNT } from '@/shared/api/cafe-comment-batch-api';
-import { resolveDeepseekApiKey } from '@/shared/models/api-key-settings';
+import { resolveDeepseekApiKeyForAccount } from '@/shared/models/account';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 const DEEPSEEK_MODEL = 'deepseek-chat';
@@ -126,9 +126,6 @@ export interface RunDeepSeekAgentParams {
 export const runDeepSeekAgentCommentJob = async (
   params: RunDeepSeekAgentParams,
 ): Promise<{ successCount: number; summary: string }> => {
-  const apiKey = await resolveDeepseekApiKey();
-  if (!apiKey) throw new Error('DEEPSEEK_API_KEY missing');
-
   const { userId, cafeId, cafeSlug, articleId, onEvent } = params;
   const emit = async (event: DeepSeekAgentEvent): Promise<void> => {
     console.log(`[DEEPSEEK-AGENT] ${event.type}: ${event.message}`);
@@ -146,6 +143,17 @@ export const runDeepSeekAgentCommentJob = async (
 
   if (commenterAccounts.length === 0) {
     throw new Error('사용 가능한 댓글 계정이 없습니다');
+  }
+
+  // 전역 폴백 키는 없다 — commenterAccounts를 순서대로 훑어서 DeepSeek 키가
+  // 등록된 첫 계정의 키를 이 잡 전체(멀티턴 에이전트 세션 하나)에 쓴다.
+  let apiKey: string | null = null;
+  for (const candidate of commenterAccounts) {
+    apiKey = await resolveDeepseekApiKeyForAccount(candidate.accountId);
+    if (apiKey) break;
+  }
+  if (!apiKey) {
+    throw new Error(`DeepSeek 키가 등록된 계정이 없음 (${commenterAccounts.length}개 계정 확인)`);
   }
 
   let ownerNickname = '';

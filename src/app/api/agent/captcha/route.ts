@@ -16,6 +16,7 @@ export const POST = async (request: Request): Promise<Response> => {
   const body = await request.json().catch(() => ({}));
   const image = typeof body.image === 'string' ? body.image : '';
   const question = typeof body.question === 'string' ? body.question : '';
+  const accountId = typeof body.accountId === 'string' ? body.accountId : '';
   const kind: CaptchaKind =
     body.kind === 'login' || body.kind === 'cafe-join' || body.kind === 'cafe-create'
       ? body.kind
@@ -23,13 +24,16 @@ export const POST = async (request: Request): Promise<Response> => {
   if (!image) {
     return NextResponse.json({ error: 'image required' }, { status: 400 });
   }
+  if (!accountId) {
+    return NextResponse.json({ error: 'accountId required (계정별 키 귀속)' }, { status: 400 });
+  }
 
   try {
     const answer = kind === 'login'
-      ? (await solveLoginCaptchaImage(image, question)).answer
+      ? (await solveLoginCaptchaImage(image, question, accountId)).answer
       : kind === 'cafe-join'
-        ? await solveCafeJoinCaptchaImage(image)
-        : await solveCafeCreateCaptchaImage(image);
+        ? await solveCafeJoinCaptchaImage(image, accountId)
+        : await solveCafeCreateCaptchaImage(image, accountId);
     return NextResponse.json({ answer });
   } catch (error) {
     return NextResponse.json(
