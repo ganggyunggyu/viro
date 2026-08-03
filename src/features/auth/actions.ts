@@ -83,6 +83,50 @@ export const getCurrentUser = async () => {
   }
 };
 
+export interface ChangePasswordResult {
+  success: boolean;
+  error?: string;
+}
+
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string
+): Promise<ChangePasswordResult> => {
+  try {
+    await connectDB();
+
+    const userId = await getCurrentUserId();
+    if (!userId || userId === 'default-user') {
+      return { success: false, error: '로그인이 필요합니다' };
+    }
+
+    const user = await User.findOne({ userId, isActive: true });
+    if (!user) {
+      return { success: false, error: '사용자를 찾을 수 없음' };
+    }
+
+    const currentMatches = isHashedPassword(user.password)
+      ? verifyPassword(currentPassword, user.password)
+      : user.password === currentPassword;
+
+    if (!currentMatches) {
+      return { success: false, error: '현재 비밀번호가 일치하지 않음' };
+    }
+
+    if (!newPassword || newPassword.length < 4) {
+      return { success: false, error: '새 비밀번호는 4자 이상이어야 함' };
+    }
+
+    user.password = hashPassword(newPassword);
+    await user.save();
+
+    return { success: true };
+  } catch (error) {
+    console.error('[AUTH] 비밀번호 변경 실패:', error);
+    return { success: false, error: '비밀번호 변경 중 오류 발생' };
+  }
+};
+
 export const register = async (
   loginId: string,
   password: string,
