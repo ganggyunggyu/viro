@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { setServers } from 'node:dns';
 import { Account, ManualCommentJob, PublishedArticle, type IManualCommentJob } from '../src/shared/models';
 import { hasCommented, removeCommentFromArticle } from '../src/shared/models/published-article';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
@@ -10,7 +11,12 @@ import {
   resolveCafeCommentKeyword,
 } from '../src/shared/api/cafe-comment-batch-api';
 import { runDeepSeekAgentCommentJob, type DeepSeekAgentEvent } from '../src/shared/lib/deepseek-agent-comment';
-import { closeAllContexts } from '../src/shared/lib/multi-session';
+import {
+  closeAllContexts,
+  getPageForAccount,
+  releaseAccountSession,
+  reserveAccountSession,
+} from '../src/shared/lib/multi-session';
 import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
 import { isNicknameEquivalent } from '../src/shared/lib/naver-cafe-writing/comment-writer-utils';
 
@@ -18,11 +24,40 @@ const WORKER_ID = `worker-${process.pid}-${Date.now()}`;
 const POLL_INTERVAL_MS = 20_000;
 const STALE_CLAIM_MS = 30 * 60_000;
 const TARGET_JOB_IDS = (process.env.MANUAL_COMMENT_JOB_IDS || '').split(',').filter(Boolean);
+const reservedCommentAccountIds = new Set<string>();
 
 const normalizeName = (v: string): string => (v || '').replace(/\([^)]*\)/g, '').replace(/\s+/g, '').trim();
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 const randomDelay = (min: number, max: number): number =>
   Math.floor(min + Math.random() * Math.max(0, max - min));
+
+const reserveNextCommentAccount = async <T extends { accountId: string }>(
+  pool: T[],
+  attemptedAccountIds: Set<string>,
+): Promise<T | null> => {
+  while (true) {
+    const available = pool.find(
+      ({ accountId }) =>
+        !attemptedAccountIds.has(accountId) && !reservedCommentAccountIds.has(accountId),
+    );
+    if (available) {
+      attemptedAccountIds.add(available.accountId);
+      reservedCommentAccountIds.add(available.accountId);
+      return available;
+    }
+
+    const hasUnattemptedAccount = pool.some(
+      ({ accountId }) => !attemptedAccountIds.has(accountId),
+    );
+    if (!hasUnattemptedAccount) return null;
+
+    await sleep(500);
+  }
+};
+
+const releaseCommentAccount = (accountId: string): void => {
+  reservedCommentAccountIds.delete(accountId);
+};
 
 const claimNextJob = async (): Promise<IManualCommentJob | null> => {
   const staleThreshold = new Date(Date.now() - STALE_CLAIM_MS);
@@ -368,8 +403,8 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
   const pool = await buildAccountPool(job.userId, job.cafeId, job.articleId, ownerNickname, texts.length);
   console.log(`[JOB ${job._id}] 계정 풀 ${pool.length}개, 댓글 ${texts.length}개, 소유자 닉네임="${ownerNickname}"`);
 
-  let accountIdx = 0;
   let successCount = 0;
+  const attemptedAccountIds = new Set<string>();
 
   // 재claim(하트비트 갭, 프로세스 재시작 등)으로 같은 잡이 다시 처리될 때 이미 성공한
   // 인덱스를 또 게시하지 않도록 건너뛴다. job은 claim 시점 스냅샷이라 이전 시도의 results가 남아있다.
@@ -387,83 +422,86 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
     const content = texts[commentIdx];
     let posted = false;
 
-    while (!posted && accountIdx < pool.length) {
-      const account = pool[accountIdx];
-      accountIdx += 1;
+    while (!posted) {
+      const account = await reserveNextCommentAccount(pool, attemptedAccountIds);
+      if (!account) break;
 
-      const already = await hasCommented(job.cafeId, job.articleId, account.accountId, 'comment');
-      if (already) continue;
+      try {
+        const already = await hasCommented(job.cafeId, job.articleId, account.accountId, 'comment');
+        if (already) continue;
 
-      const joinResult = await joinCafeWithNicknameRetry(
-        { id: account.accountId, password: account.password, nickname: account.nickname || account.accountId },
-        job.cafeId,
-        {
-          cafeUrl: job.cafeSlug,
-          updateDbNickname: async (nickname) => {
-            await Account.updateOne({ userId: job.userId, accountId: account.accountId }, { $set: { nickname } });
+        const joinResult = await joinCafeWithNicknameRetry(
+          { id: account.accountId, password: account.password, nickname: account.nickname || account.accountId },
+          job.cafeId,
+          {
+            cafeUrl: job.cafeSlug,
+            updateDbNickname: async (nickname) => {
+              await Account.updateOne({ userId: job.userId, accountId: account.accountId }, { $set: { nickname } });
+            },
           },
-        },
-      );
-      if (!joinResult.success) {
-        console.error(`[JOB ${job._id}] JOIN FAIL ${account.accountId}: ${joinResult.error}`);
-        await appendResult(job._id as mongoose.Types.ObjectId, {
-          index: commentIdx,
-          accountId: account.accountId,
-          nickname: account.nickname,
+        );
+        if (!joinResult.success) {
+          console.error(`[JOB ${job._id}] JOIN FAIL ${account.accountId}: ${joinResult.error}`);
+          await appendResult(job._id as mongoose.Types.ObjectId, {
+            index: commentIdx,
+            accountId: account.accountId,
+            nickname: account.nickname,
+            content,
+            success: false,
+            error: `카페 가입 확인 실패: ${joinResult.error}`,
+          });
+          continue;
+        }
+
+        const nickname = joinResult.finalNickname || account.nickname || account.accountId;
+        const result = await writeCommentWithAccount(
+          { id: account.accountId, password: account.password, nickname },
+          job.cafeId,
+          job.articleId,
           content,
-          success: false,
-          error: `카페 가입 확인 실패: ${joinResult.error}`,
+        );
+
+        if (!result.success) {
+          console.error(`[JOB ${job._id}] FAIL ${account.accountId}: ${result.error}`);
+          await appendResult(job._id as mongoose.Types.ObjectId, {
+            index: commentIdx,
+            accountId: account.accountId,
+            nickname,
+            content,
+            success: false,
+            error: result.error,
+          });
+          await sleep(15_000);
+          continue;
+        }
+
+        const { addCommentToArticle } = await import('../src/shared/models');
+        await addCommentToArticle(job.cafeId, job.articleId, {
+          accountId: account.accountId,
+          nickname,
+          content,
+          type: 'comment',
+          commentId: result.commentId,
         });
-        continue;
-      }
-
-      const nickname = joinResult.finalNickname || account.nickname || account.accountId;
-
-      const result = await writeCommentWithAccount(
-        { id: account.accountId, password: account.password, nickname },
-        job.cafeId,
-        job.articleId,
-        content,
-      );
-
-      if (!result.success) {
-        console.error(`[JOB ${job._id}] FAIL ${account.accountId}: ${result.error}`);
         await appendResult(job._id as mongoose.Types.ObjectId, {
           index: commentIdx,
           accountId: account.accountId,
           nickname,
           content,
-          success: false,
-          error: result.error,
+          success: true,
+          commentId: result.commentId,
         });
-        await sleep(15_000);
-        continue;
-      }
+        console.log(`[JOB ${job._id}] SUCCESS ${successCount + 1}/${texts.length} ${account.accountId}`);
+        successCount += 1;
+        posted = true;
 
-      const { addCommentToArticle } = await import('../src/shared/models');
-      await addCommentToArticle(job.cafeId, job.articleId, {
-        accountId: account.accountId,
-        nickname,
-        content,
-        type: 'comment',
-        commentId: result.commentId,
-      });
-      await appendResult(job._id as mongoose.Types.ObjectId, {
-        index: commentIdx,
-        accountId: account.accountId,
-        nickname,
-        content,
-        success: true,
-        commentId: result.commentId,
-      });
-      console.log(`[JOB ${job._id}] SUCCESS ${successCount + 1}/${texts.length} ${account.accountId}`);
-      successCount += 1;
-      posted = true;
-
-      if (commentIdx < texts.length - 1) {
-        const delayMs = randomDelay(job.delayMinMs, job.delayMaxMs);
-        console.log(`[JOB ${job._id}] 다음 댓글까지 ${Math.round(delayMs / 1000)}초 대기`);
-        await sleep(delayMs);
+        if (commentIdx < texts.length - 1) {
+          const delayMs = randomDelay(job.delayMinMs, job.delayMaxMs);
+          console.log(`[JOB ${job._id}] 다음 댓글까지 ${Math.round(delayMs / 1000)}초 대기`);
+          await sleep(delayMs);
+        }
+      } finally {
+        releaseCommentAccount(account.accountId);
       }
     }
   }
@@ -479,24 +517,57 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
 // pm2 프로세스를 여러 개 띄우는 방식은 acquireAccountLock이 프로세스 메모리 기반이라
 // 서로 다른 프로세스 간에는 같은 네이버 계정 동시 조작을 막지 못해 위험함.
 // 슬롯을 여러 개 두되 전부 한 프로세스 안에서 돌리면 락이 정상적으로 동작한다.
-// 슬롯 하나가 한 번에 계정 하나를 점유(acquireAccountLock)하므로, 슬롯 수가 실제 사용 가능한
-// 계정 수보다 많아지면 초과 슬롯은 락을 기다리기만 할 뿐 처리량에 기여하지 못한다.
-// 그래서 동시 슬롯 수는 고정값이 아니라 실제 활성 commenter 계정 수를 기준으로 정한다.
-const MAX_WORKER_CONCURRENCY = 30;
+// 슬롯 하나가 한 번에 계정 하나를 점유(acquireAccountLock)하므로 동시 슬롯과 브라우저
+// 컨텍스트를 활성 commenter 계정 수에 정확히 맞춘다. 시작 시 모든 계정 컨텍스트를 예약해
+// idle cleanup이 작업 도중 세션 수를 줄이지 않도록 유지한다.
+const DEFAULT_MONGODB_DNS_SERVERS = ['8.8.8.8', '1.1.1.1'];
 
-const resolveWorkerConcurrency = async (): Promise<number> => {
-  const accountCount = await Account.countDocuments({
+type CommenterSessionAccount = { accountId: string };
+
+const configureMongoDbDns = (uri: string): void => {
+  if (!uri.startsWith('mongodb+srv://')) return;
+
+  const servers = (process.env.MONGODB_DNS_SERVERS || DEFAULT_MONGODB_DNS_SERVERS.join(','))
+    .split(',')
+    .map((server) => server.trim())
+    .filter(Boolean);
+  if (servers.length === 0) return;
+
+  setServers(servers);
+  console.log(`[WORKER] MongoDB DNS resolver ${servers.join(', ')}`);
+};
+
+const loadCommenterSessionAccounts = async (): Promise<CommenterSessionAccount[]> => {
+  return Account.find({
     isActive: true,
     role: 'commenter',
     excludeFromAutoComment: { $ne: true },
-  });
-  const accountBound = Math.min(Math.max(accountCount, 1), MAX_WORKER_CONCURRENCY);
+  })
+    .select('accountId')
+    .lean<CommenterSessionAccount[]>();
+};
 
-  const envValue = process.env.WORKER_CONCURRENCY ? Number(process.env.WORKER_CONCURRENCY) : null;
-  if (envValue && Number.isFinite(envValue) && envValue > 0) {
-    return Math.min(envValue, accountBound);
+const warmCommenterSessions = async (
+  accounts: CommenterSessionAccount[],
+): Promise<void> => {
+  const results = await Promise.allSettled(
+    accounts.map(async ({ accountId }) => {
+      reserveAccountSession(accountId, WORKER_ID);
+      try {
+        await getPageForAccount(accountId);
+      } catch (error) {
+        releaseAccountSession(accountId, WORKER_ID);
+        throw error;
+      }
+    }),
+  );
+
+  const failures = results.filter((result) => result.status === 'rejected');
+  if (failures.length > 0) {
+    throw new Error(`댓글 계정 브라우저 세션 생성 실패: ${failures.length}/${accounts.length}`);
   }
-  return accountBound;
+
+  console.log(`[WORKER] 댓글 계정 브라우저 세션 ${accounts.length}/${accounts.length}개 준비 완료`);
 };
 
 const runWorkerSlot = async (slotId: number): Promise<void> => {
@@ -539,6 +610,7 @@ const runLoop = async (concurrency: number): Promise<void> => {
 
 const main = async (): Promise<void> => {
   if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI missing');
+  configureMongoDbDns(process.env.MONGODB_URI);
   await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
 
   process.on('SIGINT', async () => {
@@ -548,8 +620,11 @@ const main = async (): Promise<void> => {
     process.exit(0);
   });
 
-  const concurrency = await resolveWorkerConcurrency();
-  await runLoop(concurrency);
+  const commenterAccounts = await loadCommenterSessionAccounts();
+  if (commenterAccounts.length === 0) throw new Error('활성 commenter 계정 없음');
+
+  await warmCommenterSessions(commenterAccounts);
+  await runLoop(commenterAccounts.length);
 };
 
 main().catch((error) => {

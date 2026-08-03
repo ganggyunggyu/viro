@@ -1,4 +1,5 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { setServers } from 'node:dns';
 import { join } from 'path';
 import mongoose from 'mongoose';
 import type { Frame, Page } from 'playwright';
@@ -40,6 +41,17 @@ interface UiComment {
 const DEFAULT_ARTIFACT = 'outputs/new-cafe-comment-enqueue-2026-07-02T14-37-08-558Z.json';
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';
 const args = process.argv.slice(2);
+const DEFAULT_MONGODB_DNS_SERVERS = ['8.8.8.8', '1.1.1.1'];
+
+const configureMongoDbDns = (uri: string): void => {
+  if (!uri.startsWith('mongodb+srv://')) return;
+
+  const servers = (process.env.MONGODB_DNS_SERVERS || DEFAULT_MONGODB_DNS_SERVERS.join(','))
+    .split(',')
+    .map((server) => server.trim())
+    .filter(Boolean);
+  if (servers.length > 0) setServers(servers);
+};
 
 const getArgValue = (name: string, fallback: string): string => {
   const prefix = `${name}=`;
@@ -147,53 +159,42 @@ const loadVisibleComments = async (root: Page | Frame): Promise<UiComment[]> => 
   await root.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
   await root.waitForTimeout(700);
 
-  for (let index = 0; index < 3; index += 1) {
-    const moreButton = root.locator('text=더보기').first();
-    const visible = await moreButton.isVisible({ timeout: 800 }).catch(() => false);
-    if (!visible) break;
-    await moreButton.click({ timeout: 1500 }).catch(() => {});
-    await root.waitForTimeout(700);
-  }
-
   await root.waitForSelector('.CommentItem, .comment_area', { timeout: 5000 }).catch(() => null);
 
   return root.$$eval('.CommentItem, .comment_area', (nodes) => {
     const picked = new Set<Element>();
-    const commentNodes: Element[] = [];
+    const comments: UiComment[] = [];
 
     for (const node of nodes) {
       const closestItem = node.closest('.CommentItem');
       const element = closestItem || node;
       if (picked.has(element)) continue;
       picked.add(element);
-      commentNodes.push(element);
-    }
 
-    return commentNodes.map((node) => {
-      const element = node as HTMLElement;
-      const className = String(element.className || '');
+      const htmlElement = element as HTMLElement;
+      const className = String(htmlElement.className || '');
       const isReply =
         className.includes('CommentItem--reply') ||
-        Boolean(element.closest('.CommentItem--reply')) ||
-        Boolean(element.querySelector('.comment_reply')) ||
-        Boolean(element.closest('.comment_reply'));
-      const pickText = (selectors: string[]): string => {
-        for (const selector of selectors) {
-          const found = element.querySelector(selector);
-          const text = found?.textContent?.replace(/\s+/g, ' ').trim();
-          if (text) return text;
-        }
-        return '';
-      };
+        Boolean(htmlElement.closest('.CommentItem--reply')) ||
+        Boolean(htmlElement.querySelector('.comment_reply')) ||
+        Boolean(htmlElement.closest('.comment_reply'));
+      const nicknameNode = htmlElement.querySelector(
+        '.comment_nickname, .nick, .nickname',
+      );
+      const contentNode = htmlElement.querySelector(
+        '.comment_text_view, .text_comment, .comment_text_box',
+      );
 
-      return {
-        id: element.id || element.getAttribute('data-comment-id') || '',
+      comments.push({
+        id: htmlElement.id || htmlElement.getAttribute('data-comment-id') || '',
         type: isReply ? 'reply' : 'comment',
-        nickname: pickText(['.comment_nickname', '.nick', '.nickname']),
-        content: pickText(['.comment_text_view', '.text_comment', '.comment_text_box']),
+        nickname: nicknameNode?.textContent?.replace(/\s+/g, ' ').trim() || '',
+        content: contentNode?.textContent?.replace(/\s+/g, ' ').trim() || '',
         className,
-      };
-    });
+      });
+    }
+
+    return comments;
   });
 };
 
@@ -279,6 +280,7 @@ const main = async (): Promise<void> => {
   mkdirSync(screenshotDir, { recursive: true });
 
   if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI missing');
+  configureMongoDbDns(process.env.MONGODB_URI);
   await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10_000 });
 
   const user = await User.findOne({ loginId: LOGIN_ID, isActive: true }).lean();
