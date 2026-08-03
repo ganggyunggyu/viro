@@ -24,9 +24,9 @@ export default function PublishPage() {
             {activeTab === 'post' && (
               <div className={cn('space-y-6')}>
                 <SlideUp>
-                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>글만 발행</h2>
+                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>글 발행</h2>
                   <p className={cn('text-sm text-(--ink-muted) mt-1')}>
-                    댓글 없이 글만 발행 (원고 데이터 축적 용도)
+                    글만 발행하거나, 발행 직후 그 글에 댓글 작업까지 바로 예약
                   </p>
                 </SlideUp>
                 <PostOnlyUI />
