@@ -48,6 +48,16 @@ test('프롬프트는 본문 내용을 다시 풀어 설명하는 댓글을 요�
   assert.match(prompt, /서로 다른 부분/);
 });
 
+test('프롬프트는 모든 댓글에 키워드를 정확히 한 번씩 요구한다', () => {
+  const prompt = buildCafeCommentBatchPrompt({
+    keyword: '강아지 관절 영양제',
+    body: BODY,
+  });
+
+  assert.match(prompt, /각 댓글마다 "강아지 관절 영양제"를 정확히 1번/);
+  assert.doesNotMatch(prompt, /직접 언급은 전체에서 최대 2개/);
+});
+
 test('프롬프트에서 옛 정형 예시 문구는 사라졌다', () => {
   const prompt = buildCafeCommentBatchPrompt({
     keyword: '강아지 관절 영양제',
@@ -109,4 +119,19 @@ test('원고라는 단어가 들어가면 경고가 붙는다', () => {
   const withWongo = [...EIGHT_OK.slice(0, 7), '원고에 적어주신 급여량 설명이 도움이 많이 됐습니다'];
   const warnings = validateCafeComments(buildComments(withWongo));
   assert.ok(warnings.some((warning) => warning.startsWith('contains-wongo:')));
+});
+
+test('각 댓글의 키워드 언급 횟수가 1회가 아니면 경고가 붙는다', () => {
+  const keyword = '강아지 관절 영양제';
+  const contents = [
+    `${keyword} 성분을 함께 본다는 설명이 이해하기 쉬웠어요`,
+    '체중별 급여량을 나눈다는 부분을 잘 읽었습니다',
+    `${keyword} 선택 기준에서 ${keyword} 성분표를 본다는 점이 기억에 남네요`,
+    ...EIGHT_OK.slice(3).map((content) => `${keyword} ${content}`),
+  ];
+  const warnings = validateCafeComments(buildComments(contents), keyword);
+
+  assert.ok(warnings.includes('keyword-count:2:0'));
+  assert.ok(warnings.includes('keyword-count:3:2'));
+  assert.ok(!warnings.includes('keyword-count:1:1'));
 });

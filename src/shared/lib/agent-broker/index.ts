@@ -149,13 +149,16 @@ export const generateJobCommentPlan = async (
     { keyword: 1 },
   ).lean<{ keyword?: string } | null>();
   const commentKeyword = publishedArticle?.keyword?.trim() || article.title.trim() || job.cafeSlug;
+  const commentModel = process.env.MANUAL_COMMENT_GEN_MODEL
+    || process.env.CAFE_COMMENT_MODEL
+    || 'gpt-5.6-luna';
 
   for (let attempt = 0; attempt < 3 && comments.length < CAFE_COMMENT_COUNT; attempt += 1) {
     const batch = await generateCafeCommentBatch({
       title: article.title,
       body: article.body,
       keyword: commentKeyword,
-      model: 'deepseek-v4-flash',
+      model: commentModel,
     });
     comments = batch.comments.map(({ content }) => content).slice(0, CAFE_COMMENT_COUNT);
   }

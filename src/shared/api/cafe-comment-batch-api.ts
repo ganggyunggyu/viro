@@ -72,7 +72,8 @@ export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): strin
 - index, type, content 외의 필드는 만들지 않는다.
 - content는 1~2문장, ${MIN_COMMENT_LENGTH}~${MAX_COMMENT_LENGTH}자 사이의 존댓말로 쓴다.
 - 본문에 없는 상호, 가격, 효능, 수치, 지역, 개인 경험은 지어내지 않는다.
-- "${keyword}" 직접 언급은 전체에서 최대 2개까지만 쓴다.
+- 각 댓글마다 "${keyword}"를 정확히 1번 포함한다. 빠뜨리거나 한 댓글에서 2번 이상 반복하면 실패다.
+- 키워드는 문장 앞에만 몰아넣지 말고, 문장 중간이나 뒤에도 자연스럽게 배치한다.
 - 평가, 훈수, 과한 칭찬, 광고 문구, 구매 유도는 쓰지 않는다.
 - "원고", "글쓴이님이 쓰신 원고" 같은 표현은 쓰지 않는다.
 - 닉네임, 아이디, 해시태그, 이모지, URL, 마크다운은 쓰지 않는다.
@@ -115,8 +116,26 @@ const parseComments = (rawContent: string): CafeGeneratedComment[] => {
     .filter((comment) => comment.content.length > 0);
 };
 
-export const validateCafeComments = (comments: CafeGeneratedComment[]): string[] => {
+const countKeywordOccurrences = (content: string, keyword: string): number => {
+  if (!keyword) return 0;
+
+  let count = 0;
+  let offset = 0;
+  while (offset <= content.length - keyword.length) {
+    const index = content.indexOf(keyword, offset);
+    if (index < 0) break;
+    count += 1;
+    offset = index + keyword.length;
+  }
+  return count;
+};
+
+export const validateCafeComments = (
+  comments: CafeGeneratedComment[],
+  keywordInput?: string,
+): string[] => {
   const warnings: string[] = [];
+  const keyword = normalizeText(keywordInput ?? '');
 
   if (comments.length !== CAFE_COMMENT_COUNT) {
     warnings.push(`count-mismatch:${comments.length}/${CAFE_COMMENT_COUNT}`);
@@ -127,6 +146,10 @@ export const validateCafeComments = (comments: CafeGeneratedComment[]): string[]
     if (comment.content.length < MIN_COMMENT_LENGTH) warnings.push(`short:${comment.index}`);
     if (comment.content.length > MAX_COMMENT_LENGTH) warnings.push(`long:${comment.index}`);
     if (comment.content.includes('원고')) warnings.push(`contains-wongo:${comment.index}`);
+    if (keyword) {
+      const keywordCount = countKeywordOccurrences(comment.content, keyword);
+      if (keywordCount !== 1) warnings.push(`keyword-count:${comment.index}:${keywordCount}`);
+    }
 
     const start = comment.content.slice(0, START_CHECK_LENGTH);
     starts.set(start, (starts.get(start) || 0) + 1);
@@ -146,7 +169,18 @@ export const generateCafeCommentBatch = async (
   const model = input.model || DEFAULT_MODEL;
   const response = await generateContentWithPrompt({ prompt, model });
   const rawContent = response.content || '';
-  const comments = parseComments(rawContent).slice(0, CAFE_COMMENT_COUNT);
+  const keyword = normalizeText(input.keyword);
+  const parsedComments = parseComments(rawContent).slice(0, CAFE_COMMENT_COUNT);
+  const keywordWarnings = validateCafeComments(parsedComments, keyword)
+    .filter((warning) => warning.startsWith('keyword-count:'));
+  // 프롬프트를 어긴 댓글은 어떤 호출 경로에서도 실제 게시 대상으로 흘러가지 않게 막는다.
+  const comments = parsedComments.filter(
+    ({ content }) => countKeywordOccurrences(content, keyword) === 1,
+  );
+  const warnings = Array.from(new Set([
+    ...validateCafeComments(comments, keyword),
+    ...keywordWarnings,
+  ]));
 
   return {
     comments,
@@ -154,6 +188,6 @@ export const generateCafeCommentBatch = async (
     model: response.model || model,
     elapsed: Number(response.elapsed || 0),
     prompt,
-    warnings: validateCafeComments(comments),
+    warnings,
   };
 };
