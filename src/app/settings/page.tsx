@@ -1,5 +1,6 @@
 import { cn } from '@/shared';
 import { DelaySettingsUI } from '@/features/settings/delay-ui';
+import { AccountApiKeySettingsUI } from '@/features/settings/account-api-key-ui';
 import { PasswordChangeUI } from '@/features/auth/password-change-ui';
 import { PageLayout } from '@/widgets';
 
@@ -17,6 +18,18 @@ export default function SettingsPage() {
         >
           <h2 className={cn('text-lg font-semibold text-(--ink) mb-6')}>큐 설정</h2>
           <DelaySettingsUI />
+        </div>
+
+        <div
+          className={cn(
+            'rounded-2xl border border-(--border-light) bg-(--surface) p-6 lg:p-8'
+          )}
+        >
+          <h2 className={cn('text-lg font-semibold text-(--ink) mb-2')}>계정별 API 키</h2>
+          <p className={cn('text-sm text-(--ink-muted) mb-6')}>
+            Gemini/DeepSeek 키는 프로젝트 전역이 아니라 계정마다 따로 등록합니다. 계정을 고르고 그 계정 전용 키를 관리하세요.
+          </p>
+          <AccountApiKeySettingsUI />
         </div>
 
         <div
