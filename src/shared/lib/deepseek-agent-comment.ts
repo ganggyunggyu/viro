@@ -4,6 +4,7 @@ import { hasCommented, addCommentToArticle } from '@/shared/models/published-art
 import { writeCommentWithAccount } from '@/shared/lib/naver-cafe-writing/comment-writer';
 import { readCafeArticleContent } from '@/shared/lib/cafe-article-reader';
 import { CAFE_COMMENT_COUNT } from '@/shared/api/cafe-comment-batch-api';
+import { resolveDeepseekApiKey } from '@/shared/models/api-key-settings';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 const DEEPSEEK_MODEL = 'deepseek-chat';
@@ -125,7 +126,7 @@ export interface RunDeepSeekAgentParams {
 export const runDeepSeekAgentCommentJob = async (
   params: RunDeepSeekAgentParams,
 ): Promise<{ successCount: number; summary: string }> => {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+  const apiKey = await resolveDeepseekApiKey();
   if (!apiKey) throw new Error('DEEPSEEK_API_KEY missing');
 
   const { userId, cafeId, cafeSlug, articleId, onEvent } = params;

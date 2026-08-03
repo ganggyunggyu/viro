@@ -3,12 +3,14 @@ import { connectDB } from '@/shared/lib/mongodb';
 
 export interface IApiKeySettings extends Document {
   geminiApiKey?: string;
+  deepseekApiKey?: string;
   updatedAt: Date;
 }
 
 const ApiKeySettingsSchema = new Schema<IApiKeySettings>(
   {
     geminiApiKey: { type: String },
+    deepseekApiKey: { type: String },
   },
   { timestamps: true }
 );
@@ -30,7 +32,7 @@ export const getApiKeySettings = async (): Promise<IApiKeySettings> => {
 };
 
 export const updateApiKeySettings = async (
-  updates: Partial<Pick<IApiKeySettings, 'geminiApiKey'>>
+  updates: Partial<Pick<IApiKeySettings, 'geminiApiKey' | 'deepseekApiKey'>>
 ): Promise<IApiKeySettings> => {
   await connectDB();
   const settings = await ApiKeySettings.findOneAndUpdate(
@@ -58,4 +60,13 @@ export const resolveGeminiApiKey = async (): Promise<string | null> => {
     process.env.GOOGLE_GENAI_API_KEY ||
     null
   );
+};
+
+/** DeepSeek 에이전트 댓글(runDeepSeekAgentCommentJob)에 쓰는 키. Gemini와 동일하게 DB 우선, .env 폴백. */
+export const resolveDeepseekApiKey = async (): Promise<string | null> => {
+  await connectDB();
+  const settings = await ApiKeySettings.findOne().select('deepseekApiKey').lean();
+  if (settings?.deepseekApiKey) return settings.deepseekApiKey;
+
+  return process.env.DEEPSEEK_API_KEY || null;
 };
