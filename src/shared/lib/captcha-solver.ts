@@ -6,6 +6,7 @@ import {
   hasCaptchaBrokerConfig,
   solveCaptchaViaBroker,
 } from '@/shared/lib/captcha-broker';
+import { resolveGeminiApiKey } from '@/shared/models/api-key-settings';
 
 const CAPTCHA_PROVIDER = process.env.CAPTCHA_PROVIDER || 'gemini';
 const CAPTCHA_MODEL = process.env.GEMINI_CAPTCHA_MODEL || 'gemini-3.5-flash';
@@ -23,35 +24,17 @@ const SELECTORS = {
   loginButton: 'button.btn_login, button#log\\.login',
 } as const;
 
-const getGeminiApiKey = (): string | null => {
-  return (
-    process.env.GOOGLE_API_KEY ||
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_GENAI_API_KEY ||
-    null
-  );
-};
+export const canSolveCaptcha = async (): Promise<boolean> =>
+  Boolean(await resolveGeminiApiKey()) || hasCaptchaBrokerConfig();
 
-export const canSolveCaptcha = (): boolean =>
-  Boolean(getGeminiApiKey()) || hasCaptchaBrokerConfig();
-
-let geminiClient: GoogleGenAI | null = null;
-
-const getGeminiClient = (): GoogleGenAI => {
-  if (geminiClient) return geminiClient;
-
-  const apiKey = getGeminiApiKey();
+// 클라이언트를 캐싱하면 웹 설정에서 키를 바꿔도 pm2 워커를 재시작하기 전까진 옛 키를
+// 계속 쓰게 된다 — 캡차 시도마다 매번 최신 키로 새로 만든다(비용은 거의 없음).
+const getGeminiClient = async (): Promise<GoogleGenAI> => {
+  const apiKey = await resolveGeminiApiKey();
   if (!apiKey) throw new Error('GEMINI_API_KEY 없음');
 
-  const keySource = process.env.GOOGLE_API_KEY
-    ? 'GOOGLE_API_KEY'
-    : process.env.GEMINI_API_KEY
-      ? 'GEMINI_API_KEY'
-      : 'GOOGLE_GENAI_API_KEY';
-  console.log(`[CAPTCHA] provider=${CAPTCHA_PROVIDER} model=${CAPTCHA_MODEL} key=${keySource}`);
-
-  geminiClient = new GoogleGenAI({ apiKey });
-  return geminiClient;
+  console.log(`[CAPTCHA] provider=${CAPTCHA_PROVIDER} model=${CAPTCHA_MODEL}`);
+  return new GoogleGenAI({ apiKey });
 };
 
 type CaptchaDetectResult = {
@@ -94,7 +77,7 @@ export const solveLoginCaptchaImage = async (
   base64: string,
   question: string
 ): Promise<{ answer: string; elapsed: number }> => {
-  const ai = getGeminiClient();
+  const ai = await getGeminiClient();
   const startedAt = Date.now();
 
   const response = await ai.models.generateContent({
