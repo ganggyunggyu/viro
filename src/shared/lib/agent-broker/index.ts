@@ -9,7 +9,11 @@ import {
   type IManualCommentDeleteResult,
   type ManualCommentJobStatus,
 } from '@/shared/models';
-import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '@/shared/api/cafe-comment-batch-api';
+import {
+  CAFE_COMMENT_COUNT,
+  generateCafeCommentBatch,
+  resolveCafeCommentKeyword,
+} from '@/shared/api/cafe-comment-batch-api';
 import {
   addCommentToArticle,
   removeCommentFromArticle,
@@ -148,7 +152,7 @@ export const generateJobCommentPlan = async (
     { cafeId: job.cafeId, articleId: job.articleId },
     { keyword: 1 },
   ).lean<{ keyword?: string } | null>();
-  const commentKeyword = publishedArticle?.keyword?.trim() || article.title.trim() || job.cafeSlug;
+  const commentKeyword = resolveCafeCommentKeyword(publishedArticle?.keyword, article.title || job.cafeSlug);
   const commentModel = process.env.MANUAL_COMMENT_GEN_MODEL
     || process.env.CAFE_COMMENT_MODEL
     || 'gpt-5.6-luna';

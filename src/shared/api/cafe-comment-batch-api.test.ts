@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   CAFE_COMMENT_COUNT,
   buildCafeCommentBatchPrompt,
+  resolveCafeCommentKeyword,
   validateCafeComments,
 } from './cafe-comment-batch-api';
 
@@ -134,4 +135,19 @@ test('각 댓글의 키워드 언급 횟수가 1회가 아니면 경고가 붙�
   assert.ok(warnings.includes('keyword-count:2:0'));
   assert.ok(warnings.includes('keyword-count:3:2'));
   assert.ok(!warnings.includes('keyword-count:1:1'));
+});
+
+test('저장 키워드가 없으면 제목에서 짧은 댓글 키워드를 고른다', () => {
+  assert.equal(
+    resolveCafeCommentKeyword('', '종로웨딩밴드 오래 낄 형태'),
+    '종로웨딩밴드',
+  );
+  assert.equal(
+    resolveCafeCommentKeyword('', '나만 알고싶은 신촌 맛집 추천 산산바베큐'),
+    '신촌 맛집 추천',
+  );
+  assert.equal(
+    resolveCafeCommentKeyword('', '마운자로 처방 전 확인할 점'),
+    '마운자로 처방',
+  );
 });

@@ -104,6 +104,11 @@ const WORK_CAFES: WorkCafeInput[] = [
   { ownerName: '룰루랄라 2 (12개) 1', cafeUrl: 'https://cafe.naver.com/graykrurp' },
   { ownerName: '실눈캐', cafeUrl: 'https://cafe.naver.com/bluennvf0' },
   { ownerName: '바삭바삭해 1', cafeUrl: 'https://cafe.naver.com/ahffkdlek12' },
+  { ownerName: '주차파크시티', cafeUrl: 'https://cafe.naver.com/parrkk' },
+  { ownerName: '이모저모모여라', cafeUrl: 'https://cafe.naver.com/motherrr' },
+  { ownerName: '맛집 미식노트', cafeUrl: 'https://cafe.naver.com/gourmetnote707' },
+  { ownerName: '맛집 한끼일기', cafeUrl: 'https://cafe.naver.com/mealdiary702' },
+  { ownerName: '맛집 맛기행', cafeUrl: 'https://cafe.naver.com/tastetrip702' },
 ];
 
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';

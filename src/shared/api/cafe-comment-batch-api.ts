@@ -36,6 +36,28 @@ const MAX_BODY_LENGTH = 2500;
 /** 댓글 개수는 전 경로에서 8개로 고정한다. 랜덤 개수/범위 옵션은 두지 않는다. */
 export const CAFE_COMMENT_COUNT = 8;
 
+const TWO_WORD_KEYWORD_SUFFIXES = new Set([
+  '가격', '비용', '부작용', '복용법', '섭취법', '원인', '증상', '처방', '추천', '후기', '효능',
+]);
+
+export const resolveCafeCommentKeyword = (
+  storedKeywordInput: string | null | undefined,
+  titleInput: string,
+): string => {
+  const storedKeyword = normalizeText(storedKeywordInput ?? '');
+  const title = normalizeText(titleInput);
+  if (storedKeyword && storedKeyword !== title) return storedKeyword;
+
+  const restaurantKeyword = title.match(/([가-힣A-Za-z0-9]+\s+맛집\s+추천|[가-힣A-Za-z0-9]+맛집)/)?.[1];
+  if (restaurantKeyword) return normalizeText(restaurantKeyword);
+
+  const words = title.split(/\s+/).filter(Boolean);
+  if (words[0] && words[1] && TWO_WORD_KEYWORD_SUFFIXES.has(words[1])) {
+    return `${words[0]} ${words[1]}`;
+  }
+  return words[0] || storedKeyword || '카페 글';
+};
+
 export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): string => {
   const keyword = normalizeText(input.keyword);
   const title = normalizeText(input.title ?? '');

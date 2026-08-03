@@ -4,7 +4,11 @@ import { hasCommented, removeCommentFromArticle } from '../src/shared/models/pub
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { listLiveComments, deleteCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-deleter';
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
-import { CAFE_COMMENT_COUNT, generateCafeCommentBatch } from '../src/shared/api/cafe-comment-batch-api';
+import {
+  CAFE_COMMENT_COUNT,
+  generateCafeCommentBatch,
+  resolveCafeCommentKeyword,
+} from '../src/shared/api/cafe-comment-batch-api';
 import { runDeepSeekAgentCommentJob, type DeepSeekAgentEvent } from '../src/shared/lib/deepseek-agent-comment';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
 import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
@@ -330,13 +334,21 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
   if (job.mode === 'fixed') {
     texts = job.fixedComments || [];
   } else {
+    const storedArticle = await PublishedArticle.findOne(
+      { cafeId: job.cafeId, articleId: job.articleId },
+      { keyword: 1 },
+    ).lean<{ keyword?: string } | null>();
+    const commentKeyword = resolveCafeCommentKeyword(storedArticle?.keyword, articleTitle || job.cafeSlug);
+    const commentModel = process.env.MANUAL_COMMENT_GEN_MODEL
+      || process.env.CAFE_COMMENT_MODEL
+      || 'gpt-5.6-luna';
     let batch: Awaited<ReturnType<typeof generateCafeCommentBatch>> | null = null;
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       const candidate = await generateCafeCommentBatch({
-        keyword: articleTitle || job.cafeSlug,
+        keyword: commentKeyword,
         title: articleTitle,
         body: articleBody,
-        model: process.env.MANUAL_COMMENT_GEN_MODEL || 'deepseek-v4-flash',
+        model: commentModel,
       });
       batch = candidate;
       if (candidate.comments.length >= CAFE_COMMENT_COUNT) break;
