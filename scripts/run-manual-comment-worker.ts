@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { setServers } from 'node:dns';
-import { Account, ManualCommentJob, PublishedArticle, type IManualCommentJob } from '../src/shared/models';
+import { Account, Cafe, ManualCommentJob, PublishedArticle, type IManualCommentJob } from '../src/shared/models';
 import { hasCommented, removeCommentFromArticle } from '../src/shared/models/published-article';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { listLiveComments, deleteCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-deleter';
@@ -14,7 +14,6 @@ import { runDeepSeekAgentCommentJob, type DeepSeekAgentEvent } from '../src/shar
 import {
   closeAllContexts,
   getPageForAccount,
-  releaseAccountSession,
   reserveAccountSession,
 } from '../src/shared/lib/multi-session';
 import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
@@ -70,7 +69,8 @@ const claimNextJob = async (): Promise<IManualCommentJob | null> => {
       ],
     },
     { $set: { status: 'running', claimedAt: new Date(), claimedBy: WORKER_ID } },
-    { sort: { createdAt: 1 }, new: true },
+    // 운영 요청 기준: 같은 대기열에서는 최신 글부터 댓글을 채운다.
+    { sort: { createdAt: -1 }, new: true },
   );
   return job;
 };
@@ -311,7 +311,7 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
 
   console.log(`[JOB ${job._id}] 시작: ${job.cafeSlug}/${job.articleId}`);
 
-  const readerCandidates = await Account.find({
+  const commenterReaders = await Account.find({
     userId: job.userId,
     isActive: true,
     role: 'commenter',
@@ -323,31 +323,93 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
   // 정렬 없는 limit(3)은 모든 잡에 같은 계정 3개를 같은 순서로 주므로, 슬롯 전체가
   // 본문 읽기 단계에서 같은 계정 락을 두고 경합한다. 잡마다 시작 오프셋을 달리해
   // 슬롯들이 서로 다른 계정으로 본문을 읽도록 분산한다.
-  const readOffset = readerCandidates.length > 0 ? job.articleId % readerCandidates.length : 0;
+  const readOffset = commenterReaders.length > 0 ? job.articleId % commenterReaders.length : 0;
+  const rotatedCommenterReaders = [
+    ...commenterReaders.slice(readOffset),
+    ...commenterReaders.slice(0, readOffset),
+  ];
+
+  // 같은 카페의 최근 성공 작업에서 실제 댓글 등록에 성공한 계정은 가입이 검증된
+  // 회원이다. 여러 최신 글을 동시에 처리할 때 동일 소유 계정 락으로 몰리지 않도록
+  // 이 계정들을 잡별 회전 순서대로 본문 읽기 후보의 앞에 둔다.
+  const recentSuccessfulJobs = await ManualCommentJob.find({
+    _id: { $ne: job._id },
+    userId: job.userId,
+    cafeId: job.cafeId,
+    status: 'done',
+    'results.success': true,
+  })
+    .sort({ updatedAt: -1 })
+    .limit(10)
+    .select('results.accountId results.success')
+    .lean<Array<{ results?: Array<{ accountId?: string; success?: boolean }> }>>();
+  const knownMemberIds = new Set(
+    recentSuccessfulJobs.flatMap(({ results = [] }) =>
+      results
+        .filter(({ accountId, success }) => accountId && success)
+        .map(({ accountId }) => accountId as string),
+    ),
+  );
+  const knownMemberReaders = rotatedCommenterReaders.filter(
+    ({ accountId }) => knownMemberIds.has(accountId),
+  );
+  const unverifiedCommenterReaders = rotatedCommenterReaders.filter(
+    ({ accountId }) => !knownMemberIds.has(accountId),
+  );
+
+  // 댓글 계정은 아직 대상 카페에 가입하지 않았을 수 있다. 카페 소유 계정은 글을
+  // 작성한 회원이므로 본문을 가장 안정적으로 읽을 수 있어 첫 후보로 둔다.
+  const cafe = await Cafe.findOne({
+    userId: job.userId,
+    cafeId: job.cafeId,
+    isActive: true,
+  })
+    .select('ownerAccountId')
+    .lean<{ ownerAccountId?: string } | null>();
+  const ownerReader = cafe?.ownerAccountId
+    ? await Account.findOne({
+      userId: job.userId,
+      accountId: cafe.ownerAccountId,
+      isActive: true,
+    })
+      .select('accountId password nickname')
+      .lean<{ accountId: string; password: string; nickname?: string } | null>()
+    : null;
   const accountsForRead = [
-    ...readerCandidates.slice(readOffset),
-    ...readerCandidates.slice(0, readOffset),
-  ].slice(0, 3);
+    ...knownMemberReaders,
+    ...(ownerReader ? [ownerReader] : []),
+    ...unverifiedCommenterReaders.filter(
+      ({ accountId }) => accountId !== ownerReader?.accountId,
+    ),
+  ];
 
   let articleTitle = '';
   let articleBody = '';
   let ownerNickname = '';
   let readError = '';
 
-  for (const reader of accountsForRead) {
-    const result = await readCafeArticleContent(
-      { id: reader.accountId, password: reader.password, nickname: reader.nickname || reader.accountId },
-      job.cafeId,
-      job.articleId,
-      { reason: `manual_comment_job_read:${reader.accountId}` },
-    );
-    if (result.success && result.content) {
-      articleTitle = result.title || '';
-      articleBody = result.content;
-      ownerNickname = result.authorNickname || '';
+  readLoop: for (const reader of accountsForRead) {
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      const result = await readCafeArticleContent(
+        { id: reader.accountId, password: reader.password, nickname: reader.nickname || reader.accountId },
+        job.cafeId,
+        job.articleId,
+        { reason: `manual_comment_job_read:${reader.accountId}` },
+      );
+      if (result.success && result.content) {
+        articleTitle = result.title || '';
+        articleBody = result.content;
+        ownerNickname = result.authorNickname || '';
+        break readLoop;
+      }
+      readError = result.error || '본문 읽기 실패';
+      const shouldRetrySameReader = /ARTICLE_NOT_READY|Execution context|navigation|Target page|net::ERR/i.test(readError);
+      if (attempt < 2 && shouldRetrySameReader) {
+        await sleep(2_000);
+        continue;
+      }
       break;
     }
-    readError = result.error || '본문 읽기 실패';
   }
 
   if (!articleBody) {
@@ -522,7 +584,10 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
 // idle cleanup이 작업 도중 세션 수를 줄이지 않도록 유지한다.
 const DEFAULT_MONGODB_DNS_SERVERS = ['8.8.8.8', '1.1.1.1'];
 
-type CommenterSessionAccount = { accountId: string };
+type CommenterSessionAccount = {
+  accountId: string;
+};
+const DEFAULT_WORKER_CONCURRENCY = 6;
 
 const configureMongoDbDns = (uri: string): void => {
   if (!uri.startsWith('mongodb+srv://')) return;
@@ -553,21 +618,24 @@ const warmCommenterSessions = async (
   const results = await Promise.allSettled(
     accounts.map(async ({ accountId }) => {
       reserveAccountSession(accountId, WORKER_ID);
-      try {
-        await getPageForAccount(accountId);
-      } catch (error) {
-        releaseAccountSession(accountId, WORKER_ID);
-        throw error;
-      }
+      await getPageForAccount(accountId);
     }),
   );
 
-  const failures = results.filter((result) => result.status === 'rejected');
-  if (failures.length > 0) {
-    throw new Error(`댓글 계정 브라우저 세션 생성 실패: ${failures.length}/${accounts.length}`);
+  const failedCount = results.filter((result) => result.status === 'rejected').length;
+  if (failedCount > 0) {
+    throw new Error(`댓글 계정 브라우저 세션 생성 실패: ${failedCount}/${accounts.length}`);
   }
 
   console.log(`[WORKER] 댓글 계정 브라우저 세션 ${accounts.length}/${accounts.length}개 준비 완료`);
+};
+
+const resolveWorkerConcurrency = (sessionCount: number): number => {
+  const requested = Number(process.env.WORKER_CONCURRENCY || DEFAULT_WORKER_CONCURRENCY);
+  const safeRequested = Number.isFinite(requested) && requested > 0
+    ? Math.floor(requested)
+    : DEFAULT_WORKER_CONCURRENCY;
+  return Math.min(safeRequested, sessionCount);
 };
 
 const runWorkerSlot = async (slotId: number): Promise<void> => {
@@ -624,7 +692,7 @@ const main = async (): Promise<void> => {
   if (commenterAccounts.length === 0) throw new Error('활성 commenter 계정 없음');
 
   await warmCommenterSessions(commenterAccounts);
-  await runLoop(commenterAccounts.length);
+  await runLoop(resolveWorkerConcurrency(commenterAccounts.length));
 };
 
 main().catch((error) => {
