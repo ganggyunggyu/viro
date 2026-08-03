@@ -80,7 +80,7 @@ export default function PublishPage() {
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
                 <li>• 키워드 입력 후 발행 버튼 클릭</li>
                 <li>• 댓글 없이 글만 발행됨</li>
-                <li>• 원고 데이터 축적 용도</li>
+                <li>• 발행 후 댓글 자동 예약 옵션 제공</li>
               </ul>
             </div>
 

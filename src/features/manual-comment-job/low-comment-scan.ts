@@ -15,6 +15,8 @@ export interface LowCommentArticle {
 }
 
 export interface ScanLowCommentArticlesOptions {
+  /** 지정하면 이 cafeId들만 스캔한다 (미지정 시 등록된 카페 전체) */
+  cafeIds?: string[];
   /** 이 값 이하 댓글수인 글을 대상으로 함 (기본 3) */
   maxCommentCount?: number;
   /** 카페당 조회할 페이지 수 (기본 2) */
@@ -66,7 +68,10 @@ export const scanLowCommentArticles = async (
     errors: [],
   };
 
-  const cafes = await getAllCafes(userId);
+  const allCafes = await getAllCafes(userId);
+  const cafes = options?.cafeIds
+    ? allCafes.filter((c) => options.cafeIds!.includes(c.cafeId))
+    : allCafes;
   if (cafes.length === 0) {
     result.errors.push({ cafeSlug: '-', error: '등록된 카페가 없습니다' });
     return result;

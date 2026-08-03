@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { cn } from '@/shared';
 import { Select, Button } from '@/shared';
-import { ChevronDown, ImageIcon, CalendarClock } from 'lucide-react';
+import { ChevronDown, ImageIcon, CalendarClock, MessageSquarePlus } from 'lucide-react';
 import { getCafesAction } from '@/features/accounts/actions';
 import { PostOptionsUI } from '@/entities/post-options';
 import {
@@ -18,7 +18,11 @@ import {
   postAttachImagesAtom,
   postsPerDayAtom,
 } from '@/entities';
-import { preparePostOnlyAction, type QueueBatchResult } from './queue-actions';
+import {
+  preparePostOnlyAction,
+  scheduleCommentsForPublishedAction,
+  type QueueBatchResult,
+} from './queue-actions';
 import { runDesktopAction } from '@/shared/lib/desktop-action-client';
 import type { ManualPublishResult } from '@/features/manual-post/types';
 
@@ -35,6 +39,10 @@ export const PostOnlyUI = () => {
   const [postsPerDay, setPostsPerDay] = useAtom(postsPerDayAtom);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [result, setResult] = useState<QueueBatchResult | null>(null);
+  const [scheduleComments, setScheduleComments] = useState(false);
+  const [commentDelayMin, setCommentDelayMin] = useState('4');
+  const [commentDelayMax, setCommentDelayMax] = useState('9');
+  const [commentResult, setCommentResult] = useState<string | null>(null);
 
   const keywordCount = keywordsText
     .split('\n')
@@ -72,6 +80,7 @@ export const PostOnlyUI = () => {
 
     startTransition(async () => {
       setResult(null);
+      setCommentResult(null);
       const parsedPostsPerDay = Number(postsPerDay);
       const prepared = await preparePostOnlyAction({
         keywords,
@@ -95,6 +104,27 @@ export const PostOnlyUI = () => {
           jobsAdded: published.completed,
           message: `${published.completed}/${published.totalManuscripts}개 로컬 발행 완료`,
         });
+
+        if (scheduleComments && selectedCafeId) {
+          const articles = published.results
+            .filter((item) => item.success && item.articleId)
+            .map((item) => ({
+              articleId: item.articleId as number,
+              articleUrl: item.articleUrl,
+              title: item.title,
+            }));
+          if (articles.length === 0) {
+            setCommentResult('발행에 성공한 글이 없어 댓글 예약을 건너뛰었습니다');
+          } else {
+            const scheduledResult = await scheduleCommentsForPublishedAction({
+              cafeId: selectedCafeId,
+              articles,
+              delayMinMinutes: Number(commentDelayMin) || 0,
+              delayMaxMinutes: Number(commentDelayMax) || 0,
+            });
+            setCommentResult(scheduledResult.message);
+          }
+        }
       } catch (error) {
         setResult({
           success: false,
@@ -202,6 +232,67 @@ export const PostOnlyUI = () => {
           </div>
         </div>
 
+        <div
+          className={cn(
+            'rounded-xl border p-3 transition-all',
+            scheduleComments
+              ? 'border-(--accent) bg-(--accent)/5'
+              : 'border-(--border-light) bg-(--surface-muted)'
+          )}
+        >
+          <button
+            type="button"
+            onClick={() => setScheduleComments((prev) => !prev)}
+            className={cn('flex w-full items-center gap-3 text-left')}
+          >
+            <div
+              className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                scheduleComments ? 'bg-(--accent) text-white' : 'bg-(--surface) text-(--ink-muted)'
+              )}
+            >
+              <MessageSquarePlus className={cn('w-4 h-4')} />
+            </div>
+            <div>
+              <p className={cn('text-sm font-medium text-(--ink)')}>발행 후 댓글 자동 예약</p>
+              <p className={cn('text-xs text-(--ink-muted)')}>
+                발행에 성공한 글에 본문 분석 AI 댓글 작업을 바로 등록
+              </p>
+            </div>
+          </button>
+
+          {scheduleComments && (
+            <div className={cn('mt-3 grid grid-cols-2 gap-3')}>
+              <div className={cn('space-y-1')}>
+                <label className={cn('text-xs text-(--ink-muted)')}>최소 간격(분)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={commentDelayMin}
+                  onChange={(e) => setCommentDelayMin(e.target.value)}
+                  className={cn(
+                    'w-full rounded-lg border border-(--border) bg-(--surface) px-2 py-1 text-sm text-(--ink)',
+                    'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
+                  )}
+                />
+              </div>
+              <div className={cn('space-y-1')}>
+                <label className={cn('text-xs text-(--ink-muted)')}>최대 간격(분)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={commentDelayMax}
+                  onChange={(e) => setCommentDelayMax(e.target.value)}
+                  className={cn(
+                    'w-full rounded-lg border border-(--border) bg-(--surface) px-2 py-1 text-sm text-(--ink)',
+                    'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
+                  )}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) overflow-hidden')}>
           <button
             type="button"
@@ -231,7 +322,7 @@ export const PostOnlyUI = () => {
         size="lg"
         fullWidth
       >
-        글만 발행
+        {scheduleComments ? '발행 후 댓글 예약' : '글만 발행'}
       </Button>
 
       {result && (
@@ -257,6 +348,11 @@ export const PostOnlyUI = () => {
             </span>
           </div>
           <p className={cn('text-sm text-(--ink-muted)')}>{result.message}</p>
+          {commentResult && (
+            <p className={cn('mt-2 border-t border-(--border-light) pt-2 text-sm text-(--ink-muted)')}>
+              댓글 예약: {commentResult}
+            </p>
+          )}
         </div>
       )}
     </div>
