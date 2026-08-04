@@ -14,6 +14,8 @@
  * 사용법:
  *   npx tsx --env-file=.env.local scripts/publish-3-matjip-cafes-daily.ts
  */
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { connectDB } from '../src/shared/lib/mongodb';
 import { Account } from '../src/shared/models/account';
 import { Cafe } from '../src/shared/models/cafe';
@@ -89,7 +91,7 @@ const generateMatjipManuscript = async (keyword: string): Promise<{ subject: str
   return { subject, content, engine: '맛집1' };
 };
 
-const publishOneCafe = async (
+export const publishOneCafe = async (
   cafeId: string,
   keywords: string[],
   userId: string,
@@ -195,7 +197,12 @@ const main = async () => {
   process.exit(0);
 };
 
-main().catch((e) => {
-  console.error('FATAL:', e instanceof Error ? e.message : e);
-  process.exit(1);
-});
+// publishOneCafe를 다른 스크립트에서 재사용하려고 import만 해도, 아래를 무조건
+// 실행하면 원본 배치 전체(3카페 x 3편)가 같이 돌아버린다 — 직접 실행됐을 때만 돈다.
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
+  main().catch((e) => {
+    console.error('FATAL:', e instanceof Error ? e.message : e);
+    process.exit(1);
+  });
+}
