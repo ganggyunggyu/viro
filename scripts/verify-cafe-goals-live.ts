@@ -395,7 +395,7 @@ const renderReport = (report: LiveVerificationReport, showPosts: boolean): strin
   for (const cafe of report.cafes) {
     lines.push(
       `## ${cafe.cafeName} (${cafe.cafeId})`,
-      `조회 카페 URL: https://cafe.naver.com/${cafe.cafeUrl}`,
+      `조회 카페 URL: https://cafe.naver.com/${toCafeSlug(cafe.cafeUrl) ?? cafe.cafeUrl}`,
       `글쓰기 닉네임: ${cafe.eligibleNicknames.join(', ') || '(없음)'}`,
       `수집 메타: ${formatCollectionSummary(cafe.collection)}`,
       `  ${formatTargetLine('전일', cafe.yesterday)}`,
@@ -459,7 +459,7 @@ const getCafeViewerIdentity = async (
     }
 
     const page = await getPageForAccount(account.id);
-    await page.goto(`https://cafe.naver.com/${cafe.cafeUrl}`, {
+    await page.goto(`https://cafe.naver.com/${toCafeSlug(cafe.cafeUrl) ?? cafe.cafeUrl}`, {
       waitUntil: 'domcontentloaded',
       timeout: 15000,
     });
