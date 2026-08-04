@@ -108,6 +108,20 @@ export interface BrokerClient {
   prepare: (operation: string, payload: Record<string, unknown>) => Promise<Record<string, unknown>>;
 }
 
+/**
+ * 토큰이 폐기됐거나 잘못된 경우. 재시도로는 절대 풀리지 않으므로 루프를 계속 돌리지 않고
+ * 즉시 사용자에게 보여줘야 한다. (토큰이 전부 revoked인 채로 앱이 며칠간 조용히 헛돈 적이 있음)
+ */
+export class BrokerAuthError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BrokerAuthError';
+  }
+}
+
+export const isBrokerAuthError = (error: unknown): boolean =>
+  error instanceof BrokerAuthError || (error instanceof Error && error.name === 'BrokerAuthError');
+
 export const createBrokerClient = (config: AgentConfig): BrokerClient => {
   const post = async (path: string, body: Record<string, unknown>): Promise<Record<string, unknown>> => {
     const response = await fetch(`${config.brokerUrl}${path}`, {
@@ -120,7 +134,9 @@ export const createBrokerClient = (config: AgentConfig): BrokerClient => {
     });
 
     if (response.status === 401) {
-      throw new Error('에이전트 토큰 인증 실패(401). 토큰을 다시 확인하세요.');
+      throw new BrokerAuthError(
+        '연결 토큰이 만료·폐기되었습니다(401). 웹에서 토큰을 다시 발급받아 앱에 저장하세요.',
+      );
     }
 
     if (!response.ok) {

@@ -1,5 +1,6 @@
 import { normalizeText } from '@ganggyunggyu/shared';
 import { generateContentWithPrompt } from './content-api';
+import { CAFE_COMMENT_COUNT } from './cafe-comment-count';
 
 export interface CafeCommentBatchInput {
   keyword: string;
@@ -33,8 +34,7 @@ const MIN_COMMENT_LENGTH = 15;
 const MAX_COMMENT_LENGTH = 140;
 const MAX_BODY_LENGTH = 2500;
 
-/** 댓글 개수는 전 경로에서 8개로 고정한다. 랜덤 개수/범위 옵션은 두지 않는다. */
-export const CAFE_COMMENT_COUNT = 8;
+export { CAFE_COMMENT_COUNT } from './cafe-comment-count';
 
 const TWO_WORD_KEYWORD_SUFFIXES = new Set([
   '가격', '비용', '부작용', '복용법', '섭취법', '원인', '증상', '처방', '추천', '후기', '효능',

@@ -11,6 +11,7 @@ import type { AgentConfig } from './lib/config';
 import { resolveCommentPlan } from './lib/comment-plan';
 import {
   createBrokerClient,
+  isBrokerAuthError,
   type BrokerClient,
   type BrokerJob,
   type AgentArticleSnapshot,
@@ -301,6 +302,12 @@ export const runAgentLoop = async (
     try {
       job = await broker.claim();
     } catch (error) {
+      // 토큰 인증 실패는 재시도해도 절대 통과하지 못한다. 조용히 계속 폴링하면 앱은 "실행 중"으로
+      // 보이는데 잡은 하나도 안 가져와서, 웹에서는 등록한 작업이 영원히 "대기"로만 남는다.
+      if (isBrokerAuthError(error)) {
+        await closeAllContexts();
+        throw error;
+      }
       console.error('[AGENT] claim 오류:', error instanceof Error ? error.message : error);
       await sleep(config.pollIntervalMs);
       continue;

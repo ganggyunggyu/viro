@@ -2,6 +2,7 @@
 
 import { connectDB } from '@/shared/lib/mongodb';
 import { ManualCommentJob, type IManualCommentJob } from '@/shared/models';
+import { CAFE_COMMENT_COUNT } from '@/shared/api/cafe-comment-batch-api';
 import { getCurrentUserId } from '@/shared/config/user';
 import { parseCafeArticleUrl } from '@/shared/lib/parse-cafe-article-url';
 import { revalidatePath } from 'next/cache';
@@ -16,6 +17,8 @@ import {
   type CommentReplacementCandidate,
   type ScanCommentReplacementOptions,
 } from './comment-replacement-scan';
+import { extractCafeLinks } from './extract-cafe-links';
+import { getCommentWorkerStatus, type CommentWorkerStatus } from './worker-status';
 
 export interface CreateManualCommentJobInput {
   articleUrl: string;
@@ -202,6 +205,121 @@ export const createManualCommentJobAction = async (
     revalidatePath('/comment-jobs');
   }
   return result;
+};
+
+export type BulkLinkOutcomeStatus = 'queued' | 'skipped' | 'failed';
+
+export interface BulkLinkOutcome {
+  link: string;
+  status: BulkLinkOutcomeStatus;
+  label: string;
+  reason?: string;
+}
+
+export interface CreateCommentJobsFromLinksInput {
+  rawText: string;
+  mode: 'fixed' | 'generate' | 'agent';
+  fixedComments?: string[];
+  delayMinMinutes: number;
+  delayMaxMinutes: number;
+  deleteExisting?: boolean;
+}
+
+export interface CreateCommentJobsFromLinksResult {
+  outcomes: BulkLinkOutcome[];
+  queuedCount: number;
+  skippedCount: number;
+  failedCount: number;
+}
+
+/** 링크 하나를 잘못 붙여넣어 수백 건이 한 번에 등록되는 사고를 막는 상한. */
+const MAX_LINKS_PER_SUBMIT = 50;
+
+/**
+ * 붙여넣은 텍스트에서 카페 링크를 전부 뽑아 작업을 한 번에 등록한다.
+ * 링크 하나가 실패해도 나머지는 그대로 등록하고, 링크별 결과를 돌려줘서
+ * 무엇이 걸렸고 무엇이 빠졌는지 화면에서 바로 보이게 한다.
+ */
+export const createCommentJobsFromLinksAction = async (
+  input: CreateCommentJobsFromLinksInput,
+): Promise<CreateCommentJobsFromLinksResult> => {
+  await connectDB();
+  const userId = await getCurrentUserId();
+
+  const links = extractCafeLinks(input.rawText).slice(0, MAX_LINKS_PER_SUBMIT);
+  const outcomes: BulkLinkOutcome[] = [];
+
+  // naver.me 단축링크 해석은 링크마다 네트워크 왕복이 필요해서 순차로 돌리면 체감이 크게 느려진다.
+  const parsedLinks = await Promise.all(
+    links.map(async (link) => ({ link, parsed: await parseCafeArticleUrl(userId, link) })),
+  );
+
+  for (const { link, parsed } of parsedLinks) {
+    if (!parsed.success) {
+      outcomes.push({ link, status: 'failed', label: link, reason: parsed.error });
+      continue;
+    }
+
+    const { cafeSlug, cafeId, articleId } = parsed.result;
+    const label = `${cafeSlug}/${articleId}`;
+
+    if (!cafeId) {
+      outcomes.push({ link, status: 'failed', label, reason: '카페 ID를 확인하지 못했습니다' });
+      continue;
+    }
+
+    const duplicate = await ManualCommentJob.findOne({
+      userId,
+      cafeId,
+      articleId,
+      status: { $in: ['pending', 'running'] },
+    })
+      .select('_id')
+      .lean<{ _id: unknown } | null>();
+    if (duplicate) {
+      outcomes.push({ link, status: 'skipped', label, reason: '이미 대기·진행 중인 작업이 있습니다' });
+      continue;
+    }
+
+    const created = await createManualCommentJobRecord(
+      userId,
+      { articleUrl: link, cafeSlug, cafeId, articleId },
+      {
+        articleUrl: link,
+        mode: input.mode,
+        fixedComments: input.mode === 'fixed' ? input.fixedComments : undefined,
+        // 생성 개수는 전 경로에서 CAFE_COMMENT_COUNT로 고정이다. 진행률 분모가 실제 게시 개수와
+        // 어긋나지 않도록 min/max를 같은 값으로 채운다.
+        generateMinCount: input.mode === 'generate' ? CAFE_COMMENT_COUNT : undefined,
+        generateMaxCount: input.mode === 'generate' ? CAFE_COMMENT_COUNT : undefined,
+        delayMinMinutes: input.delayMinMinutes,
+        delayMaxMinutes: input.delayMaxMinutes,
+        deleteExisting: input.deleteExisting,
+      },
+    );
+
+    outcomes.push(
+      created.success
+        ? { link, status: 'queued', label }
+        : { link, status: 'failed', label, reason: created.error },
+    );
+  }
+
+  if (outcomes.some(({ status }) => status === 'queued')) {
+    revalidatePath('/comment-jobs');
+  }
+
+  return {
+    outcomes,
+    queuedCount: outcomes.filter(({ status }) => status === 'queued').length,
+    skippedCount: outcomes.filter(({ status }) => status === 'skipped').length,
+    failedCount: outcomes.filter(({ status }) => status === 'failed').length,
+  };
+};
+
+export const getCommentWorkerStatusAction = async (): Promise<CommentWorkerStatus> => {
+  const userId = await getCurrentUserId();
+  return getCommentWorkerStatus(userId);
 };
 
 export const getManualCommentJobsAction = async (): Promise<ManualCommentJobView[]> => {

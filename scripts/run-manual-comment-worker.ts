@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 import { setServers } from 'node:dns';
-import { Account, Cafe, ManualCommentJob, PublishedArticle, type IManualCommentJob } from '../src/shared/models';
+import {
+  Account,
+  Cafe,
+  ManualCommentJob,
+  PublishedArticle,
+  touchWorkerHeartbeat,
+  type IManualCommentJob,
+} from '../src/shared/models';
 import { hasCommented, removeCommentFromArticle } from '../src/shared/models/published-article';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import { listLiveComments, deleteCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-deleter';
@@ -666,10 +673,36 @@ const runWorkerSlot = async (slotId: number): Promise<void> => {
   }
 };
 
+/**
+ * 웹 UI(/comment-jobs)는 이 신호를 보고 "워커 연결됨"을 표시한다. 신호가 없으면 워커가 돌고 있어도
+ * 화면에는 꺼진 것으로 보여서, 등록한 작업이 왜 대기인지 판단할 수 없다.
+ */
+const HEARTBEAT_INTERVAL_MS = 20_000;
+
+const startHeartbeat = (concurrency: number): NodeJS.Timeout => {
+  const ping = async (): Promise<void> => {
+    try {
+      await touchWorkerHeartbeat({
+        workerId: WORKER_ID,
+        label: `CLI 워커 (슬롯 ${concurrency}개)`,
+      });
+    } catch (error) {
+      console.error('[WORKER] 하트비트 실패:', error instanceof Error ? error.message : error);
+    }
+  };
+
+  void ping();
+  const timer = setInterval(ping, HEARTBEAT_INTERVAL_MS);
+  timer.unref();
+  return timer;
+};
+
 const runLoop = async (concurrency: number): Promise<void> => {
   console.log(
     `[WORKER] 시작 (${WORKER_ID}), 동시 슬롯 ${concurrency}개(활성 commenter 계정 수 기준), ${POLL_INTERVAL_MS / 1000}초마다 폴링`,
   );
+
+  startHeartbeat(concurrency);
 
   await Promise.all(
     Array.from({ length: concurrency }, (_, i) => runWorkerSlot(i + 1)),

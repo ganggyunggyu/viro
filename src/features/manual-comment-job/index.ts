@@ -1,6 +1,8 @@
 export { ManualCommentJobUI } from './manual-comment-job-ui';
 export {
   createManualCommentJobAction,
+  createCommentJobsFromLinksAction,
+  getCommentWorkerStatusAction,
   getManualCommentJobsAction,
   createManualCommentJobForUser,
   createManualCommentJobRecord,
@@ -8,7 +10,18 @@ export {
   scanCommentReplacementCandidatesAction,
   queueCommentReplacementJobsAction,
 } from './actions';
-export type { CreateManualCommentJobInput, ManualCommentJobView, ResolvedArticleRef } from './actions';
+export type {
+  BulkLinkOutcome,
+  BulkLinkOutcomeStatus,
+  CreateCommentJobsFromLinksInput,
+  CreateCommentJobsFromLinksResult,
+  CreateManualCommentJobInput,
+  ManualCommentJobView,
+  ResolvedArticleRef,
+} from './actions';
+export { extractCafeLinks } from './extract-cafe-links';
+export { getCommentWorkerStatus } from './worker-status';
+export type { CommentWorkerStatus, CommentWorkerView } from './worker-status';
 export { scanLowCommentArticles } from './low-comment-scan';
 export type {
   LowCommentArticle,
