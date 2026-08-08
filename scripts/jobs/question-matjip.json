@@ -1,0 +1,13 @@
+{
+  "note": "맛집 카페 7곳 질문형 글. prompts/question-cafe-prompt.md 규칙.",
+  "date": "2026-08-08",
+  "jobs": [
+    { "cafeId": "31750114", "cafeName": "맛집 밥상노트", "keyword": "단양 맛집" },
+    { "cafeId": "31750113", "cafeName": "맛집 동네밥상", "keyword": "안산맛집" },
+    { "cafeId": "31750111", "cafeName": "맛집 메뉴수첩", "keyword": "해운대맛집" },
+    { "cafeId": "31750110", "cafeName": "맛집 식탁모임", "keyword": "상암맛집" },
+    { "cafeId": "31766236", "cafeName": "맛집 미식노트", "keyword": "홍대 혼술바" },
+    { "cafeId": "31766237", "cafeName": "맛집 한끼일기", "keyword": "광안리 이자카야" },
+    { "cafeId": "31766238", "cafeName": "맛집 맛기행", "keyword": "광안리 술집" }
+  ]
+}
