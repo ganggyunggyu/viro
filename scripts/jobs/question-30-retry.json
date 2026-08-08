@@ -1,0 +1,56 @@
+{
+  "note": "1차 실패 10건 재시도",
+  "date": "2026-08-08",
+  "jobs": [
+    {
+      "cafeId": "31756616",
+      "cafeName": "웰빙건강하루",
+      "keyword": "평발깔창"
+    },
+    {
+      "cafeId": "31746910",
+      "cafeName": "가중건다",
+      "keyword": "거북목교정기"
+    },
+    {
+      "cafeId": "31755069",
+      "cafeName": "일상 소소담",
+      "keyword": "변비직빵"
+    },
+    {
+      "cafeId": "31751094",
+      "cafeName": "이모저모모여라",
+      "keyword": "플라즈마 드라이기"
+    },
+    {
+      "cafeId": "31756592",
+      "cafeName": "사과나무21",
+      "keyword": "밀크씨슬"
+    },
+    {
+      "cafeId": "31746635",
+      "cafeName": "운연정",
+      "keyword": "브로멜라인"
+    },
+    {
+      "cafeId": "31750246",
+      "cafeName": "주차파크시티",
+      "keyword": "결혼정보회사"
+    },
+    {
+      "cafeId": "31750099",
+      "cafeName": "mealtalkdht",
+      "keyword": "위고비 부작용"
+    },
+    {
+      "cafeId": "31750109",
+      "cafeName": "애견 반려수첩",
+      "keyword": "강아지 눈물자국"
+    },
+    {
+      "cafeId": "31750107",
+      "cafeName": "애견 산책노트",
+      "keyword": "강아지 관절 영양제"
+    }
+  ]
+}

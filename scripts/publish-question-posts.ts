@@ -14,6 +14,8 @@ import { Account } from '../src/shared/models/account';
 import { Cafe } from '../src/shared/models/cafe';
 import { User } from '../src/shared/models/user';
 import { writePostWithAccount } from '../src/shared/lib/naver-cafe-writing';
+import { getCafeWriterAccounts } from '../src/shared/config/cafe-account-policy';
+import { toCafeSlug } from '../src/shared/lib/naver-cafe-membership';
 import type { NaverAccount } from '../src/shared/lib/account-manager';
 
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';
@@ -117,9 +119,18 @@ const main = async (): Promise<void> => {
   }).lean();
   const cafeById = new Map(cafeDocs.map((cafe) => [cafe.cafeId, cafe]));
 
-  const ownerIds = [...new Set(cafeDocs.map((cafe) => cafe.ownerAccountId).filter(Boolean))] as string[];
-  const accountDocs = await Account.find({ accountId: { $in: ownerIds } }).lean();
+  // 소유계정이 비어 있는 카페가 있어서(운영 데이터 누락) 그 경우엔 해당 카페에 글쓰기
+  // 가능한 writer 계정으로 대체한다.
+  const accountDocs = await Account.find({ userId: user.userId, isActive: true }).lean();
   const accountById = new Map(accountDocs.map((account) => [account.accountId, account]));
+  const allAccounts: NaverAccount[] = accountDocs.map((account) => ({
+    id: account.accountId,
+    password: account.password,
+    nickname: account.nickname,
+    isMain: account.isMain,
+    role: account.role,
+    excludeFromAutoComment: account.excludeFromAutoComment,
+  }));
 
   const results: Array<{ keyword: string; cafeName: string; success: boolean; articleId?: number; error?: string }> = [];
 
@@ -127,22 +138,28 @@ const main = async (): Promise<void> => {
     const tag = `[${job.cafeName}/${job.keyword}]`;
     const manuscript = manuscriptByKeyword.get(job.keyword) as Manuscript;
     const cafe = cafeById.get(job.cafeId);
-    if (!cafe || !cafe.ownerAccountId) {
-      console.error(`${tag} 카페/주인계정 없음`);
-      results.push({ keyword: job.keyword, cafeName: job.cafeName, success: false, error: '카페/주인계정 없음' });
-      return;
-    }
-    const account = accountById.get(cafe.ownerAccountId);
-    if (!account) {
-      console.error(`${tag} 계정 정보 없음: ${cafe.ownerAccountId}`);
-      results.push({ keyword: job.keyword, cafeName: job.cafeName, success: false, error: '계정 정보 없음' });
+    if (!cafe) {
+      console.error(`${tag} 카페 없음`);
+      results.push({ keyword: job.keyword, cafeName: job.cafeName, success: false, error: '카페 없음' });
       return;
     }
 
+    const owner = cafe.ownerAccountId ? accountById.get(cafe.ownerAccountId) : undefined;
+    const writer = owner
+      ? { id: owner.accountId, password: owner.password, nickname: owner.nickname }
+      : getCafeWriterAccounts(allAccounts, cafe.cafeId, toCafeSlug(cafe.cafeUrl))[0];
+
+    if (!writer) {
+      console.error(`${tag} 글쓰기 가능 계정 없음`);
+      results.push({ keyword: job.keyword, cafeName: job.cafeName, success: false, error: '글쓰기 가능 계정 없음' });
+      return;
+    }
+    if (!owner) console.log(`${tag} 소유계정 미설정 — writer 대체: ${writer.id}`);
+
     const naverAccount: NaverAccount = {
-      id: account.accountId,
-      password: account.password,
-      nickname: account.nickname,
+      id: writer.id,
+      password: writer.password,
+      nickname: writer.nickname,
     };
 
     try {
