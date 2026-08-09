@@ -19,6 +19,7 @@ export interface AccountSheetMeta {
 
 export interface AccountApiKeys {
   gemini?: string; // 이 계정으로 로그인할 때 캡차 풀이에 쓸 키
+  openai?: string; // CAPTCHA_PROVIDER=openai 일 때 캡차 풀이에 쓸 키
   deepseek?: string; // 이 계정으로 에이전트 댓글 작성 시 쓸 키
 }
 
@@ -69,6 +70,7 @@ const AccountSheetMetaSchema = new Schema<AccountSheetMeta>(
 const AccountApiKeysSchema = new Schema<AccountApiKeys>(
   {
     gemini: { type: String },
+    openai: { type: String },
     deepseek: { type: String },
   },
   { _id: false },
@@ -112,6 +114,11 @@ export const Account: Model<IAccount> =
 export const resolveGeminiApiKeyForAccount = async (accountId: string): Promise<string | null> => {
   const account = await Account.findOne({ accountId }).select('apiKeys').lean();
   return account?.apiKeys?.gemini || null;
+};
+
+export const resolveOpenaiApiKeyForAccount = async (accountId: string): Promise<string | null> => {
+  const account = await Account.findOne({ accountId }).select('apiKeys').lean();
+  return account?.apiKeys?.openai || null;
 };
 
 export const resolveDeepseekApiKeyForAccount = async (accountId: string): Promise<string | null> => {
