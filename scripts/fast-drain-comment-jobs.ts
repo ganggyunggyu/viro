@@ -85,8 +85,11 @@ const processJob = async (
         title,
         body,
         model: 'deepseek-v4-flash',
+        style: job.commentStyle,
       });
-      texts = (batch.comments || []).map((c) => c.content).filter(Boolean);
+      const candidate = (batch.comments || []).map((c) => c.content).filter(Boolean);
+      // 재시도가 앞 회차보다 적게 건졌으면 앞 결과를 유지한다.
+      if (candidate.length > texts.length) texts = candidate;
     } catch (e) {
       console.log(`[GEN-ERR] ${tag}: ${e instanceof Error ? e.message : e}`);
     }

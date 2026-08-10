@@ -5,6 +5,10 @@ import { browseCafePosts } from '@/shared/lib/cafe-browser';
 import { listLiveComments } from '@/shared/lib/naver-cafe-writing';
 import type { NaverAccount } from '@/shared/lib/account-manager';
 import { ManualCommentJob } from '@/shared/models';
+import {
+  DEFAULT_CAFE_COMMENT_STYLE,
+  type CafeCommentStyle,
+} from '@/shared/api/cafe-comment-style';
 import { createManualCommentJobRecord } from './actions';
 
 export interface CommentReplacementCandidate {
@@ -144,6 +148,7 @@ export const scanCommentReplacementCandidates = async (
 export const queueCommentReplacementJobs = async (
   userId: string,
   candidates: CommentReplacementCandidate[],
+  commentStyle: CafeCommentStyle = DEFAULT_CAFE_COMMENT_STYLE,
 ): Promise<QueueCommentReplacementResult> => {
   const result: QueueCommentReplacementResult = { queuedJobs: [], skipped: [] };
 
@@ -167,6 +172,7 @@ export const queueCommentReplacementJobs = async (
         mode: 'generate',
         generateMinCount: 5,
         generateMaxCount: 13,
+        commentStyle,
         delayMinMinutes: 0.5,
         delayMaxMinutes: 1.5,
         deleteExisting: true,

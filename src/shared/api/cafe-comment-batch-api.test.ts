@@ -151,3 +151,60 @@ test('저장 키워드가 없으면 제목에서 짧은 댓글 키워드를 고�
     '마운자로 처방',
   );
 });
+
+const EIGHT_QUESTIONS = [
+  '글루코사민이랑 MSM을 같이 보라고 하셨는데 둘 중 뭘 우선해야 할까요?',
+  '체중 기준 급여량은 하루 한 번에 다 주는 건가요?',
+  '무릎이 시큰거리기 시작하면 바로 챙기는 게 나을까요?',
+  '성분 두 가지가 다 들어간 제품은 가격대가 어느 정도인가요?',
+  '급여량을 나눠 줄 때 사료에 섞어도 괜찮을까요?',
+  '관절 쪽은 몇 살부터 미리 챙기는 게 좋은가요?',
+  '성분표에서 함량은 어느 정도를 기준으로 보시나요?',
+  '처음 먹일 때 적응 기간을 따로 두셨는지 궁금해요?',
+];
+
+test('질문형 프롬프트는 explain 전용 지시를 싣지 않는다', () => {
+  const prompt = buildCafeCommentBatchPrompt({
+    keyword: '강아지 관절 영양제',
+    title: '강아지 관절 영양제 알아본 후기',
+    body: BODY,
+    style: 'question',
+  });
+
+  assert.match(prompt, /질문/);
+  assert.match(prompt, /물음표로 끝나는 질문을 정확히 1개/);
+  assert.doesNotMatch(prompt, /풀어서 설명한다/);
+  assert.doesNotMatch(prompt, /소감이나 인사를 한 마디만/);
+  assert.match(prompt, /정확히 8개/);
+});
+
+test('style을 지정하지 않으면 explain 프롬프트가 그대로 나온다', () => {
+  const withoutStyle = buildCafeCommentBatchPrompt({ keyword: '강아지 관절 영양제', body: BODY });
+  const explicitExplain = buildCafeCommentBatchPrompt({
+    keyword: '강아지 관절 영양제',
+    body: BODY,
+    style: 'explain',
+  });
+
+  assert.equal(withoutStyle, explicitExplain);
+});
+
+test('질문형 검증은 물음표 없는 댓글을 잡아낸다', () => {
+  const noQuestionMark = [...EIGHT_QUESTIONS.slice(0, 7), '성분표부터 본다는 얘기로 이해했습니다'];
+  const warnings = validateCafeComments(buildComments(noQuestionMark), undefined, 'question');
+
+  assert.ok(warnings.includes('missing-question:8'));
+  assert.ok(!warnings.includes('missing-question:1'));
+});
+
+test('질문형 검증은 물음표가 다 있으면 통과한다', () => {
+  const warnings = validateCafeComments(buildComments(EIGHT_QUESTIONS), undefined, 'question');
+
+  assert.ok(!warnings.some((w) => w.startsWith('missing-question')));
+});
+
+test('explain 검증은 물음표 유무를 따지지 않는다', () => {
+  const warnings = validateCafeComments(buildComments(EIGHT_OK), undefined, 'explain');
+
+  assert.ok(!warnings.some((w) => w.startsWith('missing-question')));
+});

@@ -455,8 +455,12 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
         model: commentModel,
         style: job.commentStyle,
       });
-      batch = candidate;
-      if (candidate.comments.length >= CAFE_COMMENT_COUNT) break;
+      // 마지막 시도로 무조건 덮으면, 앞 회차가 7개를 만들어놨어도 뒤 회차가 0~2개면 그걸 쓴다.
+      // 재시도는 더 나은 결과를 얻으려는 것이니 더 많이 건진 쪽만 남긴다.
+      if (!batch || candidate.comments.length > batch.comments.length) {
+        batch = candidate;
+      }
+      if (batch.comments.length >= CAFE_COMMENT_COUNT) break;
     }
     texts = (batch?.comments || []).map((c) => c.content).slice(0, CAFE_COMMENT_COUNT);
   }

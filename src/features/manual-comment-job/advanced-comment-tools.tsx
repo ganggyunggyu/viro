@@ -97,7 +97,7 @@ export const AdvancedCommentTools = ({
     }
 
     startReplacementQueueTransition(async () => {
-      const result = await queueCommentReplacementJobsAction(selectedCandidates);
+      const result = await queueCommentReplacementJobsAction(selectedCandidates, commentStyle);
       if (result.queuedJobs.length > 0) {
         onMessage({ type: 'success', text: `댓글 교체 작업 ${result.queuedJobs.length}건을 등록했습니다` });
         onJobsQueued();

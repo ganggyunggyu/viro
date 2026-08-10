@@ -364,9 +364,10 @@ export const scanCommentReplacementCandidatesAction = async (
 
 export const queueCommentReplacementJobsAction = async (
   candidates: CommentReplacementCandidate[],
+  commentStyle?: CafeCommentStyle,
 ) => {
   const userId = await getCurrentUserId();
-  const result = await queueCommentReplacementJobs(userId, candidates);
+  const result = await queueCommentReplacementJobs(userId, candidates, commentStyle);
   if (result.queuedJobs.length > 0) revalidatePath('/comment-jobs');
   return result;
 };

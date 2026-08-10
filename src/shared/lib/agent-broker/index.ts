@@ -163,8 +163,11 @@ export const generateJobCommentPlan = async (
       body: article.body,
       keyword: commentKeyword,
       model: commentModel,
+      style: job.commentStyle,
     });
-    comments = batch.comments.map(({ content }) => content).slice(0, CAFE_COMMENT_COUNT);
+    const candidate = batch.comments.map(({ content }) => content).slice(0, CAFE_COMMENT_COUNT);
+    // 재시도가 앞 회차보다 적게 건졌으면 앞 결과를 유지한다.
+    if (candidate.length > comments.length) comments = candidate;
   }
 
   return {
