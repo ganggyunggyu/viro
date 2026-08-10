@@ -16,6 +16,7 @@ import { User } from '../src/shared/models/user';
 import { writePostWithAccount } from '../src/shared/lib/naver-cafe-writing';
 import { getCafeWriterAccounts } from '../src/shared/config/cafe-account-policy';
 import { toCafeSlug } from '../src/shared/lib/naver-cafe-membership';
+import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/cafe-join';
 import type { NaverAccount } from '../src/shared/lib/account-manager';
 
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';
@@ -39,6 +40,8 @@ interface Args {
   limit?: number;
   concurrency: number;
   dryRun: boolean;
+  join: boolean;
+  maxAccounts: number;
 }
 
 const parseArgs = (): Args => {
@@ -48,11 +51,14 @@ const parseArgs = (): Args => {
     manuscriptsPath: 'scripts/jobs/question-30-manuscripts.json',
     concurrency: 3,
     dryRun: false,
+    join: false,
+    maxAccounts: 3,
   };
   while (tokens.length > 0) {
     const token = tokens.shift();
     if (!token) continue;
     if (token === '--dry-run') { args.dryRun = true; continue; }
+    if (token === '--join') { args.join = true; continue; }
     const value = tokens.shift();
     if (!value) throw new Error(`${token} 값이 비었습니다`);
     if (token === '--jobs') args.jobsPath = value;
@@ -60,6 +66,7 @@ const parseArgs = (): Args => {
     else if (token === '--only') args.only = value;
     else if (token === '--limit') args.limit = Number(value);
     else if (token === '--concurrency') args.concurrency = Math.max(1, Number(value));
+    else if (token === '--max-accounts') args.maxAccounts = Math.max(1, Number(value));
     else throw new Error(`알 수 없는 옵션: ${token}`);
   }
   return args;
@@ -144,40 +151,50 @@ const main = async (): Promise<void> => {
       return;
     }
 
+    // 계정 하나가 추가인증/미가입으로 막혀도 30건을 채우도록, 소유계정 → 글쓰기 가능
+    // writer 순으로 후보를 만들어 성공할 때까지 넘어간다.
     const owner = cafe.ownerAccountId ? accountById.get(cafe.ownerAccountId) : undefined;
-    const writer = owner
-      ? { id: owner.accountId, password: owner.password, nickname: owner.nickname }
-      : getCafeWriterAccounts(allAccounts, cafe.cafeId, toCafeSlug(cafe.cafeUrl))[0];
+    const cafeSlug = toCafeSlug(cafe.cafeUrl);
+    const candidates: NaverAccount[] = [];
+    if (owner) candidates.push({ id: owner.accountId, password: owner.password, nickname: owner.nickname });
+    for (const writer of getCafeWriterAccounts(allAccounts, cafe.cafeId, cafeSlug)) {
+      if (!candidates.some(({ id }) => id === writer.id)) candidates.push(writer);
+    }
 
-    if (!writer) {
+    if (candidates.length === 0) {
       console.error(`${tag} 글쓰기 가능 계정 없음`);
       results.push({ keyword: job.keyword, cafeName: job.cafeName, success: false, error: '글쓰기 가능 계정 없음' });
       return;
     }
-    if (!owner) console.log(`${tag} 소유계정 미설정 — writer 대체: ${writer.id}`);
 
-    const naverAccount: NaverAccount = {
-      id: writer.id,
-      password: writer.password,
-      nickname: writer.nickname,
-    };
-
+    let lastError = '시도한 계정이 모두 실패';
     try {
-      console.log(`${tag} 발행 시작 — "${manuscript.title}"`);
-      const posted = await writePostWithAccount(naverAccount, {
-        cafeId: cafe.cafeId,
-        menuId: cafe.menuId,
-        subject: manuscript.title,
-        content: manuscript.body,
-        category: cafe.categories?.[0],
-      });
-      if (posted.success) {
-        console.log(`${tag} 성공 articleId=${posted.articleId ?? '?'}`);
-        results.push({ keyword: job.keyword, cafeName: job.cafeName, success: true, articleId: posted.articleId });
-      } else {
-        console.error(`${tag} 실패: ${posted.error}`);
-        results.push({ keyword: job.keyword, cafeName: job.cafeName, success: false, error: posted.error });
+      for (const naverAccount of candidates.slice(0, args.maxAccounts)) {
+        console.log(`${tag} 발행 시도 (${naverAccount.id}) — "${manuscript.title}"`);
+        if (args.join) {
+          const joined = await joinCafeWithNicknameRetry(naverAccount, cafe.cafeId, { cafeUrl: cafeSlug });
+          if (!joined.success) {
+            lastError = `가입 실패: ${joined.error || '알 수 없음'}`;
+            console.error(`${tag} ${naverAccount.id} ${lastError}`);
+            continue;
+          }
+        }
+        const posted = await writePostWithAccount(naverAccount, {
+          cafeId: cafe.cafeId,
+          menuId: cafe.menuId,
+          subject: manuscript.title,
+          content: manuscript.body,
+          category: cafe.categories?.[0],
+        });
+        if (posted.success) {
+          console.log(`${tag} 성공 articleId=${posted.articleId ?? '?'} (${naverAccount.id})`);
+          results.push({ keyword: job.keyword, cafeName: job.cafeName, success: true, articleId: posted.articleId });
+          return;
+        }
+        lastError = posted.error || '발행 실패';
+        console.error(`${tag} ${naverAccount.id} 실패: ${lastError}`);
       }
+      results.push({ keyword: job.keyword, cafeName: job.cafeName, success: false, error: lastError });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`${tag} 에러: ${message}`);
