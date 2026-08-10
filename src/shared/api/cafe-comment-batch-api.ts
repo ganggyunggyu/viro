@@ -85,6 +85,12 @@ const STYLE_DIRECTIONS: Record<CafeCommentStyle, string> = {
 - ${CAFE_COMMENT_COUNT}개 댓글은 각각 본문의 서로 다른 대목에서 출발한다. 같은 대목을 두 번 물으면 실패다.
 - 본문에 이미 답이 그대로 적혀 있는 건 묻지 않는다. 읽고 나서 자연히 더 궁금해질 만한 걸 묻는다.
 - 실제 카페에서 회원끼리 말 주고받듯, 짧게 짚고 바로 묻는 흐름으로 쓴다.
+- 문장 끝은 반드시 의문형 어미로 맺는다("~나요?", "~까요?", "~인가요?", "~는지요?").
+  "궁금합니다?", "알고 싶습니다?", "~하고 싶어요?"처럼 평서문 끝에 물음표만 붙이면 실패다.
+- 본문 내용을 인용하는 방식을 댓글마다 바꾼다. "~하셨는데", "~하셨다는데", "~라고 하셨는데" 같은
+  인용 연결어를 ${CAFE_COMMENT_COUNT}개 중 3개를 넘겨 쓰면 실패다.
+  나머지는 인용 없이 바로 묻거나, 본문 표현을 짧은 명사구로만 받아서 묻는다.
+- ${CAFE_COMMENT_COUNT}개 댓글의 문장 구조를 서로 다르게 만든다. 같은 틀에 단어만 갈아끼운 티가 나면 실패다.
 - 질문 앞뒤로 "궁금합니다", "여쭤봐요" 같은 말을 모든 댓글에 똑같이 붙이지 않는다.`,
 };
 
@@ -191,12 +197,19 @@ export const validateCafeComments = (
   }
 
   const starts = new Map<string, number>();
+  let quoteConnectorCount = 0;
   for (const comment of comments) {
     if (comment.content.length < MIN_COMMENT_LENGTH) warnings.push(`short:${comment.index}`);
     if (comment.content.length > MAX_COMMENT_LENGTH) warnings.push(`long:${comment.index}`);
     if (comment.content.includes('원고')) warnings.push(`contains-wongo:${comment.index}`);
-    if (style === 'question' && !comment.content.includes('?')) {
-      warnings.push(`missing-question:${comment.index}`);
+    if (style === 'question') {
+      if (!comment.content.includes('?')) {
+        warnings.push(`missing-question:${comment.index}`);
+      } else if (DECLARATIVE_ENDING_PATTERN.test(comment.content)) {
+        // "궁금합니다?"처럼 평서문 끝에 물음표만 붙인 것. 물음표는 있으니 위 검사는 통과한다.
+        warnings.push(`fake-question:${comment.index}`);
+      }
+      if (QUOTE_CONNECTOR_PATTERN.test(comment.content)) quoteConnectorCount += 1;
     }
     if (keyword) {
       const keywordCount = countKeywordOccurrences(comment.content, keyword);
@@ -209,6 +222,11 @@ export const validateCafeComments = (
 
   for (const [start, count] of starts) {
     if (count > 1) warnings.push(`duplicate-start:${start}`);
+  }
+
+  // 8개 댓글이 죄다 "~하셨는데"로 본문을 받아오면 앞 6글자는 다 달라도 한눈에 봇 티가 난다.
+  if (style === 'question' && quoteConnectorCount > MAX_QUOTE_CONNECTORS) {
+    warnings.push(`quote-connector-overuse:${quoteConnectorCount}/${comments.length}`);
   }
 
   return warnings;
