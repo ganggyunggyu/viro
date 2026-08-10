@@ -8,18 +8,26 @@
  * Usage:
  *   npx tsx --env-file=.env.local scripts/scan-low-comment-articles.ts
  *   LOGIN_ID=21lab MAX_COMMENT_COUNT=3 npx tsx --env-file=.env.local scripts/scan-low-comment-articles.ts
+ *   COMMENT_STYLE=question npx tsx --env-file=.env.local scripts/scan-low-comment-articles.ts
  */
 
 import mongoose from 'mongoose';
 import { User } from '../src/shared/models/user';
 import { scanLowCommentArticles } from '../src/features/manual-comment-job/low-comment-scan';
 import { closeAllContexts } from '../src/shared/lib/multi-session';
+import {
+  DEFAULT_CAFE_COMMENT_STYLE,
+  isCafeCommentStyle,
+} from '../src/shared/api/cafe-comment-style';
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';
 const MAX_COMMENT_COUNT = process.env.MAX_COMMENT_COUNT !== undefined ? Number(process.env.MAX_COMMENT_COUNT) : 3;
 const GEN_MIN_COUNT = process.env.GEN_MIN_COUNT !== undefined ? Number(process.env.GEN_MIN_COUNT) : 5;
 const GEN_MAX_COUNT = process.env.GEN_MAX_COUNT !== undefined ? Number(process.env.GEN_MAX_COUNT) : 7;
+const COMMENT_STYLE = isCafeCommentStyle(process.env.COMMENT_STYLE)
+  ? process.env.COMMENT_STYLE
+  : DEFAULT_CAFE_COMMENT_STYLE;
 
 const main = async (): Promise<void> => {
   if (!MONGODB_URI) throw new Error('MONGODB_URI missing');
@@ -28,12 +36,13 @@ const main = async (): Promise<void> => {
   const user = await User.findOne({ loginId: LOGIN_ID, isActive: true }).lean();
   if (!user) throw new Error(`user not found: ${LOGIN_ID}`);
 
-  console.log(`[SCAN] 시작 (user: ${LOGIN_ID}, 댓글 ${MAX_COMMENT_COUNT}개 이하 대상)`);
+  console.log(`[SCAN] 시작 (user: ${LOGIN_ID}, 댓글 ${MAX_COMMENT_COUNT}개 이하 대상, 어조: ${COMMENT_STYLE})`);
 
   const result = await scanLowCommentArticles(user.userId, {
     maxCommentCount: MAX_COMMENT_COUNT,
     generateMinCount: GEN_MIN_COUNT,
     generateMaxCount: GEN_MAX_COUNT,
+    commentStyle: COMMENT_STYLE,
   });
 
   console.log(`\n[SCAN] 카페 ${result.scannedCafes}개 스캔 완료`);

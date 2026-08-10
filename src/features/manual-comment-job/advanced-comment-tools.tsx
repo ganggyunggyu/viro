@@ -8,6 +8,10 @@ import {
   scanCommentReplacementCandidatesAction,
 } from './actions';
 import type { ScanLowCommentArticlesResult } from './low-comment-scan';
+import {
+  CAFE_COMMENT_STYLE_LABELS,
+  type CafeCommentStyle,
+} from '@/shared/api/cafe-comment-style';
 import type { CommentReplacementCandidate, ScanCommentReplacementResult } from './comment-replacement-scan';
 
 const NEW_CAFE_IDS_DEFAULT = '31754837, 31754869, 31754875, 31754939, 31755069';
@@ -17,13 +21,19 @@ const getReplacementKey = ({ cafeId, articleId }: CommentReplacementCandidate) =
 interface AdvancedCommentToolsProps {
   onJobsQueued: () => void;
   onMessage: (message: { type: 'success' | 'error'; text: string }) => void;
+  /** 위 폼에서 고른 댓글 어조를 전체 스캔에도 그대로 적용한다. */
+  commentStyle: CafeCommentStyle;
 }
 
 /**
  * 카페 전체 스캔·댓글 교체처럼 운영자만 쓰는 도구. 링크만 붙여넣으면 되는 기본 흐름과 섞이면
  * 처음 쓰는 사람이 무엇부터 눌러야 할지 알 수 없어서 접이식으로 분리했다.
  */
-export const AdvancedCommentTools = ({ onJobsQueued, onMessage }: AdvancedCommentToolsProps) => {
+export const AdvancedCommentTools = ({
+  onJobsQueued,
+  onMessage,
+  commentStyle,
+}: AdvancedCommentToolsProps) => {
   const [isScanPending, startScanTransition] = React.useTransition();
   const [scanResult, setScanResult] = React.useState<ScanLowCommentArticlesResult | null>(null);
   const [replacementCafeIds, setReplacementCafeIds] = React.useState(NEW_CAFE_IDS_DEFAULT);
@@ -41,7 +51,7 @@ export const AdvancedCommentTools = ({ onJobsQueued, onMessage }: AdvancedCommen
   const handleScan = () => {
     setScanResult(null);
     startScanTransition(async () => {
-      const result = await scanLowCommentArticlesAction();
+      const result = await scanLowCommentArticlesAction({ commentStyle });
       setScanResult(result);
       onJobsQueued();
     });
@@ -125,6 +135,9 @@ export const AdvancedCommentTools = ({ onJobsQueued, onMessage }: AdvancedCommen
               <h3 className={cn('text-sm font-semibold text-(--ink)')}>댓글 부족 글 자동 스캔</h3>
               <p className={cn('text-xs text-(--ink-muted)')}>
                 등록된 모든 카페에서 댓글 3개 이하인 글을 찾아 작업을 큐에 등록합니다
+              </p>
+              <p className={cn('text-xs text-(--ink-tertiary)')}>
+                어조: {CAFE_COMMENT_STYLE_LABELS[commentStyle]} (위에서 고른 값을 그대로 씁니다)
               </p>
             </div>
             <Button onClick={handleScan} disabled={isScanPending} size="sm" variant="secondary">

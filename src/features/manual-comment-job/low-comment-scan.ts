@@ -3,6 +3,10 @@ import { ManualCommentJob } from '@/shared/models';
 import { getAllCafes } from '@/shared/config/cafes';
 import { getCommenterAccounts } from '@/shared/config/accounts';
 import { browseCafePosts, type CafeArticle } from '@/shared/lib/cafe-browser';
+import {
+  DEFAULT_CAFE_COMMENT_STYLE,
+  type CafeCommentStyle,
+} from '@/shared/api/cafe-comment-style';
 import { createManualCommentJobRecord } from './actions';
 
 export interface LowCommentArticle {
@@ -25,6 +29,8 @@ export interface ScanLowCommentArticlesOptions {
   perPage?: number;
   generateMinCount?: number;
   generateMaxCount?: number;
+  /** 댓글 어조 (기본 explain, 'question'이면 티키타카 질문형) */
+  commentStyle?: CafeCommentStyle;
   delayMinMinutes?: number;
   delayMaxMinutes?: number;
 }
@@ -57,6 +63,7 @@ export const scanLowCommentArticles = async (
   const perPage = options?.perPage ?? 20;
   const generateMinCount = options?.generateMinCount ?? 5;
   const generateMaxCount = options?.generateMaxCount ?? 7;
+  const commentStyle = options?.commentStyle ?? DEFAULT_CAFE_COMMENT_STYLE;
   const delayMinMinutes = options?.delayMinMinutes ?? 0.5;
   const delayMaxMinutes = options?.delayMaxMinutes ?? 3;
 
@@ -150,6 +157,7 @@ export const scanLowCommentArticles = async (
           mode: 'generate',
           generateMinCount,
           generateMaxCount,
+          commentStyle,
           delayMinMinutes,
           delayMaxMinutes,
         },

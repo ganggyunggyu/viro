@@ -453,6 +453,7 @@ const processJob = async (job: IManualCommentJob): Promise<void> => {
         title: articleTitle,
         body: articleBody,
         model: commentModel,
+        style: job.commentStyle,
       });
       batch = candidate;
       if (candidate.comments.length >= CAFE_COMMENT_COUNT) break;

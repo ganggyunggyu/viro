@@ -1,12 +1,14 @@
 import { normalizeText } from '@ganggyunggyu/shared';
 import { generateContentWithPrompt } from './content-api';
 import { CAFE_COMMENT_COUNT } from './cafe-comment-count';
+import { DEFAULT_CAFE_COMMENT_STYLE, type CafeCommentStyle } from './cafe-comment-style';
 
 export interface CafeCommentBatchInput {
   keyword: string;
   title?: string;
   body: string;
   model?: string;
+  style?: CafeCommentStyle;
 }
 
 export interface CafeGeneratedComment {
@@ -35,6 +37,12 @@ const MAX_COMMENT_LENGTH = 140;
 const MAX_BODY_LENGTH = 2500;
 
 export { CAFE_COMMENT_COUNT } from './cafe-comment-count';
+export {
+  CAFE_COMMENT_STYLES,
+  DEFAULT_CAFE_COMMENT_STYLE,
+  isCafeCommentStyle,
+  type CafeCommentStyle,
+} from './cafe-comment-style';
 
 const TWO_WORD_KEYWORD_SUFFIXES = new Set([
   '가격', '비용', '부작용', '복용법', '섭취법', '원인', '증상', '처방', '추천', '후기', '효능',
@@ -58,14 +66,35 @@ export const resolveCafeCommentKeyword = (
   return words[0] || storedKeyword || '카페 글';
 };
 
+const STYLE_INTROS: Record<CafeCommentStyle, string> = {
+  explain: `너는 네이버 카페에서 방금 이 글을 끝까지 읽은 일반 회원 ${CAFE_COMMENT_COUNT}명이야.
+
+각자 글에서 인상 깊었던 대목을 하나씩 골라, 그 내용이 무슨 얘기였는지 자기 말로 한 번 더 풀어서 설명하는 댓글을 단다.`,
+  question: `너는 네이버 카페에서 방금 이 글을 끝까지 읽은 일반 회원 ${CAFE_COMMENT_COUNT}명이야.
+
+각자 글에서 걸리는 대목을 하나씩 짚어, 글쓴이한테 더 물어보고 싶은 걸 질문으로 던지는 댓글을 단다.`,
+};
+
+const STYLE_DIRECTIONS: Record<CafeCommentStyle, string> = {
+  explain: `- 본문에서 실제로 다룬 내용 중 하나를 짚어서, 그게 어떤 얘기였는지 자기 말로 풀어서 설명한다.
+- 설명한 뒤에 짧은 소감이나 인사를 한 마디만 덧붙인다.
+- ${CAFE_COMMENT_COUNT}개 댓글은 각각 본문의 서로 다른 부분을 설명한다. 같은 대목을 두 번 설명하면 실패다.
+- 본문을 그대로 복사하지 말고, 읽은 사람이 요약해서 되짚는 말투로 바꿔 쓴다.`,
+  question: `- 본문에서 실제로 다룬 내용 하나를 먼저 짧게 짚고, 이어서 그와 관련해 더 알고 싶은 걸 질문한다.
+- 각 댓글은 물음표로 끝나는 질문을 정확히 1개만 담는다. 질문을 두 개 이어 붙이지 않는다.
+- ${CAFE_COMMENT_COUNT}개 댓글은 각각 본문의 서로 다른 대목에서 출발한다. 같은 대목을 두 번 물으면 실패다.
+- 본문에 이미 답이 그대로 적혀 있는 건 묻지 않는다. 읽고 나서 자연히 더 궁금해질 만한 걸 묻는다.
+- 실제 카페에서 회원끼리 말 주고받듯, 짧게 짚고 바로 묻는 흐름으로 쓴다.
+- 질문 앞뒤로 "궁금합니다", "여쭤봐요" 같은 말을 모든 댓글에 똑같이 붙이지 않는다.`,
+};
+
 export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): string => {
   const keyword = normalizeText(input.keyword);
   const title = normalizeText(input.title ?? '');
   const body = normalizeText(input.body).slice(0, MAX_BODY_LENGTH);
+  const style = input.style ?? DEFAULT_CAFE_COMMENT_STYLE;
 
-  return `너는 네이버 카페에서 방금 이 글을 끝까지 읽은 일반 회원 ${CAFE_COMMENT_COUNT}명이야.
-
-각자 글에서 인상 깊었던 대목을 하나씩 골라, 그 내용이 무슨 얘기였는지 자기 말로 한 번 더 풀어서 설명하는 댓글을 단다.
+  return `${STYLE_INTROS[style]}
 
 ## 출력 형식
 반드시 JSON만 출력한다. 마크다운 코드블록, 설명문, 머리말, 꼬리말 금지.
@@ -84,10 +113,7 @@ export const buildCafeCommentBatchPrompt = (input: CafeCommentBatchInput): strin
 댓글은 정확히 ${CAFE_COMMENT_COUNT}개 작성한다.
 
 ## 작성 방향
-- 본문에서 실제로 다룬 내용 중 하나를 짚어서, 그게 어떤 얘기였는지 자기 말로 풀어서 설명한다.
-- 설명한 뒤에 짧은 소감이나 인사를 한 마디만 덧붙인다.
-- ${CAFE_COMMENT_COUNT}개 댓글은 각각 본문의 서로 다른 부분을 설명한다. 같은 대목을 두 번 설명하면 실패다.
-- 본문을 그대로 복사하지 말고, 읽은 사람이 요약해서 되짚는 말투로 바꿔 쓴다.
+${STYLE_DIRECTIONS[style]}
 
 ## 규칙
 - 모든 type은 "comment"만 사용한다. 대댓글은 만들지 않는다.
@@ -155,6 +181,7 @@ const countKeywordOccurrences = (content: string, keyword: string): number => {
 export const validateCafeComments = (
   comments: CafeGeneratedComment[],
   keywordInput?: string,
+  style: CafeCommentStyle = DEFAULT_CAFE_COMMENT_STYLE,
 ): string[] => {
   const warnings: string[] = [];
   const keyword = normalizeText(keywordInput ?? '');
@@ -168,6 +195,9 @@ export const validateCafeComments = (
     if (comment.content.length < MIN_COMMENT_LENGTH) warnings.push(`short:${comment.index}`);
     if (comment.content.length > MAX_COMMENT_LENGTH) warnings.push(`long:${comment.index}`);
     if (comment.content.includes('원고')) warnings.push(`contains-wongo:${comment.index}`);
+    if (style === 'question' && !comment.content.includes('?')) {
+      warnings.push(`missing-question:${comment.index}`);
+    }
     if (keyword) {
       const keywordCount = countKeywordOccurrences(comment.content, keyword);
       if (keywordCount !== 1) warnings.push(`keyword-count:${comment.index}:${keywordCount}`);
@@ -187,20 +217,21 @@ export const validateCafeComments = (
 export const generateCafeCommentBatch = async (
   input: CafeCommentBatchInput,
 ): Promise<CafeCommentBatchResult> => {
-  const prompt = buildCafeCommentBatchPrompt(input);
+  const style = input.style ?? DEFAULT_CAFE_COMMENT_STYLE;
+  const prompt = buildCafeCommentBatchPrompt({ ...input, style });
   const model = input.model || DEFAULT_MODEL;
   const response = await generateContentWithPrompt({ prompt, model });
   const rawContent = response.content || '';
   const keyword = normalizeText(input.keyword);
   const parsedComments = parseComments(rawContent).slice(0, CAFE_COMMENT_COUNT);
-  const keywordWarnings = validateCafeComments(parsedComments, keyword)
+  const keywordWarnings = validateCafeComments(parsedComments, keyword, style)
     .filter((warning) => warning.startsWith('keyword-count:'));
   // 프롬프트를 어긴 댓글은 어떤 호출 경로에서도 실제 게시 대상으로 흘러가지 않게 막는다.
   const comments = parsedComments.filter(
     ({ content }) => countKeywordOccurrences(content, keyword) === 1,
   );
   const warnings = Array.from(new Set([
-    ...validateCafeComments(comments, keyword),
+    ...validateCafeComments(comments, keyword, style),
     ...keywordWarnings,
   ]));
 

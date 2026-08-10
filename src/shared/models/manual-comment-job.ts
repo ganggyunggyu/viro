@@ -1,4 +1,9 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import {
+  CAFE_COMMENT_STYLES,
+  DEFAULT_CAFE_COMMENT_STYLE,
+  type CafeCommentStyle,
+} from '@/shared/api/cafe-comment-style';
 
 export type ManualCommentJobStatus = 'pending' | 'running' | 'done' | 'failed';
 export type ManualCommentJobMode = 'fixed' | 'generate' | 'agent';
@@ -35,6 +40,7 @@ export interface IManualCommentJob extends Document {
   fixedComments?: string[];
   generateMinCount?: number;
   generateMaxCount?: number;
+  commentStyle: CafeCommentStyle;
   delayMinMs: number;
   delayMaxMs: number;
   deleteExisting: boolean;
@@ -88,6 +94,11 @@ const ManualCommentJobSchema = new Schema<IManualCommentJob>(
     fixedComments: { type: [String] },
     generateMinCount: { type: Number },
     generateMaxCount: { type: Number },
+    commentStyle: {
+      type: String,
+      enum: CAFE_COMMENT_STYLES,
+      default: DEFAULT_CAFE_COMMENT_STYLE,
+    },
     delayMinMs: { type: Number, required: true },
     delayMaxMs: { type: Number, required: true },
     deleteExisting: { type: Boolean, default: false },

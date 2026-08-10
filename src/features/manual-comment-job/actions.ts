@@ -3,6 +3,10 @@
 import { connectDB } from '@/shared/lib/mongodb';
 import { ManualCommentJob, type IManualCommentJob } from '@/shared/models';
 import { CAFE_COMMENT_COUNT } from '@/shared/api/cafe-comment-batch-api';
+import {
+  DEFAULT_CAFE_COMMENT_STYLE,
+  type CafeCommentStyle,
+} from '@/shared/api/cafe-comment-style';
 import { getCurrentUserId } from '@/shared/config/user';
 import { parseCafeArticleUrl } from '@/shared/lib/parse-cafe-article-url';
 import { revalidatePath } from 'next/cache';
@@ -26,6 +30,7 @@ export interface CreateManualCommentJobInput {
   fixedComments?: string[];
   generateMinCount?: number;
   generateMaxCount?: number;
+  commentStyle?: CafeCommentStyle;
   delayMinMinutes: number;
   delayMaxMinutes: number;
   deleteExisting?: boolean;
@@ -41,6 +46,7 @@ export interface ManualCommentJobView {
   fixedComments?: string[];
   generateMinCount?: number;
   generateMaxCount?: number;
+  commentStyle: CafeCommentStyle;
   delayMinMs: number;
   delayMaxMs: number;
   deleteExisting: boolean;
@@ -81,6 +87,7 @@ const toView = (doc: IManualCommentJob): ManualCommentJobView => ({
   fixedComments: doc.fixedComments,
   generateMinCount: doc.generateMinCount,
   generateMaxCount: doc.generateMaxCount,
+  commentStyle: doc.commentStyle ?? DEFAULT_CAFE_COMMENT_STYLE,
   delayMinMs: doc.delayMinMs,
   delayMaxMs: doc.delayMaxMs,
   deleteExisting: doc.deleteExisting ?? false,
@@ -155,6 +162,7 @@ export const createManualCommentJobRecord = async (
     fixedComments: input.mode === 'fixed' ? input.fixedComments?.map((c) => c.trim()).filter(Boolean) : undefined,
     generateMinCount: input.mode === 'generate' ? input.generateMinCount : undefined,
     generateMaxCount: input.mode === 'generate' ? input.generateMaxCount : undefined,
+    commentStyle: input.commentStyle ?? DEFAULT_CAFE_COMMENT_STYLE,
     delayMinMs,
     delayMaxMs,
     deleteExisting: input.deleteExisting ?? false,
@@ -220,6 +228,7 @@ export interface CreateCommentJobsFromLinksInput {
   rawText: string;
   mode: 'fixed' | 'generate' | 'agent';
   fixedComments?: string[];
+  commentStyle?: CafeCommentStyle;
   delayMinMinutes: number;
   delayMaxMinutes: number;
   deleteExisting?: boolean;
@@ -292,6 +301,7 @@ export const createCommentJobsFromLinksAction = async (
         // 어긋나지 않도록 min/max를 같은 값으로 채운다.
         generateMinCount: input.mode === 'generate' ? CAFE_COMMENT_COUNT : undefined,
         generateMaxCount: input.mode === 'generate' ? CAFE_COMMENT_COUNT : undefined,
+        commentStyle: input.commentStyle,
         delayMinMinutes: input.delayMinMinutes,
         delayMaxMinutes: input.delayMaxMinutes,
         deleteExisting: input.deleteExisting,

@@ -5,6 +5,13 @@ import { CheckCircle2, Link2, MinusCircle, XCircle } from 'lucide-react';
 import { cn, Button } from '@/shared';
 import { CAFE_COMMENT_COUNT } from '@/shared/api/cafe-comment-count';
 import {
+  CAFE_COMMENT_STYLES,
+  CAFE_COMMENT_STYLE_DESCRIPTIONS,
+  CAFE_COMMENT_STYLE_LABELS,
+  DEFAULT_CAFE_COMMENT_STYLE,
+  type CafeCommentStyle,
+} from '@/shared/api/cafe-comment-style';
+import {
   createCommentJobsFromLinksAction,
   getCommentWorkerStatusAction,
   getManualCommentJobsAction,
@@ -24,6 +31,7 @@ interface FormState {
   linksText: string;
   source: CommentSource;
   fixedCommentsText: string;
+  commentStyle: CafeCommentStyle;
   delayMinMinutes: string;
   delayMaxMinutes: string;
   deleteExisting: boolean;
@@ -33,6 +41,7 @@ const defaultFormState: FormState = {
   linksText: '',
   source: 'generate',
   fixedCommentsText: '',
+  commentStyle: DEFAULT_CAFE_COMMENT_STYLE,
   delayMinMinutes: '0.5',
   delayMaxMinutes: '3',
   deleteExisting: false,
@@ -131,6 +140,7 @@ export const ManualCommentJobUI = () => {
         rawText: formData.linksText,
         mode: formData.source,
         fixedComments: formData.source === 'fixed' ? fixedComments : undefined,
+        commentStyle: formData.source === 'generate' ? formData.commentStyle : undefined,
         delayMinMinutes: parseFloat(formData.delayMinMinutes) || 0.5,
         delayMaxMinutes: parseFloat(formData.delayMaxMinutes) || 3,
         deleteExisting: formData.deleteExisting,
@@ -203,6 +213,31 @@ export const ManualCommentJobUI = () => {
           </div>
           {activeSource && <p className={cn('text-xs text-(--ink-muted)')}>{activeSource.hint}</p>}
         </div>
+
+        {formData.source === 'generate' && (
+          <div className={cn('space-y-2')}>
+            <div className={cn('flex gap-1.5')}>
+              {CAFE_COMMENT_STYLES.map((style) => (
+                <button
+                  key={style}
+                  type="button"
+                  onClick={() => setFormData((p) => ({ ...p, commentStyle: style }))}
+                  className={cn(
+                    'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                    formData.commentStyle === style
+                      ? 'bg-(--accent) text-white'
+                      : 'bg-(--surface-muted) text-(--ink-muted) hover:text-(--ink)',
+                  )}
+                >
+                  {CAFE_COMMENT_STYLE_LABELS[style]}
+                </button>
+              ))}
+            </div>
+            <p className={cn('text-xs text-(--ink-muted)')}>
+              {CAFE_COMMENT_STYLE_DESCRIPTIONS[formData.commentStyle]}
+            </p>
+          </div>
+        )}
 
         {formData.source === 'fixed' && (
           <textarea
@@ -301,7 +336,11 @@ export const ManualCommentJobUI = () => {
         )}
       </div>
 
-      <AdvancedCommentTools onJobsQueued={refresh} onMessage={setMessage} />
+      <AdvancedCommentTools
+        onJobsQueued={refresh}
+        onMessage={setMessage}
+        commentStyle={formData.commentStyle}
+      />
 
       <div className={cn('space-y-2')}>
         <h2 className={cn('text-base font-semibold text-(--ink)')}>최근 작업</h2>
@@ -343,6 +382,11 @@ export const ManualCommentJobUI = () => {
                       {job.cafeSlug}/{job.articleId}
                     </span>
                     {job.mode === 'agent' && <span className={cn('shrink-0 text-xs text-(--accent)')}>에이전트</span>}
+                    {job.mode === 'generate' && job.commentStyle === 'question' && (
+                      <span className={cn('shrink-0 text-xs text-(--accent)')}>
+                        {CAFE_COMMENT_STYLE_LABELS.question}
+                      </span>
+                    )}
                     <span className={cn('min-w-0 flex-1 space-y-1')}>
                       <span className={cn('block truncate text-xs text-(--ink-muted)')}>
                         {successCount}
