@@ -178,6 +178,22 @@ test('질문형 프롬프트는 explain 전용 지시를 싣지 않는다', () =
   assert.match(prompt, /정확히 8개/);
 });
 
+test('질문형 프롬프트는 댓글마다 다른 질문 각도를 배정한다', () => {
+  const prompt = buildCafeCommentBatchPrompt({
+    keyword: '강아지 관절 영양제',
+    body: BODY,
+    style: 'question',
+  });
+
+  // 금지형("~하면 실패다")만으로는 인용 연결어 쏠림이 안 잡혀서 각도를 지정하는 방식으로 바꿨다.
+  for (const angle of ['방법', '기준', '상황', '비교', '경험', '예외', '정도', '다음 단계']) {
+    assert.match(prompt, new RegExp(angle));
+  }
+  assert.match(prompt, /index 1, 4, 7/);
+  assert.match(prompt, /index 2, 5, 8/);
+  assert.match(prompt, /index 3, 6/);
+});
+
 test('style을 지정하지 않으면 explain 프롬프트가 그대로 나온다', () => {
   const withoutStyle = buildCafeCommentBatchPrompt({ keyword: '강아지 관절 영양제', body: BODY });
   const explicitExplain = buildCafeCommentBatchPrompt({
@@ -207,4 +223,57 @@ test('explain 검증은 물음표 유무를 따지지 않는다', () => {
   const warnings = validateCafeComments(buildComments(EIGHT_OK), undefined, 'explain');
 
   assert.ok(!warnings.some((w) => w.startsWith('missing-question')));
+});
+
+test('질문형 검증은 평서문 끝에 물음표만 붙인 것을 잡아낸다', () => {
+  const faked = [
+    ...EIGHT_QUESTIONS.slice(0, 6),
+    '두세 개로 좁힌 뒤 반응을 보셨다는데 눈치채지 않게 꺼낸 방식이 궁금합니다?',
+    '추천 외에 체형이나 목 상태도 따로 고려해야 하는지 알고 싶습니다?',
+  ];
+  const warnings = validateCafeComments(buildComments(faked), undefined, 'question');
+
+  assert.ok(warnings.includes('fake-question:7'));
+  assert.ok(warnings.includes('fake-question:8'));
+  assert.ok(!warnings.includes('fake-question:1'));
+  assert.ok(!warnings.some((w) => w.startsWith('missing-question')));
+});
+
+test('질문형 검증은 인용 연결어가 몰리면 경고한다', () => {
+  const sameFrame = [
+    '식단을 며칠 적어보라고 하셨는데, 어떤 항목을 빠뜨리지 않아야 할까요?',
+    '표시를 확인하라고 하셨는데, 온라인에만 보이면 무엇을 기준으로 볼까요?',
+    '연령 표기가 중요하다고 하셨는데, 경계 연령이면 어느 쪽을 따를까요?',
+    '원재료명을 앞에서부터 읽으라고 하셨는데, 첨가물은 어디까지 볼까요?',
+    '함량을 비교하라고 하셨는데, 기준치 표기가 없으면 어떻게 비교하나요?',
+    '한 알 기준이 다르다고 하셨는데, 하루 섭취량 환산은 어떻게 하나요?',
+    '총량이 올라간다고 하셨는데, 겹치는 성분은 어떤 식으로 정리하나요?',
+    '급여량을 나눈다고 하셨는데, 사료에 섞어도 괜찮은가요?',
+  ];
+  const warnings = validateCafeComments(buildComments(sameFrame), undefined, 'question');
+
+  assert.ok(warnings.some((w) => w.startsWith('quote-connector-overuse')));
+});
+
+test('인용 연결어가 3개 이하면 경고하지 않는다', () => {
+  const mixed = [
+    '식단을 며칠 적어보라고 하셨는데, 어떤 항목을 빠뜨리지 않아야 할까요?',
+    '연령 표기는 경계 연령이면 어느 쪽을 따르는 게 맞을까요?',
+    '원재료명에서 첨가물은 어디까지 살펴야 하나요?',
+    '기준치 표기가 없는 제품끼리는 무엇으로 비교하나요?',
+    '하루 섭취량 환산은 어떤 계산으로 하면 되나요?',
+    '겹치는 성분은 어떤 식으로 정리해두시나요?',
+    '사료에 섞어서 급여해도 괜찮은가요?',
+    '처음 먹일 때 적응 기간을 따로 두시나요?',
+  ];
+  const warnings = validateCafeComments(buildComments(mixed), undefined, 'question');
+
+  assert.ok(!warnings.some((w) => w.startsWith('quote-connector-overuse')));
+});
+
+test('explain 스타일은 인용 연결어와 평서문 종결을 문제 삼지 않는다', () => {
+  const warnings = validateCafeComments(buildComments(EIGHT_OK), undefined, 'explain');
+
+  assert.ok(!warnings.some((w) => w.startsWith('quote-connector-overuse')));
+  assert.ok(!warnings.some((w) => w.startsWith('fake-question')));
 });
