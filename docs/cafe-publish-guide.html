@@ -20,7 +20,6 @@
       --panel: #16201d;
       --ink: #e8efec;
       --ink-soft: #b6c4bf;
-      --muted: #8397908;
       --muted: #839790;
       --line: #26332f;
       --accent: #5fc4aa;
@@ -113,16 +112,23 @@
   <header>
     <p class="eyebrow">Viro 운영 매뉴얼</p>
     <h1>카페 발행하고 댓글 다는 법</h1>
-    <p class="lede">발행은 이제 매일 아침 9시에 알아서 돌아간다. 손으로 할 일은 댓글 작업뿐이고, 그건 브라우저에서 바로 된다.</p>
+    <p class="lede">발행은 이제 매일 새벽 5시에 알아서 돌아간다. 손으로 할 일은 댓글 작업뿐이고, 그건 브라우저에서 바로 된다.</p>
   </header>
 
   <section class="step">
     <div class="num">01</div>
     <div>
       <h2>발행은 이미 자동이다</h2>
-      <p class="sub">매일 오전 9시 · 맛집 3카페 × 3편 = 9편</p>
-      <p>맥에 스케줄을 걸어놨다. 맥이 켜져 있기만 하면 아침 9시에 알아서 돈다. 미식노트, 한끼일기, 맛기행 세 곳에 각각 3편씩 올라간다.</p>
+      <p class="sub">매일 새벽 5시 · 맛집 3카페 × 3편 = 9편</p>
+      <p>맥에 스케줄을 걸어놨다. 새벽 5시에 시작해서 20분쯤이면 끝난다. 미식노트, 한끼일기, 맛기행 세 곳에 각각 3편씩 올라간다.</p>
       <p>원고 서버(dabut-backend)가 꺼져 있으면 발행이 통째로 실패하는데, 스케줄 스크립트가 먼저 서버를 켜고 준비될 때까지 기다린 다음 발행을 시작하니 신경 안 써도 된다.</p>
+
+      <div class="box warn">
+        <p class="label">맥이 자고 있으면 안 돈다</p>
+        <p>새벽 시간대라 맥이 잠자기에 들어가 있을 확률이 높다. 잠든 상태면 그 시각에 실행되지 못하고, 나중에 깨어난 뒤에야 뒤늦게 돈다. 맥을 미리 깨우는 예약을 같이 걸어둬야 한다.</p>
+        <pre><code>sudo pmset repeat wakeorpoweron MTWRFSU 04:55:00</code></pre>
+        <p>걸렸는지는 <code>pmset -g sched</code>로 확인한다.</p>
+      </div>
 
       <div class="box tip">
         <p class="label">돌았는지 확인</p>
@@ -130,7 +136,7 @@
         <p>마지막 줄에 <code>전체 완료: 성공 9 / 실패 0</code>이 찍혀 있으면 정상이다.</p>
       </div>
 
-      <p>시간을 바꾸고 싶으면 <code>~/Library/LaunchAgents/com.ganggyunggyu.cafe-bot.matjip-publish.plist</code>에서 <code>Hour</code>를 고치고 다시 로드하면 된다.</p>
+      <p>시간을 바꾸고 싶으면 <code>~/Library/LaunchAgents/com.ganggyunggyu.cafe-bot.matjip-publish.plist</code>에서 <code>Hour</code>(지금 5)를 고치고 다시 로드하면 된다.</p>
       <pre><code>launchctl unload ~/Library/LaunchAgents/com.ganggyunggyu.cafe-bot.matjip-publish.plist
 launchctl load ~/Library/LaunchAgents/com.ganggyunggyu.cafe-bot.matjip-publish.plist</code></pre>
     </div>
