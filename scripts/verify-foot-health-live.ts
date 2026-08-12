@@ -14,13 +14,11 @@ import { closeAllContexts } from '../src/shared/lib/multi-session';
 
 const LOGIN_ID = process.env.LOGIN_ID || '21lab';
 /** 한 글당 시도할 읽기 계정 수 상한. 전 계정을 도는 동안 검증이 멈추지 않도록 제한한다. */
-const FALLBACK_READER_LIMIT = 4;
+const FALLBACK_READER_LIMIT = 6;
 
 const TARGETS = [
   { cafeId: '31746910', slug: 'healthhhh', articleId: 378, cafeName: '가중건다' },
   { cafeId: '31756616', slug: 'purplevhkwm', articleId: 125, cafeName: '웰빙건강하루' },
-  { cafeId: '31750108', slug: 'infomadang702', articleId: 45, cafeName: '생활 정보마당' },
-  { cafeId: '31754939', slug: 'livingnote702', articleId: 293, cafeName: '생활 살림노트' },
 ];
 
 const main = async (): Promise<void> => {
@@ -73,20 +71,24 @@ const main = async (): Promise<void> => {
         nickname: reader.nickname || reader.accountId,
       };
 
+      // 로그인이 막힌 계정은 listLiveComments가 success=true에 빈 배열을 돌려주기도 한다.
+      // 본문이 읽히는지를 먼저 확인해서, 화면을 실제로 본 계정의 값만 신뢰한다.
+      const article = await readCafeArticleContent(naverAccount, target.cafeId, target.articleId, {
+        reason: `foot_health_verify:${reader.accountId}`,
+      });
+      if (!article.success || !article.title) {
+        row = { label, title: '', comments: -1, error: article.error || '본문 읽기 실패' };
+        console.log(`[${label}] 읽기=${reader.accountId} 본문 실패 → 다음 계정`);
+        continue;
+      }
+
       const live = await listLiveComments(naverAccount, target.cafeId, target.articleId);
       if (!live.success || !live.comments) {
         row = { label, title: '', comments: -1, error: live.error || '댓글 목록 읽기 실패' };
         continue;
       }
 
-      const article = await readCafeArticleContent(naverAccount, target.cafeId, target.articleId, {
-        reason: `foot_health_verify:${reader.accountId}`,
-      });
-      row = {
-        label,
-        title: article.success ? (article.title || '').slice(0, 30) : '',
-        comments: live.comments.length,
-      };
+      row = { label, title: article.title.slice(0, 30), comments: live.comments.length };
       console.log(`[${label}] 읽기=${reader.accountId} 제목="${row.title}" 댓글=${row.comments}`);
       break;
     }
