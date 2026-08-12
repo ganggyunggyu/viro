@@ -1,0 +1,44 @@
+{
+  "jobs": [
+    {
+      "cafeId": "31750106",
+      "cafeName": "건강 생활수첩",
+      "keyword": "아치깔창"
+    },
+    {
+      "cafeId": "31750105",
+      "cafeName": "건강 습관노트",
+      "keyword": "족저근막염 신발"
+    },
+    {
+      "cafeId": "31754869",
+      "cafeName": "건강 체크노트",
+      "keyword": "평발깔창"
+    },
+    {
+      "cafeId": "31754875",
+      "cafeName": "건강 정보노트",
+      "keyword": "아치깔창"
+    },
+    {
+      "cafeId": "31746910",
+      "cafeName": "가중건다",
+      "keyword": "족저근막염 신발"
+    },
+    {
+      "cafeId": "31756616",
+      "cafeName": "웰빙건강하루",
+      "keyword": "평발깔창"
+    },
+    {
+      "cafeId": "31750108",
+      "cafeName": "생활 정보마당",
+      "keyword": "아치깔창"
+    },
+    {
+      "cafeId": "31754939",
+      "cafeName": "생활 살림노트",
+      "keyword": "족저근막염 신발"
+    }
+  ]
+}
