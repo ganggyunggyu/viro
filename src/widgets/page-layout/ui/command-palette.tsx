@@ -101,7 +101,7 @@ export const CommandPalette = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -12, scale: 0.98 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="fixed left-1/2 top-24 z-[60] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-hidden rounded-2xl border border-(--border) bg-(--surface) shadow-xl"
+            className="fixed left-1/2 top-24 z-[60] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-hidden rounded-2xl border border-(--border) bg-(--surface) shadow-lg"
           >
             <div className="flex items-center gap-2.5 border-b border-(--border-light) px-4">
               <Search className="h-4 w-4 shrink-0 text-(--ink-tertiary)" strokeWidth={2} />

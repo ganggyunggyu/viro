@@ -63,8 +63,8 @@ export const PostOnlyUI = () => {
   }, [cafesInitialized, setCafes, setSelectedCafeId, setCafesInitialized]);
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 
@@ -139,7 +139,7 @@ export const PostOnlyUI = () => {
     <div className={cn('space-y-6')}>
       <div className={cn('space-y-3')}>
         {cafesInitialized && cafes.length === 0 ? (
-          <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-4 text-sm text-(--ink-muted)')}>
+          <div className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) p-4 text-sm text-(--ink-muted)')}>
             등록된 카페가 없습니다. 카페 관리 화면에서 먼저 카페를 등록해주세요.
           </div>
         ) : (
@@ -187,7 +187,7 @@ export const PostOnlyUI = () => {
             type="button"
             onClick={() => setAttachImages((prev) => !prev)}
             className={cn(
-              'flex items-center gap-3 rounded-xl border p-3 text-left transition-all',
+              'flex items-center gap-3 rounded-lg border p-3 text-left transition-colors duration-150',
               attachImages
                 ? 'border-(--accent) bg-(--accent)/5'
                 : 'border-(--border-light) bg-(--surface-muted) hover:bg-(--surface)'
@@ -209,7 +209,7 @@ export const PostOnlyUI = () => {
 
           <div
             className={cn(
-              'flex items-center gap-3 rounded-xl border border-(--border-light) bg-(--surface-muted) p-3'
+              'flex items-center gap-3 rounded-lg border border-(--border-light) bg-(--surface-muted) p-3'
             )}
           >
             <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--surface) text-(--ink-muted)')}>
@@ -234,7 +234,7 @@ export const PostOnlyUI = () => {
 
         <div
           className={cn(
-            'rounded-xl border p-3 transition-all',
+            'rounded-lg border p-3 transition-colors duration-150',
             scheduleComments
               ? 'border-(--accent) bg-(--accent)/5'
               : 'border-(--border-light) bg-(--surface-muted)'
@@ -293,7 +293,7 @@ export const PostOnlyUI = () => {
           )}
         </div>
 
-        <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) overflow-hidden')}>
+        <div className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) overflow-hidden')}>
           <button
             type="button"
             onClick={() => setShowAdvanced((prev) => !prev)}

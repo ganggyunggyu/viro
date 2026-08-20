@@ -97,7 +97,7 @@ export const AccountListUI = () => {
             onClick={handleLoginAll}
             disabled={isPending}
             className={cn(
-              'rounded-lg px-4 py-2 text-xs font-semibold transition-all',
+              'rounded-lg px-4 py-2 text-xs font-semibold transition-colors duration-150',
               'border border-accent text-accent hover:bg-accent hover:text-background',
               'disabled:cursor-not-allowed disabled:opacity-50'
             )}
@@ -113,7 +113,7 @@ export const AccountListUI = () => {
       {message && (
         <div
           className={cn(
-            'rounded-xl border px-4 py-3 text-sm',
+            'rounded-lg border px-4 py-3 text-sm',
             message.type === 'success'
               ? 'border-(--success)/30 bg-(--success-soft) text-(--success)'
               : 'border-(--danger)/30 bg-(--danger-soft) text-(--danger)'
@@ -128,8 +128,8 @@ export const AccountListUI = () => {
           <li
             key={account.id}
             className={cn(
-              'rounded-xl border border-(--border-light) bg-(--surface) px-4 py-3',
-              'flex items-center justify-between gap-3 transition-all hover:border-(--border)'
+              'rounded-lg border border-(--border-light) bg-(--surface) px-4 py-3',
+              'flex items-center justify-between gap-3 transition-colors duration-150 hover:border-(--border)'
             )}
           >
             <div className={cn('flex items-center gap-3')}>
@@ -159,7 +159,7 @@ export const AccountListUI = () => {
               onClick={() => handleLogin(account.id)}
               disabled={isPending || loginStatus[account.id] === 'loading'}
               className={cn(
-                'rounded-lg px-3 py-1.5 text-xs font-medium transition-all',
+                'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-150',
                 'border border-(--border) text-(--ink-secondary) hover:bg-(--surface-muted)',
                 'disabled:cursor-not-allowed disabled:opacity-50'
               )}

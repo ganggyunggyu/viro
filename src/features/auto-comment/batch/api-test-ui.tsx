@@ -77,7 +77,7 @@ export const ApiTestUI = () => {
   const selectedCafe = cafes.find((cafe) => cafe.cafeId === selectedCafeId);
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2 text-sm',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2 text-sm',
     'placeholder:text-(--ink-muted) shadow-sm transition',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/20'
   );
@@ -215,7 +215,7 @@ export const ApiTestUI = () => {
       </div>
 
       {/* 탭 */}
-      <div className={cn('flex gap-1 p-1 rounded-xl bg-(--surface-muted)')}>
+      <div className={cn('flex gap-1 p-1 rounded-lg bg-(--surface-muted)')}>
         {TABS.map((tab) => (
           <Button
             key={tab.key}
@@ -266,7 +266,7 @@ export const ApiTestUI = () => {
       />
 
       {/* 실제 배치 발행 */}
-      <div className={cn('rounded-2xl border border-(--border) bg-(--surface-muted) p-4 shadow-sm space-y-3')}>
+      <div className={cn('rounded-lg border border-(--border) bg-(--surface-muted) p-4 shadow-sm space-y-3')}>
         <div className={cn('space-y-1')}>
           <p className={cn('text-xs uppercase tracking-[0.2em] text-(--ink-muted)')}>배치 발행</p>
           <h3 className={cn('text-sm font-semibold text-(--ink)')}>커스텀 프롬프트로 배치 발행</h3>
@@ -305,7 +305,7 @@ export const ApiTestUI = () => {
                 원고 프롬프트만 사용, 댓글/대댓글은 기본 로직
               </span>
             </div>
-            <div className={cn('rounded-xl border border-(--border) bg-(--surface) p-3')}>
+            <div className={cn('rounded-lg border border-(--border) bg-(--surface) p-3')}>
               <PostOptionsUI options={postOptions} onChange={setPostOptions} />
             </div>
           </div>
@@ -323,7 +323,7 @@ export const ApiTestUI = () => {
         {publishResult && (
           <div
             className={cn(
-              'rounded-xl border px-3 py-3',
+              'rounded-lg border px-3 py-3',
               publishResult.success ? 'border-(--success) bg-(--success-soft)' : 'border-(--danger) bg-(--danger-soft)'
             )}
           >
@@ -359,8 +359,8 @@ export const ApiTestUI = () => {
             <div
               key={idx}
               className={cn(
-                'rounded-xl border p-4',
-                result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                'rounded-lg border bg-(--surface-muted) p-4',
+                result.success ? 'border-(--border-light)' : 'border-(--danger)/40'
               )}
             >
               {result.success ? (

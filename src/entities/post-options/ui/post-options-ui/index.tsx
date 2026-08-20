@@ -49,7 +49,7 @@ export const PostOptionsUI = ({ options, onChange }: PostOptionsUIProps) => {
           />
 
           {options.useCcl && (
-            <div className={cn('ml-8 space-y-3 p-4 rounded-xl bg-surface-muted')}>
+            <div className={cn('ml-8 space-y-3 p-4 rounded-lg bg-surface-muted')}>
               <div className={cn('flex items-center justify-between gap-4')}>
                 <span className={cn('text-sm text-ink-muted')}>영리적 이용</span>
                 <Select

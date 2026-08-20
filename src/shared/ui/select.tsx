@@ -122,7 +122,7 @@ export const Select = ({
         aria-labelledby={label ? `${labelId} ${valueId}` : valueId}
         aria-describedby={describedBy}
         className={cn(
-          'flex min-h-11 items-center justify-between gap-2 rounded-xl border bg-(--surface) px-4 py-2.5 text-left text-sm transition-all',
+          'flex min-h-11 items-center justify-between gap-2 rounded-lg border bg-(--surface) px-4 py-2.5 text-left text-sm transition-colors duration-150',
           'border-(--border) hover:border-(--border-hover)',
           'focus-visible:border-(--info) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--info)/20',
           'disabled:bg-(--surface-muted) disabled:cursor-not-allowed disabled:opacity-60',
@@ -155,7 +155,7 @@ export const Select = ({
           role="listbox"
           aria-labelledby={label ? labelId : buttonId}
           className={cn(
-            'absolute z-50 mt-1 w-full rounded-xl border border-(--border) bg-(--surface) py-1 shadow-lg',
+            'absolute z-50 mt-1 w-full rounded-lg border border-(--border) bg-(--surface) py-1 shadow-lg',
             'max-h-60 overflow-y-auto'
           )}
         >

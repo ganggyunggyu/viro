@@ -170,7 +170,7 @@ export const AgentSetupUI = () => {
     <div className={cn('space-y-5')}>
       <section
         className={cn(
-          'relative overflow-hidden rounded-3xl border border-(--border-light)',
+          'relative overflow-hidden rounded-2xl border border-(--border-light)',
           'bg-(--surface-elevated)',
           'px-6 py-9 sm:px-10 sm:py-12',
         )}
@@ -204,9 +204,9 @@ export const AgentSetupUI = () => {
                     href={primary.href}
                     download={primary.fileName}
                     className={cn(
-                      'group inline-flex min-h-12 items-center justify-center gap-2.5 rounded-xl bg-(--accent) px-6 py-3',
-                      'text-sm font-semibold text-white shadow-sm transition-all',
-                      'hover:-translate-y-0.5 hover:bg-(--accent-hover) focus:outline-none focus:ring-2 focus:ring-(--accent)/50',
+                      'group inline-flex min-h-12 items-center justify-center gap-2.5 rounded-lg bg-(--accent) px-6 py-3',
+                      'text-sm font-semibold text-white shadow-sm transition-colors duration-150',
+                      'hover:bg-(--accent-hover) focus:outline-none focus:ring-2 focus:ring-(--accent)/50',
                     )}
                   >
                     <PrimaryIcon className={cn('h-[18px] w-[18px]')} />
@@ -217,8 +217,8 @@ export const AgentSetupUI = () => {
                     href={secondary.href}
                     download={secondary.fileName}
                     className={cn(
-                      'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-(--border) bg-(--surface) px-5 py-3',
-                      'text-sm font-medium text-(--ink) transition-all',
+                      'inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-(--border) bg-(--surface) px-5 py-3',
+                      'text-sm font-medium text-(--ink) transition-colors duration-150',
                       'hover:border-(--ink-tertiary) hover:bg-(--surface-muted) focus:outline-none focus:ring-2 focus:ring-(--accent)/40',
                     )}
                   >
@@ -241,7 +241,7 @@ export const AgentSetupUI = () => {
                   'flex items-start gap-3.5 rounded-2xl border border-(--border-light) bg-(--surface) px-4 py-3.5',
                 )}
               >
-                <span className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--accent-soft) text-(--accent)')}>
+                <span className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--accent-soft) text-(--accent)')}>
                   <Icon className={cn('h-[18px] w-[18px]')} />
                 </span>
                 <div>
@@ -266,15 +266,15 @@ export const AgentSetupUI = () => {
                 href={platform.href}
                 download={platform.fileName}
                 className={cn(
-                  'group flex items-center justify-between gap-4 rounded-2xl border bg-(--surface) px-5 py-4 transition-all',
+                  'group flex items-center justify-between gap-4 rounded-2xl border bg-(--surface) px-5 py-4 transition-colors duration-150',
                   isRecommended
                     ? 'border-(--accent)/40 shadow-sm'
                     : 'border-(--border-light) hover:border-(--border)',
-                  'hover:-translate-y-0.5',
+
                 )}
               >
                 <div className={cn('flex items-center gap-3.5')}>
-                  <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--surface-muted) text-(--ink)')}>
+                  <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--surface-muted) text-(--ink)')}>
                     <PlatformIcon className={cn('h-5 w-5')} />
                   </span>
                   <div>
@@ -299,13 +299,15 @@ export const AgentSetupUI = () => {
       )}
 
       {isDesktop ? (
-        <section className={cn('rounded-3xl border border-(--accent)/25 bg-(--surface) p-6 lg:p-8')}>
+        <section className={cn('rounded-2xl border border-(--accent)/25 bg-(--surface) p-6 lg:p-8')}>
           <div className={cn('flex flex-col justify-between gap-5 sm:flex-row sm:items-center')}>
             <div className={cn('flex items-start gap-3')}>
-              <span className={cn('relative mt-1 flex h-3 w-3')}>
-                {desktopRunning && <span className={cn('absolute h-full w-full animate-ping rounded-full bg-(--success) opacity-40')} />}
-                <span className={cn('relative h-3 w-3 rounded-full', desktopRunning ? 'bg-(--success)' : 'bg-(--border)')} />
-              </span>
+              <span
+                className={cn(
+                  'mt-1.5 h-2 w-2 shrink-0 rounded-full',
+                  desktopRunning ? 'bg-(--success)' : 'bg-(--border)'
+                )}
+              />
               <div>
                 <h3 className={cn('text-lg font-semibold text-(--ink)')}>
                   {desktopRunning ? '이 PC가 연결되어 있습니다' : '실행 준비가 필요합니다'}
@@ -329,7 +331,7 @@ export const AgentSetupUI = () => {
             </div>
           </div>
           {desktopLogs.length > 0 && (
-            <details className={cn('mt-5 rounded-xl border border-(--border-light) bg-(--background)')}>
+            <details className={cn('mt-5 rounded-lg border border-(--border-light) bg-(--background)')}>
               <summary className={cn('cursor-pointer px-4 py-3 text-xs font-medium text-(--ink-muted)')}>실행 로그 보기</summary>
               <pre className={cn('max-h-44 overflow-auto border-t border-(--border-light) p-4 text-xs leading-5 text-(--ink-muted)')}>
                 {desktopLogs.join('\n')}
@@ -340,12 +342,12 @@ export const AgentSetupUI = () => {
       ) : (
         <section className={cn('grid gap-3 sm:grid-cols-3')}>
           {[
-            { step: '01', title: '다운로드', detail: '설치 파일을 받아 Viro를 설치합니다.' },
-            { step: '02', title: '이 PC 연결', detail: 'Viro에 로그인하고 연결 버튼을 한 번 누릅니다.' },
-            { step: '03', title: '바로 사용', detail: '모든 메뉴를 Viro 창에서 그대로 사용합니다.' },
+            { step: '1', title: '다운로드', detail: '설치 파일을 받아 Viro를 설치합니다.' },
+            { step: '2', title: '이 PC 연결', detail: 'Viro에 로그인하고 연결 버튼을 한 번 누릅니다.' },
+            { step: '3', title: '바로 사용', detail: '모든 메뉴를 Viro 창에서 그대로 사용합니다.' },
           ].map(({ step, title, detail }) => (
             <div key={step} className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-5')}>
-              <span className={cn('text-xs font-bold tracking-widest text-(--accent)')}>{step}</span>
+              <span className={cn('text-sm font-semibold text-(--ink-tertiary)')}>{step}</span>
               <h3 className={cn('mt-3 font-semibold text-(--ink)')}>{title}</h3>
               <p className={cn('mt-1 text-sm leading-6 text-(--ink-muted)')}>{detail}</p>
             </div>
@@ -353,7 +355,7 @@ export const AgentSetupUI = () => {
         </section>
       )}
 
-      <section className={cn('rounded-3xl border border-(--border-light) bg-(--surface) p-6 lg:p-8')}>
+      <section className={cn('rounded-2xl border border-(--border-light) bg-(--surface) p-6 lg:p-8')}>
         <div className={cn('flex flex-col justify-between gap-2 sm:flex-row sm:items-end')}>
           <div>
             <h2 className={cn('text-lg font-semibold text-(--ink)')}>이 PC 연결</h2>
@@ -385,7 +387,7 @@ export const AgentSetupUI = () => {
         </div>
 
         {issuedToken && !isDesktop && (
-          <div className={cn('mt-4 rounded-xl border border-(--accent)/25 bg-(--accent)/5 p-4')}>
+          <div className={cn('mt-4 rounded-lg border border-(--accent)/25 bg-(--accent)/5 p-4')}>
             <p className={cn('text-sm font-medium text-(--ink)')}>Viro 프로그램에 아래 연결 코드를 입력하세요</p>
             <div className={cn('mt-2 flex items-center gap-2')}>
               <code className={cn('min-w-0 flex-1 truncate rounded-lg bg-(--surface-muted) px-3 py-2 font-mono text-xs text-(--ink)')}>
@@ -399,15 +401,15 @@ export const AgentSetupUI = () => {
         )}
 
         <div className={cn('mt-6 border-t border-(--border-light) pt-5')}>
-          <h3 className={cn('text-xs font-semibold uppercase tracking-wider text-(--ink-muted)')}>연결된 PC</h3>
+          <h3 className={cn('text-sm font-semibold text-(--ink)')}>연결된 PC</h3>
           <div className={cn('mt-3 space-y-2')}>
             {tokens.length === 0 ? (
-              <p className={cn('rounded-xl border border-dashed border-(--border) px-4 py-6 text-center text-sm text-(--ink-muted)')}>
+              <p className={cn('rounded-lg border border-dashed border-(--border) px-4 py-6 text-center text-sm text-(--ink-muted)')}>
                 아직 연결된 PC가 없습니다.
               </p>
             ) : (
               tokens.map((token) => (
-                <div key={token.id} className={cn('flex items-center justify-between gap-3 rounded-xl bg-(--surface-muted) px-4 py-3')}>
+                <div key={token.id} className={cn('flex items-center justify-between gap-3 rounded-lg bg-(--surface-muted) px-4 py-3')}>
                   <div className={cn('min-w-0')}>
                     <div className={cn('flex items-center gap-2')}>
                       <span className={cn('h-2 w-2 rounded-full', isOnline(token.lastSeenAt) ? 'bg-(--success)' : 'bg-(--border)')} />

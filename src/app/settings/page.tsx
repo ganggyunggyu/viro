@@ -16,7 +16,7 @@ export default function SettingsPage() {
             'rounded-2xl border border-(--border-light) bg-(--surface) p-6 lg:p-8'
           )}
         >
-          <h2 className={cn('text-lg font-semibold text-(--ink) mb-6')}>큐 설정</h2>
+          <h2 className={cn('text-xl font-semibold text-(--ink) mb-6')}>큐 설정</h2>
           <DelaySettingsUI />
         </div>
 
@@ -25,7 +25,7 @@ export default function SettingsPage() {
             'rounded-2xl border border-(--border-light) bg-(--surface) p-6 lg:p-8'
           )}
         >
-          <h2 className={cn('text-lg font-semibold text-(--ink) mb-2')}>계정별 API 키</h2>
+          <h2 className={cn('text-xl font-semibold text-(--ink) mb-2')}>계정별 API 키</h2>
           <p className={cn('text-sm text-(--ink-muted) mb-6')}>
             Gemini/DeepSeek 키는 프로젝트 전역이 아니라 계정마다 따로 등록합니다. 계정을 고르고 그 계정 전용 키를 관리하세요.
           </p>
@@ -37,7 +37,7 @@ export default function SettingsPage() {
             'rounded-2xl border border-(--border-light) bg-(--surface) p-6 lg:p-8'
           )}
         >
-          <h2 className={cn('text-lg font-semibold text-(--ink) mb-6')}>비밀번호 변경</h2>
+          <h2 className={cn('text-xl font-semibold text-(--ink) mb-6')}>비밀번호 변경</h2>
           <PasswordChangeUI />
         </div>
       </div>

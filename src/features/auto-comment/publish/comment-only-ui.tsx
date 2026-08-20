@@ -37,8 +37,8 @@ export const CommentOnlyUI = () => {
   const safeDaysLimit = daysLimit || 1;
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 
@@ -79,7 +79,7 @@ export const CommentOnlyUI = () => {
       {phase === 'ready' && (
         <div className={cn('space-y-4')}>
           {cafesLoaded && cafes.length === 0 ? (
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-4 text-sm text-(--ink-muted)')}>
+            <div className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) p-4 text-sm text-(--ink-muted)')}>
               등록된 카페가 없습니다. 카페 관리 화면에서 먼저 카페를 등록해주세요.
             </div>
           ) : (
@@ -107,7 +107,7 @@ export const CommentOnlyUI = () => {
             />
           </div>
 
-          <div className={cn('rounded-xl border border-(--info)/20 bg-(--info-soft) p-4 space-y-2')}>
+          <div className={cn('rounded-lg border border-(--info)/20 bg-(--info-soft) p-4 space-y-2')}>
             <p className={cn('text-sm font-semibold text-(--info)')}>자동 선택 기준</p>
             <ul className={cn('text-xs text-(--info)/80 space-y-1')}>
               <li>• 최근 {safeDaysLimit}일 이내 글 중 랜덤 절반 선택</li>
@@ -174,7 +174,7 @@ export const CommentOnlyUI = () => {
                 <div
                   key={i}
                   className={cn(
-                    'rounded-xl border border-(--border-light) bg-(--surface) px-4 py-3'
+                    'rounded-lg border border-(--border-light) bg-(--surface) px-4 py-3'
                   )}
                 >
                   <div className={cn('flex items-center gap-2')}>

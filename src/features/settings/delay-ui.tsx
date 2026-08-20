@@ -117,7 +117,7 @@ export const DelaySettingsUI = () => {
   };
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 

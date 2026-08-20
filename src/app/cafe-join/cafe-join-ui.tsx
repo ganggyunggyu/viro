@@ -85,7 +85,7 @@ export const CafeJoinUI = () => {
   return (
     <div className={cn('space-y-6')}>
       {/* 현재 설정 요약 */}
-      <div className={cn('rounded-2xl border border-(--border) bg-(--surface-muted) p-4')}>
+      <div className={cn('rounded-lg border border-(--border) bg-(--surface-muted) p-4')}>
         <h3 className={cn('text-sm font-semibold text-(--ink) mb-3')}>
           현재 설정
         </h3>

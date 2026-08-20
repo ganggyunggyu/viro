@@ -21,7 +21,7 @@ export const WorkerStatusBanner = ({ status }: WorkerStatusBannerProps) => {
     return (
       <div
         className={cn(
-          'flex items-center gap-2.5 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3',
+          'flex items-center gap-2.5 rounded-lg border border-(--border-light) bg-(--surface-muted) px-4 py-3',
         )}
       >
         <Loader2 className="h-4 w-4 shrink-0 animate-spin text-(--ink-tertiary)" strokeWidth={2} />
@@ -37,7 +37,7 @@ export const WorkerStatusBanner = ({ status }: WorkerStatusBannerProps) => {
     return (
       <div
         className={cn(
-          'flex items-center gap-2.5 rounded-xl border border-(--success)/25 bg-(--success-soft) px-4 py-3',
+          'flex items-center gap-2.5 rounded-lg border border-(--success)/25 bg-(--success-soft) px-4 py-3',
         )}
       >
         <MonitorCheck className="h-4 w-4 shrink-0 text-(--success)" strokeWidth={2} />
@@ -55,7 +55,7 @@ export const WorkerStatusBanner = ({ status }: WorkerStatusBannerProps) => {
   return (
     <div
       className={cn(
-        'space-y-2 rounded-xl border border-(--danger)/25 bg-(--danger-soft) px-4 py-3',
+        'space-y-2 rounded-lg border border-(--danger)/25 bg-(--danger-soft) px-4 py-3',
       )}
     >
       <div className={cn('flex items-center gap-2.5')}>

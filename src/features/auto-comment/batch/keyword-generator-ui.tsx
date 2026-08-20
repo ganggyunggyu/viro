@@ -42,8 +42,8 @@ export const KeywordGeneratorUI = () => {
   const categories = selectedCafe?.categories || [];
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-ink',
-    'placeholder:text-ink-tertiary transition-all',
+    'w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-ink',
+    'placeholder:text-ink-tertiary transition-colors duration-150',
     'focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10'
   );
 
@@ -155,7 +155,7 @@ export const KeywordGeneratorUI = () => {
       </Button>
 
       {error && (
-        <div className={cn('rounded-xl border border-danger/30 bg-danger-soft px-4 py-3')}>
+        <div className={cn('rounded-lg border border-danger/30 bg-danger-soft px-4 py-3')}>
           <p className={cn('text-sm text-danger')}>{error}</p>
         </div>
       )}
@@ -177,7 +177,7 @@ export const KeywordGeneratorUI = () => {
           </div>
           <div
             className={cn(
-              'max-h-[300px] overflow-y-auto rounded-xl border border-border-light bg-surface p-4'
+              'max-h-[300px] overflow-y-auto rounded-lg border border-border-light bg-surface p-4'
             )}
           >
             <div className={cn('flex flex-wrap gap-2')}>

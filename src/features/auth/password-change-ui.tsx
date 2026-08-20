@@ -84,8 +84,8 @@ export const PasswordChangeUI = () => {
       {result && (
         <div
           className={cn(
-            'rounded-lg px-3 py-2 text-sm',
-            result.success ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'
+            'rounded-lg border border-(--border-light) bg-(--surface-muted) px-3 py-2 text-sm',
+            result.success ? 'text-(--ink)' : 'text-(--danger)'
           )}
         >
           {result.message}

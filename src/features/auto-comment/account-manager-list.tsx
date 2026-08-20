@@ -30,7 +30,7 @@ export const AccountManagerList = ({
             <li
               key={account.id}
               className={cn(
-                'rounded-2xl border border-(--border) bg-(--surface-muted) px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3',
+                'rounded-lg border border-(--border) bg-(--surface-muted) px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3',
                 account.isMain &&
                   'border-(--accent) bg-(--accent-soft)'
               )}

@@ -21,10 +21,10 @@ export const AccountManagerForm = ({
   onSubmit,
 }: AccountManagerFormProps) => {
   const sectionClassName = cn(
-    'rounded-2xl border border-(--border) bg-(--surface-muted) p-4 shadow-sm'
+    'rounded-lg border border-(--border) bg-(--surface-muted) p-4 shadow-sm'
   );
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2 text-sm text-(--ink) placeholder:text-(--ink-muted) shadow-sm transition focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)'
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2 text-sm text-(--ink) placeholder:text-(--ink-muted) shadow-sm transition focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)'
   );
 
   return (

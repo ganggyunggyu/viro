@@ -43,8 +43,8 @@ const variantStyles: Record<ButtonVariant, string> = {
 const sizeStyles: Record<ButtonSize, string> = {
   xs: 'min-h-8 min-w-8 px-2.5 py-1 text-xs rounded-lg',
   sm: 'min-h-9 min-w-9 px-3 py-1.5 text-sm rounded-lg',
-  md: 'min-h-11 min-w-11 px-4 py-2 text-sm rounded-xl',
-  lg: 'min-h-12 min-w-12 px-5 py-2.5 text-base rounded-xl',
+  md: 'min-h-11 min-w-11 px-4 py-2 text-sm rounded-lg',
+  lg: 'min-h-12 min-w-12 px-5 py-2.5 text-base rounded-lg',
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({

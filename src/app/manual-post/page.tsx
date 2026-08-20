@@ -14,7 +14,7 @@ export default function ManualPostPage() {
       <AnimatedCard className={cn('p-6 lg:p-8')}>
         <div className={cn('space-y-6')}>
           <SlideUp>
-            <h2 className={cn('text-lg font-semibold text-(--ink)')}>원고 발행/수정</h2>
+            <h2 className={cn('text-xl font-semibold text-(--ink)')}>원고 발행/수정</h2>
             <p className={cn('text-sm text-(--ink-muted) mt-1')}>
               AI 생성 없이 원고 그대로 발행하거나 기존 글 수정
             </p>
@@ -26,7 +26,7 @@ export default function ManualPostPage() {
       <SlideUp delay={0.2}>
         <HelpAccordion title="사용 안내" className={cn('mt-8')}>
           <div className={cn('grid gap-4 lg:grid-cols-2')}>
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
+            <div className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>폴더 구조</h3>
               <pre className={cn('text-xs text-(--ink-muted) bg-(--surface) rounded-lg p-3 font-mono')}>
 {`상위폴더/
@@ -40,7 +40,7 @@ export default function ManualPostPage() {
               </pre>
             </div>
 
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
+            <div className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>원고.txt 형식</h3>
               <div className={cn('text-sm text-(--ink-muted) space-y-2')}>
                 <p>• 첫 번째 줄: <span className={cn('font-medium text-(--ink)')}>제목</span></p>
@@ -53,7 +53,7 @@ export default function ManualPostPage() {
             </div>
           </div>
 
-          <div className={cn('mt-4 rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
+          <div className={cn('mt-4 rounded-lg border border-(--border-light) bg-(--surface-muted) p-5')}>
             <h3 className={cn('font-semibold text-(--ink) mb-3')}>특징</h3>
             <div className={cn('grid grid-cols-2 lg:grid-cols-4 gap-3')}>
               {['드래그앤드랍', '이미지 자동 첨부', '큐 기반 발행', '순차 수정'].map((label) => (

@@ -112,7 +112,7 @@ export const ConfirmModal = ({
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className={cn(
               'fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2',
-              'rounded-2xl border border-border bg-surface p-6 shadow-xl'
+              'rounded-2xl border border-border bg-surface p-6 shadow-lg'
             )}
           >
             {/* Header */}
@@ -208,7 +208,7 @@ export const ExecuteConfirmModal = ({
     >
       <div className={cn('space-y-3')}>
         {/* 설정 요약 */}
-        <div className={cn('rounded-xl border border-border bg-surface-muted p-4')}>
+        <div className={cn('rounded-lg border border-border bg-surface-muted p-4')}>
           <h4 className={cn('text-sm font-medium text-ink mb-3')}>실행 설정</h4>
           <div className={cn('space-y-2')}>
             {settings.map((item, i) => (
@@ -233,7 +233,7 @@ export const ExecuteConfirmModal = ({
 
         {/* 경고 메시지 */}
         {warnings.length > 0 && (
-          <div className={cn('rounded-xl border border-warning/30 bg-warning-soft p-4')}>
+          <div className={cn('rounded-lg border border-warning/30 bg-warning-soft p-4')}>
             <h4 className={cn('text-sm font-medium text-warning mb-2')}>주의사항</h4>
             <ul className={cn('text-sm text-warning/80 space-y-1')}>
               {warnings.map((warning, i) => (

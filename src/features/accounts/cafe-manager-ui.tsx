@@ -104,8 +104,8 @@ export const CafeManagerUI = () => {
   const [pendingDeleteCafeId, setPendingDeleteCafeId] = useState<string | null>(null);
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10',
     'disabled:bg-(--surface-muted) disabled:cursor-not-allowed'
   );
@@ -217,7 +217,7 @@ export const CafeManagerUI = () => {
       {message && (
         <div
           className={cn(
-            'rounded-xl border p-4 text-sm',
+            'rounded-lg border p-4 text-sm',
             message.type === 'success'
               ? 'border-(--success)/20 bg-(--success-soft) text-(--success)'
               : 'border-(--danger)/20 bg-(--danger-soft) text-(--danger)'
@@ -368,7 +368,7 @@ export const CafeManagerUI = () => {
 
       <div className={cn('space-y-3')}>
         {cafes.length === 0 ? (
-          <div className={cn('p-8 text-center text-(--ink-muted) text-sm rounded-xl border border-dashed border-(--border)')}>
+          <div className={cn('p-8 text-center text-(--ink-muted) text-sm rounded-lg border border-dashed border-(--border)')}>
             등록된 카페가 없습니다
           </div>
         ) : (
@@ -376,8 +376,8 @@ export const CafeManagerUI = () => {
             <div
               key={cafe.cafeId}
               className={cn(
-                'p-4 rounded-xl border border-(--border-light) bg-(--surface)',
-                'flex flex-col gap-3 transition-all hover:border-(--border)'
+                'p-4 rounded-lg border border-(--border-light) bg-(--surface)',
+                'flex flex-col gap-3 transition-colors duration-150 hover:border-(--border)'
               )}
             >
               <div className={cn('flex justify-between items-start')}>

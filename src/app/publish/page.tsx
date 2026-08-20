@@ -24,7 +24,7 @@ export default function PublishPage() {
             {activeTab === 'post' && (
               <div className={cn('space-y-6')}>
                 <SlideUp>
-                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>글 발행</h2>
+                  <h2 className={cn('text-xl font-semibold text-(--ink)')}>글 발행</h2>
                   <p className={cn('text-sm text-(--ink-muted) mt-1')}>
                     글만 발행하거나, 발행 직후 그 글에 댓글 작업까지 바로 예약
                   </p>
@@ -36,7 +36,7 @@ export default function PublishPage() {
             {activeTab === 'comment' && (
               <div className={cn('space-y-6')}>
                 <SlideUp>
-                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>댓글만 달기</h2>
+                  <h2 className={cn('text-xl font-semibold text-(--ink)')}>댓글만 달기</h2>
                   <p className={cn('text-sm text-(--ink-muted) mt-1')}>
                     기존 글에 댓글/대댓글 자동 추가
                   </p>
@@ -48,7 +48,7 @@ export default function PublishPage() {
             {activeTab === 'exposure' && (
               <div className={cn('space-y-6')}>
                 <SlideUp>
-                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>노출 체크</h2>
+                  <h2 className={cn('text-xl font-semibold text-(--ink)')}>노출 체크</h2>
                   <p className={cn('text-sm text-(--ink-muted) mt-1')}>
                     발행한 글이 네이버 카페 검색 결과에 실제로 노출되는지 확인
                   </p>
@@ -60,7 +60,7 @@ export default function PublishPage() {
             {activeTab === 'rewrite' && (
               <div className={cn('space-y-6')}>
                 <SlideUp>
-                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>글 재작성</h2>
+                  <h2 className={cn('text-xl font-semibold text-(--ink)')}>글 재작성</h2>
                   <p className={cn('text-sm text-(--ink-muted) mt-1')}>
                     선택한 카페의 기존 글을 날짜 범위로 골라 AI 원고 + 이미지 3장으로 덮어씁니다
                   </p>
@@ -75,7 +75,7 @@ export default function PublishPage() {
       <SlideUp delay={0.2}>
         <HelpAccordion title="분리 발행 사용법" className={cn('mt-8')}>
           <div className={cn('grid gap-4 lg:grid-cols-4')}>
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
+            <div className={cn('rounded-lg border border-(--border-light) bg-(--surface) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>글만 발행</h3>
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
                 <li>• 키워드 입력 후 발행 버튼 클릭</li>
@@ -84,7 +84,7 @@ export default function PublishPage() {
               </ul>
             </div>
 
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
+            <div className={cn('rounded-lg border border-(--border-light) bg-(--surface) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>댓글만 달기</h3>
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
                 <li>• 최근 글 중 랜덤 절반 선택</li>
@@ -93,7 +93,7 @@ export default function PublishPage() {
               </ul>
             </div>
 
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
+            <div className={cn('rounded-lg border border-(--border-light) bg-(--surface) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>노출 체크</h3>
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
                 <li>• 발행글 선택 또는 키워드 직접 입력</li>
@@ -102,7 +102,7 @@ export default function PublishPage() {
               </ul>
             </div>
 
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-5')}>
+            <div className={cn('rounded-lg border border-(--border-light) bg-(--surface) p-5')}>
               <h3 className={cn('font-semibold text-(--ink) mb-3')}>글 재작성</h3>
               <ul className={cn('text-sm text-(--ink-muted) space-y-1.5')}>
                 <li>• 카페 다중 선택 + 날짜 범위 지정</li>

@@ -74,7 +74,7 @@ export const BatchResultList = ({
         return (
           <div
             key={index}
-            className="rounded-xl border border-(--border) bg-(--surface-muted) px-3 py-2"
+            className="rounded-lg border border-(--border) bg-(--surface-muted) px-3 py-2"
           >
             <div className="flex items-center gap-2">
               <Icon className={cn('h-4 w-4 shrink-0', STATUS_COLOR[row.status])} strokeWidth={2} />

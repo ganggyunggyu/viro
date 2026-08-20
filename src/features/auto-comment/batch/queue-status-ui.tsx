@@ -32,10 +32,7 @@ export const QueueStatusUI = ({ status, onStopPolling }: QueueStatusUIProps) => 
         <div className={cn('flex items-center justify-between mb-4')}>
           <div className={cn('flex items-center gap-2')}>
             {!isAllDone && (
-              <span className={cn('relative flex h-2.5 w-2.5')}>
-                <span className={cn('animate-ping absolute inline-flex h-full w-full rounded-full bg-(--accent) opacity-75')} />
-                <span className={cn('relative inline-flex rounded-full h-2.5 w-2.5 bg-(--accent)')} />
-              </span>
+              <span className={cn('h-2 w-2 shrink-0 rounded-full bg-(--accent)')} />
             )}
             <h4 className={cn('text-sm font-semibold text-(--ink)')}>
               {isAllDone ? '완료!' : '실행 중...'}
@@ -44,7 +41,7 @@ export const QueueStatusUI = ({ status, onStopPolling }: QueueStatusUIProps) => 
           <button
             onClick={onStopPolling}
             className={cn(
-              'text-xs px-3 py-1.5 rounded-lg transition-all font-medium',
+              'text-xs px-3 py-1.5 rounded-lg transition-colors duration-150 font-medium',
               'border border-(--border) text-(--ink-muted) hover:text-(--ink) hover:bg-(--surface-muted)'
             )}
           >
@@ -55,19 +52,19 @@ export const QueueStatusUI = ({ status, onStopPolling }: QueueStatusUIProps) => 
         <div className={cn('h-2.5 rounded-full bg-(--surface-muted) overflow-hidden flex')}>
           {totals.completed > 0 && (
             <div
-              className={cn('h-full bg-(--success) transition-all duration-500')}
+              className={cn('h-full bg-(--success) transition-[width] duration-300')}
               style={{ width: `${(totals.completed / totalJobs) * 100}%` }}
             />
           )}
           {totals.active > 0 && (
             <div
-              className={cn('h-full bg-(--warning) animate-pulse transition-all duration-500')}
+              className={cn('h-full bg-(--warning) transition-[width] duration-300')}
               style={{ width: `${(totals.active / totalJobs) * 100}%` }}
             />
           )}
           {totals.failed > 0 && (
             <div
-              className={cn('h-full bg-(--danger) transition-all duration-500')}
+              className={cn('h-full bg-(--danger) transition-[width] duration-300')}
               style={{ width: `${(totals.failed / totalJobs) * 100}%` }}
             />
           )}
@@ -80,7 +77,7 @@ export const QueueStatusUI = ({ status, onStopPolling }: QueueStatusUIProps) => 
               <span className={cn('text-(--ink-muted)')}>대기 {totals.waiting}</span>
             </span>
             <span className={cn('flex items-center gap-1.5')}>
-              <span className={cn('w-2 h-2 rounded-full bg-(--warning) animate-pulse')} />
+              <span className={cn('w-2 h-2 rounded-full bg-(--warning)')} />
               <span className={cn('text-(--ink-muted)')}>진행 {totals.active}</span>
             </span>
             <span className={cn('flex items-center gap-1.5')}>
@@ -122,7 +119,7 @@ export const QueueStatusUI = ({ status, onStopPolling }: QueueStatusUIProps) => 
               <div
                 key={accountId}
                 className={cn(
-                  'rounded-xl p-4 transition-all border',
+                  'rounded-lg p-4 transition-colors duration-150 border',
                   isDone
                     ? 'bg-(--success-soft) border-(--success)/20'
                     : s.active > 0
@@ -133,10 +130,7 @@ export const QueueStatusUI = ({ status, onStopPolling }: QueueStatusUIProps) => 
                 <div className={cn('flex items-center justify-between mb-2')}>
                   <div className={cn('flex items-center gap-2')}>
                     {s.active > 0 && (
-                      <span className={cn('relative flex h-2 w-2')}>
-                        <span className={cn('animate-ping absolute inline-flex h-full w-full rounded-full bg-(--warning) opacity-75')} />
-                        <span className={cn('relative inline-flex rounded-full h-2 w-2 bg-(--warning)')} />
-                      </span>
+                      <span className={cn('h-2 w-2 shrink-0 rounded-full bg-(--warning)')} />
                     )}
                     {isDone && s.failed === 0 && (
                       <svg className={cn('w-4 h-4 text-(--success)')} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,7 +163,7 @@ export const QueueStatusUI = ({ status, onStopPolling }: QueueStatusUIProps) => 
                   )}
                   {s.active > 0 && (
                     <div
-                      className={cn('h-full bg-(--warning) animate-pulse')}
+                      className={cn('h-full bg-(--warning)')}
                       style={{ width: `${(s.active / total) * 100}%` }}
                     />
                   )}

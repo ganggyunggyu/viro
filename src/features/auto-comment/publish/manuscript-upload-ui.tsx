@@ -87,8 +87,8 @@ export const ManuscriptUploadUI = () => {
   const selectedCafe = cafes.find((c) => c.cafeId === selectedCafeId);
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 
@@ -276,7 +276,7 @@ export const ManuscriptUploadUI = () => {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={cn(
-            'rounded-2xl border-2 border-dashed p-8 text-center transition-all cursor-pointer',
+            'rounded-2xl border-2 border-dashed p-8 text-center transition-colors duration-150 cursor-pointer',
             isDragOver
               ? 'border-(--accent) bg-(--accent)/5'
               : 'border-(--border) bg-(--surface) hover:border-(--accent)/50'
@@ -322,7 +322,7 @@ export const ManuscriptUploadUI = () => {
             </p>
             <div className={cn('max-h-52 overflow-y-auto space-y-2')}>
               {Object.entries(groupedByCategory).map(([category, items]) => (
-                <div key={category} className={cn('rounded-xl bg-(--surface-muted) p-3')}>
+                <div key={category} className={cn('rounded-lg bg-(--surface-muted) p-3')}>
                   <p className={cn('text-xs font-medium text-(--accent) mb-2')}>
                     {category} ({items.length}개)
                   </p>
@@ -351,7 +351,7 @@ export const ManuscriptUploadUI = () => {
         )}
 
         {mode === 'modify' && (
-          <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) p-4 space-y-4')}>
+          <div className={cn('rounded-lg border border-(--border-light) bg-(--surface) p-4 space-y-4')}>
             <p className={cn('text-sm font-medium text-(--ink)')}>수정 옵션</p>
             <div className={cn('grid grid-cols-2 gap-4')}>
               <Select
@@ -383,7 +383,7 @@ export const ManuscriptUploadUI = () => {
         )}
 
         {mode === 'publish' && (
-          <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-4')}>
+          <div className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) p-4')}>
             <PostOptionsUI options={postOptions} onChange={setPostOptions} />
           </div>
         )}

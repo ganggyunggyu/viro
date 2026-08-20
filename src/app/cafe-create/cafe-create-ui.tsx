@@ -112,7 +112,7 @@ export const CafeCreateUI = () => {
             value={ownerAccountId}
             onChange={(e) => setOwnerAccountId(e.target.value)}
             className={cn(
-              'w-full px-4 py-2 rounded-xl border border-(--border) bg-(--surface) text-sm text-(--ink)'
+              'w-full px-4 py-2 rounded-lg border border-(--border) bg-(--surface) text-sm text-(--ink)'
             )}
           >
             {owners.length === 0 && <option value="">사용 가능한 계정 없음</option>}
@@ -132,7 +132,7 @@ export const CafeCreateUI = () => {
             value={presetKey}
             onChange={(e) => setPresetKey(e.target.value)}
             className={cn(
-              'w-full px-4 py-2 rounded-xl border border-(--border) bg-(--surface) text-sm text-(--ink)'
+              'w-full px-4 py-2 rounded-lg border border-(--border) bg-(--surface) text-sm text-(--ink)'
             )}
           >
             {presets.map((preset) => (
@@ -161,7 +161,7 @@ export const CafeCreateUI = () => {
             onChange={(e) => setName(e.target.value)}
             placeholder="예: 생활 살림노트"
             className={cn(
-              'w-full px-4 py-2 rounded-xl border border-(--border) bg-(--surface) text-sm text-(--ink)'
+              'w-full px-4 py-2 rounded-lg border border-(--border) bg-(--surface) text-sm text-(--ink)'
             )}
           />
           {nameSuggestions.length > 0 && (
@@ -192,7 +192,7 @@ export const CafeCreateUI = () => {
             onChange={(e) => setSlug(e.target.value.replace(/[^a-zA-Z0-9]/g, ''))}
             placeholder="예: livingnote702"
             className={cn(
-              'w-full px-4 py-2 rounded-xl border border-(--border) bg-(--surface) text-sm text-(--ink)'
+              'w-full px-4 py-2 rounded-lg border border-(--border) bg-(--surface) text-sm text-(--ink)'
             )}
           />
         </div>
@@ -206,7 +206,7 @@ export const CafeCreateUI = () => {
             onChange={(e) => setDescription(e.target.value.slice(0, 100))}
             rows={3}
             className={cn(
-              'w-full px-4 py-2 rounded-xl border border-(--border) bg-(--surface) text-sm text-(--ink)'
+              'w-full px-4 py-2 rounded-lg border border-(--border) bg-(--surface) text-sm text-(--ink)'
             )}
           />
           <p className={cn('text-xs text-(--ink-muted) mt-1')}>{description.length}/100</p>
@@ -221,7 +221,7 @@ export const CafeCreateUI = () => {
             onChange={(e) => setKeywordsText(e.target.value)}
             placeholder="예: 생활, 살림, 살림정보"
             className={cn(
-              'w-full px-4 py-2 rounded-xl border border-(--border) bg-(--surface) text-sm text-(--ink)'
+              'w-full px-4 py-2 rounded-lg border border-(--border) bg-(--surface) text-sm text-(--ink)'
             )}
           />
         </div>

@@ -38,7 +38,7 @@ export default function TestPage() {
         {activeTab === 'keyword' && (
           <div className={cn('space-y-6')}>
             <div>
-              <h2 className={cn('text-lg font-semibold text-(--ink)')}>키워드 생성</h2>
+              <h2 className={cn('text-xl font-semibold text-(--ink)')}>키워드 생성</h2>
               <p className={cn('text-sm text-(--ink-muted) mt-1')}>
                 카테고리 기반 AI 키워드 자동 생성
               </p>
@@ -50,7 +50,7 @@ export default function TestPage() {
         {activeTab === 'api' && (
           <div className={cn('space-y-6')}>
             <div>
-              <h2 className={cn('text-lg font-semibold text-(--ink)')}>API 테스트</h2>
+              <h2 className={cn('text-xl font-semibold text-(--ink)')}>API 테스트</h2>
               <p className={cn('text-sm text-(--ink-muted) mt-1')}>
                 콘텐츠 생성 API 직접 테스트
               </p>

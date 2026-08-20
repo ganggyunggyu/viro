@@ -153,8 +153,8 @@ export const AccountManagerUI = () => {
   const [formData, setFormData] = useState<AccountFormData>(defaultFormData);
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 
@@ -336,7 +336,7 @@ export const AccountManagerUI = () => {
       {message && (
         <div
           className={cn(
-            'rounded-xl border p-4 text-sm',
+            'rounded-lg border p-4 text-sm',
             message.type === 'success'
               ? 'border-(--success)/20 bg-(--success-soft) text-(--success)'
               : 'border-(--danger)/20 bg-(--danger-soft) text-(--danger)'
@@ -517,7 +517,7 @@ export const AccountManagerUI = () => {
                 <div className={cn('flex items-center gap-4 flex-1 min-w-0')}>
                   <span
                     className={cn(
-                      'w-8 h-8 rounded-xl flex items-center justify-center text-sm font-semibold shrink-0',
+                      'w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0',
                       account.isMain ? 'bg-(--info-soft) text-(--info)' : 'bg-(--surface-muted) text-(--ink-muted)'
                     )}
                   >

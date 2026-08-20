@@ -30,7 +30,7 @@ export const HelpAccordion = ({ title = '사용 방법', items, children, classN
         {title}
       </summary>
 
-      <div className={cn('mt-3 rounded-xl border border-(--border-light) bg-(--surface-muted) p-5')}>
+      <div className={cn('mt-3 rounded-lg border border-(--border-light) bg-(--surface-muted) p-5')}>
         {items ? (
           <ol className={cn('text-sm text-(--ink-muted) space-y-2 list-decimal list-inside')}>
             {items.map((item, index) => (

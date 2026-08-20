@@ -142,8 +142,8 @@ export const ManualPostUI = () => {
   const [showExecuteModal, setShowExecuteModal] = useState(false);
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 
@@ -281,7 +281,7 @@ export const ManualPostUI = () => {
             key={tab.id}
             onClick={() => setMode(tab.id as Mode)}
             className={cn(
-              'relative px-5 py-2.5 rounded-xl text-sm font-medium transition-colors',
+              'relative px-5 py-2.5 rounded-lg text-sm font-medium transition-colors',
               mode === tab.id
                 ? 'text-(--background)'
                 : 'bg-(--surface) border border-(--border) text-(--ink-muted) hover:text-(--ink) hover:bg-(--surface-muted)'
@@ -290,7 +290,7 @@ export const ManualPostUI = () => {
             {mode === tab.id && (
               <motion.div
                 layoutId="manualPostTab"
-                className={cn('absolute inset-0 bg-(--accent) rounded-xl')}
+                className={cn('absolute inset-0 bg-(--accent) rounded-lg')}
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
@@ -305,7 +305,7 @@ export const ManualPostUI = () => {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          'rounded-2xl border-2 border-dashed p-10 text-center transition-all',
+          'rounded-2xl border-2 border-dashed p-10 text-center transition-colors duration-150',
           isDragging
             ? 'border-(--accent) bg-(--accent)/5'
             : 'border-(--border) bg-(--surface-muted)',
@@ -388,7 +388,7 @@ export const ManualPostUI = () => {
         {mode === 'publish' && (
           <div className={cn('space-y-3')}>
             <span className={labelClassName}>게시 옵션</span>
-            <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-4')}>
+            <div className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) p-4')}>
               <PostOptionsUI options={postOptions} onChange={setPostOptions} />
             </div>
           </div>
@@ -475,7 +475,7 @@ export const ManualPostUI = () => {
         <div className={cn('space-y-4')}>
           <div
             className={cn(
-              'rounded-xl border p-4',
+              'rounded-lg border p-4',
               result.success
                 ? 'border-(--success)/30 bg-(--success-soft)'
                 : 'border-(--warning)/30 bg-(--warning-soft)'
@@ -502,7 +502,7 @@ export const ManualPostUI = () => {
               <div
                 key={idx}
                 className={cn(
-                  'rounded-xl border p-4',
+                  'rounded-lg border p-4',
                   r.success
                     ? 'border-(--success)/20 bg-(--success-soft)'
                     : 'border-(--danger)/20 bg-(--danger-soft)'

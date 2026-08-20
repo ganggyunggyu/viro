@@ -249,7 +249,7 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
         ) : (
           <div className={cn('space-y-2')}>
             {relatedJobs?.jobs.map((job) => (
-              <div key={job.id} className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-3')}>
+              <div key={job.id} className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) p-3')}>
                 <div className={cn('mb-2 flex items-center gap-2')}>
                   <Badge variant={STATUS_BADGE_VARIANT[job.status]}>{STATUS_LABELS[job.status]}</Badge>
                   <Badge variant="neutral">{TYPE_LABELS[job.type]}</Badge>
@@ -359,7 +359,7 @@ export const QueueDashboardUI = ({ onClose }: QueueDashboardUIProps) => {
       </div>
 
       {/* 상태 범례 */}
-      <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-(--border-light) bg-(--surface-muted) px-4 py-3')}>
+      <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-(--border-light) bg-(--surface-muted) px-4 py-3')}>
         <span className={cn('text-xs font-medium text-(--ink-muted)')}>상태 범례</span>
         {STATUS_ORDER.map((status) => (
           <Badge key={status} variant={STATUS_BADGE_VARIANT[status]} dot>

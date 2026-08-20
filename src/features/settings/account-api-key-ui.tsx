@@ -104,8 +104,8 @@ const KeyField = ({ accountId, provider, label, masked, hasKey, onChanged }: Key
       {testResult && (
         <div
           className={cn(
-            'rounded-lg px-3 py-2 text-sm',
-            testResult.success ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'
+            'rounded-lg border border-(--border-light) bg-(--surface-muted) px-3 py-2 text-sm',
+            testResult.success ? 'text-(--ink)' : 'text-(--danger)'
           )}
         >
           {testResult.success ? '✓ 정상 응답' : '✗ 실패'} — {testResult.message}

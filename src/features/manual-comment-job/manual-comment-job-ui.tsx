@@ -401,7 +401,7 @@ export const ManualCommentJobUI = () => {
                         <span className={cn('block h-1 w-full max-w-40 overflow-hidden rounded-full bg-(--surface-muted)')}>
                           <span
                             className={cn(
-                              'block h-full rounded-full transition-all',
+                              'block h-full rounded-full transition-colors duration-150',
                               job.status === 'failed' ? 'bg-(--danger)' : 'bg-(--accent)',
                             )}
                             style={{ width: `${percent}%` }}

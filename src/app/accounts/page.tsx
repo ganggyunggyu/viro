@@ -22,7 +22,7 @@ export default function AccountsPage() {
             {activeTab === 'accounts' && (
               <div className={cn('space-y-6')}>
                 <SlideUp>
-                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>네이버 계정</h2>
+                  <h2 className={cn('text-xl font-semibold text-(--ink)')}>네이버 계정</h2>
                   <p className={cn('text-sm text-(--ink-muted) mt-1')}>
                     자동화에 사용할 네이버 계정을 관리합니다
                   </p>
@@ -34,7 +34,7 @@ export default function AccountsPage() {
             {activeTab === 'cafes' && (
               <div className={cn('space-y-6')}>
                 <SlideUp>
-                  <h2 className={cn('text-lg font-semibold text-(--ink)')}>카페 설정</h2>
+                  <h2 className={cn('text-xl font-semibold text-(--ink)')}>카페 설정</h2>
                   <p className={cn('text-sm text-(--ink-muted) mt-1')}>
                     발행할 카페와 카테고리를 설정합니다
                   </p>

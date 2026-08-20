@@ -22,7 +22,7 @@ export default function LoginPage() {
   const errorId = `${formId}-error`;
 
   const inputClassName = cn(
-    'min-h-11 w-full rounded-xl border border-border-light bg-background px-4 py-3 text-sm',
+    'min-h-11 w-full rounded-lg border border-border-light bg-background px-4 py-3 text-sm',
     'transition-colors placeholder:text-ink-tertiary',
     'focus-visible:border-info focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/20'
   );
@@ -56,7 +56,7 @@ export default function LoginPage() {
 
         <div className={cn('rounded-2xl border border-border-light bg-surface p-6 space-y-6')}>
           <div className={cn('space-y-2 text-center')}>
-            <h2 className={cn('text-lg font-semibold text-ink')}>
+            <h2 className={cn('text-xl font-semibold text-ink')}>
               {isRegister ? '회원가입' : '로그인'}
             </h2>
           </div>

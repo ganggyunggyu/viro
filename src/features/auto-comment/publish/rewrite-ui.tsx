@@ -53,8 +53,8 @@ export const RewriteUI = () => {
     (keywordSource === 'pool' || customKeywords.length > 0);
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 
@@ -112,11 +112,11 @@ export const RewriteUI = () => {
         </div>
 
         {cafesLoaded && cafes.length === 0 ? (
-          <div className={cn('rounded-xl border border-(--border-light) bg-(--surface-muted) p-4 text-sm text-(--ink-muted)')}>
+          <div className={cn('rounded-lg border border-(--border-light) bg-(--surface-muted) p-4 text-sm text-(--ink-muted)')}>
             등록된 카페가 없습니다. 카페 관리 화면에서 먼저 카페를 등록해주세요.
           </div>
         ) : (
-          <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) divide-y divide-(--border-light)')}>
+          <div className={cn('rounded-lg border border-(--border-light) bg-(--surface) divide-y divide-(--border-light)')}>
             {cafes.map((cafe) => (
               <label
                 key={cafe.cafeId}
@@ -166,7 +166,7 @@ export const RewriteUI = () => {
             type="button"
             onClick={() => setKeywordSource('pool')}
             className={cn(
-              'flex items-center gap-3 rounded-xl border p-3 text-left transition-all',
+              'flex items-center gap-3 rounded-lg border p-3 text-left transition-colors duration-150',
               keywordSource === 'pool'
                 ? 'border-(--accent) bg-(--accent)/5'
                 : 'border-(--border-light) bg-(--surface-muted) hover:bg-(--surface)'
@@ -190,7 +190,7 @@ export const RewriteUI = () => {
             type="button"
             onClick={() => setKeywordSource('custom')}
             className={cn(
-              'flex items-center gap-3 rounded-xl border p-3 text-left transition-all',
+              'flex items-center gap-3 rounded-lg border p-3 text-left transition-colors duration-150',
               keywordSource === 'custom'
                 ? 'border-(--accent) bg-(--accent)/5'
                 : 'border-(--border-light) bg-(--surface-muted) hover:bg-(--surface)'

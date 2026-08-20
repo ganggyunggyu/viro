@@ -185,7 +185,7 @@ export default function CommentTestPage() {
       subtitle="원고/댓글/대댓글 생성 API를 페르소나별로 직접 호출해 확인하는 개발용 도구"
     >
       {/* 설정 영역 */}
-      <div className={cn('bg-surface rounded-xl p-4 mb-6 space-y-4')}>
+      <div className={cn('bg-surface rounded-lg p-4 mb-6 space-y-4')}>
         <div className={cn('grid grid-cols-2 gap-4')}>
           <div>
             <label className={cn('block text-sm font-medium mb-1')}>키워드</label>
@@ -260,7 +260,7 @@ export default function CommentTestPage() {
 
       {/* 원고 표시 */}
       {postContent && (
-        <div className={cn('bg-surface rounded-xl p-4 mb-6')}>
+        <div className={cn('bg-surface rounded-lg p-4 mb-6')}>
           <h2 className={cn('font-bold mb-2 flex items-center gap-1.5')}>
             <FileText className="h-4 w-4" strokeWidth={2} />
             생성된 원고
@@ -273,7 +273,7 @@ export default function CommentTestPage() {
 
       {/* 댓글 생성 */}
       {postContent && (
-        <div className={cn('bg-surface rounded-xl p-4 mb-6')}>
+        <div className={cn('bg-surface rounded-lg p-4 mb-6')}>
           <h2 className={cn('font-bold mb-3 flex items-center gap-1.5')}>
             <MessageSquare className="h-4 w-4" strokeWidth={2} />
             새 댓글 추가
@@ -324,7 +324,7 @@ export default function CommentTestPage() {
           <h2 className={cn('font-bold')}>댓글 목록 ({topLevelComments.length}개)</h2>
 
           {topLevelComments.map((comment, idx) => (
-            <div key={idx} className={cn('bg-surface rounded-xl p-4')}>
+            <div key={idx} className={cn('bg-surface rounded-lg p-4')}>
               <div className={cn('flex items-start gap-3')}>
                 <div className={cn('w-8 h-8 rounded-full bg-(--accent) flex items-center justify-center text-background text-sm font-bold shrink-0')}>
                   {comment.user.charAt(comment.user.length - 1)}

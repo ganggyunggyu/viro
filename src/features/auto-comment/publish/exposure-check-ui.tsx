@@ -27,8 +27,8 @@ interface AccountOption {
 type PickMode = 'published' | 'manual';
 
 const inputClassName = cn(
-  'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-  'placeholder:text-(--ink-tertiary) transition-all',
+  'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+  'placeholder:text-(--ink-tertiary) transition-colors duration-150',
   'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
 );
 
@@ -201,7 +201,7 @@ export const ExposureCheckUI = () => {
         />
       </div>
 
-      <div className={cn('flex gap-2 rounded-xl border border-(--border-light) bg-(--surface-muted) p-1')}>
+      <div className={cn('flex gap-2 rounded-lg border border-(--border-light) bg-(--surface-muted) p-1')}>
         <button
           type="button"
           onClick={() => setPickMode('published')}
@@ -248,7 +248,7 @@ export const ExposureCheckUI = () => {
             </div>
           </div>
 
-          <div className={cn('max-h-80 space-y-2 overflow-y-auto rounded-xl border border-(--border-light) bg-(--surface) p-2')}>
+          <div className={cn('max-h-80 space-y-2 overflow-y-auto rounded-lg border border-(--border-light) bg-(--surface) p-2')}>
             {articlesLoading && (
               <div className={cn('flex items-center justify-center py-8 text-(--ink-muted)')}>
                 <Loader2 className={cn('w-5 h-5 animate-spin')} />
@@ -329,7 +329,7 @@ export const ExposureCheckUI = () => {
             <div className={cn('space-y-2 max-h-96 overflow-y-auto')}>
               {result.results.map((r, i) => (
                 <Fragment key={`${r.cafeId}-${r.articleId ?? r.keyword}-${i}`}>
-                  <div className={cn('rounded-xl border border-(--border-light) bg-(--surface) px-4 py-3')}>
+                  <div className={cn('rounded-lg border border-(--border-light) bg-(--surface) px-4 py-3')}>
                     <div className={cn('flex items-center justify-between gap-2')}>
                       <span className={cn('truncate text-sm font-medium text-(--ink)')}>{r.keyword}</span>
                       <StatusBadge status={r.status} />

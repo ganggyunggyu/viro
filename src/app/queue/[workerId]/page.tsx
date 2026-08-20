@@ -176,25 +176,25 @@ export default function WorkerQueuePage({ params }: Props) {
             </div>
 
             <div className={cn('grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6')}>
-              <div className={cn('rounded-xl bg-surface-muted p-4')}>
+              <div className={cn('rounded-lg bg-surface-muted p-4')}>
                 <div className={cn('text-xs text-ink-muted mb-1')}>역할</div>
                 <div className={cn('font-semibold text-ink')}>
                   {accountInfo.isMain ? '메인 계정' : '댓글 계정'}
                 </div>
               </div>
-              <div className={cn('rounded-xl bg-surface-muted p-4')}>
+              <div className={cn('rounded-lg bg-surface-muted p-4')}>
                 <div className={cn('text-xs text-ink-muted mb-1')}>페르소나</div>
                 <div className={cn('font-semibold text-ink')}>
                   {accountInfo.personaId || '없음'}
                 </div>
               </div>
-              <div className={cn('rounded-xl bg-surface-muted p-4')}>
+              <div className={cn('rounded-lg bg-surface-muted p-4')}>
                 <div className={cn('text-xs text-ink-muted mb-1')}>일일 제한</div>
                 <div className={cn('font-semibold text-ink')}>
                   {accountInfo.dailyPostLimit || '무제한'}
                 </div>
               </div>
-              <div className={cn('rounded-xl bg-surface-muted p-4')}>
+              <div className={cn('rounded-lg bg-surface-muted p-4')}>
                 <div className={cn('text-xs text-ink-muted mb-1')}>활동 시간</div>
                 <div className={cn('font-semibold text-ink text-sm')}>
                   {accountInfo.activityHours

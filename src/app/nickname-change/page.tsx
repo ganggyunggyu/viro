@@ -22,7 +22,7 @@ export default function NicknameChangePage() {
           <AnimatedCard className={cn('p-6 lg:p-8')}>
             <div className={cn('space-y-6')}>
               <SlideUp>
-                <h2 className={cn('text-lg font-semibold text-ink')}>
+                <h2 className={cn('text-xl font-semibold text-ink')}>
                   {activeTab === 'by-cafe' && '카페 기준 닉네임 변경'}
                   {activeTab === 'by-account' && '계정 기준 닉네임 변경'}
                   {activeTab === 'all' && '전체 순회 닉네임 변경'}

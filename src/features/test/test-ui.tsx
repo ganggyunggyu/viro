@@ -65,8 +65,8 @@ export const TestUI = () => {
   const isSingleMode = mode === 'single';
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 
@@ -236,8 +236,8 @@ export const KeywordGeneratorUI = () => {
   const categories = selectedCafe?.categories || [];
 
   const inputClassName = cn(
-    'w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
-    'placeholder:text-(--ink-tertiary) transition-all',
+    'w-full rounded-lg border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--ink)',
+    'placeholder:text-(--ink-tertiary) transition-colors duration-150',
     'focus:border-(--accent) focus:outline-none focus:ring-2 focus:ring-(--accent)/10'
   );
 
@@ -328,7 +328,7 @@ export const KeywordGeneratorUI = () => {
       </Button>
 
       {error && (
-        <div className={cn('rounded-xl border border-(--danger)/30 bg-(--danger-soft) px-4 py-3')}>
+        <div className={cn('rounded-lg border border-(--danger)/30 bg-(--danger-soft) px-4 py-3')}>
           <p className={cn('text-sm text-(--danger)')}>{error}</p>
         </div>
       )}
@@ -356,7 +356,7 @@ export const KeywordGeneratorUI = () => {
               </Button>
             </div>
           </div>
-          <div className={cn('max-h-75 overflow-y-auto rounded-xl border border-(--border-light) bg-(--surface) p-4')}>
+          <div className={cn('max-h-75 overflow-y-auto rounded-lg border border-(--border-light) bg-(--surface) p-4')}>
             <div className={cn('flex flex-wrap gap-2')}>
               {result.map((k, i) => (
                 <span
@@ -400,7 +400,7 @@ const SingleResultUI = ({ result }: { result: TestResult }) => {
       </div>
 
       {result.success ? (
-        <div className={cn('rounded-xl bg-(--surface) p-4 border border-(--border-light)')}>
+        <div className={cn('rounded-lg bg-(--surface) p-4 border border-(--border-light)')}>
           <pre className={cn('text-sm text-(--ink) whitespace-pre-wrap font-sans')}>{result.content}</pre>
         </div>
       ) : (
@@ -442,7 +442,7 @@ const BatchResultUI = ({ result }: { result: TestBatchResult }) => {
 
       <div className={cn('space-y-2 max-h-96 overflow-y-auto')}>
         {result.results.map((r, i) => (
-          <div key={i} className={cn('rounded-xl border border-(--border-light) bg-(--surface) px-4 py-3')}>
+          <div key={i} className={cn('rounded-lg border border-(--border-light) bg-(--surface) px-4 py-3')}>
             <div className={cn('flex items-center gap-2 mb-2')}>
               {r.success ? (
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-(--success)" strokeWidth={2} />

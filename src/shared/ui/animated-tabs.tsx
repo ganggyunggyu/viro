@@ -77,7 +77,7 @@ export const AnimatedTabs = ({ tabs, defaultTab, onChange, children }: AnimatedT
             onClick={() => handleTabChange(tab.id)}
             onKeyDown={(event) => handleKeyDown(event, tab.id)}
             className={cn(
-              'relative min-h-10 shrink-0 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors',
+              'relative min-h-10 shrink-0 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--info) focus-visible:ring-offset-2 focus-visible:ring-offset-(--background)',
               activeTab === tab.id
                 ? 'text-(--background)'
@@ -87,7 +87,7 @@ export const AnimatedTabs = ({ tabs, defaultTab, onChange, children }: AnimatedT
             {activeTab === tab.id && (
               <motion.div
                 layoutId={`${groupId}-active-tab`}
-                className={cn('absolute inset-0 bg-(--accent) rounded-xl')}
+                className={cn('absolute inset-0 bg-(--accent) rounded-lg')}
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
