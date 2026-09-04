@@ -17,8 +17,8 @@ import {
   getManualCommentJobsAction,
   type BulkLinkOutcome,
   type CreateCommentJobsFromLinksResult,
-  type ManualCommentJobView,
 } from './actions';
+import type { ManualCommentJobView } from './job-view';
 import type { CommentWorkerStatus } from './worker-status';
 import { parseFixedComments, formatRelativeTime } from './manual-comment-job-ui-utils';
 import { extractCafeLinks } from './extract-cafe-links';
@@ -57,6 +57,7 @@ const STATUS_LABEL: Record<ManualCommentJobView['status'], string> = {
   running: '진행 중',
   done: '완료',
   failed: '실패',
+  cancelled: '취소됨',
 };
 
 const STATUS_STYLE: Record<ManualCommentJobView['status'], string> = {
@@ -64,6 +65,7 @@ const STATUS_STYLE: Record<ManualCommentJobView['status'], string> = {
   running: 'bg-(--info-soft) text-(--info)',
   done: 'bg-(--success-soft) text-(--success)',
   failed: 'bg-(--danger-soft) text-(--danger)',
+  cancelled: 'bg-(--surface-muted) text-(--ink-muted)',
 };
 
 const OUTCOME_ICON: Record<BulkLinkOutcome['status'], React.ComponentType<{ className?: string; strokeWidth?: number }>> = {

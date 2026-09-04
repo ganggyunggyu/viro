@@ -16,9 +16,9 @@ export type {
   CreateCommentJobsFromLinksInput,
   CreateCommentJobsFromLinksResult,
   CreateManualCommentJobInput,
-  ManualCommentJobView,
   ResolvedArticleRef,
 } from './actions';
+export type { ManualCommentJobView } from './job-view';
 export { extractCafeLinks } from './extract-cafe-links';
 export { getCommentWorkerStatus } from './worker-status';
 export type { CommentWorkerStatus, CommentWorkerView } from './worker-status';

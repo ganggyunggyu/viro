@@ -5,7 +5,7 @@ import {
   type CafeCommentStyle,
 } from '@/shared/api/cafe-comment-style';
 
-export type ManualCommentJobStatus = 'pending' | 'running' | 'done' | 'failed';
+export type ManualCommentJobStatus = 'pending' | 'running' | 'done' | 'failed' | 'cancelled';
 export type ManualCommentJobMode = 'fixed' | 'generate' | 'agent';
 
 export interface IManualCommentResult {
@@ -102,7 +102,7 @@ const ManualCommentJobSchema = new Schema<IManualCommentJob>(
     delayMinMs: { type: Number, required: true },
     delayMaxMs: { type: Number, required: true },
     deleteExisting: { type: Boolean, default: false },
-    status: { type: String, enum: ['pending', 'running', 'done', 'failed'], default: 'pending', index: true },
+    status: { type: String, enum: ['pending', 'running', 'done', 'failed', 'cancelled'], default: 'pending', index: true },
     errorMessage: { type: String },
     agentSummary: { type: String },
     results: { type: [ManualCommentResultSchema], default: [] },
