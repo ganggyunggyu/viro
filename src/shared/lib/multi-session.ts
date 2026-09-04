@@ -579,7 +579,7 @@ export const loginAccount = async (
     if (isLoginRedirect(page.url())) {
       const captchaCheck = await detectCaptcha(page);
       if (captchaCheck.detected) {
-        if (!(await canSolveCaptcha(accountId))) {
+        if (!(await canSolveCaptcha())) {
           return {
             success: false,
             error: '캡차 자동 풀이 연결 정보 없음',

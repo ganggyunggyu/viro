@@ -13,17 +13,13 @@
  * 새 카페를 만들 때는 항상 이 모듈의 `createNaverCafe()` 를 통해서 만들 것 —
  * 폼 셀렉터를 다시 조사하거나 캡차 로직을 새로 짜지 말 것.
  */
-import { GoogleGenAI } from '@google/genai';
 import type { Page } from 'playwright';
 import { getPageForAccount, isAccountLoggedIn, loginAccount } from '../multi-session';
 import { toCafeSlug } from '../naver-cafe-membership';
 import { Cafe } from '../../models/cafe';
-import { Account, resolveGeminiApiKeyForAccount } from '../../models/account';
+import { Account } from '../../models/account';
 import { buildCafeRegistrationUpdate } from '../cafe-registration-harness';
-import {
-  hasCaptchaBrokerConfig,
-  solveCaptchaViaBroker,
-} from '@/shared/lib/captcha-broker';
+import { solveCaptchaViaScheduler } from '@/shared/lib/captcha-client';
 
 export interface CreateCafeInput {
   name: string;
@@ -50,27 +46,18 @@ export interface CreateCafeResult {
 }
 
 const CREATE_CAFE_URL = 'https://section.cafe.naver.com/ca-fe/home/create';
-const CAPTCHA_MODEL = process.env.GEMINI_CAPTCHA_MODEL || 'gemini-3.5-flash';
 
 // 전역 폴백 키는 없다 — 계정마다 등록된 Gemini 키만 쓴다. 캐싱하면 웹에서 키를
 // 바꿔도 반영이 안 되니 매번 새로 만든다.
-const getCafeCreateCaptchaClient = async (accountId: string): Promise<GoogleGenAI> => {
-  const apiKey = await resolveGeminiApiKeyForAccount(accountId);
-  if (!apiKey) throw new Error(`${accountId} 계정에 등록된 Gemini 키 없음`);
-
-  return new GoogleGenAI({ apiKey });
-};
-
 const CAPTCHA_REJECTED_PATTERN = /보안문자를 입력해주세요|보안문자가 일치하지|보안문자를 다시|보안문자를 정확히/;
 
 /**
- * 카페 만들기 폼 하단의 그림문자 보안절차를 Gemini 비전으로 읽어서 입력칸에 한 번 채운다.
+ * 카페 만들기 폼 하단의 그림문자 보안절차를 스케쥴러에 풀게 해서 입력칸에 한 번 채운다.
  * 이 함수 자체는 채운 답이 실제로 맞았는지는 모른다 — 이 폼은 "만들기"를 눌러야만
  * 정답 여부가 검증되기 때문. 정답 확인 + 오답 시 재시도는 submitCafeCreateForm() 쪽에서 한다.
  */
 export const solveCafeCreateCaptcha = async (
   page: Page,
-  accountId: string,
 ): Promise<{ solved: boolean; error?: string }> => {
   const container = page.locator('.SectionCreateCafeCaptcha').first();
   const image = container.locator('img').first();
@@ -83,13 +70,7 @@ export const solveCafeCreateCaptcha = async (
   if (!shot) return { solved: false, error: '캡차 이미지 스크린샷 실패' };
 
   const base64 = shot.toString('base64');
-  let answer = '';
-
-  if (hasCaptchaBrokerConfig()) {
-    answer = await solveCaptchaViaBroker({ kind: 'cafe-create', image: base64, accountId });
-  } else {
-    answer = await solveCafeCreateCaptchaImage(base64, accountId);
-  }
+  const answer = await solveCafeCreateCaptchaImage(base64);
 
   if (!answer) return { solved: false, error: 'AI가 빈 답변 반환' };
 
@@ -97,31 +78,8 @@ export const solveCafeCreateCaptcha = async (
   return { solved: true };
 };
 
-export const solveCafeCreateCaptchaImage = async (base64: string, accountId: string): Promise<string> => {
-
-  const ai = await getCafeCreateCaptchaClient(accountId);
-  const response = await ai.models.generateContent({
-    model: CAPTCHA_MODEL,
-    contents: [
-      {
-        role: 'user',
-        parts: [
-          { inlineData: { mimeType: 'image/png', data: base64 } },
-          {
-            text: [
-              '이미지에 보이는 네이버 카페 만들기 보안문자(그림문자)를 정확히 읽어라.',
-              '문자는 배경 사진 위에 겹쳐진 왜곡된 영문/숫자다.',
-              'I와 1, O와 0, B와 8, S와 5, Z와 2를 조심해서 구분한다.',
-              '출력은 한 줄, 설명 없이 문자만.',
-              '공백, 따옴표, 문장부호는 쓰지 않는다.',
-            ].join('\n'),
-          },
-        ],
-      },
-    ],
-  });
-  return (response.text || '').replace(/[^0-9A-Za-z]/g, '').trim();
-};
+export const solveCafeCreateCaptchaImage = async (base64: string): Promise<string> =>
+  solveCaptchaViaScheduler({ image: base64, kind: 'cafe-create' });
 
 /** 캡차 이미지를 새로고침해서 새 문제를 받는다 (오답 재시도용) */
 export const refreshCafeCreateCaptcha = async (page: Page): Promise<void> => {
@@ -259,7 +217,7 @@ export const submitCafeCreateForm = async (
   let resultText = '';
 
   for (let captchaAttempt = 1; captchaAttempt <= captchaAttempts; captchaAttempt += 1) {
-    const captchaResult = await solveCafeCreateCaptcha(page, accountId);
+    const captchaResult = await solveCafeCreateCaptcha(page);
     if (!captchaResult.solved) {
       return { success: false, resultText: captchaResult.error || '캡차 풀이 실패' };
     }
@@ -365,7 +323,7 @@ export const createNaverCafe = async (
     if (dryRun) {
       // 드라이런은 제출을 안 하므로 캡차 정답 여부를 검증할 방법이 없다 — 폼이 여기까지
       // 정상적으로 채워지는지만 확인하고 캡차는 한 번만 채워본다.
-      const captchaResult = await solveCafeCreateCaptcha(page, accountId);
+      const captchaResult = await solveCafeCreateCaptcha(page);
       if (!captchaResult.solved) {
         return { success: false, dryRun, error: captchaResult.error || '캡차 풀이 실패' };
       }

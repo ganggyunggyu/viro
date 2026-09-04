@@ -1,44 +1,27 @@
 import { NextResponse } from 'next/server';
-import { authenticateAgentToken, getBearerToken } from '@/shared/lib/agent-broker';
-import { solveCafeCreateCaptchaImage } from '@/shared/lib/naver-cafe-creation';
-import { solveCafeJoinCaptchaImage } from '@/shared/lib/naver-cafe-membership';
-import { solveLoginCaptchaImage } from '@/shared/lib/captcha-solver';
-import type { CaptchaKind } from '@/shared/lib/captcha-broker';
+import { withAgentAuth } from '@/shared/lib/agent-broker/route-auth';
+import { solveCaptchaViaScheduler, type CaptchaKind } from '@/shared/lib/captcha-client';
 
 export const runtime = 'nodejs';
 
-export const POST = async (request: Request): Promise<Response> => {
-  const identity = await authenticateAgentToken(getBearerToken(request));
-  if (!identity) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
+const toKind = (value: unknown): CaptchaKind =>
+  value === 'login' || value === 'cafe-join' ? value : 'cafe-create';
 
+/**
+ * 데스크톱 에이전트가 부르는 창구. 실제 풀이는 스케쥴러가 한다.
+ * accountId 는 더 이상 필요 없다 — 계정별 AI 키를 보지 않기 때문이다.
+ */
+export const POST = withAgentAuth(async (_identity, request) => {
   const body = await request.json().catch(() => ({}));
   const image = typeof body.image === 'string' ? body.image : '';
-  const question = typeof body.question === 'string' ? body.question : '';
-  const accountId = typeof body.accountId === 'string' ? body.accountId : '';
-  const kind: CaptchaKind =
-    body.kind === 'login' || body.kind === 'cafe-join' || body.kind === 'cafe-create'
-      ? body.kind
-      : 'cafe-create';
   if (!image) {
     return NextResponse.json({ error: 'image required' }, { status: 400 });
   }
-  if (!accountId) {
-    return NextResponse.json({ error: 'accountId required (계정별 키 귀속)' }, { status: 400 });
-  }
 
-  try {
-    const answer = kind === 'login'
-      ? (await solveLoginCaptchaImage(image, question, accountId)).answer
-      : kind === 'cafe-join'
-        ? await solveCafeJoinCaptchaImage(image, accountId)
-        : await solveCafeCreateCaptchaImage(image, accountId);
-    return NextResponse.json({ answer });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'captcha failed' },
-      { status: 500 },
-    );
-  }
-};
+  const answer = await solveCaptchaViaScheduler({
+    image,
+    kind: toKind(body.kind),
+    question: typeof body.question === 'string' ? body.question : undefined,
+  });
+  return NextResponse.json({ answer });
+});
