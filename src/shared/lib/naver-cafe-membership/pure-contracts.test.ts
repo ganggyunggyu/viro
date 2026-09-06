@@ -4,6 +4,7 @@ import {
   extractCafeMemberCount,
   sanitizeCafeNickname,
   toCafeSlug,
+  hasPositiveMembershipEvidence,
 } from './index';
 
 test('sanitizeCafeNickname removes unsupported characters, caps length, and uses a safe fallback', () => {
@@ -11,6 +12,14 @@ test('sanitizeCafeNickname removes unsupported characters, caps length, and uses
   assert.equal(sanitizeCafeNickname('abcdefghijklmnopqrstuvwxyz', 'fallback'), 'abcdefghijklmnopqrst');
   assert.equal(sanitizeCafeNickname('***', ' 대체_회원 '), '대체회원');
   assert.equal(sanitizeCafeNickname('***', '---'), '회원');
+});
+
+test('strict membership confirmation rejects blank/error/guest and pending pages', () => {
+  for (const page of ['', '카페 홈', '글쓰기', '오류가 발생했습니다', '로그인이 필요합니다', '승인 대기\n내 활동\n가입일 2026']) {
+    assert.equal(hasPositiveMembershipEvidence(page), false);
+  }
+  assert.equal(hasPositiveMembershipEvidence('내 활동\n방문 12\n작성글 1'), true);
+  assert.equal(hasPositiveMembershipEvidence('내 정보\n카페 탈퇴'), true);
 });
 
 test('extractCafeMemberCount accepts current member-count text shapes and comma separators', () => {

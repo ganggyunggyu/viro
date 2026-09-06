@@ -13,16 +13,19 @@ import {
 import type { NaverAccount } from '@/shared/lib/account-manager';
 import { captureFailureShot } from '@/shared/lib/debug-capture';
 import { incrementActivity } from '@/shared/models/daily-activity';
-import { isNicknameEquivalent } from './comment-writer-utils';
+import { isNicknameEquivalent, isVerifiedNewComment, resolveCommenterNickname } from './comment-writer-utils';
 
 export interface WriteCommentResult {
   accountId: string;
   success: boolean;
   error?: string;
   commentId?: string;
+  requiresReview?: boolean;
 }
 
 export interface WriteCommentOptions {
+  ensureLogin?: boolean;
+  strictVerification?: boolean;
   forceFreshLogin?: boolean;
   loginWaitMs?: number;
   navigationTimeoutMs?: number;
@@ -214,7 +217,8 @@ export const getCommentIdFromItem = async (
 const findWrittenComment = async (
   root: Page | Frame,
   contentPreview: string,
-  commenterNickname: string
+  commenterNickname: string,
+  strict?: { content: string; previousIds: ReadonlySet<string> },
 ): Promise<{ found: boolean; commentId?: string }> => {
   const commentItems = await root.$$('.CommentItem:not(.CommentItem--reply)');
   let textOnlyMatch: { found: boolean; commentId?: string } | null = null;
@@ -224,6 +228,12 @@ const findWrittenComment = async (
     if (!commentText.includes(contentPreview)) continue;
 
     const commentId = await getCommentIdFromItem(item as ElementHandle<HTMLElement>);
+
+    if (strict) {
+      const nickname = await getItemText(item, '.comment_nickname');
+      if (isVerifiedNewComment({ id: commentId, content: commentText, nickname }, { ...strict, nickname: commenterNickname })) return { found: true, commentId };
+      continue;
+    }
 
     if (commenterNickname) {
       const commentNickname = normalizeText(await getItemText(item, '.comment_nickname'));
@@ -255,10 +265,15 @@ export const writeCommentWithAccount = async (
   options?: WriteCommentOptions,
 ): Promise<WriteCommentResult> => {
   const { id, password } = account;
+  let submitted = false;
 
   await acquireAccountLock(id);
 
   try {
+    if (options?.ensureLogin) {
+      const login = await loginAccount(id, password, { reason: `comment_prepare:${id}` });
+      if (!login.success) return { accountId: id, success: false, error: login.error || '로그인 실패' };
+    }
     const page = await getPageForAccount(id);
     touchAccount(id);
     const articleUrl = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
@@ -278,7 +293,16 @@ export const writeCommentWithAccount = async (
 
     // 글쓴이 본인 계정으로는 댓글 작성 금지 (자작극처럼 보이는 것 방지)
     const writerNickname = await getArticleWriterNickname(root);
-    const commenterNickname = normalizeText(account.nickname || account.id);
+    const composerNickname = options?.strictVerification
+      ? await root.$eval('.CommentWriter:not(:has(.btn_cancel)) .comment_inbox_name', (element) => element.textContent || '').catch(() => '')
+      : undefined;
+    const commenterNickname = resolveCommenterNickname({
+      strict: options?.strictVerification === true, composerNickname,
+      storedNickname: account.nickname, accountId: account.id,
+    });
+    if (options?.strictVerification && !commenterNickname) {
+      return { accountId: id, success: false, error: '댓글 작성창에서 로그인한 계정의 카페 별명을 확인하지 못했습니다. 댓글을 등록하지 않았습니다.' };
+    }
     if (writerNickname && isNicknameEquivalent(writerNickname, commenterNickname)) {
       return {
         accountId: id,
@@ -329,6 +353,15 @@ export const writeCommentWithAccount = async (
       return { accountId: id, success: false, error: '등록 버튼(a.btn_register)을 찾을 수 없습니다.' };
     }
 
+    const previousIds = new Set<string>();
+    if (options?.strictVerification) {
+      for (const item of await root.$$('.CommentItem')) {
+        const existingId = await getCommentIdFromItem(item as ElementHandle<HTMLElement>);
+        if (existingId) previousIds.add(existingId);
+      }
+    }
+    const strict = options?.strictVerification ? { content: sanitizedContent, previousIds } : undefined;
+    submitted = true;
     await submitButton.click();
     await page.waitForTimeout(2500);
 
@@ -343,7 +376,7 @@ export const writeCommentWithAccount = async (
 
     for (let retry = 0; retry < 6; retry++) {
       const verifyRoot = await getCommentRoot(page);
-      const match = await findWrittenComment(verifyRoot, contentPreview, commenterNickname);
+      const match = await findWrittenComment(verifyRoot, contentPreview, commenterNickname, strict);
       found = match.found;
       commentId = match.commentId;
 
@@ -360,14 +393,14 @@ export const writeCommentWithAccount = async (
       console.log(`[COMMENT] ${id} 재로딩 후 댓글 재확인 시도`);
       const reloadResult = await navigateToArticle(page, articleUrl, id, password, 'COMMENT-VERIFY', options);
       if (!reloadResult.success) {
-        return { accountId: id, success: false, error: `댓글 검증 재진입 실패: ${reloadResult.error}` };
+        return { accountId: id, success: false, requiresReview: options?.strictVerification, error: `댓글 검증 재진입 실패: ${reloadResult.error}` };
       }
 
       await page.waitForTimeout(1500);
 
       for (let retry = 0; retry < 4; retry++) {
         const verifyRoot = await getCommentRoot(page);
-        const match = await findWrittenComment(verifyRoot, contentPreview, commenterNickname);
+        const match = await findWrittenComment(verifyRoot, contentPreview, commenterNickname, strict);
         found = match.found;
         commentId = match.commentId;
         if (found) break;
@@ -383,6 +416,7 @@ export const writeCommentWithAccount = async (
       return {
         accountId: id,
         success: false,
+        requiresReview: options?.strictVerification,
         error: `댓글이 등록되지 않음 (닉네임+내용 매칭 실패)`,
       };
     }
@@ -393,7 +427,7 @@ export const writeCommentWithAccount = async (
     return { accountId: id, success: true, commentId };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : '알 수 없는 오류';
-    return { accountId: id, success: false, error: errorMsg };
+    return { accountId: id, success: false, requiresReview: submitted && options?.strictVerification, error: errorMsg };
   } finally {
     releaseAccountLock(id);
   }

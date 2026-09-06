@@ -122,8 +122,8 @@ export class BrokerAuthError extends Error {
 export const isBrokerAuthError = (error: unknown): boolean =>
   error instanceof BrokerAuthError || (error instanceof Error && error.name === 'BrokerAuthError');
 
-export const createBrokerClient = (config: AgentConfig): BrokerClient => {
-  const post = async (path: string, body: Record<string, unknown>): Promise<Record<string, unknown>> => {
+export const createBrokerPost = (config: AgentConfig) =>
+  async (path: string, body: Record<string, unknown>): Promise<Record<string, unknown>> => {
     const response = await fetch(`${config.brokerUrl}${path}`, {
       method: 'POST',
       headers: {
@@ -158,6 +158,9 @@ export const createBrokerClient = (config: AgentConfig): BrokerClient => {
 
     return (await response.json()) as Record<string, unknown>;
   };
+
+export const createBrokerClient = (config: AgentConfig): BrokerClient => {
+  const post = createBrokerPost(config);
 
   const claim = async (): Promise<BrokerJob | null> => {
     const data = await post('/api/agent/claim', { workerId: config.workerId });

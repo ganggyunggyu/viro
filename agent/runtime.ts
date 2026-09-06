@@ -9,6 +9,10 @@ import { joinCafeWithNicknameRetry } from '../src/features/auto-comment/batch/ca
 import { closeAllContexts } from '../src/shared/lib/multi-session';
 import type { AgentConfig } from './lib/config';
 import { resolveCommentPlan } from './lib/comment-plan';
+import { createOperationClient } from './lib/operation-client';
+import { processClaimedOperation } from './lib/operation-runner';
+import { executeAgentOperation } from './operation-executor';
+import { withCaptchaSolver } from '../src/shared/lib/captcha-client';
 import {
   createBrokerClient,
   isBrokerAuthError,
@@ -280,6 +284,7 @@ export const runAgentLoop = async (
 ): Promise<void> => {
   const { shouldStop, handleSignals = true } = options;
   const broker = createBrokerClient(config);
+  const operations = createOperationClient(config);
   let stopping = false;
 
   const requestStop = (): void => {
@@ -296,39 +301,58 @@ export const runAgentLoop = async (
 
   console.log(`[AGENT] 시작 workerId=${config.workerId} broker=${config.brokerUrl}`);
 
-  while (!stopping && !(shouldStop?.() ?? false)) {
-    let job: BrokerJob | null = null;
+  // Only a running worker sends this heartbeat. Management reads cannot make it appear online.
+  const heartbeatTimer = setInterval(() => {
+    void operations.heartbeat().catch(() => console.error('[AGENT OPERATIONS] 하트비트 실패'));
+  }, 30_000);
+  heartbeatTimer.unref();
 
-    try {
-      job = await broker.claim();
-    } catch (error) {
-      // 토큰 인증 실패는 재시도해도 절대 통과하지 못한다. 조용히 계속 폴링하면 앱은 "실행 중"으로
-      // 보이는데 잡은 하나도 안 가져와서, 웹에서는 등록한 작업이 영원히 "대기"로만 남는다.
-      if (isBrokerAuthError(error)) {
-        await closeAllContexts();
-        throw error;
-      }
-      console.error('[AGENT] claim 오류:', error instanceof Error ? error.message : error);
-      await sleep(config.pollIntervalMs);
-      continue;
-    }
+  try {
+    while (!stopping && !(shouldStop?.() ?? false)) {
+      let job: BrokerJob | null = null;
 
-    if (!job) {
-      await sleep(config.pollIntervalMs);
-      continue;
-    }
-
-    try {
-      await processJob(job, broker);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : '알 수 없는 오류';
-      console.error(`[JOB ${job._id}] 처리 오류:`, message);
       try {
-        await broker.report(job._id, { status: 'failed', errorMessage: message });
-      } catch (reportError) {
-        console.error(`[JOB ${job._id}] 리포트 실패:`, reportError instanceof Error ? reportError.message : reportError);
+        const claimed = await operations.claim();
+        if (claimed) {
+          try {
+            await withCaptchaSolver(operations.solveCaptcha, () => processClaimedOperation(claimed, operations, executeAgentOperation));
+          } catch {
+            console.error(`[AGENT OPERATIONS] ${claimed.operation.id} 결과 확인 필요`);
+          }
+          continue;
+        }
+        job = await broker.claim();
+      } catch (error) {
+        // 토큰 인증 실패는 재시도해도 절대 통과하지 못한다. 조용히 계속 폴링하면 앱은 "실행 중"으로
+        // 보이는데 잡은 하나도 안 가져와서, 웹에서는 등록한 작업이 영원히 "대기"로만 남는다.
+        if (isBrokerAuthError(error)) {
+          await closeAllContexts();
+          throw error;
+        }
+        console.error('[AGENT] claim 오류:', error instanceof Error ? error.message : error);
+        await sleep(config.pollIntervalMs);
+        continue;
+      }
+
+      if (!job) {
+        await sleep(config.pollIntervalMs);
+        continue;
+      }
+
+      try {
+        await processJob(job, broker);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '알 수 없는 오류';
+        console.error(`[JOB ${job._id}] 처리 오류:`, message);
+        try {
+          await broker.report(job._id, { status: 'failed', errorMessage: message });
+        } catch (reportError) {
+          console.error(`[JOB ${job._id}] 리포트 실패:`, reportError instanceof Error ? reportError.message : reportError);
+        }
       }
     }
+  } finally {
+    clearInterval(heartbeatTimer);
   }
 
   await closeAllContexts();

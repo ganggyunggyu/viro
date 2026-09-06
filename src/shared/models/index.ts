@@ -18,6 +18,7 @@ export { BatchJobLog, type IBatchJobLog } from './batch-job-log';
 export { Account, type IAccount, type ActivityHours } from './account';
 export { User, type IUser } from './user';
 export { AgentToken, type IAgentToken } from './agent-token';
+export { AgentOperation, type IAgentOperation } from './agent-operation';
 export { WorkerHeartbeat, touchWorkerHeartbeat, type IWorkerHeartbeat } from './worker-heartbeat';
 export { Cafe, type ICafe } from './cafe';
 export { WorkCafeArticle, type IWorkCafeArticle } from './work-cafe-article';

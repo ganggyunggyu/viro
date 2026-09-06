@@ -18,6 +18,7 @@ export interface JoinCafeMembershipOptions {
   verifyAttempts?: number;
   logPrefix?: string;
   skipCaptchaSolve?: boolean;
+  strictVerification?: boolean;
 }
 
 export interface JoinCafeMembershipResult {
@@ -350,6 +351,7 @@ export const joinCafeMembership = async (
     verifyAttempts = 2,
     logPrefix,
     skipCaptchaSolve = false,
+    strictVerification = false,
   } = options;
   const cafeHome = toMobileCafeHomeUrl(target);
   const cafeNickname = sanitizeCafeNickname(nickname, '회원');
@@ -361,13 +363,13 @@ export const joinCafeMembership = async (
   const clickedJoin = await clickFirstVisible(page, JOIN_BUTTON_SELECTOR);
 
   if (!clickedJoin) {
-    if (!beforeText.includes('카페 가입하기')) {
+    if (!beforeText.includes('카페 가입하기') && (!strictVerification || hasPositiveMembershipEvidence(beforeText))) {
       return { status: 'alreadyMember', detail: '가입 버튼 없음', beforeText };
     }
 
     return {
       status: 'failed',
-      detail: '가입 버튼 텍스트는 있으나 클릭 대상 없음',
+      detail: strictVerification ? '가입 상태를 확인할 회원 정보가 없습니다' : '가입 버튼 텍스트는 있으나 클릭 대상 없음',
       beforeText,
     };
   }
@@ -466,7 +468,7 @@ export const joinCafeMembership = async (
       };
     }
 
-    if (!joinButtonVisible) {
+    if (!joinButtonVisible && (!strictVerification || hasPositiveMembershipEvidence(verifyText))) {
       return {
         status: 'joined',
         detail: '가입 버튼 사라짐',
@@ -479,9 +481,14 @@ export const joinCafeMembership = async (
 
   return {
     status: 'failed',
-    detail: '가입 후에도 가입 버튼 보임',
+    detail: strictVerification ? '가입 완료를 확인할 회원 정보가 없습니다' : '가입 후에도 가입 버튼 보임',
     beforeText,
     afterSubmitText,
     verifyText,
   };
 };
+
+/** Absence of a join button can also mean a blank/error page. Require member-only evidence. */
+export const hasPositiveMembershipEvidence = (text: string): boolean =>
+  !/가입.{0,5}신청.{0,5}완료|승인.{0,5}대기|접근.{0,5}불가|오류가 발생|로그인이 필요/.test(text)
+  && (/카페\s*탈퇴/.test(text) || (/내\s*활동|나의\s*활동/.test(text) && /방문\s*\d+|작성글\s*\d+|가입일/.test(text)));

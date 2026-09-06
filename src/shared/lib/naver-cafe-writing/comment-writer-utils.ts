@@ -17,3 +17,17 @@ export const isNicknameEquivalent = (
     normalizedExpected.includes(normalizedActual)
   );
 };
+
+export const isVerifiedNewComment = (
+  item: { id?: string; content: string; nickname: string },
+  expected: { content: string; nickname: string; previousIds: ReadonlySet<string> },
+): boolean => Boolean(
+  item.id && /^[1-9]\d*$/.test(item.id) && !expected.previousIds.has(item.id)
+  && item.content.replace(/\s+/g, ' ').trim() === expected.content.replace(/\s+/g, ' ').trim()
+  && normalizeNicknameForComparison(item.nickname)
+  && normalizeNicknameForComparison(item.nickname) === normalizeNicknameForComparison(expected.nickname),
+);
+
+export const resolveCommenterNickname = (input: {
+  strict: boolean; composerNickname?: string; storedNickname?: string; accountId: string;
+}): string => (input.strict ? input.composerNickname || '' : input.storedNickname || input.accountId).replace(/\s+/g, ' ').trim();

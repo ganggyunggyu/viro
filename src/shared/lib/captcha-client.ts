@@ -6,6 +6,7 @@
  * 다른 쪽만 살아 있는 상태가 반복됐다. 키도 스케쥴러 쪽 한 곳만 관리한다.
  */
 import { createHmac } from 'node:crypto';
+import { AsyncLocalStorage } from 'node:async_hooks';
 
 export type CaptchaKind = 'login' | 'cafe-join' | 'cafe-create';
 
@@ -17,6 +18,12 @@ export interface CaptchaEnvironment {
 }
 
 const DEFAULT_CAPTCHA_API_URL = 'https://21lab-scheduler.fly.dev';
+
+const scopedSolver = new AsyncLocalStorage<(input: SolveCaptchaInput) => Promise<string>>();
+
+/** A paired worker forwards through Viro; scheduler secrets stay on the server. */
+export const withCaptchaSolver = <T>(solver: (input: SolveCaptchaInput) => Promise<string>, run: () => Promise<T>): Promise<T> =>
+  scopedSolver.run(solver, run);
 
 /** 토큰이 로그에 남더라도 오래 살지 않도록 짧게 끊는다. */
 const TOKEN_TTL_SECONDS = 5 * 60;
@@ -49,7 +56,7 @@ export const resolveCaptchaToken = (env: CaptchaEnvironment): string => {
 
 export const hasCaptchaApiConfig = (
   env: CaptchaEnvironment = process.env as CaptchaEnvironment,
-): boolean => Boolean(resolveCaptchaToken(env));
+): boolean => Boolean(scopedSolver.getStore() || resolveCaptchaToken(env));
 
 export interface SolveCaptchaInput {
   image: string;
@@ -61,6 +68,8 @@ export const solveCaptchaViaScheduler = async (
   { image, kind, question }: SolveCaptchaInput,
   options: { environment?: CaptchaEnvironment; fetcher?: typeof fetch } = {},
 ): Promise<string> => {
+  const delegated = scopedSolver.getStore();
+  if (delegated) return delegated({ image, kind, question });
   const { environment = process.env as CaptchaEnvironment, fetcher = fetch } = options;
 
   const token = resolveCaptchaToken(environment);
