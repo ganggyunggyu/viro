@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { copyFileSync, mkdirSync } from 'fs';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,6 +11,15 @@ import { fileURLToPath } from 'url';
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..', '..');
 const outdir = join(here, 'dist');
+const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const rendererTemplate = readFileSync(join(here, 'renderer.html'), 'utf8');
+
+if (typeof version !== 'string' || !/^\d+\.\d+\.\d+(?:-[\w.-]+)?(?:\+[\w.-]+)?$/.test(version)) {
+  throw new Error('[build] package.json version 값이 올바르지 않습니다');
+}
+if (!rendererTemplate.includes('__VIRO_VERSION__')) {
+  throw new Error('[build] renderer.html 버전 표시 위치가 없습니다');
+}
 
 mkdirSync(outdir, { recursive: true });
 
@@ -48,7 +57,7 @@ await build({
   logLevel: 'info',
 });
 
-copyFileSync(join(here, 'renderer.html'), join(outdir, 'renderer.html'));
+writeFileSync(join(outdir, 'renderer.html'), rendererTemplate.replaceAll('__VIRO_VERSION__', version));
 copyFileSync(join(here, 'renderer.css'), join(outdir, 'renderer.css'));
 
 console.log('[build] agent/electron/dist 생성 완료');
