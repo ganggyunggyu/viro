@@ -1,0 +1,59 @@
+.viro-landing .product-canvas { position: relative; border-radius: 28px; background: var(--sky); overflow: clip; isolation: isolate; }
+.viro-landing .product-sky { position: absolute; inset: 0; width: 100%; height: 850px; object-fit: cover; object-position: center bottom; filter: grayscale(1) contrast(1.35); mix-blend-mode: luminosity; opacity: .85; mask-image: linear-gradient(#000 75%, transparent); z-index: -1; pointer-events: none; }
+.viro-landing .product-header { height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 32px; position: relative; z-index: 2; }
+.viro-landing .product-nav { display: flex; gap: 36px; font-size: 14px; }
+.viro-landing .product-nav a { padding-block: 12px; color: var(--muted); transition: color .2s; }
+.viro-landing .product-nav a:hover, .viro-landing .product-nav a[aria-current] { color: var(--ink); }
+.viro-landing .product-nav a[aria-current] { text-decoration: underline; text-underline-offset: 7px; }
+.viro-landing .product-hero { text-align: center; position: relative; padding: 100px 24px 78px; isolation: isolate; }
+.viro-landing .product-eyebrow { display: inline-flex; align-items: center; font-size: 13px; margin-bottom: 25px; color: var(--ink); }
+.viro-landing .product-hero h1 { font-size: clamp(44px, 5.1vw, 76px); font-weight: 500; line-height: 1.18; letter-spacing: -.06em; }
+.viro-landing .product-hero h1 span { display: block; }
+.viro-landing .product-lede { color: var(--muted); font-size: 16px; line-height: 1.8; white-space: pre-line; margin: 23px auto 27px; max-width: 590px; }
+.viro-landing .hero-actions { display: flex; align-items: center; justify-content: center; gap: 24px; }
+.viro-landing .product-demo-link { font-size: 14px; color: var(--muted); padding-block: 12px; text-underline-offset: 5px; }
+.viro-landing .product-demo-link:hover { color: var(--ink); text-decoration: underline; }
+.viro-landing .product-experience { max-width: 1190px; margin: 0 auto; padding: 0 24px 28px; scroll-margin-top: 28px; position: relative; }
+.viro-landing .product-window { border: 1px solid #00000012; border-radius: 15px; background: #fff; box-shadow: 0 8px 18px #00000008; transform: perspective(1800px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); transition: transform .35s ease-out; overflow: hidden; }
+.viro-landing .window-bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 44px; padding: 0 20px; border-bottom: 1px solid #00000008; font-size: 11px; color: var(--muted); }
+.viro-landing .window-dots { display: flex; gap: 5px; }
+.viro-landing .window-dots i { width: 7px; height: 7px; border: 1px solid #b6b6af; border-radius: 50%; }
+.viro-landing .window-divider { margin-inline: 10px; opacity: .4; }
+.viro-landing .preview-label { font-size: 10px; }
+.viro-landing .window-content { display: grid; grid-template-columns: 190px 1fr; min-height: 420px; }
+.viro-landing .demo-sidebar { display: flex; flex-direction: column; padding: 26px 14px; background: #fafaf8; border-right: 1px solid #00000006; }
+.viro-landing .demo-brand { font-size: 14px; font-weight: 800; letter-spacing: -1px; margin: 0 12px 40px; }
+.viro-landing .demo-sidebar-caption { font: 8px monospace; letter-spacing: 1.5px; color: var(--muted); margin: 0 12px 12px; }
+.viro-landing .demo-sidebar button { display: flex; gap: 10px; align-items: center; border: 0; background: transparent; border-radius: 7px; text-align: left; padding: 13px 10px; font-size: 12px; color: var(--muted); transition: background .2s, color .2s; }
+.viro-landing .demo-sidebar button[aria-pressed='true'] { color: var(--brand); background: var(--soft); font-weight: 700; }
+.viro-landing .stage-number { font: 9px monospace; opacity: .7; }
+.viro-landing .demo-sidebar-note { margin: auto 12px 0; padding-top: 25px; color: var(--muted); font-size: 10px; line-height: 1.8; }
+.viro-landing .demo-main { min-width: 0; padding: 28px 36px 20px; background: #fff; }
+.viro-landing .demo-heading { display: flex; align-items: center; gap: 15px; margin-bottom: 24px; }
+.viro-landing .demo-heading span { color: var(--brand); font: 9px monospace; }
+.viro-landing .demo-heading p { font-size: 13px; font-weight: 500; }
+.viro-landing .experience-caption { display: flex; gap: 40px; justify-content: space-between; align-items: flex-start; margin: 24px 10px 0; font-size: 11px; color: var(--muted); }
+.viro-landing .experience-caption p { max-width: 620px; min-height: 36px; }
+.viro-landing .experience-caption > span { white-space: nowrap; color: var(--brand); }
+@media (max-width: 767px) {
+  .viro-landing .product-canvas { border-radius: 18px; }
+  .viro-landing .product-sky { height: 700px; object-position: 65% bottom; }
+  .viro-landing .product-header { padding: 16px 18px 0; height: auto; display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; }
+  .viro-landing .product-header .compact { grid-column: 2; grid-row: 1; }
+  .viro-landing .hero-actions { flex-direction: column; gap: 10px; }
+  .viro-landing .product-wordmark { font-size: 23px; }
+  .viro-landing .product-nav { grid-column: 1 / -1; grid-row: 2; justify-content: center; gap: 24px; font-size: 12px; }
+  .viro-landing .product-hero { padding: 65px 16px 46px; }
+  .viro-landing .product-hero h1 { font-size: clamp(30px, 7.6vw, 52px); font-weight: 550; }
+  .viro-landing .product-lede { font-size: 13px; white-space: normal; max-width: 300px; }
+  .viro-landing .product-experience { padding: 0 12px 22px; }
+  .viro-landing .window-content { grid-template-columns: 1fr; min-height: 430px; }
+  .viro-landing .demo-sidebar { flex-direction: row; padding: 10px 8px; gap: 3px; border-right: 0; border-bottom: 1px solid #00000006; }
+  .viro-landing .demo-sidebar :is(.demo-brand,.demo-sidebar-caption,.demo-sidebar-note) { display: none; }
+  .viro-landing .demo-sidebar button { flex: 1; font-size: 10px; justify-content: center; padding: 12px 5px; gap: 5px; }
+  .viro-landing .demo-main { padding: 22px 16px 15px; }
+  .viro-landing .demo-heading { gap: 10px; margin-bottom: 18px; }
+  .viro-landing .demo-heading p { font-size: 12px; }
+  .viro-landing .window-bar { padding: 0 12px; gap: 10px; }
+  .viro-landing .experience-caption { flex-direction: column; gap: 9px; margin: 18px 5px 0; }
+}

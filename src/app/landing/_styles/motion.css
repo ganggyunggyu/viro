@@ -1,0 +1,15 @@
+@keyframes viro-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .viro-landing .product-hero > :is(.product-eyebrow,h1,.product-lede,.hero-actions) { animation: viro-enter .8s both; }
+  .viro-landing .product-hero h1 { animation-delay: .08s; }
+  .viro-landing .product-lede { animation-delay: .16s; }
+  .viro-landing .product-hero .hero-actions { animation-delay: .24s; }
+  .viro-landing .demo-stage { animation: viro-enter .24s both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .viro-landing *, .viro-landing *::before, .viro-landing *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .viro-landing :is(.product-window,.queue-lane) { transform: none; }
+}

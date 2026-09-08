@@ -1,0 +1,22 @@
+.viro-landing .queue-scene { padding: 10px 0 12px; perspective: 1200px; }
+.viro-landing .queue-overview { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 21px; color: var(--muted); }
+.viro-landing .queue-overview b { color: var(--brand); font-weight: 500; }
+.viro-landing .queue-lane { display: flex; align-items: center; padding: 17px; border: 1px solid #ffffff; background: #fff; box-shadow: 0 7px 16px #00000005; margin-bottom: 13px; border-radius: 9px; transform: rotateY(-5deg) translateX(calc(var(--lane) * 5px)); }
+.viro-landing .queue-account { display: grid; grid-template-columns: 27px 52px; align-items: center; column-gap: 8px; flex-shrink: 0; }
+.viro-landing .queue-account > span { width: 27px; height: 27px; display: grid; place-items: center; background: var(--soft); color: var(--brand); border-radius: 50%; grid-row: span 2; font-size: 10px; }
+.viro-landing .queue-account b { font-size: 10px; font-weight: 500; }
+.viro-landing .queue-account small { color: var(--muted); font-size: 8px; }
+.viro-landing .queue-track { display: flex; align-items: center; flex: 1; padding-left: 18px; }
+.viro-landing .queue-track > i { flex: 1; min-width: 10px; border-top: 1px dashed var(--tint); }
+.viro-landing .queue-task { padding: 9px 13px; background: var(--soft); border: 1px solid var(--tint); border-radius: 6px; color: var(--brand); font-size: 10px; white-space: nowrap; }
+.viro-landing .queue-task.filled { background: var(--brand); color: #fff; }
+.viro-landing .queue-summary { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--muted); font-size: 10px; padding: 16px 0 4px; }
+
+@media (max-width: 767px) {
+  .viro-landing .queue-lane { padding: 13px 9px; transform: none; }
+  .viro-landing .queue-account { grid-template-columns: 23px 38px; column-gap: 5px; }
+  .viro-landing .queue-account > span { width: 23px; height: 23px; }
+  .viro-landing .queue-task { font-size: 8px; padding: 9px 7px; }
+  .viro-landing .queue-track { padding-left: 7px; }
+  .viro-landing .queue-summary { font-size: 9px; }
+}

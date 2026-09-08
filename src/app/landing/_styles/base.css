@@ -1,0 +1,43 @@
+.viro-landing {
+  --brand: #0f766e;
+  --brand-light: #2dd4bf;
+  --tint: #cfeae4;
+  --sky: #75c5b3;
+  --soft: #edf7f4;
+  --ink: #171a19;
+  --muted: #66645f;
+  --line: #e1e1dc;
+  color-scheme: light;
+  color: var(--ink);
+  background: #fff;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  min-height: 100dvh;
+  padding: 20px 20px 0;
+  -webkit-font-smoothing: antialiased;
+}
+.viro-landing *, .viro-landing *::before, .viro-landing *::after { box-sizing: border-box; }
+.viro-landing :is(h1,h2,h3,p) { margin: 0; }
+.viro-landing a { color: inherit; text-decoration: none; }
+.viro-landing button { font: inherit; cursor: pointer; }
+.viro-landing :is(a,button,summary):focus-visible { outline: 3px solid var(--brand); outline-offset: 5px; }
+.viro-landing .product-container { width: min(1120px, calc(100% - 80px)); margin-inline: auto; }
+.viro-landing section[id] { scroll-margin-top: 35px; }
+.viro-landing .brand-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--brand); flex-shrink: 0; }
+.viro-landing .product-wordmark { display: flex; align-items: baseline; gap: 3px; font-size: 26px; font-weight: 800; letter-spacing: -1.5px; }
+.viro-landing .product-button { display: inline-flex; align-items: center; justify-content: center; gap: 28px; min-height: 54px; padding: 13px 25px; border-radius: 30px; background: var(--ink); color: #fff; font-weight: 600; transition: background .18s; }
+.viro-landing .product-button:hover { background: var(--brand); }
+.viro-landing .product-button.compact { min-height: 44px; padding: 10px 20px; font-size: 13px; gap: 15px; }
+.viro-landing .product-skip { position: fixed; top: -100px; left: 30px; z-index: 50; padding: 12px; background: #fff; }
+.viro-landing .product-skip:focus { top: 24px; }
+.viro-landing .product-footer { display: flex; align-items: center; gap: 40px; min-height: 150px; font-size: 13px; }
+.viro-landing .product-footer p { color: var(--muted); flex: 1; }
+@media (max-width: 767px) {
+  .viro-landing { padding: 8px 8px 0; }
+  .viro-landing .product-container { width: calc(100% - 36px); margin-inline: auto; }
+  .viro-landing .product-footer { flex-wrap: wrap; gap: 15px; padding-block: 30px; }
+  .viro-landing .product-footer p { flex-basis: 60%; }
+}

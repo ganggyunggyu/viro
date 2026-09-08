@@ -1,0 +1,44 @@
+.viro-landing .product-section-nav { display: flex; justify-content: center; gap: 48px; padding-block: 28px; border-bottom: 1px solid var(--line); }
+.viro-landing .product-section-nav a { padding: 8px 0; font-size: 13px; color: var(--muted); }
+.viro-landing .product-section-nav a:hover { color: var(--brand); }
+.viro-landing .product-intro { padding-block: 110px 65px; }
+.viro-landing .intro-grid { max-width: 770px; margin-inline: auto; text-align: center; }
+.viro-landing h2 { font-size: clamp(30px, 3.4vw, 49px); letter-spacing: -.055em; line-height: 1.28; font-weight: 600; white-space: pre-line; }
+.viro-landing .intro-grid > p { max-width: 620px; margin: 28px auto 0; font-size: 17px; line-height: 1.85; color: var(--muted); }
+.viro-landing .feature-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.viro-landing .product-feature { border-radius: 16px; padding: 45px 40px; background: #f6f7f7; }
+.viro-landing .product-feature:first-child, .viro-landing .product-feature:last-child { background: var(--soft); }
+.viro-landing .product-feature h3 { font-size: 24px; letter-spacing: -.8px; font-weight: 500; margin-bottom: 18px; }
+.viro-landing .product-feature p { max-width: 410px; font-size: 15px; line-height: 1.85; color: var(--muted); }
+.viro-landing .product-faq { display: grid; grid-template-columns: 1fr 1.3fr; gap: 110px; padding-block: 115px; }
+.viro-landing .product-faq h2 { margin-top: 20px; }
+.viro-landing .question-list details { border-top: 1px solid var(--line); }
+.viro-landing .question-list details:last-child { border-bottom: 1px solid var(--line); }
+.viro-landing .question-list summary { list-style: none; cursor: pointer; padding: 25px 0; display: flex; align-items: center; justify-content: space-between; gap: 20px; font-weight: 500; font-size: 15px; }
+.viro-landing .question-list summary::-webkit-details-marker { display: none; }
+.viro-landing .question-list summary > span { color: var(--brand); font-size: 22px; transition: transform .2s; }
+.viro-landing .question-list details[open] summary > span { transform: rotate(45deg); }
+.viro-landing .question-list details p { color: var(--muted); font-size: 14px; line-height: 1.9; padding: 0 25px 25px 0; }
+.viro-landing .product-closing { position: relative; overflow: hidden; text-align: center; width: 100%; padding: 80px 24px 100px; background: var(--sky); border-radius: 24px; isolation: isolate; }
+.viro-landing .product-closing::before { content: ''; position: absolute; inset: 0; z-index: -1; background: url('/images/landing/sky.webp') center 65% / cover; filter: grayscale(1) contrast(1.35); mix-blend-mode: luminosity; opacity: .85; }
+.viro-landing .product-closing h2 { margin: 22px 0 30px; font-size: clamp(34px, 4vw, 56px); }
+.viro-landing .closing-link { display: block; font-size: 12px; color: var(--muted); margin-top: 20px; }
+@media (max-width: 1023px) {
+  .viro-landing .product-feature { padding: 32px 28px; }
+
+  .viro-landing .product-faq { gap: 40px; }
+}
+@media (max-width: 767px) {
+  .viro-landing .product-section-nav { gap: 24px; padding-block: 21px; }
+  .viro-landing .product-section-nav a { font-size: 11px; }
+  .viro-landing .product-intro { padding-block: 75px 40px; }
+  .viro-landing .intro-grid { grid-template-columns: 1fr; gap: 24px; }
+  .viro-landing .intro-grid > p { font-size: 14px; }
+  .viro-landing .feature-section { grid-template-columns: 1fr; gap: 12px; }
+  .viro-landing .product-feature { padding: 30px 24px; }
+  .viro-landing .product-feature h3 { font-size: 21px; }
+  .viro-landing .product-feature p { font-size: 14px; }
+  .viro-landing .product-faq { grid-template-columns: 1fr; gap: 30px; padding-block: 65px; }
+  .viro-landing .question-list summary { font-size: 14px; }
+  .viro-landing .product-closing { padding: 52px 20px 65px; }
+}
