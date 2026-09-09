@@ -177,7 +177,7 @@ MONGODB_URI="mongodb+srv://..." npx tsx scripts/[name].ts  # Atlas
 
 ## NOTES
 
-- 바이로 공개 소개: `src/app/landing/` → `/landing`. 이 경로만 `Providers`의 인증 래퍼를 생략하며 기존 서비스 진입 `/`는 유지한다.
+- 바이로 공개 소개: `src/app/landing/` → `/landing`. `/landing`과 `/landing/`는 `Providers`와 `AuthGuard`에서 같은 공개 경로 판정을 사용하며 사용자 조회·로딩·로그인 이동을 생략한다. 기존 서비스 진입 `/`의 인증은 유지한다.
 - 소개 페이지 단독 검증: `npx tsx --test src/app/landing/landing.test.ts`; 로컬 미리보기는 `NEXT_DIST_DIR=.next-preview node scripts/run-with-project-root.mjs next dev --port 5523`으로 Next만 실행한다.
 - Dev port: **3007** (not default 3000)
 - Bull Board proxy: `/queue/*` → `localhost:3008/*` (next.config.ts rewrites)

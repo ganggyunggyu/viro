@@ -57,6 +57,7 @@ test('공개 접근은 소개 페이지에만 적용하고 서비스 화면의 �
   requireLanding();
   const { isStandaloneLanding } = await import('@/app/public-route');
   assert.equal(isStandaloneLanding('/landing'), true);
+  assert.equal(isStandaloneLanding('/landing/'), true);
   for (const path of ['/', '/manual-post', '/accounts', '/landing-secret', '/landing/admin']) {
     assert.equal(isStandaloneLanding(path), false, path);
   }

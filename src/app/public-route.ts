@@ -1,1 +1,1 @@
-export const isStandaloneLanding = (pathname: string) => pathname === '/landing';
+export { isStandaloneLanding } from '@/shared/config/public-route';

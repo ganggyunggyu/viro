@@ -6,6 +6,7 @@ import { useAtom } from 'jotai';
 import { userAtom, userLoadingAtom, userInitializedAtom } from '@/shared';
 import { getCurrentUser } from './actions';
 import { cn } from '@/shared';
+import { isStandaloneLanding } from '@/shared/config/public-route';
 
 const PUBLIC_PATHS = ['/login'];
 
@@ -20,17 +21,18 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
   const [isLoading, setIsLoading] = useAtom(userLoadingAtom);
   const [isInitialized, setIsInitialized] = useAtom(userInitializedAtom);
 
-  const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+  const isLanding = isStandaloneLanding(pathname);
+  const isPublicPath = isLanding || PUBLIC_PATHS.some((path) => pathname.startsWith(path));
 
   useEffect(() => {
-    if (isInitialized) return;
+    if (isLanding || isInitialized) return;
 
     getCurrentUser().then((u) => {
       setUser(u);
       setIsLoading(false);
       setIsInitialized(true);
     });
-  }, [isInitialized, setUser, setIsLoading, setIsInitialized]);
+  }, [isLanding, isInitialized, setUser, setIsLoading, setIsInitialized]);
 
   useEffect(() => {
     if (!isInitialized || isLoading) return;
@@ -39,6 +41,8 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
       router.replace('/login');
     }
   }, [user, isInitialized, isLoading, isPublicPath, router]);
+
+  if (isLanding) return <React.Fragment>{children}</React.Fragment>;
 
   if (!isInitialized || isLoading) {
     return (
