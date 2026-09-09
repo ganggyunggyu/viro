@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authenticateAgentToken, heartbeatJob, getBearerToken } from '@/shared/lib/agent-broker';
+import { touchManualCommentWorkerHeartbeat } from '@/shared/lib/agent-broker/manual-worker-heartbeat';
 
 export const runtime = 'nodejs';
 
@@ -19,6 +20,7 @@ export const POST = async (request: Request): Promise<Response> => {
   }
 
   const alive = await heartbeatJob(jobId, identity.userId, workerId);
+  if (alive) await touchManualCommentWorkerHeartbeat({ ...identity, workerId });
 
   return NextResponse.json({ ok: alive });
 };

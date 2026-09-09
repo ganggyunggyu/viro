@@ -1,15 +1,11 @@
 import { connectDB } from '@/shared/lib/mongodb';
 import { AgentToken } from '@/shared/models/agent-token';
 import { ManualCommentJob, WorkerHeartbeat } from '@/shared/models';
+import {
+  getManualWorkerHeartbeatPrefix,
+  MANUAL_COMMENT_AGENT_KIND,
+} from '@/shared/lib/agent-broker/manual-worker-heartbeat';
 
-/**
- * 댓글 작업은 브라우저가 필요해서 서버가 아니라 이용자 로컬 워커(데스크톱 Viro 앱)가 처리한다.
- * 워커가 꺼져 있으면 등록한 작업은 그냥 pending으로 쌓이기만 하는데, 화면에는 "대기"로만 보여서
- * 왜 진행이 안 되는지 알 방법이 없었다. 여기서 워커 생존 여부를 판정해 UI에 그대로 노출한다.
- *
- * 에이전트는 claim/heartbeat 등 모든 브로커 호출마다 토큰 인증을 거치고, 그때 AgentToken.lastSeenAt이
- * 갱신된다. 기본 폴링 간격이 15초라 여유를 두고 2분 이내 응답을 "연결됨"으로 본다.
- */
 const ONLINE_WINDOW_MS = 2 * 60_000;
 
 export interface CommentWorkerView {
@@ -31,11 +27,18 @@ export const getCommentWorkerStatus = async (userId: string): Promise<CommentWor
 
   const onlineThreshold = Date.now() - ONLINE_WINDOW_MS;
 
-  const [tokens, localWorkers, pendingCount, runningCount] = await Promise.all([
+  const [tokens, agentWorkers, localWorkers, pendingCount, runningCount] = await Promise.all([
     AgentToken.find({ userId, revoked: { $ne: true } })
-      .select('label lastSeenAt')
+      .select('_id label')
+      .sort({ createdAt: -1 })
+      .lean<Array<{ _id: { toString(): string }; label: string }>>(),
+    WorkerHeartbeat.find({
+      userId,
+      kind: MANUAL_COMMENT_AGENT_KIND,
+    })
+      .select('workerId lastSeenAt')
       .sort({ lastSeenAt: -1 })
-      .lean<Array<{ label: string; lastSeenAt?: Date }>>(),
+      .lean<Array<{ workerId: string; lastSeenAt?: Date }>>(),
     // CLI 워커는 토큰 없이 Mongo에 직접 붙으므로 별도 하트비트로만 확인할 수 있다.
     WorkerHeartbeat.find({
       kind: 'manual-comment',
@@ -55,7 +58,12 @@ export const getCommentWorkerStatus = async (userId: string): Promise<CommentWor
     isOnline: Boolean(lastSeenAt && new Date(lastSeenAt).getTime() >= onlineThreshold),
   });
 
-  const workers = [...tokens.map(toWorkerView), ...localWorkers.map(toWorkerView)].sort(
+  const pairedWorkers = tokens.map(({ _id, label }) => {
+    const prefix = getManualWorkerHeartbeatPrefix(userId, String(_id));
+    const heartbeat = agentWorkers.find(({ workerId }) => workerId.startsWith(prefix));
+    return toWorkerView({ label, lastSeenAt: heartbeat?.lastSeenAt });
+  });
+  const workers = [...pairedWorkers, ...localWorkers.map(toWorkerView)].sort(
     (a, b) => Number(b.isOnline) - Number(a.isOnline),
   );
 
