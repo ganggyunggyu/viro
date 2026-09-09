@@ -10,7 +10,7 @@ const requireLanding = () => {
   assert.ok(existsSync(resolve('src/app/landing/page.tsx')), 'Viro 프로젝트가 /landing 페이지를 제공해야 합니다.');
 };
 
-test('소개 페이지는 자체 서비스로 진입하고 다른 프로젝트는 절대 주소로 연결한다', async () => {
+test('소개 페이지 헤더는 자체 로고와 서비스 진입만 제공한다', async () => {
   requireLanding();
   const { LandingPage } = await import('@/app/landing/_components/landing-page');
   const $ = load(renderToStaticMarkup(createElement(LandingPage)));
@@ -20,11 +20,8 @@ test('소개 페이지는 자체 서비스로 진입하고 다른 프로젝트�
   assert.match($('.hero-actions .product-button').text(), /바이로 사용해보기/);
   assert.equal($('.product-closing .product-button').attr('href'), '/');
   assert.equal($('a[href="#experience"]').length, 1);
-  const links = $('.product-nav a').map((_, element) => $(element).attr('href')).get();
-  assert.deepEqual(links, [
-    'https://21lab-ai-agent.vercel.app/landing/dabut', '/landing',
-    'https://blog-cron-bot-production.up.railway.app/landing',
-  ]);
+  const links = $('.product-header a').map((_, element) => $(element).attr('href')).get();
+  assert.deepEqual(links, ['/landing', '/']);
 });
 
 test('계정 준비부터 진행 확인까지 접근 가능한 세 단계와 FAQ를 제공한다', async () => {

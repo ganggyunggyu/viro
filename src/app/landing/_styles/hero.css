@@ -1,10 +1,6 @@
 .viro-landing .product-canvas { position: relative; border-radius: 28px; background: var(--sky); overflow: clip; isolation: isolate; }
 .viro-landing .product-sky { position: absolute; inset: 0; width: 100%; height: 850px; object-fit: cover; object-position: center bottom; filter: grayscale(1) contrast(1.35); mix-blend-mode: luminosity; opacity: .85; mask-image: linear-gradient(#000 75%, transparent); z-index: -1; pointer-events: none; }
 .viro-landing .product-header { height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 32px; position: relative; z-index: 2; }
-.viro-landing .product-nav { display: flex; gap: 36px; font-size: 14px; }
-.viro-landing .product-nav a { padding-block: 12px; color: var(--muted); transition: color .2s; }
-.viro-landing .product-nav a:hover, .viro-landing .product-nav a[aria-current] { color: var(--ink); }
-.viro-landing .product-nav a[aria-current] { text-decoration: underline; text-underline-offset: 7px; }
 .viro-landing .product-hero { text-align: center; position: relative; padding: 100px 24px 78px; isolation: isolate; }
 .viro-landing .product-eyebrow { display: inline-flex; align-items: center; font-size: 13px; margin-bottom: 25px; color: var(--ink); }
 .viro-landing .product-hero h1 { font-size: clamp(44px, 5.1vw, 76px); font-weight: 500; line-height: 1.18; letter-spacing: -.06em; }
@@ -42,7 +38,6 @@
   .viro-landing .product-header .compact { grid-column: 2; grid-row: 1; }
   .viro-landing .hero-actions { flex-direction: column; gap: 10px; }
   .viro-landing .product-wordmark { font-size: 23px; }
-  .viro-landing .product-nav { grid-column: 1 / -1; grid-row: 2; justify-content: center; gap: 24px; font-size: 12px; }
   .viro-landing .product-hero { padding: 65px 16px 46px; }
   .viro-landing .product-hero h1 { font-size: clamp(30px, 7.6vw, 52px); font-weight: 550; }
   .viro-landing .product-lede { font-size: 13px; white-space: normal; max-width: 300px; }
