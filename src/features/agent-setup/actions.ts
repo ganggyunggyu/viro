@@ -1,7 +1,7 @@
 'use server';
 
 import { connectDB } from '@/shared/lib/mongodb';
-import { AgentToken } from '@/shared/models';
+import { AgentToken, User } from '@/shared/models';
 import { getCurrentUserId } from '@/shared/config/user';
 import { generateAgentToken, hashAgentToken } from '@/shared/lib/agent-broker';
 
@@ -33,6 +33,9 @@ export const issueAgentToken = async (label: string): Promise<IssueAgentTokenRes
   }
 
   await connectDB();
+
+  const legacyUser = await User.exists({ userId, isActive: true, dabutUserId: { $exists: false }, authProvider: { $ne: 'dabut' } });
+  if (!legacyUser) return { success: false, error: '다붓 공통 계정은 Ply에서 다붓 로그인으로 에이전트를 연결하세요.' };
 
   const rawToken = generateAgentToken();
   await AgentToken.create({

@@ -4,6 +4,8 @@ export interface IUser extends Document {
   userId: string;
   loginId: string;
   password: string;
+  dabutUserId?: string;
+  authProvider?: 'legacy' | 'dabut';
   displayName: string;
   isActive: boolean;
   createdAt: Date;
@@ -14,7 +16,9 @@ const UserSchema = new Schema<IUser>(
   {
     userId: { type: String, required: true, unique: true },
     loginId: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, default: '' },
+    dabutUserId: { type: String, unique: true, sparse: true },
+    authProvider: { type: String, enum: ['legacy', 'dabut'], default: 'legacy' },
     displayName: { type: String, required: true },
     isActive: { type: Boolean, default: true },
   },

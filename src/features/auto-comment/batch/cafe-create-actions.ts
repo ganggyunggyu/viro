@@ -55,6 +55,7 @@ export interface CafeCreateActionResult {
 }
 
 export const createCafeAction = async (input: CafeCreateInput): Promise<CafeCreateActionResult> => {
+  const userId = await getCurrentUserId();
   await connectDB();
 
   const createInput = resolveCafeCreateForm(input, CAFE_TOPIC_PRESETS);
@@ -63,7 +64,7 @@ export const createCafeAction = async (input: CafeCreateInput): Promise<CafeCrea
   }
   const preset = CAFE_TOPIC_PRESETS.find(({ key }) => key === input.presetKey)!;
 
-  const account = await Account.findOne({ accountId: input.ownerAccountId }).lean();
+  const account = await Account.findOne({ userId, accountId: input.ownerAccountId, isActive: true }).lean();
   if (!account) {
     return { success: false, error: '계정을 찾을 수 없음: ' + input.ownerAccountId };
   }
@@ -76,7 +77,6 @@ export const createCafeAction = async (input: CafeCreateInput): Promise<CafeCrea
     return { success: false, error: result.error || '카페 생성 실패' };
   }
 
-  const userId = await getCurrentUserId();
   await registerCreatedCafeInDb(
     userId,
     { cafeId: result.cafeId, cafeUrl: result.cafeUrl, name: result.name || input.name },

@@ -29,6 +29,8 @@ user-profile.ts   # Per-user feature flags (keyword prompt profile, viral style)
 
 **Auto userId resolution**: Functions accept optional `userId` param. If omitted, reads from cookie via `getCurrentUserId()`.
 
+**Authentication failure**: `getCurrentUserId()` throws `AuthenticationRequiredError` for absent, invalid, expired, or centrally revoked sessions. Interactive requests never fall back to `default-user`. Batch callers must pass their explicit owner ID; the exported legacy constant does not grant request access.
+
 **Empty array fallback**: On DB error, returns `[]` (accounts) or undefined (single item) — never throws.
 
 **Role-based filtering**: Accounts have `role: 'writer' \| 'commenter'`. Use `getWriterAccounts()` / `getCommenterAccounts()` instead of filtering manually.
