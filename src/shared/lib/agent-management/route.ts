@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { authenticateAgentToken, getBearerToken, type AgentIdentity } from '@/shared/lib/agent-broker';
+import { authenticateAgentToken, getBearerToken, type AgentIdentity } from '@/shared/lib/agent-broker/auth';
 import { AgentManagementError } from '@/shared/lib/agent-management/contract';
 
-export const readManagementBody = async (request: Request): Promise<unknown> => {
+export const readManagementBody = async (request: Request, maxLength = 16_384): Promise<unknown> => {
   const body = await request.text();
-  if (body.length > 16_384) throw new AgentManagementError('요청이 너무 큽니다', 413, 'request_too_large');
+  if (body.length > maxLength) throw new AgentManagementError('요청이 너무 큽니다', 413, 'request_too_large');
   try { return JSON.parse(body); } catch { throw new AgentManagementError('JSON 요청이 올바르지 않습니다'); }
 };
 

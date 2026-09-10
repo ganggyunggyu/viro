@@ -367,7 +367,7 @@ export const writeCommentWithAccount = async (
 
     const errorMessage = await checkErrorPopup(page);
     if (errorMessage) {
-      return { accountId: id, success: false, error: errorMessage };
+      return { accountId: id, success: false, requiresReview: options?.strictVerification, error: errorMessage };
     }
 
     const contentPreview = normalizeText(sanitizedContent).slice(0, 30);

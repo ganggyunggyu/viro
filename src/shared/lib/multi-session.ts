@@ -5,6 +5,8 @@ import { sleep } from '@ganggyunggyu/shared';
 import type { NaverAccount } from './account-manager';
 import { canSolveCaptcha, detectCaptcha, solveCaptchaOnPage } from './captcha-solver';
 import { captureFailureShot } from './debug-capture';
+import { assertBrowserExecutionAllowed } from './browser-execution-guard';
+import { fillLoginInput } from './login-input';
 
 const SESSION_DIR = join(process.cwd(), '.playwright-session');
 const LOGIN_POLL_INTERVAL_MS = 1000;
@@ -217,6 +219,7 @@ const getSessionFile = (accountId: string): string => {
 }
 
 export const getBrowser = async (): Promise<Browser> => {
+  assertBrowserExecutionAllowed();
   if (g.__pwBrowser && g.__pwBrowser.isConnected()) {
     return g.__pwBrowser;
   }
@@ -273,6 +276,7 @@ const isContextAlive = (ctx: BrowserContext): boolean => {
 };
 
 export const getContextForAccount = async (accountId: string): Promise<BrowserContext> => {
+  assertBrowserExecutionAllowed();
   touchAccount(accountId);
 
   const existing = contexts.get(accountId);
@@ -329,6 +333,7 @@ const isClosedError = (error: unknown): boolean => {
 };
 
 export const getPageForAccount = async (accountId: string): Promise<Page> => {
+  assertBrowserExecutionAllowed();
   touchAccount(accountId);
 
   // 브라우저/컨텍스트가 (특히 패키징된 데스크톱 앱에서) launch 직후 죽을 수 있어,
@@ -461,17 +466,6 @@ const waitForLoginCompletion = async (
   }
 
   return !isLoginRedirect(page.url());
-};
-
-const fillLoginInput = async (
-  page: Page,
-  selector: string,
-  value: string,
-): Promise<void> => {
-  const input = page.locator(selector);
-  await input.click({ force: true });
-  await page.keyboard.press('Meta+A');
-  await page.keyboard.type(value, { delay: 50 });
 };
 
 const submitLoginForm = async (page: Page): Promise<void> => {

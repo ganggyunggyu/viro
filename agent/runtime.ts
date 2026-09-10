@@ -1,3 +1,4 @@
+import { createActionClient } from './lib/action-client';
 import { readCafeArticleContent } from '../src/shared/lib/cafe-article-reader';
 import { writeCommentWithAccount } from '../src/shared/lib/naver-cafe-writing/comment-writer';
 import {
@@ -285,6 +286,7 @@ export const runAgentLoop = async (
   const { shouldStop, handleSignals = true } = options;
   const broker = createBrokerClient(config);
   const operations = createOperationClient(config);
+  const actions = createActionClient(config, broker);
   let stopping = false;
 
   const requestStop = (): void => {
@@ -303,6 +305,7 @@ export const runAgentLoop = async (
 
   // Only a running worker sends this heartbeat. Management reads cannot make it appear online.
   const heartbeatTimer = setInterval(() => {
+    void actions.heartbeat().catch(() => console.error('[AGENT ACTIONS] 하트비트 실패'));
     void operations.heartbeat().catch(() => console.error('[AGENT OPERATIONS] 하트비트 실패'));
   }, 30_000);
   heartbeatTimer.unref();
@@ -321,6 +324,7 @@ export const runAgentLoop = async (
           }
           continue;
         }
+        if (await withCaptchaSolver(operations.solveCaptcha, () => actions.processNext())) continue;
         job = await broker.claim();
       } catch (error) {
         // 토큰 인증 실패는 재시도해도 절대 통과하지 못한다. 조용히 계속 폴링하면 앱은 "실행 중"으로

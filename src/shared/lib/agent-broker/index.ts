@@ -1,6 +1,4 @@
-import { createHash, randomBytes } from 'crypto';
 import { connectDB } from '@/shared/lib/mongodb';
-import { AgentToken } from '@/shared/models/agent-token';
 import {
   ManualCommentJob,
   PublishedArticle,
@@ -33,41 +31,7 @@ export { getActiveAccounts, getActiveCommenterAccounts } from './account-pool';
 
 const STALE_CLAIM_MS = 30 * 60_000;
 
-export const hashAgentToken = (rawToken: string): string =>
-  createHash('sha256').update(rawToken).digest('hex');
-
-export const generateAgentToken = (): string => randomBytes(32).toString('hex');
-
-export const getBearerToken = (request: Request): string =>
-  (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '').trim();
-
-export interface AgentIdentity {
-  userId: string;
-  tokenId: string;
-}
-
-export const authenticateAgentToken = async (
-  rawToken: string,
-): Promise<AgentIdentity | null> => {
-  if (!rawToken) {
-    return null;
-  }
-
-  await connectDB();
-
-  const tokenHash = hashAgentToken(rawToken);
-  const doc = await AgentToken.findOneAndUpdate(
-    { tokenHash, revoked: { $ne: true } },
-    { $set: { lastSeenAt: new Date() } },
-    { new: true },
-  ).lean<{ _id: unknown; userId: string } | null>();
-
-  if (!doc) {
-    return null;
-  }
-
-  return { userId: doc.userId, tokenId: String(doc._id) };
-};
+export { hashAgentToken, generateAgentToken, getBearerToken, authenticateAgentToken, type AgentIdentity } from '@/shared/lib/agent-broker/auth';
 
 export const claimJobForUser = async (
   userId: string,

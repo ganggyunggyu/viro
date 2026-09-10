@@ -65,7 +65,7 @@ test('solveCaptchaViaScheduler: 인증 정보가 없으면 부르기 전에 막�
 
   await assert.rejects(
     solveCaptchaViaScheduler({ image: 'x', kind: 'login' }, { environment: {}, fetcher }),
-    /인증 정보 없음/,
+    (error: unknown) => (error as { code: string }).code === 'captcha_service_authentication_required',
   );
   assert.equal(called, false);
 });
@@ -74,12 +74,12 @@ test('solveCaptchaViaScheduler: 오류 응답과 빈 답변을 구분해서 던�
   const failing = (async () => ({ ok: false, status: 502, json: async () => ({}) })) as unknown as typeof fetch;
   await assert.rejects(
     solveCaptchaViaScheduler({ image: 'x', kind: 'login' }, { environment: SIGNING_ENV, fetcher: failing }),
-    /502/,
+    (error: unknown) => (error as { code: string }).code === 'captcha_service_unavailable',
   );
 
   const empty = (async () => ({ ok: true, json: async () => ({ answer: '  ' }) })) as unknown as typeof fetch;
   await assert.rejects(
     solveCaptchaViaScheduler({ image: 'x', kind: 'login' }, { environment: SIGNING_ENV, fetcher: empty }),
-    /빈 답변/,
+    (error: unknown) => (error as { code: string }).code === 'captcha_service_invalid_response',
   );
 });

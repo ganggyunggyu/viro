@@ -1,5 +1,6 @@
 'use server';
 
+import { loginWithCredentials } from '@/shared/lib/agent-management/login-store';
 import { connectDB } from '@/shared/lib/mongodb';
 import { User } from '@/shared/models';
 import { setCurrentUserId, getCurrentUserId } from '@/shared/config/user';
@@ -17,26 +18,8 @@ export interface LoginResult {
 
 export const login = async (loginId: string, password: string): Promise<LoginResult> => {
   try {
-    await connectDB();
-
-    const user = await User.findOne({ loginId, isActive: true });
-
-    if (!user) {
-      return { success: false, error: '존재하지 않는 아이디' };
-    }
-
-    const passwordMatches = isHashedPassword(user.password)
-      ? verifyPassword(password, user.password)
-      : user.password === password;
-
-    if (!passwordMatches) {
-      return { success: false, error: '비밀번호 불일치' };
-    }
-
-    if (!isHashedPassword(user.password)) {
-      user.password = hashPassword(password);
-      await user.save();
-    }
+    const user = await loginWithCredentials(loginId, password);
+    if (!user) return { success: false, error: '아이디 또는 비밀번호를 확인하세요' };
 
     await setCurrentUserId(user.userId);
 
@@ -48,8 +31,8 @@ export const login = async (loginId: string, password: string): Promise<LoginRes
         displayName: user.displayName,
       },
     };
-  } catch (error) {
-    console.error('[AUTH] 로그인 실패:', error);
+  } catch {
+    console.error('[AUTH] 로그인 실패');
     return { success: false, error: '로그인 처리 중 오류 발생' };
   }
 };

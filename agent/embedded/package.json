@@ -1,0 +1,27 @@
+{
+  "name": "@viro/embedded-worker",
+  "version": "0.2.3",
+  "private": true,
+  "description": "Owner-scoped Viro browser executor for Ply child processes",
+  "main": "index.cjs",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.cjs",
+      "default": "./index.cjs"
+    }
+  },
+  "files": [
+    "index.cjs",
+    "index.d.ts",
+    "types.d.ts",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "playwright": "npm:rebrowser-playwright@1.52.0"
+  }
+}

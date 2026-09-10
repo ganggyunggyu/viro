@@ -11,6 +11,7 @@ export interface IAgentToken extends Document {
   label: string;
   revoked: boolean;
   lastSeenAt?: Date;
+  expiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +23,7 @@ const AgentTokenSchema = new Schema<IAgentToken>(
     label: { type: String, required: true },
     revoked: { type: Boolean, default: false },
     lastSeenAt: { type: Date },
+    expiresAt: { type: Date },
   },
   { timestamps: true },
 );

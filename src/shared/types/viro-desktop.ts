@@ -1,3 +1,5 @@
+import type { OperationErrorCode } from '@/shared/lib/agent-management/operation-failure';
+
 export interface ViroDesktopConfig {
   brokerUrl: string;
   token: string;
@@ -95,6 +97,8 @@ export interface ViroDesktopActionResponse<T = unknown> {
   success: boolean;
   result?: T;
   error?: string;
+  errorCode?: OperationErrorCode;
+  requiresReview?: boolean;
 }
 
 export interface ViroDesktopApi {

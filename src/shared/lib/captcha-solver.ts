@@ -1,3 +1,4 @@
+import { isCaptchaServiceError } from './captcha-service-error';
 import { Page } from 'playwright';
 import { createHash } from 'crypto';
 import { captureFailureShot } from './debug-capture';
@@ -134,6 +135,7 @@ export const solveCaptchaOnPage = async (
         return { solved: true, attempts: attempt };
       }
     } catch (err) {
+      if (isCaptchaServiceError(err)) return { solved: false, attempts: attempt, error: err.message };
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[CAPTCHA] ${accountId} 풀이 에러 (시도 ${attempt}): ${msg}`);
       await captureFailureShot(page, {

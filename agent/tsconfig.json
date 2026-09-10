@@ -3,15 +3,18 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "lib": ["ES2022", "DOM"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@/*": ["../src/*"]
+    }
   },
-  "//": "lib 만 격리 타입체크. runtime.ts/cli.ts 는 ../src 프리미티브를 재사용하는 tsx 실행 진입점(scripts 와 동일 패턴)이라 여기서 제외한다.",
+  "//": "lib 진입점과 연결된 agent/src 의존성을 타입체크한다. runtime.ts/cli.ts 는 tsx 실행 진입점이라 직접 포함하지 않는다.",
   "include": ["lib/**/*.ts"]
 }

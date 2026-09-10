@@ -1,3 +1,5 @@
+import { CaptchaServiceError, isCaptchaServiceError } from './captcha-service-error';
+import { requestCaptchaAnswer } from './captcha-http';
 /**
  * 캡차 풀이는 스케쥴러(21lab-scheduler)로 통일한다.
  *
@@ -69,28 +71,15 @@ export const solveCaptchaViaScheduler = async (
   options: { environment?: CaptchaEnvironment; fetcher?: typeof fetch } = {},
 ): Promise<string> => {
   const delegated = scopedSolver.getStore();
-  if (delegated) return delegated({ image, kind, question });
+  if (delegated) {
+    try { return await delegated({ image, kind, question }); }
+    catch (error) {
+      if (isCaptchaServiceError(error)) throw error;
+      const unauthorized = error && typeof error === 'object' && 'code' in error && ['authentication_required', 'execution_uncertain'].includes(String(error.code));
+      throw new CaptchaServiceError(unauthorized ? 'captcha_service_authentication_required' : 'captcha_service_unavailable');
+    }
+  }
   const { environment = process.env as CaptchaEnvironment, fetcher = fetch } = options;
 
-  const token = resolveCaptchaToken(environment);
-  if (!token) {
-    throw new Error('캡차 서버 인증 정보 없음 (CAPTCHA_API_TOKEN 또는 JWT_SECRET+CAPTCHA_OWNER_ID)');
-  }
-
-  const response = await fetcher(`${resolveCaptchaApiUrl(environment)}/api/captcha/solve`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-    body: JSON.stringify({ image, kind, question }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`캡차 서버 오류 (${response.status})`);
-  }
-
-  const data = (await response.json()) as { answer?: unknown };
-  const answer = typeof data.answer === 'string' ? data.answer.trim() : '';
-  if (!answer) {
-    throw new Error('캡차 서버가 빈 답변을 반환했습니다');
-  }
-  return answer;
+  return requestCaptchaAnswer(resolveCaptchaApiUrl(environment), resolveCaptchaToken(environment), { image, kind, question }, fetcher);
 };

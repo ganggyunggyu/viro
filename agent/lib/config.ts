@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { homedir } from 'os';
 import { join } from 'path';
 
@@ -19,15 +20,19 @@ export const getAgentHomeDir = (): string =>
   process.env.VIRO_AGENT_HOME || join(homedir(), '.viro-agent');
 
 export const loadAgentConfig = (): AgentConfig => {
-  const brokerUrl = (process.env.BROKER_URL || '').replace(/\/+$/, '');
-  const token = process.env.AGENT_TOKEN || '';
+  let stored: { brokerUrl?: string; token?: string } = {};
+  try { stored = JSON.parse(readFileSync(join(getAgentHomeDir(), 'config.json'), 'utf8')); } catch { /* 로그인 전에는 저장 파일이 없다. */ }
+  // 주소를 덮어쓸 때 이전 서버의 인증정보를 다른 서버로 보내지 않는다.
+  const environmentConfigured = Boolean(process.env.BROKER_URL || process.env.AGENT_TOKEN);
+  const brokerUrl = (environmentConfigured ? process.env.BROKER_URL || '' : stored.brokerUrl || '').replace(/\/+$/, '');
+  const token = environmentConfigured ? process.env.AGENT_TOKEN || '' : stored.token || '';
 
   if (!brokerUrl) {
-    throw new Error('BROKER_URL 환경변수가 필요합니다 (예: https://cafe-bot-two.vercel.app)');
+    throw new Error('먼저 Viro 앱 또는 npm run agent:login으로 로그인하세요.');
   }
 
   if (!token) {
-    throw new Error('AGENT_TOKEN 환경변수가 필요합니다 (웹에서 발급한 페어링 토큰)');
+    throw new Error('저장된 로그인 정보가 없습니다. 다시 로그인하세요.');
   }
 
   return {

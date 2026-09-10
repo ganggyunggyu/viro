@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { isOperationErrorCode, safeOperationFailure, type OperationErrorCode } from '@/shared/lib/agent-management/operation-failure';
 
 export class AgentManagementError extends Error {
   constructor(message: string, public status = 400, public code = 'invalid_request') {
@@ -83,8 +84,10 @@ export interface AgentOperationResult {
   commentId?: string;
   membershipStatus?: 'joined' | 'alreadyMember' | 'pending' | 'failed';
   error?: string;
+  errorCode?: OperationErrorCode;
 }
 export interface AgentOperationView extends AgentOperationInput {
+  executionTarget?: 'scheduler';
   id: string;
   status: AgentOperationStatus;
   result?: AgentOperationResult;
@@ -127,9 +130,10 @@ export const parseOperationId = (value: unknown): string => {
 };
 
 export const parseOperationResult = (input: unknown): AgentOperationResult => {
-  const body = objectBody(input, ['success', 'requiresReview', 'commentId', 'membershipStatus', 'error']);
+  const body = objectBody(input, ['success', 'requiresReview', 'commentId', 'membershipStatus', 'error', 'errorCode']);
   if (typeof body.success !== 'boolean') throw new AgentManagementError('success 값이 올바르지 않습니다');
   if (body.requiresReview !== undefined && (typeof body.requiresReview !== 'boolean' || (body.requiresReview && body.success))) throw new AgentManagementError('requiresReview 값이 올바르지 않습니다');
+  if (body.errorCode !== undefined && (!isOperationErrorCode(body.errorCode) || body.success)) throw new AgentManagementError('errorCode 값이 올바르지 않습니다');
   if (body.membershipStatus !== undefined && !['joined', 'alreadyMember', 'pending', 'failed'].includes(String(body.membershipStatus))) {
     throw new AgentManagementError('membershipStatus 값이 올바르지 않습니다');
   }
@@ -138,6 +142,6 @@ export const parseOperationResult = (input: unknown): AgentOperationResult => {
     ...(body.requiresReview === true ? { requiresReview: true } : {}),
     ...(body.commentId !== undefined ? { commentId: numericId(body.commentId, 'commentId') } : {}),
     ...(body.membershipStatus !== undefined ? { membershipStatus: body.membershipStatus as AgentOperationResult['membershipStatus'] } : {}),
-    ...(body.error !== undefined ? { error: textField(body.error, 'error', 500) } : {}),
+    ...(body.error !== undefined || body.errorCode !== undefined ? safeOperationFailure(body.error !== undefined ? textField(body.error, 'error', 500) : undefined, body.errorCode, body.requiresReview === true) : {}),
   };
 };

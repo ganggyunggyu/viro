@@ -1,3 +1,4 @@
+import { isCaptchaServiceError } from '../captcha-service-error';
 import type { Page } from 'playwright';
 
 export interface NaverCafeTarget {
@@ -228,6 +229,7 @@ export const solveCafeJoinCaptchaOnPage = async (
       await clickFirstVisible(page, CAFE_JOIN_CAPTCHA_REFRESH_SELECTOR);
       await page.waitForTimeout(1500);
     } catch (error) {
+      if (isCaptchaServiceError(error)) return { solved: false, attempts: attempt, error: error.message };
       const message = error instanceof Error ? error.message : String(error);
       console.log(`[${logPrefix}] cafe join captcha failed attempt=${attempt}: ${message}`);
       await clickFirstVisible(page, CAFE_JOIN_CAPTCHA_REFRESH_SELECTOR).catch(() => false);

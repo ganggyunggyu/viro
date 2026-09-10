@@ -1,15 +1,20 @@
+import { createSchedulerDispatch } from '@/shared/lib/agent-scheduler/outbox';
+import { dispatchSchedulerTask } from '@/shared/lib/agent-scheduler/outbox-store';
 import { connectDB } from '@/shared/lib/mongodb';
 import { Account, Cafe, AgentOperation, WorkerHeartbeat, touchWorkerHeartbeat, type IAgentOperation } from '@/shared/models';
 import { AgentManagementError, parseOperation, parseOperationId, type AgentOperationResult, type AgentOperationView } from '@/shared/lib/agent-management/contract';
 import { enqueueIdempotentOperation } from '@/shared/lib/agent-management/operation-store';
+import { claimPendingTask, type TargetedClaim } from '@/shared/lib/agent-management/targeted-claim';
+import { safeOperationFailure } from '@/shared/lib/agent-management/operation-failure';
 
 const WORKER_KIND = 'agent-operations';
 const CLAIM_TIMEOUT_MS = 30 * 60_000;
 
 export const toOperationView = (doc: IAgentOperation): AgentOperationView => ({
   id: String(doc._id), type: doc.type, accountId: doc.accountId, cafeId: doc.cafeId,
-  articleId: doc.articleId, content: doc.content, nickname: doc.nickname, status: doc.status,
-  result: doc.result ? { success: doc.result.success, requiresReview: doc.result.requiresReview, commentId: doc.result.commentId, membershipStatus: doc.result.membershipStatus, error: doc.result.error } : undefined,
+  articleId: doc.articleId, content: doc.content, nickname: doc.nickname, status: doc.status, executionTarget: doc.executionTarget,
+  result: doc.result ? { success: doc.result.success, requiresReview: doc.result.requiresReview, commentId: doc.result.commentId, membershipStatus: doc.result.membershipStatus,
+    ...(doc.result.error !== undefined || doc.result.errorCode !== undefined ? safeOperationFailure(doc.result.error, doc.result.errorCode, doc.result.requiresReview === true) : {}) } : undefined,
   createdAt: new Date(doc.createdAt).toISOString(), updatedAt: new Date(doc.updatedAt).toISOString(),
 });
 
@@ -31,10 +36,11 @@ export const enqueueAgentOperation = async (userId: string, key: string | null, 
         Cafe.exists({ userId: owner, cafeId: operation.cafeId, isActive: true }),
       ]);
       if (!account || !cafe) throw new AgentManagementError('등록된 계정 또는 카페를 찾을 수 없습니다', 404, 'resource_not_found');
-      const doc = await AgentOperation.create({ _id: id, userId: owner, fingerprint, ...operation });
+      const doc = await AgentOperation.create({ _id: id, userId: owner, fingerprint, ...operation, ...createSchedulerDispatch() });
       return doc.toObject();
     },
   }, userId, key, input);
+  if (!result.replayed) await dispatchSchedulerTask('operation', result.operation);
   return { operation: toOperationView(result.operation), replayed: result.replayed };
 };
 
@@ -68,12 +74,14 @@ export const operationWorkerOnline = async (userId: string): Promise<boolean> =>
   return Boolean(await WorkerHeartbeat.exists({ userId, kind: WORKER_KIND, lastSeenAt: { $gte: new Date(Date.now() - 120_000) } }));
 };
 
-export const claimAgentOperation = async (userId: string, tokenId: string, workerId: string) => {
-  await touchOperationWorker(userId, tokenId, workerId);
-  await markUncertainOperations(userId);
-  const operation = await AgentOperation.findOneAndUpdate({ userId, status: 'pending' }, {
-    $set: { status: 'running', claimedAt: new Date(), claimedBy: workerKey(userId, tokenId, workerId) },
-  }, { sort: { createdAt: 1 }, new: true }).lean<IAgentOperation>();
+const claimOperation = async (userId: string, tokenId: string, workerId: string, target?: TargetedClaim) => {
+  const operation = await claimPendingTask({
+    prepare: async () => {
+      await touchOperationWorker(userId, tokenId, workerId);
+      await markUncertainOperations(userId);
+    },
+    claim: async (filter, update, options) => AgentOperation.findOneAndUpdate(filter, update, options).lean<IAgentOperation>(),
+  }, userId, workerKey(userId, tokenId, workerId), target);
   if (!operation) return null;
   const [account, cafe] = await Promise.all([
     Account.findOne({ userId, accountId: operation.accountId, isActive: true }).select('accountId password nickname').lean(),
@@ -86,6 +94,12 @@ export const claimAgentOperation = async (userId: string, tokenId: string, worke
   // This endpoint is worker-only; it is intentionally absent from model capability discovery.
   return { operation: toOperationView(operation), account: { accountId: account.accountId, password: account.password, nickname: account.nickname }, cafe: { cafeId: cafe.cafeId, cafeUrl: cafe.cafeUrl, name: cafe.name } };
 };
+
+export const claimAgentOperation = async (userId: string, tokenId: string, workerId: string) =>
+  claimOperation(userId, tokenId, workerId);
+
+export const claimAgentOperationById = async (userId: string, tokenId: string, workerId: string, operationId: unknown) =>
+  claimOperation(userId, tokenId, workerId, { kind: 'operation', id: operationId });
 
 export const heartbeatAgentOperation = async (userId: string, tokenId: string, workerId: string, operationId?: string): Promise<boolean> => {
   await touchOperationWorker(userId, tokenId, workerId);
