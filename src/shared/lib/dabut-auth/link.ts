@@ -5,6 +5,12 @@ const ensureActive = (user: LinkedUser): LinkedUser => {
   if (!user.isActive) throw authError(403, 'account_inactive', '비활성화된 계정입니다.');
   return user;
 };
+const retireLinked = async (store: IdentityStore, user: LinkedUser, dabutUserId: string): Promise<LinkedUser> => {
+  ensureActive(user);
+  const retired = await store.link(user.userId, dabutUserId);
+  if (!retired) throw conflict();
+  return ensureActive(retired);
+};
 
 export const linkDabutIdentity = async (
   store: IdentityStore, identity: DabutIdentity, input: LinkInput,
@@ -16,7 +22,7 @@ export const linkDabutIdentity = async (
   const linked = await store.findLinked(identity.user.id);
   if (linked) {
     if (legacyLoginId && linked.loginId !== legacyLoginId.trim()) throw conflict();
-    return ensureActive(linked);
+    return retireLinked(store, linked, identity.user.id);
   }
   if (legacyLoginId && legacyPassword) {
     const existing = await store.findLogin(legacyLoginId.trim());
@@ -36,7 +42,7 @@ export const linkDabutIdentity = async (
   } catch (error) {
     if (typeof error !== 'object' || error === null || !('code' in error) || error.code !== 11000) throw error;
     const existing = await store.findLinked(identity.user.id);
-    if (existing) return ensureActive(existing);
+    if (existing) return retireLinked(store, existing, identity.user.id);
     throw conflict();
   }
 };

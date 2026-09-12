@@ -1,6 +1,7 @@
 'use server';
 
 import { connectDB } from '@/shared/lib/mongodb';
+import { requireServiceAdmin } from '@/shared/config/admin';
 import {
   getQueueSettings,
   updateQueueSettings,
@@ -26,6 +27,7 @@ export interface QueueSettingsData {
 }
 
 export const getSettingsAction = async (): Promise<QueueSettingsData> => {
+  await requireServiceAdmin();
   await connectDB();
   const settings = await getQueueSettings();
 
@@ -38,6 +40,7 @@ export const getSettingsAction = async (): Promise<QueueSettingsData> => {
 };
 
 export const updateSettingsAction = async (data: Partial<QueueSettingsData>): Promise<QueueSettingsData> => {
+  await requireServiceAdmin();
   await connectDB();
   const updated = await updateQueueSettings(data);
 
@@ -50,6 +53,7 @@ export const updateSettingsAction = async (data: Partial<QueueSettingsData>): Pr
 };
 
 export const resetSettingsAction = async (): Promise<QueueSettingsData> => {
+  await requireServiceAdmin();
   await connectDB();
   const updated = await updateQueueSettings(DEFAULT_QUEUE_SETTINGS);
 

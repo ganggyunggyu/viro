@@ -41,6 +41,8 @@ test('HTTP connector returns the existing userId and never exposes stored accoun
   isolateDb(context);
   context.mock.method(dabutClient, 'verify', async () => identity);
   context.mock.method(User, 'findOne', () => ({ lean: async () => ({ userId: 'existing-owner', loginId: 'name', displayName: '이름', dabutUserId: 'central', isActive: true, password: 'must-not-return' }) }));
+  context.mock.method(User, 'findOneAndUpdate', () => ({ lean: async () => ({ userId: 'existing-owner', loginId: 'name', displayName: '이름', dabutUserId: 'central', isActive: true }) }));
+  context.mock.method(AgentToken, 'updateMany', async () => ({ modifiedCount: 0 }));
   const metadata = context.mock.method(AgentToken, 'findOneAndUpdate', async () => ({}));
   const response = await POST(new Request('https://viro.example/api/auth/dabut', { method: 'POST', body: JSON.stringify({ token: 'ds1_synthetic' }) }));
   assert.equal(response.status, 200);

@@ -185,6 +185,7 @@ MONGODB_URI="mongodb+srv://..." npx tsx scripts/[name].ts  # Atlas
 - `USE_STATIC_ACCOUNTS = false` in account-manager.ts (dynamic mode)
 - Auth: cookie-based userId (NOT next-auth despite dependency)
 - 공통 회원으로 연결된 사용자는 `ds1_` 중앙 검증 세션을 사용한다. 기존 비밀번호 로그인과 독립된 web/pairing 토큰 발급·검증은 미연결 legacy 회원만 허용한다. 계정 연결용 비밀번호 확인은 별도 검증 함수로 분리한다.
+- 연결 성공 시 기존 `userId`를 보존하고 로컬 회원 비밀번호를 제거하며 독립 세션을 폐기한다. 기존 연결 정리는 `scripts/retire-linked-viro-credentials.ts`의 명시적 회원 ID 쌍과 기본 dry-run을 사용한다. 계정 API 키 actions는 owner 범위, 전역 큐 설정 actions는 다붓 바이로 서비스 admin 권한을 확인한다. 상세: `docs/account-identity-retirement.md`.
 - Redis DB: index 1 (`redis://localhost:6379/1`)
 - Worker concurrency: 1 per account task queue, 3 for generate queue
 - Worker lock: 10min duration, 30s renewal, 2min stalled check
